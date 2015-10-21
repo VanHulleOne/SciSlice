@@ -24,6 +24,9 @@ tempShape1 = [[[]]]
 
 def distance(first, second):
     return math.sqrt((first[X] - second[X])**2 + (first[Y] - second[Y])**2)
+    
+def squareDistance(first, second):
+    return ((first[X] - second[X])**2 + (first[Y] - second[Y])**2)
 
 def calcIncludedAngle(start, end, direction):
     t = end - start
@@ -335,8 +338,8 @@ def trimBackground(background, outline):
             value, point = segmentsIntersect(line[0], line[1], outline[i], outline[i+1])
             if(value == 1):
                 newLines[offset].append(point)
-                offset += 1
-                newLines.append([point])
+#                offset += 1
+#                newLines.append([point])
         newLines[offset].append(line[1])
         offset += 1
     newLines.pop(0)
@@ -344,25 +347,43 @@ def trimBackground(background, outline):
 #        print line
         
     finalLines = [[]]
-#TODO: Sort line then check midpoint then add to finalLines[[]]
-    for line in newLines:
-        if(isInside(getMidPoint(line), outline)):
-            finalLines.append(line)
+  
+    for lineSet in newLines:
+        lineSet = sorted(lineSet, key = operator.itemgetter(0,1))        
+        for i in range(len(lineSet)-1):
+            line = [lineSet[i], lineSet[i+1]]
+            if(isInside(getMidPoint(line), outline)):
+                finalLines.append(line)
     finalLines.pop(0)    
     return finalLines
 
+#TODO: Doesn't always pick the closest next path
 def linesToPath(lineSet):
-    reverse = False
-    path = [[]]
-    for line in lineSet:
-        if(reverse):
-            path.append(line[1])
-            path.append(line[0])
-        else:
-            path.append(line[0])
-            path.append(line[1])
-        reverse = not reverse
-    path.pop(0)
+    Start, End = 0, 1
+    path = [lineSet[0][Start], lineSet[0][End]]
+    lineSet.pop(0)
+    while(len(lineSet) != 0):
+        current = path[-1]
+        holdNext = lineSet[0][Start]
+        leastSqDistance = squareDistance(current, holdNext)
+        pointIsEnd = False
+        storedIndex = 0
+        for i in range(len(lineSet)):
+            tempSqDistance = squareDistance(current, lineSet[i][Start])
+            if(tempSqDistance < leastSqDistance):
+                pointIsEnd = False
+                leastSqDistance = tempSqDistance
+                holdNext = lineSet[i][Start]
+                storedIndex = i
+            tempSqDistance = squareDistance(current, lineSet[i][End])
+            if(tempSqDistance < leastSqDistance):
+                pointIsEnd = True
+                leastSqDistance = tempSqDistance
+                holdNext = lineSet[i][End]
+                storedIndex = i
+        path.append(holdNext)
+        path.append(lineSet[storedIndex][not pointIsEnd])
+        lineSet.pop(storedIndex)            
     return path
 
     
@@ -374,7 +395,7 @@ dogBone.extend(mirror(dogBone, Y))
 dogBone.extend(mirror(dogBone, X))
 
 dogBone = removeDuplicates(dogBone)
-dogBone = translate(dogBone, 120, 60)
+#dogBone = translate(dogBone, 120, 60)
 
 
 #print dogBone
@@ -395,12 +416,13 @@ ZStep = 0.4
 ZHeight = 3.201
 extrusionRate = 0.017*1.75 #mm of extrusion per mm of XY travel
 travelSpeed = 2000 #mm per min
+maxFeedStep = 5.0
 
 
 stepOver = beadWidth+airGap
 numZSteps = int(ZHeight/ZStep)
 
-background = setOfLines(stepOver, math.pi/2, dogBone)
+background = setOfLines(stepOver, math.pi/1, dogBone)
 
 #list1 = [[1,2], [2,1],[5,6], [2,3]]
 
