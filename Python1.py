@@ -447,6 +447,8 @@ f.write('M30\n')
 f.close()
 print 'Done writing File.'  
 
+#Oh this sure is confusing GIT
+
 """
 for loop in fullPath:
     f.write('(Loop Number {:.0f})\n'.format(loopNumber))
