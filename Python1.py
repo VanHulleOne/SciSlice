@@ -27,13 +27,13 @@ fifferShape = [[0.0,0.0],[10.0,0.0],[18.1212,10.0],[22.9353,20.0],[26.1426,30.0]
 beadWidth = 2.50
 airGap = 0.0
 ZStep = 2.0
-ZHeight = 20.0
+ZHeight = 2.0
 extrusionRate = 0.017*1.75 #mm of extrusion per mm of XY travel
 travelSpeed = 2000 #mm per min
 maxFeedStep = 5.0
 slopeOverX = 0.728
 slopeOverY = 0
-backGroundAngle = math.pi/2.0 
+backgroundAngle = math.pi/1.0 
 
 
 tempShape1 = [[[]]]
