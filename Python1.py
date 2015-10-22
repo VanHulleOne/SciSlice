@@ -20,6 +20,22 @@ CENTER = 3
 INSIDE = 1
 OUTSIDE = 0
 
+fifferShape = [[0.0,0.0],[10.0,0.0],[18.1212,10.0],[22.9353,20.0],[26.1426,30.0],
+               [28.292,40.0],[29.6285,50.0],[30.2716,60.0],[30.2716,85.0],
+                [25.7716,85.0]]
+
+beadWidth = 2.50
+airGap = 0.0
+ZStep = 2.0
+ZHeight = 20.0
+extrusionRate = 0.017*1.75 #mm of extrusion per mm of XY travel
+travelSpeed = 2000 #mm per min
+maxFeedStep = 5.0
+slopeOverX = 0.728
+slopeOverY = 0
+backGroundAngle = math.pi/2.0 
+
+
 tempShape1 = [[[]]]
 
 def distance(first, second):
@@ -325,6 +341,12 @@ def getMidPoint(line):
     x = (line[0][X] - line[1][X])/2.0 + line[1][X]
     y = (line[0][Y] - line[1][Y])/2.0 + line[1][Y]
     return ([x, y])
+    
+def closeShape(shape):
+    if(shape[0][X] != shape[-1][X] or shape[0][Y] != shape[-1][Y]):
+        shape.append(shape[0])
+        return shape
+    return shape
 
 #create a multi point line, start, end, intersect point
 #then sort by XY, then create seperate line segments, then check if in middle
@@ -390,46 +412,40 @@ def linesToPath(lineSet):
 
     
 
-dogBone = [[82.5, 0], [82.5, 9.5], [49.642, 9.5]]
-dogBone.extend(arcToLineList(arc1))
-dogBone.append([0,6.5])
-dogBone.extend(mirror(dogBone, Y))
-dogBone.extend(mirror(dogBone, X))
+#dogBone = [[82.5, 0], [82.5, 9.5], [49.642, 9.5]]
+#dogBone.extend(arcToLineList(arc1))
+#dogBone.append([0,6.5])
+#dogBone.extend(mirror(dogBone, Y))
+#dogBone.extend(mirror(dogBone, X))
 
-dogBone = removeDuplicates(dogBone)
+#dogBone = removeDuplicates(dogBone)
 #dogBone = translate(dogBone, 120, 60)
 
-
-#print dogBone
-#for c in dogBone:
-#    print'X{:.3f} Y{:.3f}'.format(c[X],c[Y])
-
-fullPath = [[[]]]
-fullPath[0] = dogBone
+fifferShape = closeShape(fifferShape)
+    
+#fullPath = [[[]]]
+#fullPath[0] = fifferShape
 
 #numOffsets = 18
 
-beadWidth = 0.501
+beadWidth = 2.50
 airGap = 0.0
-ZStep = 0.4
-ZHeight = 3.201
+ZStep = 2.0
+ZHeight = 20.0
 extrusionRate = 0.017*1.75 #mm of extrusion per mm of XY travel
 travelSpeed = 2000 #mm per min
 maxFeedStep = 5.0
+slopeOverX = 0.728
+slopeOverY = 0
+
 
 
 stepOver = beadWidth+airGap
 numZSteps = int(ZHeight/ZStep)
 
-background = setOfLines(stepOver, math.pi/2, dogBone)
+background = setOfLines(stepOver, backgroundAngle, fifferShape)
 
-#list1 = [[1,2], [2,1],[5,6], [2,3]]
-
-#list1 = sorted(list1, key = operator.itemgetter(0,1))
-
-#print list1
-
-background = trimBackground(background, dogBone)
+background = trimBackground(background, fifferShape)
 
 #for line in fillPattern:
 #    for point in line:
@@ -438,9 +454,6 @@ background = trimBackground(background, dogBone)
 pathPoints = linesToPath(background)
 
 #pathPoints.reverse()
-
-#for point in pathPoints:
-#    print '{:.3f}\t{:.3f}'.format(point[X],point[Y])
               
 f = open('PathFile2.txt', 'w')
 f.write('G90 G21\n')
@@ -452,11 +465,11 @@ for level in range(1, numZSteps+1):
     f.write(';T{:.0f}\n'.format(level))
     f.write(';M6\n')
     f.write('G01 Z{:.3f} F{:.0f}\n'.format((level*ZStep+10), travelSpeed))
-    f.write('G00 X{:.3f} Y{:.3f}\n'.format(pathPoints[0][X], pathPoints[0][Y]))
+    f.write('G00 X{:.3f} Y{:.3f}\n'.format(pathPoints[0][X]+(level-1)*slopeOverX, pathPoints[0][Y]+(level-1)*slopeOverY))
     f.write('G01 Z{:.3f} F{:.0f} E{:.3f}\n'.format((level*ZStep), (travelSpeed/2), totalExtrusion))
     
     for i in range(len(pathPoints)-1):
-        f.write('G01 X{:.3f} Y{:.3f} '.format(pathPoints[i+1][X], pathPoints[i+1][Y]))
+        f.write('G01 X{:.3f} Y{:.3f} '.format(pathPoints[i+1][X]+(level-1)*slopeOverX, pathPoints[i+1][Y]+(level-1)*slopeOverY))
         f.write('F{:.0f} '.format(travelSpeed))
         extrusionAmount = extrusionRate * distance(pathPoints[i], pathPoints[i+1])
         totalExtrusion += extrusionAmount
