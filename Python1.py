@@ -422,23 +422,6 @@ def linesToPath(lineSet):
 #dogBone = translate(dogBone, 120, 60)
 
 fifferShape = closeShape(fifferShape)
-    
-#fullPath = [[[]]]
-#fullPath[0] = fifferShape
-
-#numOffsets = 18
-
-beadWidth = 2.50
-airGap = 0.0
-ZStep = 2.0
-ZHeight = 20.0
-extrusionRate = 0.017*1.75 #mm of extrusion per mm of XY travel
-travelSpeed = 2000 #mm per min
-maxFeedStep = 5.0
-slopeOverX = 0.728
-slopeOverY = 0
-
-
 
 stepOver = beadWidth+airGap
 numZSteps = int(ZHeight/ZStep)
