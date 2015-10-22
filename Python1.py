@@ -357,7 +357,9 @@ def trimBackground(background, outline):
     finalLines.pop(0)    
     return finalLines
 
-#TODO: Doesn't always pick the closest next path
+#TODO: Currently picks the next closest point, for some shpares this might
+#       not be the best strategy, should print so that a new bead is always next
+#       to an exhisting bead
 def linesToPath(lineSet):
     Start, End = 0, 1
     path = [lineSet[0][Start], lineSet[0][End]]
@@ -402,9 +404,6 @@ dogBone = removeDuplicates(dogBone)
 #for c in dogBone:
 #    print'X{:.3f} Y{:.3f}'.format(c[X],c[Y])
 
-#print segmentsIntersect([1,1], [3,3], [4,2], [3,3])
-
-
 fullPath = [[[]]]
 fullPath[0] = dogBone
 
@@ -422,7 +421,7 @@ maxFeedStep = 5.0
 stepOver = beadWidth+airGap
 numZSteps = int(ZHeight/ZStep)
 
-background = setOfLines(stepOver, math.pi/1, dogBone)
+background = setOfLines(stepOver, math.pi/2, dogBone)
 
 #list1 = [[1,2], [2,1],[5,6], [2,3]]
 
@@ -438,7 +437,7 @@ background = trimBackground(background, dogBone)
         
 pathPoints = linesToPath(background)
 
-pathPoints.reverse()
+#pathPoints.reverse()
 
 #for point in pathPoints:
 #    print '{:.3f}\t{:.3f}'.format(point[X],point[Y])
@@ -468,10 +467,6 @@ for level in range(1, numZSteps+1):
 f.write('M30\n')
 f.close()
 print 'Done writing File.'  
-
-#Oh this sure is confusing GIT
-
-#Well, have to add another comment
 
 """
 for loop in fullPath:
