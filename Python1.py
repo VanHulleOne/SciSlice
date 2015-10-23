@@ -490,6 +490,9 @@ print 'Done writing File.'
 def testMethod1(instuff):
     return instuff+1
 
+def testMethod2(instuff):
+    return instuff + 2
+
 """
 for loop in fullPath:
     f.write('(Loop Number {:.0f})\n'.format(loopNumber))
