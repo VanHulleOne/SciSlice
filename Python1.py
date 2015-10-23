@@ -25,8 +25,8 @@ OUTSIDE = 0
 #                [25.7716,85.0]]
 
 outputFileName = 'test1.gcode' #the name of the file you want output. git will ignore all .gcode unless they start with SAVE
-start_Gcode_FileName = 'Gcode_Start_Fiffer.txt' #the file name for the starting gcode
-end_Gcode_FileName = 'Gcode_End_Fiffer.txt' #The file name for the end gcode
+start_Gcode_FileName = 'Start_Gcode_Taz5.txt' #the file name for the starting gcode
+end_Gcode_FileName = 'End_Gcode_Taz5.txt' #The file name for the end gcode
 beadWidth = 2.50
 airGap = 0.0
 ZStep = 2.0     #layer height
