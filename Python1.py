@@ -485,13 +485,7 @@ with open(startEndSubDirectory + '\\' + end_Gcode_FileName) as endFile:
     for line in lines:    
         f.write(str(line))
 f.close()
-print 'Done writing File.'  
-
-def testMethod1(instuff):
-    return instuff+1
-
-def testMethod2(instuff):
-    return instuff + 2
+print 'Done writing File.'
 
 """
 for loop in fullPath:
