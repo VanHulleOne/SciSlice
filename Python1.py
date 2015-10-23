@@ -487,6 +487,9 @@ with open(startEndSubDirectory + '\\' + end_Gcode_FileName) as endFile:
 f.close()
 print 'Done writing File.'  
 
+def testMethod1(instuff):
+    return instuff+1
+
 """
 for loop in fullPath:
     f.write('(Loop Number {:.0f})\n'.format(loopNumber))
