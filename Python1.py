@@ -24,19 +24,19 @@ OUTSIDE = 0
 #               [28.292,40.0],[29.6285,50.0],[30.2716,60.0],[30.2716,85.0],
 #                [25.7716,85.0]]
 
-outputFileName = 'test1.gcode' #the name of the file you want output. git will ignore all .gcode unless they start with SAVE
+outputFileName = 'DB_10-23.gcode' #the name of the file you want output. git will ignore all .gcode unless they start with SAVE
 start_Gcode_FileName = 'Start_Gcode_Taz5.txt' #the file name for the starting gcode
 end_Gcode_FileName = 'End_Gcode_Taz5.txt' #The file name for the end gcode
-beadWidth = 2.50
+beadWidth = 0.5
 airGap = 0.0
-ZStep = 2.0     #layer height
-ZHeight = 2.0   #Total Height of the part
-extrusionRate = 0.017*1.75 #mm of extrusion per mm of XY travel
+ZStep = 0.4     #layer height
+ZHeight = 3.201  #Total Height of the part
+extrusionRate = 0.03 #mm of extrusion per mm of XY travel
 travelSpeed = 2000 #mm per min
 maxFeedStep = 5.0 #not implemented yet
-slopeOverX = 0.728 #how much you want it to move over in X per level
+slopeOverX = 0.0 #how much you want it to move over in X per level
 slopeOverY = 0 #how much you want it to move over in Y per level
-backgroundAngle = math.pi/1.0 #angle of the paths in the layer 0 = X direction, PI/2 = Y direction
+backgroundAngle = math.pi/2.0 #angle of the paths in the layer 0 = X direction, PI/2 = Y direction
 
 outputSubDirectory = 'Gcode'
 startEndSubDirectory = 'Start_End_Gcode'
@@ -424,7 +424,7 @@ dogBone.extend(mirror(dogBone, Y))
 dogBone.extend(mirror(dogBone, X))
 
 dogBone = removeDuplicates(dogBone)
-dogBone = translate(dogBone, 120, 60)
+dogBone = translate(dogBone, 120, 40)
 finalShape = dogBone
 
 #finalShape = closeShape(fifferShape)
