@@ -1,0 +1,6 @@
+M107
+G91 G1 F300 E-1.0
+G1 Z10.0
+M104 S0 ; turn off temperature
+M84     ; disable motors
+

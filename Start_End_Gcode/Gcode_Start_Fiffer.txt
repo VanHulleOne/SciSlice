@@ -1,0 +1,17 @@
+G21 ; set units to millimeters
+M107 ; fan off
+;M190 S50 ; wait for bed temperature to be reached
+;M104 T0 S215 ; start heating extruder 0
+;T0 ; set the active extruder to 0
+; settings from start_gcode
+G28 X0 Y0 Z0 ; home all axes
+G1 Z5 F5000 ; lift nozzle
+;M109 S210 ; set the extruder temp and wait
+G28 X0 Y0 Z0 ; Home Z again in case there was filament on nozzle
+M565 Z0
+G29 ; probe the bed
+; automatic settings after start_gcode
+T0 ; set the active extruder to 0
+G90 ; use absolute coordinates
+G92 E0 ; reset the expected extruder position
+M82 ; use absolute distance for extrusion

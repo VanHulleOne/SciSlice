@@ -20,10 +20,13 @@ CENTER = 3
 INSIDE = 1
 OUTSIDE = 0
 
-fifferShape = [[0.0,0.0],[10.0,0.0],[18.1212,10.0],[22.9353,20.0],[26.1426,30.0],
-               [28.292,40.0],[29.6285,50.0],[30.2716,60.0],[30.2716,85.0],
-                [25.7716,85.0]]
+#fifferShape = [[0.0,0.0],[10.0,0.0],[18.1212,10.0],[22.9353,20.0],[26.1426,30.0],
+#               [28.292,40.0],[29.6285,50.0],[30.2716,60.0],[30.2716,85.0],
+#                [25.7716,85.0]]
 
+outputFileName = 'test1.gcode' #the name of the file you want output. git will ignore all .gcode unless they start with SAVE
+start_Gcode_FileName = 'Gcode_Start_Fiffer.txt' #the file name for the starting gcode
+end_Gcode_FileName = 'Gcode_End_Fiffer.txt' #The file name for the end gcode
 beadWidth = 2.50
 airGap = 0.0
 ZStep = 2.0     #layer height
@@ -35,6 +38,8 @@ slopeOverX = 0.728 #how much you want it to move over in X per level
 slopeOverY = 0 #how much you want it to move over in Y per level
 backgroundAngle = math.pi/1.0 #angle of the paths in the layer 0 = X direction, PI/2 = Y direction
 
+outputSubDirectory = 'Gcode'
+startEndSubDirectory = 'Start_End_Gcode'
 
 tempShape1 = [[[]]]
 
@@ -379,7 +384,7 @@ def trimBackground(background, outline):
     finalLines.pop(0)    
     return finalLines
 
-#TODO: Currently picks the next closest point, for some shpares this might
+#TODO: Currently picks the next closest point, for some shapes this might
 #       not be the best strategy, should print so that a new bead is always next
 #       to an exhisting bead
 def linesToPath(lineSet):
@@ -412,23 +417,24 @@ def linesToPath(lineSet):
 
     
 
-#dogBone = [[82.5, 0], [82.5, 9.5], [49.642, 9.5]]
-#dogBone.extend(arcToLineList(arc1))
-#dogBone.append([0,6.5])
-#dogBone.extend(mirror(dogBone, Y))
-#dogBone.extend(mirror(dogBone, X))
+dogBone = [[82.5, 0], [82.5, 9.5], [49.642, 9.5]]
+dogBone.extend(arcToLineList(arc1))
+dogBone.append([0,6.5])
+dogBone.extend(mirror(dogBone, Y))
+dogBone.extend(mirror(dogBone, X))
 
-#dogBone = removeDuplicates(dogBone)
-#dogBone = translate(dogBone, 120, 60)
+dogBone = removeDuplicates(dogBone)
+dogBone = translate(dogBone, 120, 60)
+finalShape = dogBone
 
-fifferShape = closeShape(fifferShape)
+#finalShape = closeShape(fifferShape)
 
 stepOver = beadWidth+airGap
 numZSteps = int(ZHeight/ZStep)
 
-background = setOfLines(stepOver, backgroundAngle, fifferShape)
+background = setOfLines(stepOver, backgroundAngle, finalShape)
 
-background = trimBackground(background, fifferShape)
+background = trimBackground(background, finalShape)
 
 #for line in fillPattern:
 #    for point in line:
@@ -438,8 +444,18 @@ pathPoints = linesToPath(background)
 
 #pathPoints.reverse()
               
-f = open('PathFile2.txt', 'w')
-f.write('G90 G21\n')
+f = open(outputSubDirectory+'\\'+outputFileName, 'w')
+
+f.write(';File Name: ' + outputFileName + '\n')
+f.write(';Start Gcode from: ' + startEndSubDirectory + '\\' + start_Gcode_FileName)
+f.write('\n')
+
+with open(startEndSubDirectory + '\\' + start_Gcode_FileName) as startFile:
+    lines = startFile.readlines()   
+    for line in lines:    
+        f.write(str(line))
+
+f.write('\n\nG90 G21\n')
 
 lineNumber = 1
 totalExtrusion = 0
@@ -460,7 +476,14 @@ for level in range(1, numZSteps+1):
         
     f.write('G01 Z{:.3f} F{:.0f} E{:.3f}\n'.format(((level+1)*ZStep+10), travelSpeed, (totalExtrusion-1)))
 
-f.write('M30\n')
+f.write('\n')
+f.write(';End Gcode from: ' + startEndSubDirectory + '\\' + end_Gcode_FileName)
+f.write('\n')
+
+with open(startEndSubDirectory + '\\' + end_Gcode_FileName) as endFile:
+    lines = endFile.readlines()       
+    for line in lines:    
+        f.write(str(line))
 f.close()
 print 'Done writing File.'  
 

@@ -2,3 +2,9 @@
 
 #The file tht has been storing my g-code
 PathFile2.txt
+
+#Ignore files that end with .gcode
+*.gcode
+
+#Keep gcode files that start with SAVE
+!SAVE*.gcode
