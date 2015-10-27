@@ -108,42 +108,7 @@ def arcToLineList(arc):
     tempList.append(l.Line(startPoint, endPoint))
 #    print tempList
     return tempList
-    
-def areColinear(p1, p2, p3):
-    """
-    This method tests if three points all lie on the same line, it is used
-    by the removeDuplicates() method and should be removed after the program
-    is concerted over to have a lines class.
-    """
-    if(p1[X] == p2[X] == p3[X]):#vertical line
-        return True
-    elif(p1[X] == p2[X] or p2[X] == p3[X]): #only one line is vertical       
-        return False
-    elif(abs((p2[Y]-p1[Y])/(p2[X]-p1[X]) - (p3[Y]-p2[Y])/(p3[X]-p2[X])) < 0.001): #the slope difference between P1P2 and P2P3 is less than an eror amount            
-        return True
-    return False
-    
-def removeDuplicates(lines):
-    """
-    If a shape contains two identical points, not counting the first and last,
-    or three points that are colinear, the redundant points are removed.
-    This method should be removed after the line class is created.
-    """
-    i = 0
-    while i < (len(lines)-2):
-        if(lines[i] == lines[i+1] or lines[i+1] == lines[i+2]):
-            del lines[i+1]
-        elif(areColinear(lines[i], lines[i+1], lines[i+2])):
-            del lines[i+1]
-        else:
-            i += 1
-    if(areColinear(lines[len(lines)-2], lines[len(lines)-1], lines[0])):
-#        print 'here line 92'
-        del lines[len(lines) - 1]
-        del lines[0]
-        lines.append(lines[0])
-    return lines
-    
+   
 def getLineAngle(p1, p2):
     angle = math.atan2((p2[Y]-p1[Y]), (p2[X] - p1[X]))
     return angle if angle >= 0 else angle + 2*math.pi
