@@ -71,7 +71,6 @@ def calcIncludedAngle(start, end, direction):
         return t
 
 def mirror(shape, axis):
-    """Given a list of points and an axis this method will return the mirrored points"""
     tempShape = [line.mirror(axis) for line in shape]
     return tempShape
     
@@ -115,7 +114,7 @@ def getLineAngle(p1, p2):
     
 def isInside(point, shape):
     """
-    Given an input point and a shape this method determines if the shape is inside
+    Given an input point and a shape this method determines if the point is inside
     or outside the shape and returns 1 if inside and 0 if outside.
     
     If a line is drawn from the point down to the outside of the part, the number
