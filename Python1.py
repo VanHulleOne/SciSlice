@@ -44,12 +44,19 @@ startEndSubDirectory = 'Start_End_Gcode'
 tempShape1 = [[[]]]
 
 def distance(first, second):
+    """Returns the distance between two points"""
     return math.sqrt((first[X] - second[X])**2 + (first[Y] - second[Y])**2)
     
 def squareDistance(first, second):
+    """Returns the squared distance between two points to save on computation time"""
     return ((first[X] - second[X])**2 + (first[Y] - second[Y])**2)
 
 def calcIncludedAngle(start, end, direction):
+    """
+    Given an input of two angles, calculated in unit circle fashion, and the
+    direction around the circle you want to travel, this method will return
+    the total included angle.
+    """    
     t = end - start
     if(direction == CW and t > 0):
         return t - 2*math.pi
@@ -60,14 +67,16 @@ def calcIncludedAngle(start, end, direction):
     else:
         return t
 
-def mirror(lines, axis):
+#TODO: Convert this method to using matric multiplication
+def mirror(shape, axis):
+    """Given a list of points and an axis this method will return the mirrored points"""
     if(axis == X):
         deltaX = 1
         deltaY = -1
     else:
         deltaX = -1
         deltaY = 1
-    temp = [[c[X]*deltaX, c[Y]*deltaY] for c in lines]
+    temp = [[c[X]*deltaX, c[Y]*deltaY] for c in shape]
     temp.reverse()
     return temp
     
@@ -76,6 +85,7 @@ def translate(shape, xShift, yShift):
     return temp
 
 def arcToLineList(arc):
+    """Converts an arc to a set of line segments"""
     radius = distance(arc[START], arc[CENTER])
     startAngle = math.atan2(arc[START] [Y]- arc[CENTER][Y],
                         arc[START] [X]- arc[CENTER][X])
@@ -97,6 +107,11 @@ def arcToLineList(arc):
     return tempList
     
 def areColinear(p1, p2, p3):
+    """
+    This method tests if three points all lie on the same line, it is used
+    by the removeDuplicates() method and should be removed after the program
+    is concerted over to have a lines class.
+    """
     if(p1[X] == p2[X] == p3[X]):#vertical line
         return True
     elif(p1[X] == p2[X] or p2[X] == p3[X]): #only one line is vertical       
