@@ -452,7 +452,11 @@ point2 = p.Point(3,2)
 
 line1 = l.Line(point1, point2)
 
-print line1.length
+print line1
+
+line1.translate(4,4)
+print line1
+
 
 #finalShape = closeShape(fifferShape)
 """
