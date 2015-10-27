@@ -24,7 +24,7 @@ OUTSIDE = 0
 #               [28.292,40.0],[29.6285,50.0],[30.2716,60.0],[30.2716,85.0],
 #                [25.7716,85.0]]
 
-outputFileName = 'DB_10-23.gcode' #the name of the file you want output. git will ignore all .gcode unless they start with SAVE
+outputFileName = 'DB_10-23_Test.gcode' #the name of the file you want output. git will ignore all .gcode unless they start with SAVE
 start_Gcode_FileName = 'Start_Gcode_Taz5.txt' #the file name for the starting gcode
 end_Gcode_FileName = 'End_Gcode_Taz5.txt' #The file name for the end gcode
 beadWidth = 0.5
@@ -249,12 +249,6 @@ def getOrientation(p1, p2, p3):
     if(val == 0): return 0 #colinear
     return (1 if val > 0 else 2)
 
-def subtractPoints(p1, p2):
-    return [p1[X] - p2[X], p1[Y] - p2[Y]]
-
-def crossProductPoints(p1, p2):
-    return float(p1[X]*p2[Y] - p1[Y]*p2[X])    
-
 def pointToNormalVector(point):
     return [[point[X]], [point[Y]], [1.0]]
     
@@ -271,12 +265,12 @@ def segmentsIntersect(p1, p2, q1, q2):
     if((o1+o2+o3+o4) == 0): return 0, None #return if all 4 points are colinear
     
     if(o1 != o2 and o3 != o4):
-        r = subtractPoints(p2, p1)
-        s = subtractPoints(q2, q1)
-        Q_Less_P = subtractPoints(q1, p1)
-        denom = crossProductPoints(r, s)
-        t = crossProductPoints(Q_Less_P, s)/denom
-        u = crossProductPoints(Q_Less_P, r)/denom
+        r = numpy.subtract(p2, p1)
+        s = numpy.subtract(q2, q1)
+        Q_Less_P = numpy.subtract(q1, p1)
+        denom = numpy.cross(r, s)
+        t = numpy.cross(Q_Less_P, s)/denom
+        u = numpy.cross(Q_Less_P, r)/denom
         if(abs(t) > 1 or abs(u) > 1):
             print 'Should we be here? segmentsIntersect math problem, I think'
         return 1, [p1[X]+r[X]*t, p1[Y]+r[Y]*t] #lines intersect at given point
