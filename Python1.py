@@ -121,6 +121,11 @@ def areColinear(p1, p2, p3):
     return False
     
 def removeDuplicates(lines):
+    """
+    If a shape contains two identical points, not counting the first and last,
+    or three points that are colinear, the redundant points are removed.
+    This method should be removed after the line class is created.
+    """
     i = 0
     while i < (len(lines)-2):
         if(lines[i] == lines[i+1] or lines[i+1] == lines[i+2]):
@@ -141,17 +146,33 @@ def getLineAngle(p1, p2):
     return angle if angle >= 0 else angle + 2*math.pi
     
 def isInside(point, shape):
+    """
+    Given an input point and a shape this method determines if the shape is inside
+    or outside the shape and returns 1 if inside and 0 if outside.
+    
+    If a line is drawn from the point down to the outside of the part, the number
+    of times that line intersects with the shape determines if the point was inside
+    or outside. If the number of intersections is even then the point was outside
+    of the shape. If the number of intersections is odd then the point is inside.
+    """
     lowerPoint = [point[X], shape[0][Y]-10]
     intersections = 0
     for i in range(len(shape)-1):
-        if(shape[i+1][Y] < lowerPoint[Y]): lowerPoint[Y] -= 10
-#        print 'Point: ', point, ' LowerPoint: ', lowerPoint, ' shape[i]: ', shape[i], ' shape[i+1]: ', shape[i+1]   
-        result, throwPoint =  segmentsIntersect(point, lowerPoint, shape[i], shape[i+1])
+        if(shape[i+1][Y] < lowerPoint[Y]): lowerPoint[Y] -= 10 
+        result, intersectPoint =  segmentsIntersect(point, lowerPoint, shape[i], shape[i+1])
         if(result == 1):
             intersections += 1
-    return (intersections % 2) #if intersections is even then the point was insdie, else it was outside
-    
+    return (intersections % 2) #if intersections is odd then the point was insdie, else it was outside
+
+#TODO: change the offset method to make the offset lines parallel with the exhisting lines   
 def offset(shape, dist, side):
+    """
+    Given an input shape, distance, and if you want inside or outside, this
+    method will return a new shape that is offset from the original. Currently
+    if measures the offset distance along an angular bisector of each corner
+    but this should be changed to make it calculate from a line normal to the
+    exhisting line.
+    """
     tempShape = [[]]
     line1Angle = getLineAngle(shape[0], shape[len(shape)-2])
     line2Angle = getLineAngle(shape[0], shape[1])
@@ -179,11 +200,16 @@ def offset(shape, dist, side):
     return tempShape
 
 def orderTwoNumbers(n1, n2):
+    """Given an input of two numbers reutrn them lowest to highest"""
     return ((n1, n2) if n1 < n2 else (n2, n1))
 
 # a bounding box for a line segment is the upper left and lower right corners
 # of the smallest box that encloses the line segment
 def getBoundingBox(p1, p2):
+    """
+    Given two points marking the ends of a line, return the upper left
+    and lower right coordinates of the smallest box which containts the line.
+    """
     if(p1[Y] == p2[Y]):
         return ((p1, p2) if p1[X] < p2[X] else (p2, p1))
     if(p1[X] == p2[X]):
@@ -196,6 +222,10 @@ def getBoundingBox(p1, p2):
     
     
 def boundingBoxesIntersect(p1, p2, q1, q2):
+    """
+    Given the coordinates for two bouding boxes return whether or not the two
+    bouding boxes overlap.
+    """
     bb1 = getBoundingBox(p1, p2)
     bb2 = getBoundingBox(q1, q2)
 #    print 'bb1: ', bb1
@@ -207,11 +237,13 @@ def boundingBoxesIntersect(p1, p2, q1, q2):
                 return True
     return False
 
-# getOrientation takes in three points,
-# returns 0 if they are colinear
-# returns 1 if the turn is clockwise
-# returns 2 if the turn is CCW
 def getOrientation(p1, p2, p3):
+    """
+    getOrientation takes in three points,
+    returns 0 if they are colinear
+    returns 1 if the turn is clockwise
+    returns 2 if the turn is CCW
+    """
     val = ((p2[Y] - p1[Y])*(p3[X] - p2[X]) - 
             (p2[X] - p1[X])*(p3[Y] - p2[Y]))
     if(val == 0): return 0 #colinear
@@ -221,23 +253,8 @@ def subtractPoints(p1, p2):
     return [p1[X] - p2[X], p1[Y] - p2[Y]]
 
 def crossProductPoints(p1, p2):
-#    print 'p1X: ', p1[X], ' p1Y: ', p1[Y], ' p2X: ', p2[X], ' p2Y: ', p2[Y]
     return float(p1[X]*p2[Y] - p1[Y]*p2[X])    
 
-def matrixMultiply(matrix1, matrix2):
-    if(len(matrix1[0]) != len(matrix2)):
-        print 'matrix size error: matrixMultiply'
-        return None
-    result = [None] *len(matrix2)
-    rowIndex = 0    
-    for row in matrix1:
-        add = 0
-        for i in range(len(row)-1):
-            add += row[i]*matrix2[i]
-        result[rowIndex] = add
-        rowIndex += 1
-    return result
-    
 def pointToNormalVector(point):
     return [[point[X]], [point[Y]], [1.0]]
     
@@ -262,8 +279,6 @@ def segmentsIntersect(p1, p2, q1, q2):
         u = crossProductPoints(Q_Less_P, r)/denom
         if(abs(t) > 1 or abs(u) > 1):
             print 'Should we be here? segmentsIntersect math problem, I think'
-#        print 't: ', t, ' u: ', u, ' r: ', r, ' s: ', s, ' Q_Less_P: ', Q_Less_P, ' Denom: ', denom
-#        print 'P1: ', p1
         return 1, [p1[X]+r[X]*t, p1[Y]+r[Y]*t] #lines intersect at given point
     return -2, None #bounding boxes intersected but lines did not
 
