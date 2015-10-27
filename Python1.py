@@ -7,6 +7,9 @@ Created on Mon Sep 21 09:51:36 2015
 import math
 import numpy
 import operator
+import Point as p
+import Line as l
+
 numPoints = 20
 CW = -1
 CCW = 1
@@ -444,8 +447,15 @@ dogBone = removeDuplicates(dogBone)
 dogBone = translate(dogBone, 120, 40)
 finalShape = dogBone
 
-#finalShape = closeShape(fifferShape)
+point1 = p.Point(1,2)
+point2 = p.Point(3,2)
 
+line1 = l.Line(point1, point2)
+
+print line1.length
+
+#finalShape = closeShape(fifferShape)
+"""
 stepOver = beadWidth+airGap
 numZSteps = int(ZHeight/ZStep)
 
@@ -503,6 +513,7 @@ with open(startEndSubDirectory + '\\' + end_Gcode_FileName) as endFile:
         f.write(str(line))
 f.close()
 print 'Done writing File.'
+"""
 
 """
 for loop in fullPath:
