@@ -33,7 +33,8 @@ class Line:
         newStart = self.start.rotate(angle)
         newEnd = self.end.rotate(angle)
         return Line(newStart, newEnd)
-#TODO: Keep working on boundingBox       
+#TODO: Keep working on boundingBox
+        #I think I should sort the points and that would make it easier
     def getBoundingBox(self):
         """
         Given two points marking the ends of a line, return the upper left
