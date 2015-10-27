@@ -310,6 +310,7 @@ def intersectParser(shape, positiveArea):
     return 1
     
 def getshapeMinMax(shape):
+    """Given an input shape reutrns the min and max for each axis plus 5"""
     minX = shape[0][X]-5
     maxX = minX+10
     minY = shape[0][Y]-5
@@ -349,21 +350,13 @@ def setOfLines(lineSpace, lineAngle, insideShape):
     T[0][2] = p_lessRp[0][0]
     T[1][2] = p_lessRp[1][0]
     T[2][2] = 1.0
-    
-#    print 'T: ', T
-#    print 'lineSet[0][0]: ', lineSet[0][0]
-#    print 'lineSet[0][1]: ', lineSet[0][1]
-#    pTNV = pointToNormalVector(lineSet[0][0])
-#    print 'pointToNormalVector: ', pointToNormalVector(lineSet[0][0])
-#    print 'dot: ', numpy.dot(T, pTNV)
+
     for i in range(len(lineSet)):
         normalVector1 = numpy.dot(T, pointToNormalVector(lineSet[i][0]))
         normalVector2 = numpy.dot(T, pointToNormalVector(lineSet[i][1]))
         lineSet[i][0] = normalVectorToPoint(normalVector1)
         lineSet[i][1] = normalVectorToPoint(normalVector2)
-    
-#    for line in lineSet:
-#        print line
+
     return lineSet   
 
 def getMidPoint(line):
