@@ -70,22 +70,18 @@ def calcIncludedAngle(start, end, direction):
     else:
         return t
 
-#TODO: Convert this method to using matric multiplication
 def mirror(shape, axis):
     """Given a list of points and an axis this method will return the mirrored points"""
-    if(axis == X):
-        deltaX = 1
-        deltaY = -1
-    else:
-        deltaX = -1
-        deltaY = 1
-    temp = [[c[X]*deltaX, c[Y]*deltaY] for c in shape]
-    temp.reverse()
-    return temp
+    tempShape = [line.mirror(axis) for line in shape]
+    return tempShape
     
 def translate(shape, xShift, yShift):
-    temp = [[c[X]+xShift, c[Y]+yShift] for c in shape]
-    return temp
+    tempShape = [line.translate(xShift, yShift) for line in shape]
+    return tempShape
+    
+def rotate(shape, angle):
+    tempShape = [line.rotate(angle) for line in shape]
+    return tempShape
 
 def arcToLineList(arc):
     """Converts an arc to a set of line segments"""
@@ -99,13 +95,17 @@ def arcToLineList(arc):
 
     includedAngle = calcIncludedAngle(startAngle, endAngle, arc[DIR][0])
     currentAngle = startAngle
-    tempList = [arc[START]]
+    startPoint = p.Point(arc[START][X], arc[START][Y])
+    tempList = []
     for i in range(numPoints-2):
         currentAngle += includedAngle/(numPoints-1)
         x = arc[CENTER][X]+radius*math.cos(currentAngle)
         y = arc[CENTER][Y]+radius*math.sin(currentAngle)
-        tempList.append([x, y])
-    tempList.append(arc[END])
+        endPoint = p.Point(x, y)
+        tempList.append(l.Line(startPoint, endPoint))
+        startPoint = endPoint
+    endPoint = p.Point(arc[END][X], arc[END][Y])
+    tempList.append(l.Line(startPoint, endPoint))
 #    print tempList
     return tempList
     
@@ -436,7 +436,7 @@ def linesToPath(lineSet):
     return path
 
     
-
+"""
 dogBone = [[82.5, 0], [82.5, 9.5], [49.642, 9.5]]
 dogBone.extend(arcToLineList(arc1))
 dogBone.append([0,6.5])
@@ -446,17 +446,27 @@ dogBone.extend(mirror(dogBone, X))
 dogBone = removeDuplicates(dogBone)
 dogBone = translate(dogBone, 120, 40)
 finalShape = dogBone
+"""
 
-point1 = p.Point(1,2)
-point2 = p.Point(3,2)
+lines = arcToLineList(arc1)
+for line in lines:
+    print line
+#point1 = p.Point(1,2)
+#point2 = p.Point(3,2)
+#point3 = p.Point(3,5)
 
-line1 = l.Line(point1, point2)
+#line1 = l.Line(point1, point2)
+#line2 = l.Line(point2, point3)
 
-print line1
+#shape1 = [line1, line2]
 
-line1.translate(4,4)
-print line1
+    
+#shape2 = mirror(shape1, X)
+#for line in shape2:
+#    print line
 
+#for line in shape1:
+#    print line
 
 #finalShape = closeShape(fifferShape)
 """

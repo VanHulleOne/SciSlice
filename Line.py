@@ -18,16 +18,19 @@ class Line:
         return math.sqrt((start.X - end.X)**2 + (start.Y - end.Y)**2)
         
     def translate(self, shiftX, shiftY):
-        self.start.translate(shiftX, shiftY)
-        self.end.translate(shiftX, shiftY)
+        newStart = self.start.translate(shiftX, shiftY)
+        newEnd = self.end.translate(shiftX, shiftY)
+        return Line(newStart, newEnd)
         
     def mirror(self, axis):
-        self.start.mirror(axis)
-        self.end.mirror(axis)
+        newStart = self.start.mirror(axis)
+        newEnd = self.end.mirror(axis)
+        return Line(newStart, newEnd)
     
     def rotate(self, angle):
-        self.start.rotate(angle)
-        self.end.rotate(angle)
+        newStart = self.start.rotate(angle)
+        newEnd = self.end.rotate(angle)
+        return Line(newStart, newEnd)
     
     def __str__(self):
         return '[' + str(self.start) + '], [' + str(self.end) + ']'
