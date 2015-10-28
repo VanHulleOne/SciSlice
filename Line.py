@@ -39,6 +39,8 @@ class Line:
         """
         Uses the determinant of a matrix conataining the three to find the area
         of the triangle formed by the three points.
+        SPECIAL NOTE: the area is actually 1/2 the determinant but I have
+        left out that extra, unneeded calculation.
         """
         matrix = [p1.getNormalVector(), p2.getNormalVector(), p3.getNormalVector()]
         matrix = numpy.rot90(matrix)
