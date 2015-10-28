@@ -43,3 +43,9 @@ class Point:
         
     def __str__(self):
         return 'X: {:.3f} Y: {:.3f}'.format(self.normalVector[self.X], self.normalVector[self.Y])
+        
+    def getX(self):
+        return self.normalVector[self.X]
+    
+    def getY(self):
+        return self.normalVector[self.Y]
