@@ -6,18 +6,54 @@ Created on Tue Oct 27 13:40:56 2015
 """
 import Point as p
 import math
+import numpy
 
-class Line:  
+class Line:
+    X, Y = 0, 1
     def __init__(self, start, end):
         self.start = start
         self.end = end
         self.length = self.distance(start, end)
+        if(length == 0): print 'SNAFU detected, a line was created with no length.'
         self.upperLeft
         self.lowerRight
         self.setBoundingBox()
     
     def doSegmentsIntersect(self, other):
         if(not self.doBoundingBoxesIntersect(other)): return -1, None #return if bounding boxes do not intersect
+        if(self.areColinear(other)): return 0, None #return if two lines are colinear
+        
+        r = numpy.subtract(self.end.getPoint(), self.start.getPoint())
+        s = numpy.subtract(other.end.getPoint(), other.start.getPoint())
+        Q_Less_P = numpy.subtract(other.start.getPoint(), self.start.getPoint())
+        denom = numpy.cross(r, s)
+        t = numpy.cross(Q_Less_P, s)/denom
+        u = numpy.cross(Q_Less_P, r)/denom
+        if(abs(t) > 1 or abs(u) > 1):
+            print 'Should we be here? segmentsIntersect math problem, I think'
+        return 1, p.Point(self.start.getX() + r[self.X]*t,
+                          self.start.getY()+r[self.Y]*t) #lines intersect at given point
+        return -2, None #bounding boxes intersected but lines did not    
+    
+    def getArea(self, p1, p2, p3):
+        """
+        Uses the determinant of a matrix conataining the three to find the area
+        of the triangle formed by the three points.
+        """
+        matrix = [p1.getNormalVector(), p2.getNormalVector(), p3.getNormalVector()]
+        matrix = numpy.rot90(matrix)
+        return abs(numpy.linalg.det(matrix))
+    
+    def areColinear(self, other):
+        """
+        If the area of the two created triangles is less than the tolerance
+        than the two lines are assumed to be co-linear.
+        """
+        tolerance = 0.0001        
+        area = self.getArea(self.start, self.end, other.start)
+        area += self.getArea(self.start, self.end, other.end)
+        if(area < tolerance): return True
+        return False        
     
     def doBoundingBoxesIntersect(self, other):
         if(self.upperLeft.getX() <= other.lowerRight.getX() and
@@ -25,40 +61,7 @@ class Line:
             self.upperRight.getY() >= other.lowerRight.getY() and
             self.lowerRight.getY() <= other.upperLeft.getY()):
                 return True
-    return False
-    
-    def getOrientation(self, other):
-        """
-    getOrientation takes in three points,
-    returns 0 if they are colinear
-    returns 1 if the turn is clockwise
-    returns 2 if the turn is CCW
-    """
-    val = ((p2[Y] - p1[Y])*(p3[X] - p2[X]) - 
-            (p2[X] - p1[X])*(p3[Y] - p2[Y]))
-    if(val == 0): return 0 #colinear
-    return (1 if val > 0 else 2)
-    
-    def segmentsIntersect(p1, p2, q1, q2):
-        if(not boundingBoxesIntersect(p1, p2, q1, q2)): return -1, None #return if bounding boxes do not intersetc
-        o1 = getOrientation(p1, p2, q1)
-        o2 = getOrientation(p1, p2, q2)
-        o3 = getOrientation(q1, q2, p1)
-        o4 = getOrientation(q1, q2, p2)
-        
-        if((o1+o2+o3+o4) == 0): return 0, None #return if all 4 points are colinear
-        
-        if(o1 != o2 and o3 != o4):
-            r = numpy.subtract(p2, p1)
-            s = numpy.subtract(q2, q1)
-            Q_Less_P = numpy.subtract(q1, p1)
-            denom = numpy.cross(r, s)
-            t = numpy.cross(Q_Less_P, s)/denom
-            u = numpy.cross(Q_Less_P, r)/denom
-            if(abs(t) > 1 or abs(u) > 1):
-                print 'Should we be here? segmentsIntersect math problem, I think'
-            return 1, [p1[X]+r[X]*t, p1[Y]+r[Y]*t] #lines intersect at given point
-            return -2, None #bounding boxes intersected but lines did not    
+    return False 
     
     def distance(self, start, end):
         """Returns the distance between two points"""

@@ -49,3 +49,7 @@ class Point:
     
     def getY(self):
         return self.normalVector[self.Y]
+    
+    def getNormalVector(self):
+        nv = [n for n in self.normalVector]
+        return nv
