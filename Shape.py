@@ -21,3 +21,5 @@ class Shape:
         if(line.lowerRight.getX() > self.maxX): self.maxX = line.lowerRight.getX()
         if(line.lowerRight.getY() < self.minY): self.mainY = line.lowerRight.getY()
     
+    def testMethod(self):
+        return 2*2
