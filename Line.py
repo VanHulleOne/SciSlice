@@ -19,7 +19,7 @@ class Line:
         self.lowerRight
         self.setBoundingBox()
     
-    def doSegmentsIntersect(self, other):
+    def segmentsIntersect(self, other):
         if(not self.doBoundingBoxesIntersect(other)): return -1, None #return if bounding boxes do not intersect
         if(self.areColinear(other)): return 0, None #return if two lines are colinear
         
@@ -95,6 +95,12 @@ class Line:
             row.sort()
         upperLeft = p.Point(tempList[0][0], tempList[1][1])
         lowerRight = p.Point(tempList[0][1], tempList[1][0])
+    
+    def getStart(self):
+        return p.Point(self.start.getX(), self.start.getY())
+        
+    def getEnd(self):
+        return p.Point(self.end.getX(), self.end.getY())
     
     def __str__(self):
         return '[' + str(self.start) + '], [' + str(self.end) + ']'

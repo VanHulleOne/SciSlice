@@ -111,25 +111,6 @@ def arcToLineList(arc):
 def getLineAngle(p1, p2):
     angle = math.atan2((p2[Y]-p1[Y]), (p2[X] - p1[X]))
     return angle if angle >= 0 else angle + 2*math.pi
-    
-def isInside(point, shape):
-    """
-    Given an input point and a shape this method determines if the point is inside
-    or outside the shape and returns 1 if inside and 0 if outside.
-    
-    If a line is drawn from the point down to the outside of the part, the number
-    of times that line intersects with the shape determines if the point was inside
-    or outside. If the number of intersections is even then the point was outside
-    of the shape. If the number of intersections is odd then the point is inside.
-    """
-    lowerPoint = [point[X], shape[0][Y]-10]
-    intersections = 0
-    for i in range(len(shape)-1):
-        if(shape[i+1][Y] < lowerPoint[Y]): lowerPoint[Y] -= 10 
-        result, intersectPoint =  segmentsIntersect(point, lowerPoint, shape[i], shape[i+1])
-        if(result == 1):
-            intersections += 1
-    return (intersections % 2) #if intersections is odd then the point was insdie, else it was outside
 
 #TODO: change the offset method to make the offset lines parallel with the exhisting lines   
 def offset(shape, dist, side):

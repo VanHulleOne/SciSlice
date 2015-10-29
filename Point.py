@@ -53,3 +53,9 @@ class Point:
     def getNormalVector(self):
         nv = [n for n in self.normalVector]
         return nv
+        
+    def __eq__(self, other):
+        return (self.getX() == other.getX() and self.getY() == other.getY())
+        
+    def __ne__(self, other):
+        return not (self.getX() == other.getX() and self.getY() == other.getY())
