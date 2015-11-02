@@ -8,12 +8,19 @@ import Line as l
 import Point as p
 class Shape:
     
-    def __init__(self):
-        self.lines = []
-        self.minX = None
-        self.minY = None
-        self.maxX = None
-        self.maxY = None
+    def __init__(self, shape):
+        self.shapeIsClosed = False
+        if(shape != None):
+            self.lines = shape
+            for line in self.lines:
+                self.updateMinMax(line)
+            self.shapeIsClosed = self.isShapeClosed()
+        else:
+            self.lines = []
+            self.minX = None
+            self.minY = None
+            self.maxX = None
+            self.maxY = None
         
     def addLine(self, line):
         self.lines.append(line)
@@ -29,6 +36,12 @@ class Shape:
         if(self.lines[0].start != self.lines[-1].end):
             self.lines.append(l.Line(self.lines[-1].getEnd(),
                                      self.lines[0].getStart()))
+        self.shapeIsClosed = True
+        
+    def isShapeClosed(self):
+        if(self.lines[0].start == self.lines[-1].end):
+            return True
+        return False
                                      
     def isInside(self, point):
         """
