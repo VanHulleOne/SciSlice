@@ -14,9 +14,9 @@ class Line:
         self.start = start
         self.end = end
         self.length = self.distance(start, end)
-        if(length == 0): print 'SNAFU detected, a line was created with no length.'
-        self.upperLeft
-        self.lowerRight
+        if(self.length == 0): print 'SNAFU detected, a line was created with no length.'
+        self.upperLeft = None
+        self.lowerRight = None
         self.setBoundingBox()
     
     def segmentsIntersect(self, other):
@@ -63,11 +63,11 @@ class Line:
             self.upperRight.getY() >= other.lowerRight.getY() and
             self.lowerRight.getY() <= other.upperLeft.getY()):
                 return True
-    return False 
+        return False 
     
     def distance(self, start, end):
         """Returns the distance between two points"""
-        return math.sqrt((start.X - end.X)**2 + (start.Y - end.Y)**2)
+        return math.sqrt((start.getX() - end.getX())**2 + (start.getY() - end.getY())**2)
         
     def translate(self, shiftX, shiftY):
         newStart = self.start.translate(shiftX, shiftY)
@@ -93,8 +93,8 @@ class Line:
                      [self.start.getY(), self.end.getY()]]
         for row in tempList:
             row.sort()
-        upperLeft = p.Point(tempList[0][0], tempList[1][1])
-        lowerRight = p.Point(tempList[0][1], tempList[1][0])
+        self.upperLeft = p.Point(tempList[0][0], tempList[1][1])
+        self.lowerRight = p.Point(tempList[0][1], tempList[1][0])
     
     def getStart(self):
         return p.Point(self.start.getX(), self.start.getY())
@@ -107,4 +107,4 @@ class Line:
         
     def printBoudningBox(self):
         print 'Bounding Box for: ' + str(self)
-        print str(upperLeft) + ', ' + str(lowerRight)
+        print str(self.upperLeft) + ', ' + str(self.lowerRight)
