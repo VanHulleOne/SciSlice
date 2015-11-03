@@ -67,7 +67,7 @@ class Line:
     
     def distance(self, start, end):
         """Returns the distance between two points"""
-        return math.sqrt((start.getX() - end.getX())**2 + (start.getY() - end.getY())**2)
+        return start.distance(end)
         
     def translate(self, shiftX, shiftY):
         newStart = self.start.translate(shiftX, shiftY)

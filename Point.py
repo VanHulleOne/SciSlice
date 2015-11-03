@@ -10,6 +10,8 @@ class Point:
     X, Y = 0, 1
     
     def __init__(self, x, y):
+        self.x = x
+        self.y = y        
         self.normalVector = [x, y, 1]
         
     def getPoint(self):
@@ -41,6 +43,9 @@ class Point:
         nv = numpy.dot(transMatrix, self.normalVector)
         return Point(nv[self.X], nv[self.Y])
         
+    def distance(self, other):
+        return math.sqrt((self.x - other.x)**2 + (self.y - other.y)**2)
+    
     def __str__(self):
         return 'X: {:.3f} Y: {:.3f}'.format(self.normalVector[self.X], self.normalVector[self.Y])
         
