@@ -49,7 +49,10 @@ class LineGroup(object):
     def mirror(self, axis):
         tempLines = [line.mirror(axis) for line in self.lines]
         tempLines.reverse()
-        return LineGroup(tempLines)
+        tempLines2 = []
+        for line in tempLines:
+            tempLines2.append(l.Line(line.end, line.start))
+        return LineGroup(tempLines2)
     
     def translate(self, xShift, yShift):
         return LineGroup([line.translate(xShift, yShift) for line in self.lines])        
