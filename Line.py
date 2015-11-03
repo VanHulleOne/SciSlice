@@ -96,6 +96,11 @@ class Line:
         self.upperLeft = p.Point(tempList[0][0], tempList[1][1])
         self.lowerRight = p.Point(tempList[0][1], tempList[1][0])
     
+    def getMidPoint(self):
+        x = (self.start.getX() - self.end.getX())/2.0 + self.end.getX()
+        y = (self.start.getY() - self.end.getY())/2.0 + self.end.getY()
+        return p.Point(x, y)
+        
     def getStart(self):
         return p.Point(self.start.getX(), self.start.getY())
         
