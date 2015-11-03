@@ -28,7 +28,11 @@ class LineGroup(object):
         if(line.upperLeft.getY() > self.maxY): self.maxY = line.upperLeft.getY()
         if(line.lowerRight.getX() > self.maxX): self.maxX = line.lowerRight.getX()
         if(line.lowerRight.getY() < self.minY): self.mainY = line.lowerRight.getY()
-        
+
+    def addLineGroup(self, inGroup):
+        for line in inGroup:
+            self.addLine(line)
+    
     def __str__(self):
         tempString = ''     
         for line in self.lines:
