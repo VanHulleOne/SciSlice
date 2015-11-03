@@ -7,6 +7,8 @@ Created on Tue Nov 03 09:46:30 2015
 
 class LineGroup(object):
     
+    X, Y = 0, 1
+    
     def __init__(self, inGroup):
         if(inGroup != None):
             self.lines = inGroup
@@ -32,7 +34,16 @@ class LineGroup(object):
     def addLineGroup(self, inGroup):
         for line in inGroup:
             self.addLine(line)
+            
+    def mirror(self, axis):
+        return LineGroup([line.mirror(axis) for line in self.lines])
     
+    def translate(self, xShift, yShift):
+        return LineGroup([line.translate(xShift, yShift) for line in self.lines])        
+        
+    def rotate(self, angle):
+        return LineGroup([line.rotate(angle) for line in self.lines])
+        
     def __str__(self):
         tempString = ''     
         for line in self.lines:
