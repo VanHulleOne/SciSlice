@@ -9,6 +9,10 @@ import numpy
 import operator
 import Point as p
 import Line as l
+import Shape as s
+import LineGroup as LG
+import InFill as InF
+import arc as a
 
 numPoints = 20
 CW = -1
@@ -45,56 +49,10 @@ outputSubDirectory = 'Gcode'
 startEndSubDirectory = 'Start_End_Gcode'
 
 tempShape1 = [[[]]]
-
-def distance(first, second):
-    """Returns the distance between two points"""
-    return math.sqrt((first[X] - second[X])**2 + (first[Y] - second[Y])**2)
     
 def squareDistance(first, second):
     """Returns the squared distance between two points to save on computation time"""
     return ((first[X] - second[X])**2 + (first[Y] - second[Y])**2)
-
-def calcIncludedAngle(start, end, direction):
-    """
-    Given an input of two angles, calculated in unit circle fashion, and the
-    direction around the circle you want to travel, this method will return
-    the total included angle.
-    """    
-    t = end - start
-    if(direction == CW and t > 0):
-        return t - 2*math.pi
-    elif(direction == CCW and t < 0):
-        return 2*math.pi+t
-    elif(t == 0):
-        return 2*math.pi
-    else:
-        return t
-
-def arcToLineList(arc):
-    """Converts an arc to a set of line segments"""
-    radius = distance(arc[START], arc[CENTER])
-    startAngle = math.atan2(arc[START] [Y]- arc[CENTER][Y],
-                        arc[START] [X]- arc[CENTER][X])
-    startAngle = startAngle if startAngle >= 0 else 2*math.pi+startAngle
-    endAngle = math.atan2(arc[END] [Y]- arc[CENTER][Y],
-                        arc[END] [X]- arc[CENTER][X])
-    endAngle = endAngle if endAngle >= 0 else 2*math.pi+endAngle
-
-    includedAngle = calcIncludedAngle(startAngle, endAngle, arc[DIR][0])
-    currentAngle = startAngle
-    startPoint = p.Point(arc[START][X], arc[START][Y])
-    tempList = []
-    for i in range(numPoints-2):
-        currentAngle += includedAngle/(numPoints-1)
-        x = arc[CENTER][X]+radius*math.cos(currentAngle)
-        y = arc[CENTER][Y]+radius*math.sin(currentAngle)
-        endPoint = p.Point(x, y)
-        tempList.append(l.Line(startPoint, endPoint))
-        startPoint = endPoint
-    endPoint = p.Point(arc[END][X], arc[END][Y])
-    tempList.append(l.Line(startPoint, endPoint))
-#    print tempList
-    return tempList
    
 def getLineAngle(p1, p2):
     angle = math.atan2((p2[Y]-p1[Y]), (p2[X] - p1[X]))
@@ -212,26 +170,16 @@ dogBone = removeDuplicates(dogBone)
 dogBone = translate(dogBone, 120, 40)
 finalShape = dogBone
 """
+#arc1 = [[49.642, 9.5], [28.5, 6.5], [CW],[28.5, 82.5]]
 
-lines = arcToLineList(arc1)
-for line in lines:
-    print line
-#point1 = p.Point(1,2)
-#point2 = p.Point(3,2)
-#point3 = p.Point(3,5)
+dogBone = s.Shape(None)
+dogBone.addLinesFromCoordinateList([[82.5, 0], [82.5, 9.5], [49.642, 9.5]])
+arc = a.Arc(p.Point(49.642, 9.5), p.Point(28.5, 6.5), CW, p.Point(28.5, 82.5), 20)
+dogBone.addLineGroup(arc)
+dogBone.addLineGroup(dogBone.mirror(Y))
+dogBone.addLineGroup(dogBone.mirror(X))
 
-#line1 = l.Line(point1, point2)
-#line2 = l.Line(point2, point3)
-
-#shape1 = [line1, line2]
-
-    
-#shape2 = mirror(shape1, X)
-#for line in shape2:
-#    print line
-
-#for line in shape1:
-#    print line
+print dogBone
 
 #finalShape = closeShape(fifferShape)
 """
