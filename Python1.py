@@ -70,18 +70,6 @@ def calcIncludedAngle(start, end, direction):
     else:
         return t
 
-def mirror(shape, axis):
-    tempShape = [line.mirror(axis) for line in shape]
-    return tempShape
-    
-def translate(shape, xShift, yShift):
-    tempShape = [line.translate(xShift, yShift) for line in shape]
-    return tempShape
-    
-def rotate(shape, angle):
-    tempShape = [line.rotate(angle) for line in shape]
-    return tempShape
-
 def arcToLineList(arc):
     """Converts an arc to a set of line segments"""
     radius = distance(arc[START], arc[CENTER])
@@ -179,98 +167,7 @@ def intersectParser(shape, positiveArea):
             newShape.append(shape[i+1])
     tempShape1[0] = newShape
     return 1
-    
-def getshapeMinMax(shape):
-    """Given an input shape reutrns the min and max for each axis plus 5"""
-    minX = shape[0][X]-5
-    maxX = minX+10
-    minY = shape[0][Y]-5
-    maxY = minY+10
-    
-    for point in shape:
-        if(point[X] < minX): minX = point[X]-5
-        elif(point[X] > maxX): maxX = point[X]+5
-        if(point[Y] < minY): minY = point[Y]-5
-        elif(point[Y] > maxY): maxY = point[Y]+5
-    return minX, maxX, minY, maxY
 
-def setOfLines(lineSpace, lineAngle, insideShape):
-    lineSet = [[[]]]
-    minX, maxX, minY, maxY = getshapeMinMax(insideShape)
-    maxDiagonal = distance([minX, minY], [maxX, maxY])+4*lineSpace
-    centerX = (maxX-minX)/2.0 + minX
-    centerY = (maxY-minY)/2.0 + minY
-    leftX = centerX-maxDiagonal/2.0
-    rightX = centerX+maxDiagonal/2.0
-    lineSet[0] = [[leftX, centerY, 1], [rightX, centerY, 1]]
-    numSteps = int(maxDiagonal/2.0/lineSpace)
-    for i in range(1, numSteps):
-        lineSet.append([[leftX, centerY+i*lineSpace], [rightX, centerY+i*lineSpace]])
-        lineSet.append([[leftX, centerY-i*lineSpace], [rightX, centerY-i*lineSpace]])
-    lineSet = sorted(lineSet, key = lambda line : line[0][1])
-    R = [[math.cos(lineAngle), -math.sin(lineAngle)], [math.sin(lineAngle), math.cos(lineAngle)]]
-    p = [[centerX], [centerY]]
-#    print "p: ", p
-    p_lessRp = numpy.subtract(p, numpy.dot(R, p))
-#    print 'p_lessRp: ', p_lessRp
-    T = [[0 for x in range(3)] for x in range(3)]
-    
-    for i in range(2):
-        for j in range(2):
-            T[i][j] = R[i][j]
-    T[0][2] = p_lessRp[0][0]
-    T[1][2] = p_lessRp[1][0]
-    T[2][2] = 1.0
-
-    for i in range(len(lineSet)):
-        normalVector1 = numpy.dot(T, pointToNormalVector(lineSet[i][0]))
-        normalVector2 = numpy.dot(T, pointToNormalVector(lineSet[i][1]))
-        lineSet[i][0] = normalVectorToPoint(normalVector1)
-        lineSet[i][1] = normalVectorToPoint(normalVector2)
-
-    return lineSet   
-
-def getMidPoint(line):
-    x = (line[0][X] - line[1][X])/2.0 + line[1][X]
-    y = (line[0][Y] - line[1][Y])/2.0 + line[1][Y]
-    return ([x, y])
-    
-def closeShape(shape):
-    if(shape[0][X] != shape[-1][X] or shape[0][Y] != shape[-1][Y]):
-        shape.append(shape[0])
-        return shape
-    return shape
-
-#create a multi point line, start, end, intersect point
-#then sort by XY, then create seperate line segments, then check if in middle
-#maybe make newLines[[]] the list of line segments and then put the lines in finalLines[[]]
-def trimBackground(background, outline):
-    newLines = [[]]
-    offset = 1
-    for line in background:
-        newLines.append([line[0]]) #add first point of line to last line in newLines
-        for i in range(len(outline)-1):
-            value, point = segmentsIntersect(line[0], line[1], outline[i], outline[i+1])
-            if(value == 1):
-                newLines[offset].append(point)
-#                offset += 1
-#                newLines.append([point])
-        newLines[offset].append(line[1])
-        offset += 1
-    newLines.pop(0)
-#    for line in newLines:
-#        print line
-        
-    finalLines = [[]]
-  
-    for lineSet in newLines:
-        lineSet = sorted(lineSet, key = operator.itemgetter(0,1))        
-        for i in range(len(lineSet)-1):
-            line = [lineSet[i], lineSet[i+1]]
-            if(isInside(getMidPoint(line), outline)):
-                finalLines.append(line)
-    finalLines.pop(0)    
-    return finalLines
 
 #TODO: Currently picks the next closest point, for some shapes this might
 #       not be the best strategy, should print so that a new bead is always next
