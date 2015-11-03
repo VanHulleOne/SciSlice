@@ -4,7 +4,7 @@ Created on Tue Nov 03 09:46:30 2015
 
 @author: lvanhulle
 """
-
+import Point as p
 class LineGroup(object):
     
     X, Y = 0, 1
@@ -44,6 +44,11 @@ class LineGroup(object):
     def rotate(self, angle):
         return LineGroup([line.rotate(angle) for line in self.lines])
         
+    def getMidPoint(self):
+        x = (self.maxX - self.minX)/2.0 + self.minX
+        y = (self.maxY - self.minY)/2.0 + self.minY
+        return p.Point(x, y)
+    
     def __str__(self):
         tempString = ''     
         for line in self.lines:
