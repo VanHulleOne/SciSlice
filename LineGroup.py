@@ -5,21 +5,22 @@ Created on Tue Nov 03 09:46:30 2015
 @author: lvanhulle
 """
 import Point as p
+import Line as l
 class LineGroup(object):
     
     X, Y = 0, 1
     
     def __init__(self, inGroup):
+        self.minX = None
+        self.minY = None
+        self.maxX = None
+        self.maxY = None        
         if(inGroup != None):
             self.lines = inGroup
             for line in self.lines:
                 self.updateMinMax(line)
         else:
             self.lines = []
-            self.minX = None
-            self.minY = None
-            self.maxX = None
-            self.maxY = None
             
     def addLine(self, line):
         self.lines.append(line)
@@ -32,11 +33,23 @@ class LineGroup(object):
         if(line.lowerRight.getY() < self.minY): self.mainY = line.lowerRight.getY()
 
     def addLineGroup(self, inGroup):
-        for line in inGroup:
+        for line in inGroup.lines:
             self.addLine(line)
             
+    def addLinesFromCoordinateList(self, coordList):
+        pointList = []        
+        for coord in coordList:
+            pointList.append(p.Point(coord[self.X], coord[self.Y]))
+        self.addLinesFromPoints(pointList)
+    
+    def addLinesFromPoints(self, pointList):
+        for i in range(len(pointList)-1):
+            self.addLine(l.Line(pointList[i], pointList[i+1]))
+            
     def mirror(self, axis):
-        return LineGroup([line.mirror(axis) for line in self.lines])
+        tempLines = [line.mirror(axis) for line in self.lines]
+        tempLines.reverse()
+        return LineGroup(tempLines)
     
     def translate(self, xShift, yShift):
         return LineGroup([line.translate(xShift, yShift) for line in self.lines])        
