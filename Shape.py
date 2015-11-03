@@ -22,6 +22,25 @@ class Shape:
             self.maxX = None
             self.maxY = None
         
+    def addInternalShape(self, inShape):
+        if(not inShape.shapeIsClosed):
+            print '********** Your internal shape was not closed. **********'
+        if(not self.isInside(inShape.lines[0].start)):
+            print '********** The internal shape is not inside the main shape. **********'
+        if(self.doShapesIntersect(inShape)):
+            print '********** Internal shape is not completely inside main shape. **********'
+        
+        for line in inShape.lines:
+            self.lines.append(line)
+    
+    def doShapesIntersect(self, inShape):
+        for line in self.lines:
+            for line2 in inShape.lines:
+                result, point = line.segmentsIntersect(line2)
+                if(result > 0):
+                    return True
+        return False
+        
     def addLine(self, line):
         self.lines.append(line)
         self.updateMinMax(line)
