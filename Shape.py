@@ -6,21 +6,12 @@ Created on Wed Oct 28 14:09:55 2015
 """
 import Line as l
 import Point as p
-class Shape:
-    
+from LineGroup import LineGroup as LG
+
+class Shape(LG):    
     def __init__(self, shape):
-        self.shapeIsClosed = False
-        if(shape != None):
-            self.lines = shape
-            for line in self.lines:
-                self.updateMinMax(line)
-            self.shapeIsClosed = self.isShapeClosed()
-        else:
-            self.lines = []
-            self.minX = None
-            self.minY = None
-            self.maxX = None
-            self.maxY = None
+        LG.__init__(self, shape)
+        self.shapeIsClosed = self.isShapeClosed() #False
         
     def addInternalShape(self, inShape):
         if(not inShape.shapeIsClosed):
@@ -40,16 +31,6 @@ class Shape:
                 if(result > 0):
                     return True
         return False
-        
-    def addLine(self, line):
-        self.lines.append(line)
-        self.updateMinMax(line)
-        
-    def updateMinMax(self, line):
-        if(line.upperLeft.getX() < self.minX): self.minX = line.upperLeft.getX()
-        if(line.upperLeft.getY() > self.maxY): self.maxY = line.upperLeft.getY()
-        if(line.lowerRight.getX() > self.maxX): self.maxX = line.lowerRight.getX()
-        if(line.lowerRight.getY() < self.minY): self.mainY = line.lowerRight.getY()        
     
     def closeShape(self):
         if(self.lines[0].start != self.lines[-1].end):
@@ -58,6 +39,7 @@ class Shape:
         self.shapeIsClosed = True
         
     def isShapeClosed(self):
+        if(len(self.lines) < 2): return False
         if(self.lines[0].start == self.lines[-1].end):
             return True
         return False
@@ -77,5 +59,5 @@ class Shape:
         for line in self.lines:
             if(line.segmentsIntersect(testLine)): intersections += 1
         return (intersections % 2)
-        
+            
     
