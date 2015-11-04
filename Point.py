@@ -15,7 +15,7 @@ class Point:
         self.normalVector = [x, y, 1]
         
     def getPoint(self):
-        return self.normalVector[self.X:self.Y]
+        return self.normalVector[self.X:self.Y+1]
         
     def mirror(self, axis):
         transMatrix = numpy.identity(3)
