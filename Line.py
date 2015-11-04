@@ -62,7 +62,7 @@ class Line:
     def doBoundingBoxesIntersect(self, other):
         if(self.upperLeft.getX() <= other.lowerRight.getX() and
             self.lowerRight.getX() >= other.upperLeft.getX() and
-            self.upperRight.getY() >= other.lowerRight.getY() and
+            self.upperLeft.getY() >= other.lowerRight.getY() and
             self.lowerRight.getY() <= other.upperLeft.getY()):
                 return True
         return False 
