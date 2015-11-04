@@ -27,10 +27,10 @@ class LineGroup(object):
         self.updateMinMax(line)
         
     def updateMinMax(self, line):
-        if(line.upperLeft.getX() < self.minX): self.minX = line.upperLeft.getX()
-        if(line.upperLeft.getY() > self.maxY): self.maxY = line.upperLeft.getY()
-        if(line.lowerRight.getX() > self.maxX): self.maxX = line.lowerRight.getX()
-        if(line.lowerRight.getY() < self.minY): self.mainY = line.lowerRight.getY()
+        if(line.upperLeft.getX() < self.minX or self.minX is None): self.minX = line.upperLeft.getX()
+        if(line.upperLeft.getY() > self.maxY or self.maxY is None): self.maxY = line.upperLeft.getY()
+        if(line.lowerRight.getX() > self.maxX or self.maxX is None): self.maxX = line.lowerRight.getX()
+        if(line.lowerRight.getY() < self.minY or self.minY is None): self.minY = line.lowerRight.getY()
 
     def addLineGroup(self, inGroup):
         for line in inGroup.lines:

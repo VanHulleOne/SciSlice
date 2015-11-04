@@ -9,6 +9,7 @@ import Line as l
 import Point as p
 import Shape as s
 from LineGroup import LineGroup as LG
+import LineGroup as lg
 
 class InFill(LG):
     
@@ -30,8 +31,8 @@ class InFill(LG):
         if(design == None):
             point1 = p.Point(trimShape.minX, 0)
             point2 = p.Point(trimShape.maxX, 0)
-            line = l.Line(point1, point2)
-            self.design = LG.LineGroup(line)
+            lineList = [l.Line(point1, point2)]
+            self.design = lg.LineGroup(lineList)
             self.designType = self.FULL_ROW
         else:
             self.design = design
@@ -40,7 +41,7 @@ class InFill(LG):
             self.operations[i]();
         
     def extendDesign(self):
-        tempDesign = LG.LineGroup(self.design)
+        tempDesign = lg.LineGroup(self.design)
         designWidth = self.design.maxX - self.design.minX
         trimWidth = self.trimShape.maxX - self.trimShape.minX
         
@@ -55,12 +56,15 @@ class InFill(LG):
         while(tempDesign.minY < self.trimShape.maxY):
             self.design.addLineGroup(tempDesign)
             tempDesign = tempDesign.translate(0, self.spacing)
+#            print 'tempDesign: ' + str(tempDesign)
+#            print ' minY: ' + tempDesign.minY
+#            print ' tS.maxY: ' + self.trimShape.maxY
         
     def trimField(self):
         tempLines = []
-        for line in self.design:
+        for line in self.design.lines:
             pointList = [line.getStart()]
-            for tLine in self.trimShape:
+            for tLine in self.trimShape.lines:
                 result, point = line.segmentsIntersect(tLine)
                 if(result == 1):
                     pointList.append(point)

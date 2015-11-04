@@ -13,6 +13,8 @@ class Line:
     def __init__(self, start, end):
         self.start = start
         self.end = end
+#        print 'Start: ' + str(self.start)
+#        print 'End: ' + str(self.end)
         self.length = self.distance(start, end)
         if(self.length == 0): print 'SNAFU detected, a line was created with no length.'
         self.upperLeft = None
@@ -89,12 +91,13 @@ class Line:
         Set the upper left and lower right coordinates of the smallest box
         which containts the line.
         """
-        tempList = [[self.start.getX(), self.end.getX()],
-                     [self.start.getY(), self.end.getY()]]
+        tempList = [[self.start.x, self.end.x],
+                     [self.start.y, self.end.y]]
         for row in tempList:
             row.sort()
         self.upperLeft = p.Point(tempList[0][0], tempList[1][1])
         self.lowerRight = p.Point(tempList[0][1], tempList[1][0])
+        return None
     
     def getMidPoint(self):
         x = (self.start.getX() - self.end.getX())/2.0 + self.end.getX()

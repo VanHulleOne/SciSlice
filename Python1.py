@@ -179,7 +179,8 @@ dogBone.addLineGroup(arc)
 dogBone.addLineGroup(dogBone.mirror(Y))
 dogBone.addLineGroup(dogBone.mirror(X))
 
-print dogBone
+infill = InF.InFill(dogBone, backgroundAngle, beadWidth, None, None)
+print infill
 
 #finalShape = closeShape(fifferShape)
 """
