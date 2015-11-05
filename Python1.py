@@ -176,15 +176,16 @@ dogBone = s.Shape(None)
 dogBone.addLinesFromCoordinateList([[82.5, 0], [82.5, 9.5], [49.642, 9.5]])
 arc = a.Arc(p.Point(49.642, 9.5), p.Point(28.5, 6.5), CW, p.Point(28.5, 82.5), 20)
 dogBone.addLineGroup(arc)
+dogBone.addLinesFromCoordinateList([[28.5, 6.5], [0, 6.5]])
 dogBone.addLineGroup(dogBone.mirror(Y))
 dogBone.addLineGroup(dogBone.mirror(X))
 
 infill = InF.InFill(dogBone, backgroundAngle, beadWidth, None, None)
 
 print 'dogBone'
-print str(dogBone)
+#print str(dogBone)
 print 'Here: 1'
-#print str(infill)
+print str(infill)
 print 'Here: 2'
 
 #finalShape = closeShape(fifferShape)
