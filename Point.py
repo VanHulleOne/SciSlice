@@ -46,6 +46,13 @@ class Point:
     def distance(self, other):
         return math.sqrt((self.x - other.x)**2 + (self.y - other.y)**2)
     
+    def __cmp__(self, other):
+        if(self.x > other.x): return 1
+        if(self.x < other.x): return -1
+        if(self.y > other.y): return 1
+        if(self.y < other.y): return -1
+        return 0
+    
     def __str__(self):
         return 'X{:.3f} Y{:.3f}'.format(self.normalVector[self.X], self.normalVector[self.Y])
         
