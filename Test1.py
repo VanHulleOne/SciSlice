@@ -17,8 +17,8 @@ arc = a.Arc(p.Point(49.642, 9.5), p.Point(28.5, 6.5), CW, p.Point(28.5, 82.5), 2
 
 p1 = p.Point(0,0)
 p2 = p.Point(0,4)
-p3 = p.Point(4,2)
-p4 = p.Point(2,2)
+p3 = p.Point(2,2)
+p4 = p.Point(0,4)
 
 line1 = l.Line(p1, p2)
 line2 = l.Line(p3, p4)
