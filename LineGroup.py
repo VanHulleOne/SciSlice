@@ -16,7 +16,10 @@ class LineGroup(object):
         self.maxX = None
         self.maxY = None        
         if(inGroup != None):
-            self.lines = inGroup
+            if(type(inGroup) is list):
+                self.lines = inGroup
+            else:
+                self.lines = [inGroup]
             for line in self.lines:
                 self.updateMinMax(line)
         else:
