@@ -66,6 +66,6 @@ class Shape(LG):
             print 'Total Intersections: ' + str(intersections)
             for p1 in points:
                 print p1
-        return (intersections % 2)
+        return (True if intersections % 2 == 1 else False)
             
     
