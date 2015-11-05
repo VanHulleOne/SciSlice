@@ -29,11 +29,11 @@ class InFill(LG):
                            2 : self.trimField}
         
         if(design == None):
-            point1 = p.Point(trimShape.minX, 0)
-            point2 = p.Point(trimShape.maxX, 0)
-            lineList = [l.Line(point1, point2)]
-            self.design = lg.LineGroup(lineList)
-            self.designType = self.FULL_ROW
+            point1 = p.Point(trimShape.minX-10, 0)
+            point2 = p.Point(trimShape.maxX+10, 0)
+#            lineList = [l.Line(point1, point2)]
+            self.design = lg.LineGroup(l.Line(point1, point2))
+            self.designType = self.PARTIAL_ROW
         else:
             self.design = design
         
@@ -41,11 +41,11 @@ class InFill(LG):
             self.operations[i]();
         
     def extendDesign(self):
-        tempDesign = lg.LineGroup(self.design)
+        tempDesign = lg.LineGroup(self.design.lines)
         designWidth = self.design.maxX - self.design.minX
         trimWidth = self.trimShape.maxX - self.trimShape.minX
         
-        while(designWidth < trimWidth):
+        while(designWidth <= trimWidth):
             shiftX = self.design.lines[-1].end.getX() - self.tempDesign.lines[0].start.getX()
             shiftY = self.design.lines[-1].end.getY() - self.tempDesign.lines[0].start.getY()
             self.design.addLineGroup(tempDesign.translate(shiftX, shiftY))
@@ -69,8 +69,11 @@ class InFill(LG):
                 if(result == 1):
                     pointList.append(point)
             pointList.append(line.getEnd())
+            pointList.sort()
             for i in range(len(pointList)-1):
-                tempLines.append(l.Line(pointList[i], pointList[i+1]))
+                holdLine = l.Line(pointList[i], pointList[i+1])
+                print 'Point Infill: ' + str(holdLine)
+                tempLines.append(holdLine)
         for i in range(len(tempLines)):
             if(self.trimShape.isInside(tempLines[i].getMidPoint())):
                 self.lines.append(tempLines[i])
@@ -78,7 +81,7 @@ class InFill(LG):
     def centerDesignBelowTrim(self):
         designCP = self.design.getMidPoint()
         trimShapeCP = self.trimShape.getMidPoint()
-        transX = trimShapeCP.getX() - designCP.getX()
-        transY = trimShapeCP.minY - designCP.maxY
+        transX = trimShapeCP.x - designCP.x
+        transY = self.trimShape.minY - self.design.maxY
         self.design = self.design.translate(transX, transY)
         
