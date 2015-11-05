@@ -47,7 +47,7 @@ class Point:
         return math.sqrt((self.x - other.x)**2 + (self.y - other.y)**2)
     
     def __str__(self):
-        return 'X: {:.3f} Y: {:.3f}'.format(self.normalVector[self.X], self.normalVector[self.Y])
+        return 'X{:.3f} Y{:.3f}'.format(self.normalVector[self.X], self.normalVector[self.Y])
         
     def getX(self):
         return self.normalVector[self.X]

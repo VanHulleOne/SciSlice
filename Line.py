@@ -111,7 +111,7 @@ class Line:
         return p.Point(self.end.getX(), self.end.getY())
     
     def __str__(self):
-        return '[' + str(self.start) + '], [' + str(self.end) + ']'
+        return str(self.start) + '\n' + str(self.end)
         
     def printBoudningBox(self):
         print 'Bounding Box for: ' + str(self)

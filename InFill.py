@@ -71,11 +71,8 @@ class InFill(LG):
             pointList.append(line.getEnd())
             for i in range(len(pointList)-1):
                 tempLines.append(l.Line(pointList[i], pointList[i+1]))
-        for line in tempLines:
-            print str(line)
         for i in range(len(tempLines)):
             if(self.trimShape.isInside(tempLines[i].getMidPoint())):
-                print 'Added a temp line.'
                 self.lines.append(tempLines[i])
     
     def centerDesignBelowTrim(self):

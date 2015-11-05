@@ -23,7 +23,7 @@ class Arc(LG):
         self.center = center
         self.numPoints = numPoints
         
-        if(self.numPoints == None): self.numPoints = 20
+        if(self.numPoints is None): self.numPoints = 20
         
         self.arcToLines()
         
@@ -34,9 +34,9 @@ class Arc(LG):
                             self.start.x - self.center.x)
         startAngle = startAngle if startAngle >= 0 else 2*math.pi+startAngle
         endAngle = math.atan2(self.end.y- self.center.y,
-                            self.end.x- self.center.y)
+                            self.end.x- self.center.x)
         endAngle = endAngle if endAngle >= 0 else 2*math.pi+endAngle
-    
+        
         includedAngle = self.calcIncludedAngle(startAngle, endAngle)
         currentAngle = startAngle
         startPoint = p.Point(self.start.x, self.start.y)

@@ -56,8 +56,16 @@ class Shape(LG):
         """
         testLine = l.Line(point, p.Point(point.getX(), self.minY - 10))
         intersections = 0
+        points = []
         for line in self.lines:
-            if(line.segmentsIntersect(testLine)): intersections += 1
+            result, point = line.segmentsIntersect(testLine)
+            if(result == 1):
+                points.append(point)
+                intersections += 1
+        if(intersections >= 8):
+            print 'Total Intersections: ' + str(intersections)
+            for p1 in points:
+                print p1
         return (intersections % 2)
             
     
