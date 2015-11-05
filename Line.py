@@ -31,15 +31,19 @@ class Line:
         denom = numpy.cross(r, s)
         t = numpy.cross(Q_Less_P, s)/denom
         u = numpy.cross(Q_Less_P, r)/denom
+        print 't: ' + str(t) + ' u" ' + str(u)
         if(abs(t) > 1 or abs(u) > 1):
             print 'Should we be here? segmentsIntersect math problem, I think'
+        if(t == 1):
+            return -3, p.Point(self.start.getX() + r[self.X]*t,
+                          self.start.getY()+r[self.Y]*t) #lines meet at end point of self
         return 1, p.Point(self.start.getX() + r[self.X]*t,
                           self.start.getY()+r[self.Y]*t) #lines intersect at given point
         return -2, None #bounding boxes intersected but lines did not    
     
     def getArea(self, p1, p2, p3):
         """
-        Uses the determinant of a matrix conataining the three to find the area
+        Uses the determinant of a matrix containing the three to find the area
         of the triangle formed by the three points.
         SPECIAL NOTE: the area is actually 1/2 the determinant but I have
         left out that extra, unneeded calculation.
@@ -98,9 +102,10 @@ class Line:
         self.upperLeft = p.Point(tempList[0][0], tempList[1][1])
         self.lowerRight = p.Point(tempList[0][1], tempList[1][0])
         return None
-    
+
+#TODO: Remove that +1    
     def getMidPoint(self):
-        x = (self.start.getX() - self.end.getX())/2.0 + self.end.getX()
+        x = (self.start.getX() - self.end.getX())/2.0 + self.end.getX()#+1
         y = (self.start.getY() - self.end.getY())/2.0 + self.end.getY()
         return p.Point(x, y)
         
