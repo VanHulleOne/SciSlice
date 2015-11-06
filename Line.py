@@ -15,7 +15,7 @@ class Line:
         self.end = end
 #        print 'Start: ' + str(self.start)
 #        print 'End: ' + str(self.end)
-        self.length = self.distance(start, end)
+        self.length = start.distance(end)
         if(self.length == 0): print 'SNAFU detected, a line was created with no length.'
         self.upperLeft = None
         self.lowerRight = None
@@ -69,10 +69,6 @@ class Line:
             self.lowerRight.getY() <= other.upperLeft.getY()):
                 return True
         return False 
-    
-    def distance(self, start, end):
-        """Returns the distance between two points"""
-        return start.distance(end)
         
     def translate(self, shiftX, shiftY):
         newStart = self.start.translate(shiftX, shiftY)
@@ -90,6 +86,11 @@ class Line:
         newEnd = self.end.rotate(angle, point)
         return Line(newStart, newEnd)
 
+    def flip(self):        
+        temp = p.Point(self.start.x, self.start.y)
+        self.start = p.Point(self.end.x, self.end.y)
+        self.end = temp
+        
     def setBoundingBox(self):
         """
         Set the upper left and lower right coordinates of the smallest box
@@ -114,6 +115,15 @@ class Line:
         
     def getEnd(self):
         return p.Point(self.end.getX(), self.end.getY())
+    
+    def __lt__(self, other):
+        selfLower = self.start if self.start < self.end else self.end
+        otherLower = other.start if other.start < other.end else other.end
+        return (selfLower < otherLower)
+        
+    def __eq__(self, other):
+        return (self.start == other.start and self.end == other.end)
+        
     
     def __str__(self):
         return str(self.start) + '   \t' + str(self.end)
