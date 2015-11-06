@@ -56,6 +56,9 @@ class Point:
         
     def distance(self, other):
         return math.sqrt((self.x - other.x)**2 + (self.y - other.y)**2)
+        
+    def squareDistance(self, other):
+        return ((self.x - other.x)**2 + (self.y - other.y)**2)
     
 #TODO: __cmp__ isn't used in Python 3.0 or later so this should eventually be
     #converted to the 6 rich comparison methods
@@ -65,6 +68,15 @@ class Point:
         if(self.y > other.y): return 1
         if(self.y < other.y): return -1
         return 0
+    
+    def __lt__(self, other):
+        if(self.x < other.x): return True
+        if(self.x > other.x): return False
+        if(self.y < other.y): return True
+        return False
+        
+    def __eq__(self, other):
+        return (self.x == other.x and self.y == other.y)
     
     def __str__(self):
         return 'X{:.3f} Y{:.3f}'.format(self.normalVector[self.X], self.normalVector[self.Y])
