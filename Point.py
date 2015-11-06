@@ -25,12 +25,23 @@ class Point:
             transMatrix[self.X][0] = -1
         return self.transform(transMatrix)
     
-    def rotate(self, angle):
-        transMatrix = numpy.identity(3)
-        transMatrix[self.X][0] = math.cos(angle)
-        transMatrix[self.Y][0] = math.sin(angle)
-        transMatrix[self.X][1] = -transMatrix[self.Y][0]
-        transMatrix[self.Y][1] = transMatrix[self.X][0]
+    def rotate(self, angle, point):
+        if(point is None): point = Point(0,0)
+        toOrigin = numpy.identity(3)
+        toOrigin[self.X][2] = -point.x
+        toOrigin[self.Y][2] = -point.y
+        
+        rotateMatrix = numpy.identity(3)
+        rotateMatrix[self.X][0] = math.cos(angle)
+        rotateMatrix[self.Y][0] = math.sin(angle)
+        rotateMatrix[self.X][1] = -rotateMatrix[self.Y][0]
+        rotateMatrix[self.Y][1] = rotateMatrix[self.X][0]
+        
+        transBack = numpy.identity(3)
+        transBack[self.X][2] = point.x
+        transBack[self.Y][2] = point.y
+        
+        transMatrix = numpy.dot(transBack, numpy.dot(rotateMatrix, toOrigin))
         return self.transform(transMatrix)
     
     def translate(self, shiftX, shiftY):
@@ -46,6 +57,8 @@ class Point:
     def distance(self, other):
         return math.sqrt((self.x - other.x)**2 + (self.y - other.y)**2)
     
+#TODO: __cmp__ isn't used in Python 3.0 or later so this should eventually be
+    #converted to the 6 rich comparison methods
     def __cmp__(self, other):
         if(self.x > other.x): return 1
         if(self.x < other.x): return -1
