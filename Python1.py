@@ -34,7 +34,7 @@ OUTSIDE = 0
 outputFileName = 'DB_10-23_Test.gcode' #the name of the file you want output. git will ignore all .gcode unless they start with SAVE
 start_Gcode_FileName = 'Start_Gcode_Taz5.txt' #the file name for the starting gcode
 end_Gcode_FileName = 'End_Gcode_Taz5.txt' #The file name for the end gcode
-beadWidth = 0.5
+beadWidth = 0.501
 airGap = 0.0
 ZStep = 0.4     #layer height
 ZHeight = 3.201  #Total Height of the part
@@ -182,11 +182,10 @@ dogBone.addLineGroup(dogBone.mirror(X))
 
 infill = InF.InFill(dogBone, backgroundAngle, beadWidth, None, None)
 
-print 'dogBone'
+#print 'dogBone'
 #print str(dogBone)
-print 'Here: 1'
+print 'InFill:'
 print str(infill)
-print 'Here: 2'
 
 #finalShape = closeShape(fifferShape)
 """
