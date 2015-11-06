@@ -23,7 +23,10 @@ class InFill(LG):
         self.trimShape = trimShape
         self.angle = angle
         self.spacing = spacing
+        lowerLeft = p.Point(trimShape.minX, trimShape.minY)
+        upperRight = p.Point(trimShape.maxX, trimShape.maxY)
         
+        self.trimDiagonal = lowerLeft.distance(upperRight)*1.1       
         self.operations = {0 : self.extendDesign,
                            1 : self.createField,
                            2 : self.trimField}
@@ -42,23 +45,20 @@ class InFill(LG):
         
     def extendDesign(self):
         tempDesign = lg.LineGroup(self.design.lines)
-        designWidth = self.design.maxX - self.design.minX
-        trimWidth = self.trimShape.maxX - self.trimShape.minX
-        
-        while(designWidth <= trimWidth):
+        designWidth = self.design.maxX - self.design.minX        
+        while(designWidth <= self.trimDiagonal):
             shiftX = self.design.lines[-1].end.getX() - self.tempDesign.lines[0].start.getX()
             shiftY = self.design.lines[-1].end.getY() - self.tempDesign.lines[0].start.getY()
             self.design.addLineGroup(tempDesign.translate(shiftX, shiftY))
-        self.centerDesignBelowTrim() 
         
     def createField(self):
         tempDesign = self.design.translate(0, self.spacing)
-        while(tempDesign.minY < self.trimShape.maxY):
+        designHeight = abs(self.design.maxY - self.design.minY)
+        while(designHeight < self.trimDiagonal):
             self.design.addLineGroup(tempDesign)
             tempDesign = tempDesign.translate(0, self.spacing)
-#            print 'tempDesign: ' + str(tempDesign)
-#            print ' minY: ' + tempDesign.minY
-#            print ' tS.maxY: ' + self.trimShape.maxY
+            designHeight += self.spacing
+        self.centerAndRotateField()
         
     def trimField(self):
         tempLines = []
@@ -70,18 +70,17 @@ class InFill(LG):
                     pointList.append(point)
             pointList.append(line.getEnd())
             pointList.sort()
-            for i in range(len(pointList)-1):
-                holdLine = l.Line(pointList[i], pointList[i+1])
-                print 'Point Infill: ' + str(holdLine)
-                tempLines.append(holdLine)
+            for i in range(len(pointList)-1):                
+                tempLines.append(l.Line(pointList[i], pointList[i+1]))
         for i in range(len(tempLines)):
             if(self.trimShape.isInside(tempLines[i].getMidPoint())):
                 self.lines.append(tempLines[i])
     
-    def centerDesignBelowTrim(self):
+    def centerAndRotateField(self):
         designCP = self.design.getMidPoint()
         trimShapeCP = self.trimShape.getMidPoint()
         transX = trimShapeCP.x - designCP.x
-        transY = self.trimShape.minY - self.design.maxY
+        transY = trimShapeCP.y - designCP.y
         self.design = self.design.translate(transX, transY)
+        self.design = self.design.rotate(self.angle, trimShapeCP)
         
