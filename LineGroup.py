@@ -64,6 +64,12 @@ class LineGroup(object):
         if(point is None): point = p.Point(0,0)        
         return LineGroup([line.rotate(angle, point) for line in self.lines])
         
+    def getLines(self):
+        outList = []
+        for line in self.lines:
+            outList.append(l.Line(line.getStart(), line.getEnd()))
+        return outList
+        
     def getMidPoint(self):
         x = (self.maxX - self.minX)/2.0 + self.minX
         y = (self.maxY - self.minY)/2.0 + self.minY
