@@ -31,7 +31,6 @@ class Line:
         denom = numpy.cross(r, s)
         t = numpy.cross(Q_Less_P, s)/denom
         u = numpy.cross(Q_Less_P, r)/denom
-        print 't: ' + str(t) + ' u" ' + str(u)
         if(abs(t) > 1 or abs(u) > 1):
             print 'Should we be here? segmentsIntersect math problem, I think'
         if(t == 1):
@@ -85,9 +84,10 @@ class Line:
         newEnd = self.end.mirror(axis)
         return Line(newStart, newEnd)
     
-    def rotate(self, angle):
-        newStart = self.start.rotate(angle)
-        newEnd = self.end.rotate(angle)
+    def rotate(self, angle, point):
+        if(point is None): point = p.Point(0,0)
+        newStart = self.start.rotate(angle, point)
+        newEnd = self.end.rotate(angle, point)
         return Line(newStart, newEnd)
 
     def setBoundingBox(self):
@@ -116,7 +116,7 @@ class Line:
         return p.Point(self.end.getX(), self.end.getY())
     
     def __str__(self):
-        return str(self.start) + '\n' + str(self.end)
+        return str(self.start) + '   \t' + str(self.end)
         
     def printBoudningBox(self):
         print 'Bounding Box for: ' + str(self)

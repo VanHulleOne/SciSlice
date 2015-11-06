@@ -60,8 +60,9 @@ class LineGroup(object):
     def translate(self, xShift, yShift):
         return LineGroup([line.translate(xShift, yShift) for line in self.lines])        
         
-    def rotate(self, angle):
-        return LineGroup([line.rotate(angle) for line in self.lines])
+    def rotate(self, angle, point):
+        if(point is None): point = p.Point(0,0)        
+        return LineGroup([line.rotate(angle, point) for line in self.lines])
         
     def getMidPoint(self):
         x = (self.maxX - self.minX)/2.0 + self.minX
