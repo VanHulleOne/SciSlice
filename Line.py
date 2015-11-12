@@ -16,7 +16,9 @@ class Line:
 #        print 'Start: ' + str(self.start)
 #        print 'End: ' + str(self.end)
         self.length = start.distance(end)
-        if(self.length == 0): print 'SNAFU detected, a line was created with no length.'
+        if(self.length == 0):
+            print 'SNAFU detected, a line was created with no length at:'
+            print self.start
         self.upperLeft = None
         self.lowerRight = None
         self.setBoundingBox()
@@ -33,9 +35,9 @@ class Line:
         u = numpy.cross(Q_Less_P, r)/denom
         if(abs(t) > 1 or abs(u) > 1):
             print 'Should we be here? segmentsIntersect math problem, I think'
-        if(t == 1):
+        if((1-t) < 0.001 or (1-u) < 0.0001):
             return -3, p.Point(self.start.getX() + r[self.X]*t,
-                          self.start.getY()+r[self.Y]*t) #lines meet at end point of self
+                          self.start.getY()+r[self.Y]*t) #intersection happend at the end of a line. end of line is a miss, start of line is a hits
         return 1, p.Point(self.start.getX() + r[self.X]*t,
                           self.start.getY()+r[self.Y]*t) #lines intersect at given point
         return -2, None #bounding boxes intersected but lines did not    
@@ -126,7 +128,7 @@ class Line:
         
     
     def __str__(self):
-        return str(self.start) + '   \t' + str(self.end)
+        return str(self.start) + '    \t' + str(self.end)
         
     def printBoudningBox(self):
         print 'Bounding Box for: ' + str(self)
