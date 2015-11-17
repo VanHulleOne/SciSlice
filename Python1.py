@@ -34,7 +34,7 @@ OUTSIDE = 0
 outputFileName = 'DB_10-23_Test.gcode' #the name of the file you want output. git will ignore all .gcode unless they start with SAVE
 start_Gcode_FileName = 'Start_Gcode_Taz5.txt' #the file name for the starting gcode
 end_Gcode_FileName = 'End_Gcode_Taz5.txt' #The file name for the end gcode
-beadWidth = 0.501
+beadWidth = 0.50
 airGap = 0.0
 ZStep = 0.4     #layer height
 ZHeight = 3.201  #Total Height of the part
@@ -63,7 +63,7 @@ def offset(shape, dist, side):
     """
     Given an input shape, distance, and if you want inside or outside, this
     method will return a new shape that is offset from the original. Currently
-    if measures the offset distance along an angular bisector of each corner
+    it measures the offset distance along an angular bisector of each corner
     but this should be changed to make it calculate from a line normal to the
     exhisting line.
     """

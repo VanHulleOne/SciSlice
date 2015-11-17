@@ -35,9 +35,9 @@ class Line:
         u = numpy.cross(Q_Less_P, r)/denom
         if(abs(t) > 1 or abs(u) > 1):
             print 'Should we be here? segmentsIntersect math problem, I think'
-        if((1-t) < 0.001 or (1-u) < 0.0001):
+        if((1-u) < 0.0001):#(1-t) < 0.001 or 
             return -3, p.Point(self.start.getX() + r[self.X]*t,
-                          self.start.getY()+r[self.Y]*t) #intersection happend at the end of a line. end of line is a miss, start of line is a hits
+                          self.start.getY()+r[self.Y]*t) #intersection at self.end a miss, self.start of either end of other is a hit
         return 1, p.Point(self.start.getX() + r[self.X]*t,
                           self.start.getY()+r[self.Y]*t) #lines intersect at given point
         return -2, None #bounding boxes intersected but lines did not    
