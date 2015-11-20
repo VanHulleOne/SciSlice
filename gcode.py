@@ -39,7 +39,17 @@ def firstApproach(startPoint):
     return 'G1 Z{:.3f} F{:.0f}\n'.format(startPoint.z, pr.APPROACH_FR)
     
 def startGcode():
-    return 'Start Gcode Here\n\n'
+    with open(pr.startEndSubDirectory + '\\' + pr.start_Gcode_FileName) as startFile:
+        lines = startFile.readlines()   
+    tempString = ''
+    for line in lines:
+        tempString += str(line)
+    return tempString
 
 def endGcode():
-    return 'End Gcode Here\n\n'
+    with open(pr.startEndSubDirectory + '\\' + pr.end_Gcode_FileName) as endFile:
+        lines = endFile.readlines()       
+    tempString = ''
+    for line in lines:
+        tempString += str(line)
+    return tempString
