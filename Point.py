@@ -6,8 +6,8 @@ Created on Tue Oct 27 13:13:34 2015
 """
 import numpy
 import math
+from parameters import constants as c
 class Point:
-    X, Y, Z = 0, 1, 2
     
     def __init__(self, x, y, z=0):
         self.x = x
@@ -20,41 +20,41 @@ class Point:
         
     def mirror(self, axis):
         transMatrix = numpy.identity(4)
-        if(axis == self.X):
-            transMatrix[self.Y][1] = -1
+        if(axis == c.X):
+            transMatrix[c.Y][1] = -1
         else:
-            transMatrix[self.X][0] = -1
+            transMatrix[c.X][0] = -1
         return self.transform(transMatrix)
     
     def rotate(self, angle, point):
         if(point is None): point = Point(0,0)
         toOrigin = numpy.identity(4)
-        toOrigin[self.X][3] = -point.x
-        toOrigin[self.Y][3] = -point.y
+        toOrigin[c.X][3] = -point.x
+        toOrigin[c.Y][3] = -point.y
         
         rotateMatrix = numpy.identity(4)
-        rotateMatrix[self.X][0] = math.cos(angle)
-        rotateMatrix[self.Y][0] = math.sin(angle)
-        rotateMatrix[self.X][1] = -rotateMatrix[self.Y][0]
-        rotateMatrix[self.Y][1] = rotateMatrix[self.X][0]
+        rotateMatrix[c.X][0] = math.cos(angle)
+        rotateMatrix[c.Y][0] = math.sin(angle)
+        rotateMatrix[c.X][1] = -rotateMatrix[c.Y][0]
+        rotateMatrix[c.Y][1] = rotateMatrix[c.X][0]
         
         transBack = numpy.identity(4)
-        transBack[self.X][3] = point.x
-        transBack[self.Y][3] = point.y
+        transBack[c.X][3] = point.x
+        transBack[c.Y][3] = point.y
         
         transMatrix = numpy.dot(transBack, numpy.dot(rotateMatrix, toOrigin))
         return self.transform(transMatrix)
     
     def translate(self, shiftX, shiftY, shiftZ=0):
         transMatrix = numpy.identity(4)
-        transMatrix[self.X][3] = shiftX
-        transMatrix[self.Y][3] = shiftY
-        transMatrix[self.Z][3] = shiftZ
+        transMatrix[c.X][3] = shiftX
+        transMatrix[c.Y][3] = shiftY
+        transMatrix[c.Z][3] = shiftZ
         return self.transform(transMatrix)
         
     def transform(self, transMatrix):
         nv = numpy.dot(transMatrix, self.normalVector)
-        return Point(nv[self.X], nv[self.Y], nv[self.Z])
+        return Point(nv[c.X], nv[c.Y], nv[c.Z])
         
     def distance(self, other):
         return numpy.linalg.norm(self.normalVector - other.normalVector)
@@ -85,10 +85,10 @@ class Point:
         return 'X{:.3f} Y{:.3f} Z{:.3f}'.format(self.x, self.y, self.z)
         
     def getX(self):
-        return self.normalVector[self.X]
+        return self.normalVector[c.X]
     
     def getY(self):
-        return self.normalVector[self.Y]
+        return self.normalVector[c.Y]
     
     def getNormalVector(self):
         nv = [n for n in self.normalVector]

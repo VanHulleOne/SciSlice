@@ -9,11 +9,9 @@ from LineGroup import LineGroup as LG
 import math
 import Point as p
 import Line as l
+from parameters import constants as c
 
 class Arc(LG):
-    
-    CW = -1
-    CCW = 1
     
     def __init__(self, start, end, direction, center, numPoints):
         LG.__init__(self, None)        
@@ -57,9 +55,9 @@ class Arc(LG):
         the total included angle.
         """    
         t = end - start
-        if(self.direction == self.CW and t > 0):
+        if(self.direction == c.CW and t > 0):
             return t - 2*math.pi
-        elif(self.direction == self.CCW and t < 0):
+        elif(self.direction == c.CCW and t < 0):
             return 2*math.pi+t
         elif(t == 0):
             return 2*math.pi

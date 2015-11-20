@@ -5,11 +5,10 @@ Created on Tue Oct 27 13:40:56 2015
 @author: lvanhulle
 """
 import Point as p
-import math
 import numpy
+from parameters import constants as c
 
 class Line:
-    X, Y, Z = 0, 1, 2
     def __init__(self, start, end):
         self.start = start
         self.end = end
@@ -36,10 +35,10 @@ class Line:
         if(abs(t) > 1 or abs(u) > 1):
             print 'Should we be here? segmentsIntersect math problem, I think'
         if((1-u) < 0.0001):#(1-t) < 0.001 or 
-            return -3, p.Point(self.start.getX() + r[self.X]*t,
-                          self.start.getY()+r[self.Y]*t) #intersection at self.end a miss, self.start of either end of other is a hit
-        return 1, p.Point(self.start.getX() + r[self.X]*t,
-                          self.start.getY()+r[self.Y]*t) #lines intersect at given point
+            return -3, p.Point(self.start.x + r[c.X]*t,
+                          self.start.y+r[c.Y]*t) #intersection at self.end a miss, self.start of either end of other is a hit
+        return 1, p.Point(self.start.x + r[c.X]*t,
+                          self.start.y+r[c.Y]*t) #lines intersect at given point
         return -2, None #bounding boxes intersected but lines did not    
     
     def getArea(self, p1, p2, p3):
@@ -63,10 +62,10 @@ class Line:
         return False        
     
     def doBoundingBoxesIntersect(self, other):
-        if(self.upperLeft.getX() <= other.lowerRight.getX() and
-            self.lowerRight.getX() >= other.upperLeft.getX() and
-            self.upperLeft.getY() >= other.lowerRight.getY() and
-            self.lowerRight.getY() <= other.upperLeft.getY()):
+        if(self.upperLeft.x <= other.lowerRight.x and
+            self.lowerRight.x >= other.upperLeft.x and
+            self.upperLeft.y >= other.lowerRight.y and
+            self.lowerRight.y <= other.upperLeft.y):
                 return True
         return False 
         
@@ -105,15 +104,15 @@ class Line:
         return None
     
     def getMidPoint(self):
-        x = (self.start.getX() - self.end.getX())/2.0 + self.end.getX()
-        y = (self.start.getY() - self.end.getY())/2.0 + self.end.getY()
+        x = (self.start.x - self.end.x)/2.0 + self.end.x
+        y = (self.start.y - self.end.y)/2.0 + self.end.y
         return p.Point(x, y)
         
     def getStart(self):
-        return p.Point(self.start.getX(), self.start.getY(), self.start.z)
+        return p.Point(self.start.x, self.start.y, self.start.z)
         
     def getEnd(self):
-        return p.Point(self.end.getX(), self.end.getY(), self.end.z)
+        return p.Point(self.end.x, self.end.y, self.end.z)
     
     def __lt__(self, other):
         selfLower = self.start if self.start < self.end else self.end

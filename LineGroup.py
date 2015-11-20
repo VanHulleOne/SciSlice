@@ -6,9 +6,9 @@ Created on Tue Nov 03 09:46:30 2015
 """
 import Point as p
 import Line as l
+
+from parameters import constants as c
 class LineGroup(object):
-    
-    X, Y = 0, 1
     
     def __init__(self, inGroup):
         self.minX = None
@@ -42,7 +42,7 @@ class LineGroup(object):
     def addLinesFromCoordinateList(self, coordList):
         pointList = []        
         for coord in coordList:
-            pointList.append(p.Point(coord[self.X], coord[self.Y]))
+            pointList.append(p.Point(coord[c.X], coord[c.Y]))
         self.addLinesFromPoints(pointList)
     
     def addLinesFromPoints(self, pointList):
