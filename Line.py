@@ -103,10 +103,9 @@ class Line:
         self.upperLeft = p.Point(tempList[0][0], tempList[1][1])
         self.lowerRight = p.Point(tempList[0][1], tempList[1][0])
         return None
-
-#TODO: Remove that +1    
+    
     def getMidPoint(self):
-        x = (self.start.getX() - self.end.getX())/2.0 + self.end.getX()#+1
+        x = (self.start.getX() - self.end.getX())/2.0 + self.end.getX()
         y = (self.start.getY() - self.end.getY())/2.0 + self.end.getY()
         return p.Point(x, y)
         
