@@ -10,15 +10,15 @@ import math
 Printing Parameters.
 """
 extrusionRate = 0.0212 #mm of filament/mm of travel
-pathWidth = 0.501 #mm distance between centerline of paths
+pathWidth = 0.5 #mm distance between centerline of paths
 printSpeed = 2000 #mm/min head travel speed
 
 """
 Part Parameters
 """
 layerHeight = 0.3 #mm height per layer
-numLayers = 3 #number of layers to make
-infillAngleDegrees = 90 #degrees infill angle 90 is in Y direction 0 is in X direction
+numLayers = 1 #number of layers to make
+infillAngleDegrees = 45.0 #degrees infill angle 90 is in Y direction 0 is in X direction
 
 """
 File Parameters

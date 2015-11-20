@@ -16,6 +16,7 @@ import arc as a
 import figura as fg
 import parameters as pr
 import gcode as gc
+from parameters import constants as c
 
 #fifferShape = [[0.0,0.0],[10.0,0.0],[18.1212,10.0],[22.9353,20.0],[26.1426,30.0],
 #               [28.292,40.0],[29.6285,50.0],[30.2716,60.0],[30.2716,85.0],
@@ -62,14 +63,16 @@ def offset(shape, dist, side):
 
 dogBone = s.Shape(None)
 dogBone.addLinesFromCoordinateList([[82.5, 0], [82.5, 9.5], [49.642, 9.5]])
-arc = a.Arc(p.Point(49.642, 9.5), p.Point(28.5, 6.5), CW, p.Point(28.5, 82.5), 20)
+arc = a.Arc(p.Point(49.642, 9.5), p.Point(28.5, 6.5), c.CW, p.Point(28.5, 82.5), 20)
 dogBone.addLineGroup(arc)
 dogBone.addLinesFromCoordinateList([[28.5, 6.5], [0, 6.5]])
-dogBone.addLineGroup(dogBone.mirror(Y))
-dogBone.addLineGroup(dogBone.mirror(X))
+dogBone.addLineGroup(dogBone.mirror(c.Y))
+dogBone.addLineGroup(dogBone.mirror(c.X))
 
 infill = InF.InFill(dogBone)
 fig = fg.Figura(infill)
+
+#print infill
 
 #print 'dogBone'
 #print str(dogBone)

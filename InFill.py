@@ -31,9 +31,8 @@ class InFill(LG):
                            2 : self.trimField}
         
         if(design == None):
-            point1 = p.Point(trimShape.minX-10, 0)
-            point2 = p.Point(trimShape.maxX+10, 0)
-#            lineList = [l.Line(point1, point2)]
+            point1 = p.Point(-self.trimDiagonal-10, 0)
+            point2 = p.Point(self.trimDiagonal+10, 0)
             self.design = lg.LineGroup(l.Line(point1, point2))
             self.designType = self.PARTIAL_ROW
         else:
@@ -42,7 +41,7 @@ class InFill(LG):
         for i in range(self.designType, self.TRIMMED_FIELD):
             self.operations[i]();
             
-        self.lines.sort()
+#        self.lines.sort()
         
     def extendDesign(self):
         tempDesign = lg.LineGroup(self.design.lines)
