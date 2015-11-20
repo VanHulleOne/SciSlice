@@ -4,13 +4,42 @@ Created on Thu Nov 19 19:52:29 2015
 
 @author: lvanhulle
 """
+import math
 
+"""
+Printing Parameters.
+"""
 extrusionRate = 0.0212 #mm of filament/mm of travel
-printSpeed = 2000 #mm/min head travel speed
 pathWidth = 0.500 #mm distance between centerline of paths
+printSpeed = 2000 #mm/min head travel speed
+
+"""
+Part Parameters
+"""
 layerHeight = 0.3 #mm height per layer
 numLayers = 3 #number of layers to make
+infillAngleDegrees = 180 #degrees infill angle 90 is in Y direction 0 is in X direction
 
+"""
+File Parameters
+"""
+outputFileName = 'DB_10-23_Test.gcode' #the name of the file you want output. git will ignore all .gcode unless they start with SAVE
+start_Gcode_FileName = 'Start_Gcode_Taz5.txt' #the file name for the starting gcode
+end_Gcode_FileName = 'End_Gcode_Taz5.txt' #The file name for the end gcode
+
+
+"""
+Misc Parameters
+"""
+maxFeedStep = 5.0 #not implemented yet
+slopeOverX = 0.0 #not yet implemented how much you want it to move over in X per level
+slopeOverY = 0 #not implemented yet how much you want it to move over in Y per level
+backgroundAngle = (infillAngleDegrees/360.0*2*math.pi) #angle of the paths in the layer 0 = X direction, PI/2 = Y direction
+solidityRatio = None #get calculation from Karsten
+
+"""
+Standard printing settings
+"""
 OMIT_Z = True
 INCLUDE_Z = False
 RAPID = 8000. #mm/min
