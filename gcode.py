@@ -4,76 +4,41 @@ Created on Fri Nov 06 10:30:44 2015
 
 @author: lvanhulle
 """
-import InFill
-import Shape
 
-class Gcode:
     
-    MAX_PRINT_STEP = 2.0
-    Z_RETRACT = 2.0
-    E_RETRACT = 0.1
-    Z_UP_CLEARANCE = 10.0
-    NEXT_LINE_TOL = 0.001
+RAPID = 8000 #mm/min
+TRAVERSE_RETRACT = 0.5 #mm to retract when traversing longer distances
+MAX_EXTRUDE_SPEED = 100 #mm/min max speed to move filament
+Z_CLEARANCE = 10.0 #mm to move Z up
+APPROACH_FR = 2000 #mm/min aproach feedrate
+
+def feedMove(endPoint, ommitZ, extrusionAmount, printSpeed):
+    if ommitZ:
+        return ('G01 X{:.3f} Y{:.3f} F{:.0f} E{:.3f}\n'.format(endPoint.x, endPoint.y,
+                printSpeed, extrusionAmount))
+    else:
+        return ('G01 X{:.3f} Y{:.3f} Z{:.3f} F{:.0f} E{:.3f}\n'.format(endPoint.x, endPoint.y, endPoint.z,
+                printSpeed, extrusionAmount))
+
+def rapidMove(endPoint, ommitZ):
+    if ommitZ:
+        return ('G00 X{:.3f} Y{:.3f} F{:.0f}\n'.format(endPoint.x, endPoint.y,
+                RAPID))
+    else:
+        return ('G00 X{:.3f} Y{:.3f} Z{:.3f} F{:.3f}\n'.format(endPoint.x, endPoint.y, endPoint.z,
+                RAPID))
+                
+def retractLayer(currentE, currentPoint):
+    tempString = 'G1 E{:.3f} F{:.0f}\n'.format(currentE-TRAVERSE_RETRACT, MAX_EXTRUDE_SPEED)
+    tempString += 'G00 Z{:.3f} F{:.0f}\n'.format(currentPoint.z+Z_CLEARANCE, RAPID)
+    return tempString
     
-    def __init__(self, lineGroup, Zstep, Zheight, extrusionRate, travelSpeed):
-        if(type(lineGroup) is list):
-            self.lineGroup = lineGroup
-        else:
-            self.lineGroup = [lineGroup]
-            
-        self.Zstep = Zstep
-        self.Zheight = Zheight
-        self.extrusionRate = extrusionRate
-        self.travelSpeed = travelSpeed
-        self.gcodeString = None
-        self.totalExtrude = 0
-        
-        
-        for group in lineGroup:
-            if(isinstance(group, Shape)):
-                self.toGcode(group.lines)
-            else:
-                lines = self.orderedLines(group)
-                self.toGcode(lines)
-        
-    def orderedLines(self, group):
-        lines = group.getLines()
-        lines.sort()
-        tempLines = [lines.pop(0)]
-        if(tempLines[0].start > tempLines[0].end):
-            tempLines[0].flip()
-            
-        while(len(lines) > 0):
-            flip = False
-            leastDist = tempLines[-1].end.squareDistance(lines[0].start)
-            leastOffset = 0
-            for i in range(len(lines)):
-                tempDist = tempLines[-1].end.squareDistance(lines[i].start)
-                if(tempDist < self.NEXT_LINE_TOL):
-                    leastOffset = i
-                    flip = False
-                    break
-                if(tempDist < leastDist):
-                    leastOffset = i
-                    leastDist = tempDist
-                    flip = False
-                    
-                tempDist = tempLines[-1].end.squareDistance(lines[i].end)
-                if(tempDist < self.NEXT_LINE_TOL):
-                    leastOffset = i
-                    flip = True
-                    break
-                if(tempDist < leastDist):
-                    leastOffset = i
-                    leastDist = tempDist
-                    flip = True
-            holdLine = lines.pop(leastOffset)
-            if(flip): holdLine.flip()
-            tempLines.append(holdLine)
-        return tempLines
-            
-        
-        
-    
-        
-    
+def approachLayer(lastE, startPoint):
+    tempString = 'G1 Z{:.3} F{:.0} E{:.3}\n'.format(startPoint.z+Z_CLEARANCE/2.0,
+                    APPROACH_FR, lastE-TRAVERSE_RETRACT*0.75)
+    tempString += 'G1 Z{:.3} F{:.0} E{:.3}\n'.format(startPoint.z,
+                    APPROACH_FR/2.0, lastE)
+    return tempString
+
+def firstApproach(startPoint):
+    return 'G1 Z{:.3} F{:.0}\n'.format(startPoint.z)
