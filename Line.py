@@ -110,10 +110,10 @@ class Line:
         return p.Point(x, y)
         
     def getStart(self):
-        return p.Point(self.start.getX(), self.start.getY())
+        return p.Point(self.start.getX(), self.start.getY(), self.start.z)
         
     def getEnd(self):
-        return p.Point(self.end.getX(), self.end.getY())
+        return p.Point(self.end.getX(), self.end.getY(), self.end.z)
     
     def __lt__(self, other):
         selfLower = self.start if self.start < self.end else self.end
