@@ -57,8 +57,8 @@ class LineGroup(object):
             tempLines2.append(l.Line(line.end, line.start))
         return LineGroup(tempLines2)
     
-    def translate(self, xShift, yShift):
-        return LineGroup([line.translate(xShift, yShift) for line in self.lines])        
+    def translate(self, xShift, yShift,zShift=0):
+        return LineGroup([line.translate(xShift, yShift, zShift) for line in self.lines])        
         
     def rotate(self, angle, point):
         if(point is None): point = p.Point(0,0)        

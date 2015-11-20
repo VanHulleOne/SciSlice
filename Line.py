@@ -9,7 +9,7 @@ import math
 import numpy
 
 class Line:
-    X, Y = 0, 1
+    X, Y, Z = 0, 1, 2
     def __init__(self, start, end):
         self.start = start
         self.end = end
@@ -27,9 +27,9 @@ class Line:
         if(not self.doBoundingBoxesIntersect(other)): return -1, None #return if bounding boxes do not intersect
         if(self.areColinear(other)): return 0, None #return if two lines are colinear
         
-        r = numpy.subtract(self.end.getPoint(), self.start.getPoint())
-        s = numpy.subtract(other.end.getPoint(), other.start.getPoint())
-        Q_Less_P = numpy.subtract(other.start.getPoint(), self.start.getPoint())
+        r = numpy.subtract(self.end.get2DPoint(), self.start.get2DPoint())
+        s = numpy.subtract(other.end.get2DPoint(), other.start.get2DPoint())
+        Q_Less_P = numpy.subtract(other.start.get2DPoint(), self.start.get2DPoint())
         denom = numpy.cross(r, s)
         t = numpy.cross(Q_Less_P, s)/denom
         u = numpy.cross(Q_Less_P, r)/denom
@@ -46,12 +46,10 @@ class Line:
         """
         Uses the determinant of a matrix containing the three to find the area
         of the triangle formed by the three points.
-        SPECIAL NOTE: the area is actually 1/2 the determinant but I have
-        left out that extra, unneeded calculation.
         """
-        matrix = [p1.getNormalVector(), p2.getNormalVector(), p3.getNormalVector()]
+        matrix = [p1.getNormalVector(), p2.getNormalVector(), p3.getNormalVector(), [1,1,1,1]]
         matrix = numpy.rot90(matrix)
-        return abs(numpy.linalg.det(matrix))
+        return abs(numpy.linalg.det(matrix))/2.0
     
     def areColinear(self, other):
         """
@@ -72,9 +70,9 @@ class Line:
                 return True
         return False 
         
-    def translate(self, shiftX, shiftY):
-        newStart = self.start.translate(shiftX, shiftY)
-        newEnd = self.end.translate(shiftX, shiftY)
+    def translate(self, shiftX, shiftY, shiftZ=0):
+        newStart = self.start.translate(shiftX, shiftY, shiftZ)
+        newEnd = self.end.translate(shiftX, shiftY, shiftZ)
         return Line(newStart, newEnd)
         
     def mirror(self, axis):
@@ -89,8 +87,8 @@ class Line:
         return Line(newStart, newEnd)
 
     def flip(self):        
-        temp = p.Point(self.start.x, self.start.y)
-        self.start = p.Point(self.end.x, self.end.y)
+        temp = p.Point(self.start.x, self.start.y, self.start.z)
+        self.start = p.Point(self.end.x, self.end.y, self.end.z)
         self.end = temp
         
     def setBoundingBox(self):
