@@ -8,6 +8,8 @@ Created on Thu Nov 19 16:45:00 2015
 import gcode as gc
 import parameters as pr
 
+#Test for this comment here
+
 class Figura:
     
     def __init__(self, layer):
