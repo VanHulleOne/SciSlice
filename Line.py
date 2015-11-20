@@ -29,14 +29,14 @@ class Line:
         r = numpy.subtract(self.end.get2DPoint(), self.start.get2DPoint())
         s = numpy.subtract(other.end.get2DPoint(), other.start.get2DPoint())
         Q_Less_P = numpy.subtract(other.start.get2DPoint(), self.start.get2DPoint())
-        denom = numpy.cross(r, s)
+        denom = numpy.cross(r, s)*1.0
         t = numpy.cross(Q_Less_P, s)/denom
         u = numpy.cross(Q_Less_P, r)/denom
         if(abs(t) > 1 or abs(u) > 1):
             print 'Should we be here? segmentsIntersect math problem, I think'
-        if((1-u) < 0.0001):#(1-t) < 0.001 or 
+        if(abs(1-t) <0.0001):
             return -3, p.Point(self.start.x + r[c.X]*t,
-                          self.start.y+r[c.Y]*t) #intersection at self.end a miss, self.start of either end of other is a hit
+                          self.start.y+r[c.Y]*t) #intersection at self.end is a miss, self.start or either end of "other" is a hit
         return 1, p.Point(self.start.x + r[c.X]*t,
                           self.start.y+r[c.Y]*t) #lines intersect at given point
         return -2, None #bounding boxes intersected but lines did not    
