@@ -82,7 +82,7 @@ class Point:
         return (self.x == other.x and self.y == other.y)
     
     def __str__(self):
-        return 'X{:.3f} Y{:.3f}'.format(self.normalVector[self.X], self.normalVector[self.Y])
+        return 'X{:.3f} Y{:.3f} Z{:.3f}'.format(self.x, self.y, self.z)
         
     def getX(self):
         return self.normalVector[self.X]
