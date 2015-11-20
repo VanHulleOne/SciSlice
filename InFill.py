@@ -48,9 +48,11 @@ class InFill(LG):
         tempDesign = lg.LineGroup(self.design.lines)
         designWidth = self.design.maxX - self.design.minX        
         while(designWidth <= self.trimDiagonal):
-            shiftX = self.design.lines[-1].end.x - self.tempDesign.lines[0].start.x
-            shiftY = self.design.lines[-1].end.y - self.tempDesign.lines[0].start.y
+            shiftX = self.design.lines[-1].end.x - tempDesign.lines[0].start.x
+            shiftY = self.design.lines[-1].end.y - tempDesign.lines[0].start.y
             self.design.addLineGroup(tempDesign.translate(shiftX, shiftY))
+            designWidth = self.design.maxX - self.design.minX 
+            print "here line 54 Infill"
         
     def createField(self):
         tempDesign = self.design.translate(0, pr.pathWidth)
@@ -66,7 +68,7 @@ class InFill(LG):
         for line in self.design.lines:
             pointList = [line.getStart()]
             for tLine in self.trimShape.lines:
-                result, point = line.segmentsIntersect(tLine)
+                result, point = tLine.segmentsIntersect(line)
                 if(result == 1):
                     pointList.append(point)
             pointList.append(line.getEnd())
