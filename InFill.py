@@ -42,6 +42,8 @@ class InFill(LG):
         
         for i in range(self.designType, self.TRIMMED_FIELD):
             self.operations[i]();
+            
+        self.lines.sort()
         
     def extendDesign(self):
         tempDesign = lg.LineGroup(self.design.lines)
