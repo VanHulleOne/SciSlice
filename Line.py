@@ -32,7 +32,7 @@ class Line:
         denom = numpy.cross(r, s)*1.0
         t = numpy.cross(Q_Less_P, s)/denom
         u = numpy.cross(Q_Less_P, r)/denom
-        if(abs(t) > 1 or abs(u) > 1):
+        if(abs(t) > 1 or abs(u) > 1 or t < 0 or u < 0):
 #            print 'Should we be here? segmentsIntersect math problem, I think'
 #            print 't: ' + str(t) + ' u: ' + str(u)
             return -2, None #bounding boxes intersected but lines did not 
@@ -40,6 +40,12 @@ class Line:
             return -3, p.Point(self.start.x + r[c.X]*t,
                           self.start.y+r[c.Y]*t) #intersection at self.end is a miss, self.start or either end of "other" is a hit
         
+        p1 = p.Point(self.start.x + r[c.X]*t,
+                          self.start.y+r[c.Y]*t)
+        if p1 == p.Point(56.705, 6.5):
+            print 'Self: ' + str(self)
+            print 'Other: ' + str(other)
+            print ('t: ' + str(t) + ' u: ' + str(u))
         return 1, p.Point(self.start.x + r[c.X]*t,
                           self.start.y+r[c.Y]*t) #lines intersect at given point
            

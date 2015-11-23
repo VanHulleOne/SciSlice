@@ -77,9 +77,12 @@ class Point:
         if(self.x > other.x): return False
         if(self.y < other.y): return True
         return False
-        
+
     def __eq__(self, other):
-        return (self.x == other.x and self.y == other.y)
+        return (abs(self.x - other.x) < 0.001 and abs(self.y - other.y) < 0.001)
+        
+#    def __eq__(self, other):
+#        return (self.x == other.x and self.y == other.y)
     
     def __str__(self):
         return 'X{:.3f} Y{:.3f} Z{:.3f}'.format(self.x, self.y, self.z)
