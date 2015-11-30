@@ -69,6 +69,8 @@ dogBone.addLinesFromCoordinateList([[28.5, 6.5], [0, 6.5]])
 dogBone.addLineGroup(dogBone.mirror(c.Y))
 dogBone.addLineGroup(dogBone.mirror(c.X))
 
+#print dogBone
+
 infill = InF.InFill(dogBone)
 fig = fg.Figura(infill)
 

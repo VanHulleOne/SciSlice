@@ -18,7 +18,7 @@ Part Parameters
 """
 layerHeight = 0.3 #mm height per layer
 numLayers = 1 #number of layers to make
-infillAngleDegrees = 45.0 #degrees infill angle 90 is in Y direction 0 is in X direction
+infillAngleDegrees = 180 #degrees infill angle 90 is in Y direction 0 is in X direction
 
 """
 File Parameters
