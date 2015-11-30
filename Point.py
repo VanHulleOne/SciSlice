@@ -9,6 +9,8 @@ import math
 from parameters import constants as c
 class Point:
     
+    COMPARE_PRECISION = 10000
+    
     def __init__(self, x, y, z=0):
         self.x = x
         self.y = y
@@ -61,28 +63,22 @@ class Point:
         
     def squareDistance(self, other):
         return ((self.x - other.x)**2 + (self.y - other.y)**2)
-    
-#TODO: __cmp__ isn't used in Python 3.0 or later so this should eventually be
-    #converted to the 6 rich comparison methods
-#TODO: Add comparisons for Z
-    def __cmp__(self, other):
-        if(self.x > other.x): return 1
-        if(self.x < other.x): return -1
-        if(self.y > other.y): return 1
-        if(self.y < other.y): return -1
-        return 0
+
+    def __key(self):
+        return(int(self.z*self.COMPARE_PRECISION), int(self.x*self.COMPARE_PRECISION),
+               int(self.y*self.COMPARE_PRECISION))
     
     def __lt__(self, other):
-        if(self.x < other.x): return True
-        if(self.x > other.x): return False
-        if(self.y < other.y): return True
-        return False
+        return self.__key() < other.__key()
 
     def __eq__(self, other):
-        return (abs(self.x - other.x) < 0.001 and abs(self.y - other.y) < 0.001)
+        return self.__key() == other.__key()
         
-#    def __eq__(self, other):
-#        return (self.x == other.x and self.y == other.y)
+    def __ne__(self, other):
+        return self.__key() != other.__key()
+        
+    def __hash__(self):
+        return hash(self.__key())
     
     def __str__(self):
         return 'X{:.3f} Y{:.3f} Z{:.3f}'.format(self.x, self.y, self.z)
@@ -97,5 +93,4 @@ class Point:
         nv = [n for n in self.normalVector]
         return nv
         
-    def __ne__(self, other):
-        return not (self.getX() == other.getX() and self.getY() == other.getY())
+    
