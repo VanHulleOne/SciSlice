@@ -54,22 +54,23 @@ class Shape(LG):
         or outside. If the number of intersections is even then the point was outside
         of the shape. If the number of intersections is odd then the point is inside.
         """
-        if(point.x >= self.maxX or point.x <= self.minX): return False
-        if(point.y >= self.maxY or point.y <= self.minY): return False
+        if(point.x > self.maxX or point.x < self.minX): return False
+        if(point.y > self.maxY or point.y < self.minY): return False
         
-        testLine = l.Line(point, p.Point(point.getX(), self.minY - 10))
+#        print 'Point: ' + str(point)
         
-        intersections = 0
-        points = []
+        downLine = l.Line(point.getPoint(), p.Point(point.x, self.minY - 10))
+
+        downSet = set([])
         for line in self.lines:
-            result, point = line.segmentsIntersect(testLine)
-            if(result == 1):
-                points.append(point)
-                intersections += 1
-        if(intersections >= 8):
-            print 'Total Intersections: ' + str(intersections)
-            for p1 in points:
-                print p1
-        return (True if intersections % 2 == 1 else False)
+            if(line.isOnLine(point)):
+#                print 'Line: ' + str(line) + ' Point: ' + str(point)                
+                return True
+                
+            result, intPoint = line.segmentsIntersect(downLine)
+            #print 'Result: ' + str(result) + ' Point: ' + str(point)
+            if(result == 1): downSet.add(intPoint)
+#        print 'Len: ' + str(len(downSet)) + ' Point: ' + str(point)    
+        return (True if len(downSet) % 2 == 1 else False)
             
     

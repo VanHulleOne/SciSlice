@@ -41,7 +41,7 @@ class InFill(LG):
         for i in range(self.designType, self.TRIMMED_FIELD):
             self.operations[i]();
             
-#        self.lines.sort()
+        self.lines.sort()
         
     def extendDesign(self):
         tempDesign = lg.LineGroup(self.design.lines)
@@ -65,16 +65,22 @@ class InFill(LG):
     def trimField(self):
         tempLines = []
         for line in self.design.lines:
-            pointList = [line.getStart()]
+            pointSet = set([line.getStart()])
             for tLine in self.trimShape.lines:
                 result, point = tLine.segmentsIntersect(line)
+                testPoint = p.Point(-82.500, -9.500)
+                if(point is not None):
+                    print str(point) + ' ' + str(testPoint)
+                    print point == testPoint
+                    if(point.__eq__(testPoint)): print '*******************here: infill line 71********************************'
                 if(result == 1):
-                    pointList.append(point)
-            pointList.append(line.getEnd())
-            pointList.sort()
+                    pointSet.add(point)
+            pointSet.add(line.getEnd())
+            pointList = sorted(list(pointSet))
             for i in range(len(pointList)-1):                
                 tempLines.append(l.Line(pointList[i], pointList[i+1]))
         for i in range(len(tempLines)):
+#            print tempLines[i]
             if(self.trimShape.isInside(tempLines[i].getMidPoint())):
                 self.lines.append(tempLines[i])
     
