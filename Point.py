@@ -20,6 +20,9 @@ class Point:
     def get2DPoint(self):
         return [self.x, self.y]
         
+    def getPoint(self):
+        return Point(self.x, self.y, self.z)
+        
     def mirror(self, axis):
         transMatrix = numpy.identity(4)
         if(axis == c.X):
@@ -70,6 +73,9 @@ class Point:
     
     def __lt__(self, other):
         return self.__key() < other.__key()
+        
+    def __gt__(self, other):
+        return self.__key() > other.__key()
 
     def __eq__(self, other):
         return self.__key() == other.__key()
@@ -81,7 +87,7 @@ class Point:
         return hash(self.__key())
     
     def __str__(self):
-        return 'X{:.3f} Y{:.3f} Z{:.3f}'.format(self.x, self.y, self.z)
+        return 'X{:.8f} Y{:.8f} Z{:.8f}'.format(self.x, self.y, self.z)
         
     def getX(self):
         return self.normalVector[c.X]
