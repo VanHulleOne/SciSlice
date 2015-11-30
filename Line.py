@@ -26,9 +26,9 @@ class Line:
         if(not self.doBoundingBoxesIntersect(other)): return -1, None #return if bounding boxes do not intersect
         if(self.areColinear(other)):
             #TODO: if self.start is inbetween other then return 1 and self.start else return 0, None #return if two lines are colinear
-            if((self.start > other.start and self.start < other.end) or 
-                (self.start < other.start and self.start > other.end)):
-                    return 1, self.start
+#            if((self.start > other.start and self.start < other.end) or 
+#                (self.start < other.start and self.start > other.end)):
+#                    return 1, self.start
             return 0, None
         
         r = numpy.subtract(self.end.get2DPoint(), self.start.get2DPoint())
@@ -37,13 +37,14 @@ class Line:
         denom = numpy.cross(r, s)*1.0
         t = numpy.cross(Q_Less_P, s)/denom
         u = numpy.cross(Q_Less_P, r)/denom
+        #If t or u are not in the range 0-1 then the intersection is off the line.
         if(t > 1 or u > 1 or t < 0 or u < 0):
 #            print 'Should we be here? segmentsIntersect math problem, I think'
 #            print 't: ' + str(t) + ' u: ' + str(u)
             return -2, None #bounding boxes intersected but lines did not 
-        if(abs(1-t) <0.0001):
-            return -3, p.Point(self.start.x + r[c.X]*t,
-                          self.start.y+r[c.Y]*t) #intersection at self.end is a miss, self.start or either end of "other" is a hit
+#        if(abs(1-t) <0.0001):
+#            return -3, p.Point(self.start.x + r[c.X]*t,
+#                          self.start.y+r[c.Y]*t) #intersection at self.end is a miss, self.start or either end of "other" is a hit
 #        
 #        p1 = p.Point(self.start.x + r[c.X]*t,
 #                          self.start.y+r[c.Y]*t)
@@ -54,6 +55,16 @@ class Line:
         return 1, p.Point(self.start.x + r[c.X]*t,
                           self.start.y+r[c.Y]*t) #lines intersect at given point
            
+    
+    def isOnLine(self, point):
+        if((point < self.start and point < self.end) or (
+            point > self.start and point > self.end)):
+            return False #point is not between the start and end of self
+        
+        if(self.getArea(self.start, self.end, point) > 0.0001):
+            return False #points are not co-linear
+        
+        return True
     
     def getArea(self, p1, p2, p3):
         """
