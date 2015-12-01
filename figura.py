@@ -7,6 +7,7 @@ Created on Thu Nov 19 16:45:00 2015
 
 import gcode as gc
 import parameters as pr
+import Point as p
 
 #Test for this comment here
 
@@ -41,13 +42,33 @@ class Figura:
                 
 #TODO: change method to actually work for more than just 90 degree orientation            
     def organizeLines(self, lines):
-        flip = False
-        for line in lines:
-            if flip:
-                line.flip()
-            flip = not flip
-        return lines
+        organizedLines = [lines.pop(0)]
         
+        while len(lines) > 0:
+            nearestEnd = lines[0].start
+            nearestOffset = 0
+            dist = nearestEnd.distance(organizedLines[0].end)
+            isStart = True
+            
+            for i in range(len(lines)):
+                tempDist = organizedLines[-1].end.distance(lines[i].start)
+                if(tempDist < dist):
+                    nearestEnd = lines[i].start
+                    dist = tempDist
+                    isStart = True
+                    nearestOffset = i
+                tempDist = organizedLines[-1].end.distance(lines[i].end)
+                if(tempDist < dist):
+                    nearestEnd = lines[i].end
+                    dist = tempDist
+                    isStart = False
+                    nearestOffset = i
+                if(dist == 0): break
+            if(not isStart):
+                lines[nearestOffset].flip()
+            organizedLines.append(lines.pop(nearestOffset))
+            
+        return organizedLines
     
     def __str__(self):
         tempString = ''
