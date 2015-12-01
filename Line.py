@@ -110,10 +110,11 @@ class Line:
         newEnd = self.end.rotate(angle, point)
         return Line(newStart, newEnd)
 
-    def flip(self):        
-        temp = p.Point(self.start.x, self.start.y, self.start.z)
-        self.start = p.Point(self.end.x, self.end.y, self.end.z)
-        self.end = temp
+    def flip(self):
+        self.start, self.end = self.end, self.start
+#        temp = p.Point(self.start.x, self.start.y, self.start.z)
+#        self.start = p.Point(self.end.x, self.end.y, self.end.z)
+#        self.end = temp
         
     def setBoundingBox(self):
         """
