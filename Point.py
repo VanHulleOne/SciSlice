@@ -68,8 +68,8 @@ class Point:
         return ((self.x - other.x)**2 + (self.y - other.y)**2)
 
     def __key(self):
-        return(int(self.z*self.COMPARE_PRECISION), int(self.x*self.COMPARE_PRECISION),
-               int(self.y*self.COMPARE_PRECISION))
+        return(int(round(self.z*self.COMPARE_PRECISION)), int(round(self.x*self.COMPARE_PRECISION)),
+               int(round(self.y*self.COMPARE_PRECISION)))
     
     def __lt__(self, other):
         return self.__key() < other.__key()
@@ -87,7 +87,7 @@ class Point:
         return hash(self.__key())
     
     def __str__(self):
-        return 'X{:.8f} Y{:.8f} Z{:.8f}'.format(self.x, self.y, self.z)
+        return 'X{:.3f} Y{:.3f} Z{:.3f}'.format(self.x, self.y, self.z)
         
     def getX(self):
         return self.normalVector[c.X]
