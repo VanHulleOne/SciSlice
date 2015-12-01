@@ -73,6 +73,7 @@ class InFill(LG):
                     print str(point) + ' ' + str(testPoint)
                     print point == testPoint
                     if(point.__eq__(testPoint)): print '*******************here: infill line 71********************************'
+					#Testing push
                 if(result == 1):
                     pointSet.add(point)
             pointSet.add(line.getEnd())
