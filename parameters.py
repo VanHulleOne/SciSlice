@@ -5,6 +5,10 @@ Created on Thu Nov 19 19:52:29 2015
 @author: lvanhulle
 """
 import math
+#import Shape as s
+#import arc as a
+#import Point as p
+#import premadeShapes as ps
 
 """
 Printing Parameters.
@@ -16,9 +20,10 @@ printSpeed = 2000 #mm/min head travel speed
 """
 Part Parameters
 """
+#mainShape = ps.wideDogBone
 layerHeight = 0.3 #mm height per layer
 numLayers = 1 #number of layers to make
-infillAngleDegrees = 180 #degrees infill angle 90 is in Y direction 0 is in X direction
+infillAngleDegrees = 90 #degrees infill angle 90 is in Y direction 0 is in X direction
 
 """
 File Parameters
@@ -63,3 +68,29 @@ class constants:
     CENTER = 3 #center of circle
     INSIDE = 1 #Point is inside shape
     OUTSIDE = 0 #point is outside shape
+    
+#class premadeShapes:
+#    import constants as c
+#    
+#    dogBone = s.Shape(None)
+#    dogBone.addLinesFromCoordinateList([[82.5, 0], [82.5, 9.5], [49.642, 9.5]])
+#    arc = a.Arc(p.Point(49.642, 9.5), p.Point(28.5, 6.5), c.CW, p.Point(28.5, 82.5), 20)
+#    dogBone.addLineGroup(arc)
+#    dogBone.addLinesFromCoordinateList([[28.5, 6.5], [0, 6.5]])
+#    dogBone.addLineGroup(dogBone.mirror(c.Y))
+#    dogBone.addLineGroup(dogBone.mirror(c.X))
+#    dogBone.translate(82.5, 9.5)
+#    
+#    halfWidth = 5.0    
+#    wideDogBone = s.Shape(None)
+#    wideDogBone.addLinesFromCoordinateList([[82.5, 0], [82.5, 9.5 + halfWidth], [49.642, 9.5 + halfWidth]])
+#    wideArc = a.Arc(p.Point(49.642, 9.5 + halfWidth), p.Point(28.5, 6.5 + halfWidth), c.CW, p.Point(28.5, 82.5 + halfWidth), 20)
+#    wideDogBone.addLineGroup(arc)
+#    wideDogBone.addLinesFromCoordinateList([[28.5, 6.5 + halfWidth], [0, 6.5 + halfWidth]])
+#    wideDogBone.addLineGroup(dogBone.mirror(c.Y))
+#    wideDogBone.addLineGroup(dogBone.mirror(c.X))
+#    wideDogBone.translate(82.5, 9.5 + halfWidth)
+#    
+    
+    
+    
