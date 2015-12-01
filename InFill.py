@@ -68,12 +68,11 @@ class InFill(LG):
             pointSet = set([line.getStart()])
             for tLine in self.trimShape.lines:
                 result, point = tLine.segmentsIntersect(line)
-                testPoint = p.Point(-82.500, -9.500)
-                if(point is not None):
-                    print str(point) + ' ' + str(testPoint)
-                    print point == testPoint
-                    if(point.__eq__(testPoint)): print '*******************here: infill line 71********************************'
-					#Testing push
+#                testPoint = p.Point(-82.500, -9.500)
+#                if(point is not None):
+#                    print str(point) + ' ' + str(testPoint)
+#                    if(point == testPoint):
+#                        print '*******************here: infill line 71********************************'
                 if(result == 1):
                     pointSet.add(point)
             pointSet.add(line.getEnd())
