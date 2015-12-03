@@ -32,6 +32,10 @@ class Shape(LG):
                     return True
         return False
     
+    def addLineGroup(self, inGroup):
+        LG.addLineGroup(self, inGroup)
+        self.shapeIsClosed = self.isShapeClosed()
+    
     def closeShape(self):
         if(self.lines[0].start != self.lines[-1].end):
             self.lines.append(l.Line(self.lines[-1].getEnd(),
@@ -39,7 +43,7 @@ class Shape(LG):
         self.shapeIsClosed = True
         
     def isShapeClosed(self):
-        if(len(self.lines) < 2): return False
+        if(len(self.lines) <= 2): return False
         if(self.lines[0].start == self.lines[-1].end):
             return True
         return False
