@@ -13,16 +13,13 @@ from parameters import constants as c
 
 class Arc(LG):
     
-    def __init__(self, start, end, direction, center, numPoints):
+    def __init__(self, start, end, direction, center, numPoints=c.ARC_NUMPOINTS):
         LG.__init__(self, None)        
         self.start = start
         self.end = end
         self.direction = direction
         self.center = center
-        self.numPoints = numPoints
-        
-        if(self.numPoints is None): self.numPoints = 20
-        
+        self.numPoints = numPoints        
         self.arcToLines()
         
     def arcToLines(self):
