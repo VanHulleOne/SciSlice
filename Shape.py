@@ -72,5 +72,6 @@ class Shape(LG):
             if(result == 1): downSet.add(intPoint)
 #        print 'Len: ' + str(len(downSet)) + ' Point: ' + str(point)    
         return (True if len(downSet) % 2 == 1 else False)
-            
-    
+        
+    def translate(self, xShift, yShift,zShift=0):
+        return Shape([line.translate(xShift, yShift, zShift) for line in self.lines])  
