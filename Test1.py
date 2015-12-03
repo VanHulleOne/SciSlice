@@ -16,6 +16,7 @@ import gcode as gc
 import parameters as pr
 from parameters import constants as const
 import InFill as inf
+from itertools import islice
 
 CW = -1
 CCW = 1
@@ -31,17 +32,27 @@ p4 = p.Point(-82.5, -9.5)
 p5 = p.Point(2,2.00001)
 p6 = p.Point(2,2)
 
-se = set([p1, p2, p5, p6])
+def fib():
+    prev, cur = 0, 1
+    while True:
+        yield cur
+        prev, cur = cur, cur + prev
+        
+f = fib()
 
-l1 = l.Line(p1, p2)
 
-print l1
-l1.flip()
-print l1
 
-s1 = s.Shape(None)
-s1.addLinesFromCoordinateList([[0,-6.5], [10,-6.5], [10,6.5], [0,6.5], [-10,6.5], [-10,-6.5], [0, -6.5]])
-s1.closeShape()
+#se = set([p1, p2, p5, p6])
+#
+#l1 = l.Line(p1, p2)
+#
+#print l1
+#l1.flip()
+#print l1
+#
+#s1 = s.Shape(None)
+#s1.addLinesFromCoordinateList([[0,-6.5], [10,-6.5], [10,6.5], [0,6.5], [-10,6.5], [-10,-6.5], [0, -6.5]])
+#s1.closeShape()
 
 #print s1.isInside(p1)
 #
