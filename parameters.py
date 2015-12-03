@@ -58,7 +58,7 @@ APPROACH_FR = 2000 #mm/min aproach feedrate
 Constants
 """
 class constants:
-    numPoints = 20
+    ARC_NUMPOINTS = 20
     CW = -1 #Circle direction clock wise
     CCW = 1 #circle direction counter clowise
     X, Y, Z = 0, 1, 2
