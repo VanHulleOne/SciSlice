@@ -8,12 +8,14 @@ Created on Thu Nov 19 16:45:00 2015
 import gcode as gc
 import parameters as pr
 import Point as p
+import InFill as Inf
 
 #Test for this comment here
 
 class Figura:
     
-    def __init__(self, layer):
+    def __init__(self, inShape):
+        layer = Inf.InFill(inShape)
         self.layers = [layer.translate(0, 0, pr.layerHeight*(currentLayer+1)) for currentLayer in range(pr.numLayers)]
         self.gcode = ''
         self.setGcode()
