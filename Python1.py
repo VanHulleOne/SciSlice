@@ -20,7 +20,7 @@ from parameters import constants as c
 import doneShapes as ds
 
 
-shape = ds.wideDogBone
+shape = ds.dogBone
 
 print '\nGenerating code, please wait...\n'
 #infill = InF.InFill()
