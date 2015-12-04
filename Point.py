@@ -12,11 +12,27 @@ class Point:
     COMPARE_PRECISION = 10000
     
     def __init__(self, x, y, z=0):
-        self.x = x
-        self.y = y
-        self.z = z
+        self._x = x
+        self._y = y
+        self._z = z
         self.normalVector = numpy.array([x, y, z, 1])
         
+    @property
+    def x(self):
+        return self._x
+        
+    @property
+    def y(self):
+        return self._y
+    
+    @property
+    def z(self):
+        return self._z
+        
+    @property
+    def test(self):
+        return 'Works'
+    
     def get2DPoint(self):
         return [self.x, self.y]
         
