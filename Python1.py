@@ -18,9 +18,13 @@ import parameters as pr
 import gcode as gc
 from parameters import constants as c
 import doneShapes as ds
+import time
 
+startTime = time.time()
 
-shape = ds.dogBone
+t1 = ds.DoneShapes()
+shape = t1.wideDogBone
+
 
 print '\nGenerating code, please wait...\n'
 #infill = InF.InFill()
@@ -36,3 +40,5 @@ f.write(gc.endGcode())
 f.close()
 
 print 'Dong writting: ' + pr.outputFileName
+
+print str(time.time() - startTime) + ' sec to produce.'
