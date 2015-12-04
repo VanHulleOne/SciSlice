@@ -28,10 +28,6 @@ class Point:
     @property
     def z(self):
         return self._z
-        
-    @property
-    def test(self):
-        return 'Works'
     
     def get2DPoint(self):
         return [self.x, self.y]
