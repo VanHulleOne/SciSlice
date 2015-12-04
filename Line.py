@@ -12,8 +12,6 @@ class Line:
     def __init__(self, start, end):
         self.start = start
         self.end = end
-#        print 'Start: ' + str(self.start)
-#        print 'End: ' + str(self.end)
         self.length = start.distance(end)
         if(self.length == 0):
             print ('SNAFU detected, a line was created with no length at: ' + 
@@ -22,14 +20,15 @@ class Line:
         self.lowerRight = None
         self.setBoundingBox()
     
-    def segmentsIntersect(self, other):
-        if(not self.doBoundingBoxesIntersect(other)): return -1, None #return if bounding boxes do not intersect
+    def segmentsIntersect(self, other, allowProjInt = False):
+        if(not(allowProjInt) and not(self.doBoundingBoxesIntersect(other))): return -1, None #return if bounding boxes do not intersect
         if(self.areColinear(other)):
-            #TODO: if self.start is inbetween other then return 1 and self.start else return 0, None #return if two lines are colinear
-#            if((self.start > other.start and self.start < other.end) or 
-#                (self.start < other.start and self.start > other.end)):
-#                    return 1, self.start
-            return 0, None
+            pointList = sorted([self.start, self.end, other.start, other.end])
+            if(self.doBoundingBoxesIntersect(other)):                
+                return 2, pointList[1:3] #If lines are colinear and they overlap then there are two intersections
+            else:
+                tempLine = Line(pointList[1], pointList[2])
+                return -2, tempLine.getMidPoint() #If they are colinear and do not overlap return half way inbetween lines
         
         r = numpy.subtract(self.end.get2DPoint(), self.start.get2DPoint())
         s = numpy.subtract(other.end.get2DPoint(), other.start.get2DPoint())
@@ -37,21 +36,11 @@ class Line:
         denom = numpy.cross(r, s)*1.0
         t = numpy.cross(Q_Less_P, s)/denom
         u = numpy.cross(Q_Less_P, r)/denom
-        #If t or u are not in the range 0-1 then the intersection is off the line.
+        #If t or u are not in the range 0-1 then the intersection is projected
         if(t > 1 or u > 1 or t < 0 or u < 0):
-#            print 'Should we be here? segmentsIntersect math problem, I think'
-#            print 't: ' + str(t) + ' u: ' + str(u)
-            return -2, None #bounding boxes intersected but lines did not 
-#        if(abs(1-t) <0.0001):
-#            return -3, p.Point(self.start.x + r[c.X]*t,
-#                          self.start.y+r[c.Y]*t) #intersection at self.end is a miss, self.start or either end of "other" is a hit
-#        
-#        p1 = p.Point(self.start.x + r[c.X]*t,
-#                          self.start.y+r[c.Y]*t)
-#        if p1 == p.Point(56.705, 6.5):
-#            print 'Self: ' + str(self)
-#            print 'Other: ' + str(other)
-#            print ('t: ' + str(t) + ' u: ' + str(u))
+            return -1, p.Point(self.start.x + r[c.X]*t,
+                          self.start.y+r[c.Y]*t) #return for projected intersection of non-colinear lines
+
         return 1, p.Point(self.start.x + r[c.X]*t,
                           self.start.y+r[c.Y]*t) #lines intersect at given point
            
@@ -112,9 +101,6 @@ class Line:
 
     def flip(self):
         self.start, self.end = self.end, self.start
-#        temp = p.Point(self.start.x, self.start.y, self.start.z)
-#        self.start = p.Point(self.end.x, self.end.y, self.end.z)
-#        self.end = temp
         
     def setBoundingBox(self):
         """
