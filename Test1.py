@@ -14,9 +14,10 @@ import numpy
 import copy
 import gcode as gc
 import parameters as pr
-from parameters import constants as const
+from parameters import constants as c
 import InFill as inf
 from itertools import islice
+import LineGroup as lg
 
 CW = -1
 CCW = 1
@@ -32,13 +33,18 @@ p4 = p.Point(-82.5, -9.5)
 p5 = p.Point(2,2.00001)
 p6 = p.Point(2,2)
 
-def fib():
-    prev, cur = 0, 1
-    while True:
-        yield cur
-        prev, cur = cur, cur + prev
-        
-f = fib()
+print (False and False)
+
+#aHole = a.Arc(p.Point(4,0), p.Point(4,0), c.CW, p.Point(0,0))
+#print isinstance(aHole, lg.LineGroup)
+
+#def fib():
+#    prev, cur = 0, 1
+#    while True:
+#        yield cur
+#        prev, cur = cur, cur + prev
+#        
+#f = fib()
 
 
 
