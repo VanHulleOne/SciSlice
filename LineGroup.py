@@ -24,19 +24,19 @@ class LineGroup(object):
             for line in self:
                 self.updateMinMax(line)
             
-    def addLine(self, line):
-        self.lines.append(line)
-        self.updateMinMax(line)
+#    def addLine(self, line):
+#        self.append(line)
+#        self.updateMinMax(line)
         
     def updateMinMax(self, line):
-        if(line.upperLeft.getX() < self.minX or self.minX is None): self.minX = line.upperLeft.getX()
-        if(line.upperLeft.getY() > self.maxY or self.maxY is None): self.maxY = line.upperLeft.getY()
-        if(line.lowerRight.getX() > self.maxX or self.maxX is None): self.maxX = line.lowerRight.getX()
-        if(line.lowerRight.getY() < self.minY or self.minY is None): self.minY = line.lowerRight.getY()
+        if(line.upperLeft.x < self.minX or self.minX is None): self.minX = line.upperLeft.x
+        if(line.upperLeft.y > self.maxY or self.maxY is None): self.maxY = line.upperLeft.y
+        if(line.lowerRight.x > self.maxX or self.maxX is None): self.maxX = line.lowerRight.x
+        if(line.lowerRight.y < self.minY or self.minY is None): self.minY = line.lowerRight.y
 
     def addLineGroup(self, inGroup):
         for line in inGroup:
-            self.addLine(line)
+            self.append(line)
             
     def addLinesFromCoordinateList(self, coordList):
         pointList = []        
@@ -46,7 +46,7 @@ class LineGroup(object):
     
     def addLinesFromPoints(self, pointList):
         for i in range(len(pointList)-1):
-            self.addLine(l.Line(pointList[i], pointList[i+1]))
+            self.append(l.Line(pointList[i], pointList[i+1]))
             
     def mirror(self, axis):
         tempLines = [line.mirror(axis) for line in self]
@@ -59,21 +59,21 @@ class LineGroup(object):
     def translate(self, xShift, yShift,zShift=0):
         return LineGroup([line.translate(xShift, yShift, zShift) for line in self])        
         
-    def rotate(self, angle, point=None):
-        if(point is None): point = p.Point(0,0)        
+    def rotate(self, angle, point=p.Point(0,0)):      
         return LineGroup([line.rotate(angle, point) for line in self])
-
-#TODO: This method should be removed now that LG is iterable        
-    def getLines(self):
-        outList = []
-        for line in self:
-            outList.append(l.Line(line.getStart(), line.getEnd()))
-        return outList
         
     def getMidPoint(self):
         x = (self.maxX - self.minX)/2.0 + self.minX
         y = (self.maxY - self.minY)/2.0 + self.minY
         return p.Point(x, y)
+    
+    def append(self, line):
+        self.lines.append(line)
+        self.updateMinMax(line)
+    
+    def __add__(self, other):
+        cls = type(self)
+        return cls.__init__(self, list(self)+list(other))
     
     def __getitem__(self, index):
         return self.lines[index]

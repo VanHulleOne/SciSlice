@@ -132,12 +132,11 @@ class Line:
         return (selfLower < otherLower)
         
     def __eq__(self, other):
-        return (self.start == other.start and self.end == other.end)
-        
+        return (self.start == other.start and self.end == other.end)      
     
     def __str__(self):
         return str(self.start) + '    \t' + str(self.end)
-        
+    
     def printBoudningBox(self):
         print 'Bounding Box for: ' + str(self)
         print str(self.upperLeft) + ', ' + str(self.lowerRight)

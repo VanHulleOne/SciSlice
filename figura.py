@@ -24,7 +24,7 @@ class Figura:
         self.gcode += gc.startGcode()
         layerNumber = 1
         for layer in self.layers:
-            lines = self.organizeLines(layer.getLines())
+            lines = self.organizeLines(list(layer))
             self.gcode += '\n\n;Layer: ' + str(layerNumber) + '\n'
             self.gcode += ';T' + str(layerNumber) + '\n'
             self.gcode += ';M6\n'
@@ -40,9 +40,7 @@ class Figura:
             self.gcode += gc.retractLayer(totalExtrusion, lines[-1].end)
             layerNumber += 1
         self.gcode += gc.endGcode()
-                
-                
-#TODO: change method to actually work for more than just 90 degree orientation            
+                           
     def organizeLines(self, lines):
         organizedLines = [lines.pop(0)]
         

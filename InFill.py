@@ -47,8 +47,8 @@ class InFill(LG):
         tempDesign = lg.LineGroup(self.design.lines)
         designWidth = self.design.maxX - self.design.minX        
         while(designWidth <= self.trimDiagonal):
-            shiftX = self.design.lines[-1].end.x - tempDesign.lines[0].start.x
-            shiftY = self.design.lines[-1].end.y - tempDesign.lines[0].start.y
+            shiftX = self.design[-1].end.x - tempDesign[0].start.x
+            shiftY = self.design[-1].end.y - tempDesign[0].start.y
             self.design.addLineGroup(tempDesign.translate(shiftX, shiftY))
             designWidth = self.design.maxX - self.design.minX 
             print "here line 54 Infill"

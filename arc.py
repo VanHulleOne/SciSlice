@@ -40,10 +40,10 @@ class Arc(LG):
             x = self.center.x+radius*math.cos(currentAngle)
             y = self.center.y+radius*math.sin(currentAngle)
             endPoint = p.Point(x, y)
-            self.addLine(l.Line(startPoint, endPoint))
+            self.append(l.Line(startPoint, endPoint))
             startPoint = endPoint
         endPoint = p.Point(self.end.x, self.end.y)
-        self.addLine(l.Line(startPoint, endPoint))
+        self.append(l.Line(startPoint, endPoint))
         
     def calcIncludedAngle(self, start, end):
         """

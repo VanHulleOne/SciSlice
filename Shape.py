@@ -22,7 +22,7 @@ class Shape(LG):
             print '********** Internal shape is not completely inside main shape. **********'
         
         for line in inShape.lines:
-            self.lines.append(line)
+            self.append(line)
     
     def doShapesIntersect(self, inShape):
         for line in self.lines:
@@ -33,18 +33,18 @@ class Shape(LG):
         return False
     
     def addLineGroup(self, inGroup):
-        LG.addLineGroup(self, inGroup)
+#        LG.addLineGroup(self, inGroup)
+        super(Shape, self).addLineGroup(inGroup)
         self.shapeIsClosed = self.isShapeClosed()
     
     def closeShape(self):
-        if(self.lines[0].start != self.lines[-1].end):
-            self.lines.append(l.Line(self.lines[-1].getEnd(),
-                                     self.lines[0].getStart()))
+        if(self[0].start != self[-1].end):
+            self.append(l.Line(self[-1].end, self[0].start))
         self.shapeIsClosed = True
         
     def isShapeClosed(self):
-        if(len(self.lines) <= 2): return False
-        if(self.lines[0].start == self.lines[-1].end):
+        if(len(self) <= 2): return False
+        if(self[0].start == self[-1].end):
             return True
         return False
                                      
@@ -66,7 +66,7 @@ class Shape(LG):
         downLine = l.Line(point.getPoint(), p.Point(point.x, self.minY - 10))
 
         downSet = set([])
-        for line in self.lines:
+        for line in self:
             if(line.isOnLine(point)):
 #                print 'Line: ' + str(line) + ' Point: ' + str(point)                
                 return True
@@ -78,4 +78,4 @@ class Shape(LG):
         return (True if len(downSet) % 2 == 1 else False)
         
     def translate(self, xShift, yShift,zShift=0):
-        return Shape([line.translate(xShift, yShift, zShift) for line in self.lines])  
+        return Shape([line.translate(xShift, yShift, zShift) for line in self])  
