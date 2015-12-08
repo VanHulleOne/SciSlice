@@ -30,10 +30,10 @@ class InFill(LG):
                            1 : self.createField,
                            2 : self.trimField}
         
-        if(design == None):
+        if(design is None):
             point1 = p.Point(-self.trimDiagonal-10, 0)
             point2 = p.Point(self.trimDiagonal+10, 0)
-            self.design = lg.LineGroup(l.Line(point1, point2))
+            self.design = lg.LineGroup([l.Line(point1, point2)])
             self.designType = self.PARTIAL_ROW
         else:
             self.design = design
