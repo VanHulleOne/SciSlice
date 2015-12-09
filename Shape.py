@@ -21,7 +21,7 @@ class Shape(LG):
         if(self.doShapesIntersect(inShape)):
             print '********** Internal shape is not completely inside main shape. **********'
         
-        for line in inShape.lines:
+        for line in inShape:
             self.append(line)
     
     def doShapesIntersect(self, inShape):
@@ -33,7 +33,6 @@ class Shape(LG):
         return False
     
     def addLineGroup(self, inGroup):
-#        LG.addLineGroup(self, inGroup)
         super(Shape, self).addLineGroup(inGroup)
         self.shapeIsClosed = self.isShapeClosed()
     
@@ -77,5 +76,5 @@ class Shape(LG):
 #        print 'Len: ' + str(len(downSet)) + ' Point: ' + str(point)    
         return (True if len(downSet) % 2 == 1 else False)
         
-    def translate(self, xShift, yShift,zShift=0):
-        return Shape([line.translate(xShift, yShift, zShift) for line in self])  
+#    def translate(self, xShift, yShift,zShift=0):
+#        return Shape([line.translate(xShift, yShift, zShift) for line in self])  

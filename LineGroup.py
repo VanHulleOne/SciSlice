@@ -23,10 +23,6 @@ class LineGroup(object):
         else:
             for line in self:
                 self.updateMinMax(line)
-            
-#    def addLine(self, line):
-#        self.append(line)
-#        self.updateMinMax(line)
         
     def updateMinMax(self, line):
         if(line.upperLeft.x < self.minX or self.minX is None): self.minX = line.upperLeft.x
@@ -54,13 +50,16 @@ class LineGroup(object):
         tempLines2 = []
         for line in tempLines:
             tempLines2.append(l.Line(line.end, line.start))
-        return LineGroup(tempLines2)
+        cls = type(self)
+        return cls(tempLines2)
     
     def translate(self, xShift, yShift,zShift=0):
-        return LineGroup([line.translate(xShift, yShift, zShift) for line in self])        
+        cls = type(self)
+        return cls([line.translate(xShift, yShift, zShift) for line in self])        
         
     def rotate(self, angle, point=p.Point(0,0)):      
-        return LineGroup([line.rotate(angle, point) for line in self])
+        cls = type(self)
+        return cls([line.rotate(angle, point) for line in self])
         
     def getMidPoint(self):
         x = (self.maxX - self.minX)/2.0 + self.minX
@@ -73,7 +72,7 @@ class LineGroup(object):
     
     def __add__(self, other):
         cls = type(self)
-        return cls.__init__(self, list(self)+list(other))
+        return cls(self, list(self)+list(other))
     
     def __getitem__(self, index):
         return self.lines[index]

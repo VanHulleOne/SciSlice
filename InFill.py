@@ -21,9 +21,9 @@ class InFill(LG):
     
     def __init__(self, trimShape, design=None, designType=None):
         LG.__init__(self, None)        
-        self.trimShape = trimShape
-        lowerLeft = p.Point(trimShape.minX, trimShape.minY)
-        upperRight = p.Point(trimShape.maxX, trimShape.maxY)
+        self.trimShape = s.Shape(trimShape)
+        lowerLeft = p.Point(self.trimShape.minX, self.trimShape.minY)
+        upperRight = p.Point(self.trimShape.maxX, self.trimShape.maxY)
         
         self.trimDiagonal = lowerLeft.distance(upperRight)*1.1       
         self.operations = {0 : self.extendDesign,

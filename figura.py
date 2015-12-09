@@ -9,13 +9,14 @@ import gcode as gc
 import parameters as pr
 import Point as p
 import InFill as Inf
+import LineGroup as lg
 
 #Test for this comment here
 
 class Figura:
     
     def __init__(self, inShape):
-        layer = Inf.InFill(inShape)
+        layer = lg.LineGroup(Inf.InFill(inShape))
         self.layers = [layer.translate(0, 0, pr.layerHeight*(currentLayer+1)) for currentLayer in range(pr.numLayers)]
         self.gcode = ''
         self.setGcode()
