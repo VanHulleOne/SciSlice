@@ -25,7 +25,6 @@ startTime = time.time()
 t1 = ds.DoneShapes()
 shape = t1.wideDogBone
 
-
 print '\nGenerating code, please wait...\n'
 #infill = InF.InFill()
 fig = fg.Figura(shape)
@@ -41,4 +40,4 @@ f.close()
 
 print 'Dong writting: ' + pr.outputFileName
 
-print str(time.time() - startTime) + ' sec to produce.'
+print '{:.3f} seconds to produce.'.format(time.time() - startTime)
