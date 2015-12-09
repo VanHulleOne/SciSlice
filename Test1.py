@@ -18,6 +18,7 @@ from parameters import constants as c
 import InFill as inf
 from itertools import islice
 import LineGroup as lg
+import doneShapes as ds
 
 CW = -1
 CCW = 1
@@ -29,11 +30,20 @@ arc = a.Arc(p.Point(49.642, 9.5), p.Point(28.5, 6.5), CW, p.Point(28.5, 82.5), 2
 p1 = p.Point(-82.500, -9.500, 0)
 p2 = p.Point(161.361, 111.157)
 p3 = p.Point(28.5, 6.5)
-p4 = p.Point(-82.5, -9.5)
-p5 = p.Point(2,2.00001)
+p4 = p.Point(-82.501, -9.5)
+p5 = p.Point(3,3.0001)
 p6 = p.Point(2,2)
 
-print (False and False)
+done1 = ds.DoneShapes()
+s1 = done1.regularDogBone
+
+print id(s1)
+s2 = s1
+print id(s2)
+print s1 is s2
+s3 = list(s1)
+print id(s3)
+print s1 is s3
 
 #aHole = a.Arc(p.Point(4,0), p.Point(4,0), c.CW, p.Point(0,0))
 #print isinstance(aHole, lg.LineGroup)
