@@ -7,6 +7,7 @@ Created on Wed Oct 28 14:09:55 2015
 import Line as l
 import Point as p
 from LineGroup import LineGroup as LG
+from parameters import constants as c
 
 class Shape(LG):    
     def __init__(self, shape):
@@ -47,6 +48,42 @@ class Shape(LG):
             return True
         return False
                                      
+    def offset(self, distance, side):
+        newLines = []
+        for line in self:
+            try1, try2 = line.getOffsetLines(distance)
+            if self.isInside(try1.getMidPoint()) is side:
+                newLines.append(try1)
+            else:
+                newLines.append(try2)
+#        trimJoin = self.trimJoin_coro(newLines[-1])
+#        next(trimJoin)
+        moveEnd = newLines[-1]
+        for moveStart in newLines:
+            _, point = moveEnd.segmentsIntersect(moveStart, c.ALLOW_PROJECTION)
+            moveEnd.end = point
+            moveStart.start = point
+            moveEnd = moveStart
+#            trimJoin.send(line)
+#        trimJoin.close()
+        return Shape(newLines)
+       
+    def trimJoin_coro(self):
+        offsetLines = []
+        moveEnd = yield
+        moveStart = yield
+        while not(moveStart is None):
+            _, point = moveEnd.segmentsIntersect(moveStart, c.ALLOW_PROJECTION)
+            moveEnd.end = point
+            moveStart.start = point
+            offsetLines.append(moveEnd)
+            moveEnd = moveStart
+            moveStart = yield
+        _, point = moveEnd.segmentsIntersect(offsetLines[0], c.ALLOW_PROJECTION)
+        moveEnd.end = point
+        offsetLines[0].start = point
+        yield offsetLines
+    
     def isInside(self, point):
         """
         This method determines if the point is inside
@@ -59,8 +96,6 @@ class Shape(LG):
         """
         if(point.x > self.maxX or point.x < self.minX): return False
         if(point.y > self.maxY or point.y < self.minY): return False
-        
-#        print 'Point: ' + str(point)
         
         downLine = l.Line(point.getPoint(), p.Point(point.x, self.minY - 10))
 
@@ -76,5 +111,3 @@ class Shape(LG):
 #        print 'Len: ' + str(len(downSet)) + ' Point: ' + str(point)    
         return (True if len(downSet) % 2 == 1 else False)
         
-#    def translate(self, xShift, yShift,zShift=0):
-#        return Shape([line.translate(xShift, yShift, zShift) for line in self])  
