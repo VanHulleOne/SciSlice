@@ -22,7 +22,7 @@ Part Parameters
 """
 #mainShape = ps.wideDogBone
 layerHeight = 0.3 #mm height per layer
-numLayers = 1 #number of layers to make
+numLayers = 10 #number of layers to make
 infillAngleDegrees = 90 #degrees infill angle 90 is in Y direction 0 is in X direction
 
 """
@@ -68,6 +68,7 @@ class constants:
     CENTER = 3 #center of circle
     INSIDE = 1 #Point is inside shape
     OUTSIDE = 0 #point is outside shape
+    ALLOW_PROJECTION = True
     
 #class premadeShapes:
 #    import constants as c
