@@ -23,9 +23,12 @@ class Line:
     def segmentsIntersect(self, other, allowProjInt = False):
         if(not(allowProjInt) and not(self.doBoundingBoxesIntersect(other))): return -1, None #return if bounding boxes do not intersect
         if(self.areColinear(other)):
-            pointList = sorted([self.start, self.end, other.start, other.end])
-            if(self.doBoundingBoxesIntersect(other)):                
-                return 2, pointList[1:3] #If lines are colinear and they overlap then there are two intersections
+            pointList = sorted(list(set([self.start, self.end, other.start, other.end])))
+#            if(self.doBoundingBoxesIntersect(other)):                
+#                return 2, pointList[1:3] #If lines are colinear and they overlap then there are two intersections
+#            else:
+            if len(pointList) == 3:
+                return -2, pointList[1]
             else:
                 tempLine = Line(pointList[1], pointList[2])
                 return -2, tempLine.getMidPoint() #If they are colinear and do not overlap return half way inbetween lines
@@ -115,10 +118,23 @@ class Line:
         self.lowerRight = p.Point(tempList[0][1], tempList[1][0])
         return None
     
+    def getOffsetLines(self, distance):
+        """ Calculates and returns the two lines on either side of self offset distance."""
+        StartA = numpy.array([self.start.x, self.start.y])
+        EndA = numpy.array([self.end.x, self.end.y])
+        r = StartA - EndA #The slope vector of self
+        rn = numpy.array([-r[c.Y], r[c.X]]) #flip x and y and inverse y to get the normal vector of the slope
+        rn = rn/numpy.linalg.norm(rn)*distance #normalize by dividing by its magnitude and multipy by distance to get the correct length
+        line1 = self.translate(rn[c.X], rn[c.Y]) #the "Plus" side line
+        line2 = self.translate(-rn[c.X], -rn[c.Y]) #the "minus" side line
+        return (line1, line2)
+        
+        
     def getMidPoint(self):
-        x = (self.start.x - self.end.x)/2.0 + self.end.x
-        y = (self.start.y - self.end.y)/2.0 + self.end.y
-        return p.Point(x, y)
+        midVect = (self.start.normalVector - self.end.normalVector)/2.0 + self.end.normalVector
+#        x = (self.start.x - self.end.x)/2.0 + self.end.x
+#        y = (self.start.y - self.end.y)/2.0 + self.end.y
+        return p.Point(midVect[c.X], midVect[c.Y], midVect[c.Z])
         
     def getStart(self):
         return p.Point(self.start.x, self.start.y, self.start.z)
