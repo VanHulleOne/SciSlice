@@ -48,12 +48,12 @@ class Shape(LG):
             return True
         return False
                                      
-    def offset(self, distance, side):
+    def offset(self, distance, desiredSide):
         trimJoin = self.trimJoin_coro()
         next(trimJoin)
         for line in self:
             try1, try2 = line.getOffsetLines(distance)
-            if self.isInside(try1.getMidPoint()) is side:
+            if self.isInside(try1.getMidPoint()) is desiredSide:
                 trimJoin.send(try1)
             else:
                 trimJoin.send(try2)
