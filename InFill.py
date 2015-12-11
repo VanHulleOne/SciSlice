@@ -68,11 +68,6 @@ class InFill(LG):
             pointSet = set([line.getStart()])
             for tLine in self.trimShape.lines:
                 result, point = tLine.segmentsIntersect(line)
-#                testPoint = p.Point(-82.500, -9.500)
-#                if(point is not None):
-#                    print str(point) + ' ' + str(testPoint)
-#                    if(point == testPoint):
-#                        print '*******************here: infill line 71********************************'
                 if(result == 1):
                     pointSet.add(point)
             pointSet.add(line.getEnd())
@@ -80,7 +75,6 @@ class InFill(LG):
             for i in range(len(pointList)-1):                
                 tempLines.append(l.Line(pointList[i], pointList[i+1]))
         for i in range(len(tempLines)):
-#            print tempLines[i]
             if(self.trimShape.isInside(tempLines[i].getMidPoint())):
                 self.lines.append(tempLines[i])
     
