@@ -32,19 +32,26 @@ p2 = p.Point(161.361, 111.157)
 p3 = p.Point(28.5, 6.5)
 p4 = p.Point(-82.501, -9.5)
 p5 = p.Point(3,3.0001)
-p6 = p.Point(2,2)
+p6 = p.Point(3,4)
+p7 = p.Point(5,6)
+p8 = p.Point(7,8)
+p9 = p.Point(5,10)
+p10 = p.Point(3,12)
 
-done1 = ds.DoneShapes()
-s1 = done1.regularDogBone
+shapes = ds.DoneShapes()
+bigShape = shapes.regularDogBone
+smallerShape = bigShape.offset(2.0, c.INSIDE)
 
-print id(s1)
-s2 = s1
-print id(s2)
-print s1 is s2
-s3 = list(s1)
-print id(s3)
-print s1 is s3
+print 'G90 G1'
+for line in bigShape:
+    print line.start
+    print line.end
+for line in smallerShape:
+    print line.start
+    print line.end
 
+
+    
 #aHole = a.Arc(p.Point(4,0), p.Point(4,0), c.CW, p.Point(0,0))
 #print isinstance(aHole, lg.LineGroup)
 
