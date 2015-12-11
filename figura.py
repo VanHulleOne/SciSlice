@@ -11,12 +11,11 @@ import Point as p
 import InFill as Inf
 import LineGroup as lg
 
-#Test for this comment here
-
 class Figura:
     
     def __init__(self, inShape):
-        layer = lg.LineGroup(Inf.InFill(inShape))
+        layerList = list(Inf.InFill(inShape))
+        layer = lg.LineGroup(self.organizeLines(layerList))
         self.layers = [layer.translate(0, 0, pr.layerHeight*(currentLayer+1)) for currentLayer in range(pr.numLayers)]
         self.gcode = ''
         self.setGcode()
@@ -25,20 +24,20 @@ class Figura:
         self.gcode += gc.startGcode()
         layerNumber = 1
         for layer in self.layers:
-            lines = self.organizeLines(list(layer))
+#            lines = self.organizeLines(list(layer))
             self.gcode += '\n\n;Layer: ' + str(layerNumber) + '\n'
             self.gcode += ';T' + str(layerNumber) + '\n'
             self.gcode += ';M6\n'
-            self.gcode += gc.rapidMove(lines[0].start, pr.INCLUDE_Z)
-            self.gcode += gc.firstApproach(lines[0].start)
+            self.gcode += gc.rapidMove(layer[0].start, pr.INCLUDE_Z)
+            self.gcode += gc.firstApproach(layer[0].start)
             
             totalExtrusion = 0
-            for line in lines:
+            for line in layer:
                 totalExtrusion += line.length*pr.extrusionRate
                 self.gcode += gc.rapidMove(line.start, pr.OMIT_Z)
                 self.gcode += gc.feedMove(line.end, pr.OMIT_Z, totalExtrusion)
             
-            self.gcode += gc.retractLayer(totalExtrusion, lines[-1].end)
+            self.gcode += gc.retractLayer(totalExtrusion, layer[-1].end)
             layerNumber += 1
         self.gcode += gc.endGcode()
                            
