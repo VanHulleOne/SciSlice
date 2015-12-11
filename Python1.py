@@ -21,11 +21,11 @@ import doneShapes as ds
 import time
 
 startTime = time.time()
+print '\nGenerating code, please wait...\n'
 
 t1 = ds.DoneShapes()
 shape = t1.wideDogBone
 
-print '\nGenerating code, please wait...\n'
 #infill = InF.InFill()
 fig = fg.Figura(shape)
 
