@@ -49,24 +49,15 @@ class Shape(LG):
         return False
                                      
     def offset(self, distance, side):
-        newLines = []
+        trimJoin = self.trimJoin_coro()
+        next(trimJoin)
         for line in self:
             try1, try2 = line.getOffsetLines(distance)
             if self.isInside(try1.getMidPoint()) is side:
-                newLines.append(try1)
+                trimJoin.send(try1)
             else:
-                newLines.append(try2)
-#        trimJoin = self.trimJoin_coro(newLines[-1])
-#        next(trimJoin)
-        moveEnd = newLines[-1]
-        for moveStart in newLines:
-            _, point = moveEnd.segmentsIntersect(moveStart, c.ALLOW_PROJECTION)
-            moveEnd.end = point
-            moveStart.start = point
-            moveEnd = moveStart
-#            trimJoin.send(line)
-#        trimJoin.close()
-        return Shape(newLines)
+                trimJoin.send(try2)
+        return Shape(trimJoin.send(None))
        
     def trimJoin_coro(self):
         offsetLines = []
