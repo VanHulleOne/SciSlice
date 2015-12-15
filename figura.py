@@ -10,20 +10,30 @@ import parameters as pr
 import Point as p
 import InFill as Inf
 import LineGroup as lg
+from parameters import constants as c
 
 class Figura:
     
     def __init__(self, inShape):
-        layerList = list(Inf.InFill(inShape))
+        layerList = list(Inf.InFill(inShape))        
         layer = lg.LineGroup(self.organizeLines(layerList))
-        self.layers = [layer.translate(0, 0, pr.layerHeight*(currentLayer+1)) for currentLayer in range(pr.numLayers)]
-        self.gcode = ''
-        self.setGcode()
+        self.gcode = '' + gc.startGcode()
+        partCount = 0
+        for partParams in pr.everyPartsParameters:
+            print 'Part Count: ' + str(partCount)
+            partCount += 1
+            print 'Part Params: ' + str(partParams)
+            layers = [layer.translate(partParams[c.SHIFT_X],partParams[c.SHIFT_Y],
+                                      partParams[c.LAYER_HEIGHT]*(currentLayer+1))
+                                      for currentLayer in range(partParams[c.NUM_LAYERS])]
+            self.gcode += ';Part number: ' + str(partCount) + '\n'
+            self.gcode += ';Parameters: ' + str(partParams) + '\n'
+            self.setGcode(layers, partParams[c.PRINT_SPEED], partParams[c.EXTRUSION_RATE])
+        self.gcode += gc.endGcode()
     
-    def setGcode(self):
-        self.gcode += gc.startGcode()
+    def setGcode(self, layers, printSpeed, extrusionRate):
         layerNumber = 1
-        for layer in self.layers:
+        for layer in layers:
 #            lines = self.organizeLines(list(layer))
             self.gcode += '\n\n;Layer: ' + str(layerNumber) + '\n'
             self.gcode += ';T' + str(layerNumber) + '\n'
@@ -33,13 +43,12 @@ class Figura:
             
             totalExtrusion = 0
             for line in layer:
-                totalExtrusion += line.length*pr.extrusionRate
+                totalExtrusion += line.length*extrusionRate
                 self.gcode += gc.rapidMove(line.start, pr.OMIT_Z)
-                self.gcode += gc.feedMove(line.end, pr.OMIT_Z, totalExtrusion)
+                self.gcode += gc.feedMove(line.end, pr.OMIT_Z, totalExtrusion, printSpeed)
             
             self.gcode += gc.retractLayer(totalExtrusion, layer[-1].end)
-            layerNumber += 1
-        self.gcode += gc.endGcode()
+            layerNumber += 1        
                            
     def organizeLines(self, lines):
         organizedLines = [lines.pop(0)]

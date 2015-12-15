@@ -7,13 +7,13 @@ Created on Fri Nov 06 10:30:44 2015
 
 import parameters as pr
 
-def feedMove(endPoint, ommitZ, extrudeTo):
+def feedMove(endPoint, ommitZ, extrudeTo, printSpeed):
     if ommitZ:
         return ('G01 X{:.3f} Y{:.3f} F{:.0f} E{:.3f}\n'.format(endPoint.x, endPoint.y,
-                pr.printSpeed, extrudeTo))
+                printSpeed, extrudeTo))
     else:
         return ('G01 X{:.3f} Y{:.3f} Z{:.3f} F{:.0f} E{:.3f}\n'.format(endPoint.x, endPoint.y, endPoint.z,
-                pr.printSpeed, extrudeTo))
+                printSpeed, extrudeTo))
 
 def rapidMove(endPoint, ommitZ):
     if ommitZ:

@@ -24,7 +24,7 @@ startTime = time.time()
 print '\nGenerating code, please wait...\n'
 
 t1 = ds.DoneShapes()
-shape = t1.wideDogBone
+shape = t1.regularDogBone
 
 #infill = InF.InFill()
 fig = fg.Figura(shape)
