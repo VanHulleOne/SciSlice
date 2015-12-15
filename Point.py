@@ -11,7 +11,7 @@ class Point:
     
     COMPARE_PRECISION = 10000
     
-    def __init__(self, x, y, z=0):
+    def __init__(self, x, y=None, z=0):
         self._x = x
         self._y = y
         self._z = z
@@ -29,12 +29,12 @@ class Point:
     def z(self):
         return self._z
     
+    def __iter__(self):
+        return(i for i in (self.x, self.y, self.z))
+    
     def get2DPoint(self):
         return [self.x, self.y]
-        
-    def getPoint(self):
-        return Point(self.x, self.y, self.z)
-        
+
     def mirror(self, axis):
         transMatrix = numpy.identity(4)
         if(axis == c.X):
@@ -100,12 +100,6 @@ class Point:
     
     def __str__(self):
         return 'X{:.3f} Y{:.3f} Z{:.3f}'.format(self.x, self.y, self.z)
-        
-    def getX(self):
-        return self.normalVector[c.X]
-    
-    def getY(self):
-        return self.normalVector[c.Y]
     
     def getNormalVector(self):
         nv = [n for n in self.normalVector]
