@@ -12,13 +12,17 @@ class Line:
     def __init__(self, start, end):
         self.start = start
         self.end = end
-        self.length = start.distance(end)
+        self._length = self.length
         if(self.length == 0):
             print ('SNAFU detected, a line was created with no length at: ' + 
                     str(self.start))
         self.upperLeft = None
         self.lowerRight = None
         self.setBoundingBox()
+    
+    @property
+    def length(self):
+        return self.start.distance(self.end)
     
     def segmentsIntersect(self, other, allowProjInt = False):
         if(not(allowProjInt) and not(self.doBoundingBoxesIntersect(other))): return -1, None #return if bounding boxes do not intersect
