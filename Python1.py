@@ -32,9 +32,7 @@ fig = fg.Figura(shape)
 print 'Code generated, writting file...\n'
 
 f = open(pr.outputSubDirectory+'\\'+pr.outputFileName, 'w')
-f.write(gc.startGcode())
 f.write(fig.gcode)
-f.write(gc.endGcode())
 
 f.close()
 
