@@ -88,7 +88,7 @@ class Shape(LG):
         if(point.x > self.maxX or point.x < self.minX): return False
         if(point.y > self.maxY or point.y < self.minY): return False
         
-        downLine = l.Line(point.getPoint(), p.Point(point.x, self.minY - 10))
+        downLine = l.Line(point, p.Point(point.x, self.minY - 10, point.z))
 
         downSet = set([])
         for line in self:
