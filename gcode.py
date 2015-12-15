@@ -38,6 +38,9 @@ def approachLayer(lastE, startPoint):
 def firstApproach(startPoint):
     return 'G1 Z{:.3f} F{:.0f}\n'.format(startPoint.z, pr.APPROACH_FR)
     
+def newPart():
+    return 'G92 E0\n'
+
 def startGcode():
     with open(pr.startEndSubDirectory + '\\' + pr.start_Gcode_FileName) as startFile:
         lines = startFile.readlines()   
