@@ -29,13 +29,11 @@ shape = t1.regularDogBone
 #infill = InF.InFill()
 fig = fg.Figura(shape)
 
-print 'Code generated, writting file...\n'
+print '\nCode generated, writting file...\n'
 
-f = open(pr.outputSubDirectory+'\\'+pr.outputFileName, 'w')
-f.write(fig.gcode)
-
-f.close()
+with open(pr.outputSubDirectory+'\\'+pr.outputFileName, 'w') as f:
+    f.write(fig.gcode)
 
 print 'Dong writting: ' + pr.outputFileName
 
-print '{:.3f} seconds to produce.'.format(time.time() - startTime)
+print '{:.2f} seconds to produce.'.format(time.time() - startTime)
