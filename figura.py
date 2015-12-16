@@ -11,12 +11,15 @@ import Point as p
 import InFill as Inf
 import LineGroup as lg
 from parameters import constants as c
+import itertools
 
 class Figura:
     
-    def __init__(self, inShape):
-        layerList = list(Inf.InFill(inShape))        
-        layer = lg.LineGroup(self.organizeLines(layerList))
+    def __init__(self, inShapes):
+        layerList = []
+        for shape in inShapes:
+            layerList.append(self.organizeLines(list(shape)))
+        layer = lg.LineGroup(itertools.chain.from_iterable(layerList))
         self.gcode = '' + gc.startGcode()
         partCount = 1
         for partParams in pr.everyPartsParameters:
@@ -37,7 +40,6 @@ class Figura:
         totalExtrusion = 0
         
         for layer in layers:
-#            lines = self.organizeLines(list(layer))
             self.gcode += ';Layer: ' + str(layerNumber) + '\n'
             self.gcode += ';T' + str(layerNumber) + '\n'
             self.gcode += ';M6\n'
@@ -54,6 +56,7 @@ class Figura:
             layerNumber += 1        
                            
     def organizeLines(self, lines):
+        lines.sort()
         organizedLines = [lines.pop(0)]
         
         while len(lines) > 0:
