@@ -11,6 +11,7 @@ import Shape as s
 from LineGroup import LineGroup as LG
 import LineGroup as lg
 import parameters as pr
+from math import pi
 
 class InFill(LG):
     
@@ -19,9 +20,11 @@ class InFill(LG):
     FULL_FIELD = 2
     TRIMMED_FIELD = 3    
     
-    def __init__(self, trimShape, design=None, designType=None):
+    def __init__(self, trimShape, pathWidth, angleDegrees, design=None, designType=None):
         LG.__init__(self, None)        
         self.trimShape = s.Shape(trimShape)
+        self.angleRad = (angleDegrees/360.0*2*pi)
+        self.pathWidth = pathWidth
         lowerLeft = p.Point(self.trimShape.minX, self.trimShape.minY)
         upperRight = p.Point(self.trimShape.maxX, self.trimShape.maxY)
         
@@ -40,8 +43,6 @@ class InFill(LG):
         
         for i in range(self.designType, self.TRIMMED_FIELD):
             self.operations[i]();
-            
-        self.lines.sort()
         
     def extendDesign(self):
         tempDesign = lg.LineGroup(self.design.lines)
@@ -50,15 +51,14 @@ class InFill(LG):
             shiftX = self.design[-1].end.x - tempDesign[0].start.x
             shiftY = self.design[-1].end.y - tempDesign[0].start.y
             self.design.addLineGroup(tempDesign.translate(shiftX, shiftY))
-            designWidth = self.design.maxX - self.design.minX 
-            print "here line 54 Infill"
+            designWidth = self.design.maxX - self.design.minX
         
     def createField(self):
-        tempDesign = self.design.translate(0, pr.pathWidth)
+        tempDesign = self.design.translate(0, self.pathWidth)
         designHeight = abs(self.design.maxY - self.design.minY)
         while(designHeight < self.trimDiagonal):
             self.design.addLineGroup(tempDesign)
-            tempDesign = tempDesign.translate(0, pr.pathWidth)
+            tempDesign = tempDesign.translate(0, self.pathWidth)
             designHeight += pr.pathWidth
         self.centerAndRotateField()
         
@@ -84,5 +84,5 @@ class InFill(LG):
         transX = trimShapeCP.x - designCP.x
         transY = trimShapeCP.y - designCP.y
         self.design = self.design.translate(transX, transY)
-        self.design = self.design.rotate(pr.backgroundAngle, trimShapeCP)
+        self.design = self.design.rotate(self.angleRad, trimShapeCP)
         
