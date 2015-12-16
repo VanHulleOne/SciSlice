@@ -8,8 +8,8 @@ import Point as p
 import numpy
 from parameters import constants as c
 
-class Line:
-    def __init__(self, start, end, extrusionRate = 0):
+class Line(object):
+    def __init__(self, start, end, extrusionRate = 0, freezeExtrusionRate = False):
         self.start = start
         self.end = end
         self._length = self.length
@@ -17,13 +17,24 @@ class Line:
             print ('SNAFU detected, a line was created with no length at: ' + 
                     str(self.start))
         self.upperLeft = None
-        self.lowerRight = None
-        self.extrusionRate = extrusionRate
+        self.lowerRight = None        
+        self.__extrusionRate = extrusionRate
+        self.freezeExRate = freezeExtrusionRate
         self.setBoundingBox()
     
     @property
     def length(self):
         return self.start.distance(self.end)
+        
+    @property
+    def extrusionRate(self):
+        return self.__extrusionRate
+        
+    @extrusionRate.setter
+    def extrusionRate(self, value):
+        if (not self.freezeExRate):
+            self.__extrusionRate = value
+        
     
     def segmentsIntersect(self, other, allowProjInt = False):
         if(not(allowProjInt) and not(self.doBoundingBoxesIntersect(other))): return -1, None #return if bounding boxes do not intersect
@@ -91,18 +102,18 @@ class Line:
     def translate(self, shiftX, shiftY, shiftZ=0):
         newStart = self.start.translate(shiftX, shiftY, shiftZ)
         newEnd = self.end.translate(shiftX, shiftY, shiftZ)
-        return Line(newStart, newEnd)
+        return Line(newStart, newEnd, self.extrusionRate, self.freezeExRate)
         
     def mirror(self, axis):
         newStart = self.start.mirror(axis)
         newEnd = self.end.mirror(axis)
-        return Line(newStart, newEnd)
+        return Line(newStart, newEnd, self.extrusionRate, self.freezeExRate)
     
     def rotate(self, angle, point):
         if(point is None): point = p.Point(0,0)
         newStart = self.start.rotate(angle, point)
         newEnd = self.end.rotate(angle, point)
-        return Line(newStart, newEnd)
+        return Line(newStart, newEnd, self.extrusionRate, self.freezeExRate)
 
     def flip(self):
         self.start, self.end = self.end, self.start

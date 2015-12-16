@@ -7,27 +7,27 @@ Created on Tue Oct 27 13:13:34 2015
 import numpy
 import math
 from parameters import constants as c
-class Point:
+class Point(object):
     
     COMPARE_PRECISION = 10000
     
-    def __init__(self, x, y=None, z=0):
-        self._x = x
-        self._y = y
-        self._z = z
+    def __init__(self, x, y, z=0):
+        self.__x = x
+        self.__y = y
+        self.__z = z
         self.normalVector = numpy.array([x, y, z, 1])
         
     @property
     def x(self):
-        return self._x
+        return self.__x
         
     @property
     def y(self):
-        return self._y
+        return self.__y
     
     @property
     def z(self):
-        return self._z
+        return self.__z
     
     def __iter__(self):
         return(i for i in (self.x, self.y, self.z))
