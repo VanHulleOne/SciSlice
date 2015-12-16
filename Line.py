@@ -5,46 +5,80 @@ Created on Tue Oct 27 13:40:56 2015
 @author: lvanhulle
 """
 import Point as p
-import math
 import numpy
+from parameters import constants as c
 
-class Line:
-    X, Y = 0, 1
-    def __init__(self, start, end):
+class Line(object):
+    def __init__(self, start, end, extrusionRate = 0, freezeExtrusionRate = False):
         self.start = start
         self.end = end
-        self.length = self.distance(start, end)
-        if(length == 0): print 'SNAFU detected, a line was created with no length.'
-        self.upperLeft
-        self.lowerRight
+        self._length = self.length
+        if(self.length == 0):
+            print ('SNAFU detected, a line was created with no length at: ' + 
+                    str(self.start))
+        self.upperLeft = None
+        self.lowerRight = None        
+        self.__extrusionRate = extrusionRate
+        self.freezeExRate = freezeExtrusionRate
         self.setBoundingBox()
     
-    def doSegmentsIntersect(self, other):
-        if(not self.doBoundingBoxesIntersect(other)): return -1, None #return if bounding boxes do not intersect
-        if(self.areColinear(other)): return 0, None #return if two lines are colinear
+    @property
+    def length(self):
+        return self.start.distance(self.end)
         
-        r = numpy.subtract(self.end.getPoint(), self.start.getPoint())
-        s = numpy.subtract(other.end.getPoint(), other.start.getPoint())
-        Q_Less_P = numpy.subtract(other.start.getPoint(), self.start.getPoint())
-        denom = numpy.cross(r, s)
+    @property
+    def extrusionRate(self):
+        return self.__extrusionRate
+        
+    @extrusionRate.setter
+    def extrusionRate(self, value):
+        if (not self.freezeExRate):
+            self.__extrusionRate = value
+        
+    
+    def segmentsIntersect(self, other, allowProjInt = False):
+        if(not(allowProjInt) and not(self.doBoundingBoxesIntersect(other))): return -1, None #return if bounding boxes do not intersect
+        if(self.areColinear(other)):
+            pointList = sorted(list(set([self.start, self.end, other.start, other.end])))
+            if len(pointList) == 3:
+                return -2, pointList[1] #if they are colinear and two ends have the same point return that point
+            else:
+                tempLine = Line(pointList[1], pointList[2])
+                return -2, tempLine.getMidPoint() #If they are colinear return half way inbetween middle two points
+        
+        r = numpy.subtract(self.end.get2DPoint(), self.start.get2DPoint())
+        s = numpy.subtract(other.end.get2DPoint(), other.start.get2DPoint())
+        Q_Less_P = numpy.subtract(other.start.get2DPoint(), self.start.get2DPoint())
+        denom = numpy.cross(r, s)*1.0
         t = numpy.cross(Q_Less_P, s)/denom
         u = numpy.cross(Q_Less_P, r)/denom
-        if(abs(t) > 1 or abs(u) > 1):
-            print 'Should we be here? segmentsIntersect math problem, I think'
-        return 1, p.Point(self.start.getX() + r[self.X]*t,
-                          self.start.getY()+r[self.Y]*t) #lines intersect at given point
-        return -2, None #bounding boxes intersected but lines did not    
+        #If t or u are not in the range 0-1 then the intersection is projected
+        if(t > 1 or u > 1 or t < 0 or u < 0):
+            return -1, p.Point(self.start.x + r[c.X]*t,
+                          self.start.y+r[c.Y]*t) #return for projected intersection of non-colinear lines
+
+        return 1, p.Point(self.start.x + r[c.X]*t,
+                          self.start.y+r[c.Y]*t) #lines intersect at given point
+           
+    
+    def isOnLine(self, point):
+        if((point < self.start and point < self.end) or (
+            point > self.start and point > self.end)):
+            return False #point is not between the start and end of self
+        
+        if(self.getArea(self.start, self.end, point) > 0.0001):
+            return False #points are not co-linear
+        
+        return True
     
     def getArea(self, p1, p2, p3):
         """
-        Uses the determinant of a matrix conataining the three to find the area
+        Uses the determinant of a matrix containing the three to find the area
         of the triangle formed by the three points.
-        SPECIAL NOTE: the area is actually 1/2 the determinant but I have
-        left out that extra, unneeded calculation.
         """
-        matrix = [p1.getNormalVector(), p2.getNormalVector(), p3.getNormalVector()]
+        matrix = [p1.getNormalVector(), p2.getNormalVector(), p3.getNormalVector(), [1,1,1,1]]
         matrix = numpy.rot90(matrix)
-        return abs(numpy.linalg.det(matrix))
+        return abs(numpy.linalg.det(matrix))/2.0
     
     def areColinear(self, other):
         """
@@ -58,47 +92,78 @@ class Line:
         return False        
     
     def doBoundingBoxesIntersect(self, other):
-        if(self.upperLeft.getX() <= other.lowerRight.getX() and
-            self.lowerRight.getX() >= other.upperLeft.getX() and
-            self.upperRight.getY() >= other.lowerRight.getY() and
-            self.lowerRight.getY() <= other.upperLeft.getY()):
+        if(self.upperLeft.x <= other.lowerRight.x and
+            self.lowerRight.x >= other.upperLeft.x and
+            self.upperLeft.y >= other.lowerRight.y and
+            self.lowerRight.y <= other.upperLeft.y):
                 return True
-    return False 
-    
-    def distance(self, start, end):
-        """Returns the distance between two points"""
-        return math.sqrt((start.X - end.X)**2 + (start.Y - end.Y)**2)
+        return False 
         
-    def translate(self, shiftX, shiftY):
-        newStart = self.start.translate(shiftX, shiftY)
-        newEnd = self.end.translate(shiftX, shiftY)
-        return Line(newStart, newEnd)
+    def translate(self, shiftX, shiftY, shiftZ=0):
+        newStart = self.start.translate(shiftX, shiftY, shiftZ)
+        newEnd = self.end.translate(shiftX, shiftY, shiftZ)
+        return Line(newStart, newEnd, self.extrusionRate, self.freezeExRate)
         
     def mirror(self, axis):
         newStart = self.start.mirror(axis)
         newEnd = self.end.mirror(axis)
-        return Line(newStart, newEnd)
+        return Line(newStart, newEnd, self.extrusionRate, self.freezeExRate)
     
-    def rotate(self, angle):
-        newStart = self.start.rotate(angle)
-        newEnd = self.end.rotate(angle)
-        return Line(newStart, newEnd)
+    def rotate(self, angle, point):
+        if(point is None): point = p.Point(0,0)
+        newStart = self.start.rotate(angle, point)
+        newEnd = self.end.rotate(angle, point)
+        return Line(newStart, newEnd, self.extrusionRate, self.freezeExRate)
 
+    def flip(self):
+        self.start, self.end = self.end, self.start
+        
     def setBoundingBox(self):
         """
         Set the upper left and lower right coordinates of the smallest box
         which containts the line.
         """
-        tempList = [[self.start.getX(), self.end.getX()],
-                     [self.start.getY(), self.end.getY()]]
+        tempList = [[self.start.x, self.end.x],
+                     [self.start.y, self.end.y]]
         for row in tempList:
             row.sort()
-        upperLeft = p.Point(tempList[0][0], tempList[1][1])
-        lowerRight = p.Point(tempList[0][1], tempList[1][0])
+        self.upperLeft = p.Point(tempList[0][0], tempList[1][1])
+        self.lowerRight = p.Point(tempList[0][1], tempList[1][0])
+        return None
+    
+    def getOffsetLines(self, distance):
+        """ Calculates and returns the two lines on either side of self offset distance."""
+        StartA = numpy.array([self.start.x, self.start.y])
+        EndA = numpy.array([self.end.x, self.end.y])
+        r = StartA - EndA #The slope vector of self
+        rn = numpy.array([-r[c.Y], r[c.X]]) #flip x and y and inverse y to get the normal vector of the slope
+        rn = rn/numpy.linalg.norm(rn)*distance #normalize by dividing by its magnitude and multipy by distance to get the correct length
+        line1 = self.translate(rn[c.X], rn[c.Y]) #the "Plus" side line
+        line2 = self.translate(-rn[c.X], -rn[c.Y]) #the "minus" side line
+        return (line1, line2)
+        
+        
+    def getMidPoint(self):
+        midVect = (self.start.normalVector - self.end.normalVector)/2.0 + self.end.normalVector
+        return p.Point(midVect[c.X], midVect[c.Y], midVect[c.Z])
+        
+    def getStart(self):
+        return p.Point(self.start.x, self.start.y, self.start.z)
+        
+    def getEnd(self):
+        return p.Point(self.end.x, self.end.y, self.end.z)
+    
+    def __lt__(self, other):
+        selfLower = self.start if self.start < self.end else self.end
+        otherLower = other.start if other.start < other.end else other.end
+        return (selfLower < otherLower)
+        
+    def __eq__(self, other):
+        return (self.start == other.start and self.end == other.end)      
     
     def __str__(self):
-        return '[' + str(self.start) + '], [' + str(self.end) + ']'
-        
+        return str(self.start) + '    \t' + str(self.end)
+    
     def printBoudningBox(self):
         print 'Bounding Box for: ' + str(self)
-        print str(upperLeft) + ', ' + str(lowerRight)
+        print str(self.upperLeft) + ', ' + str(self.lowerRight)
