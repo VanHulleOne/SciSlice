@@ -16,30 +16,31 @@ import itertools
 class Figura:
     
     def __init__(self, inShapes):
-        layerList = []
-        for shape in inShapes:
-            layerList.append(self.organizeLines(list(shape)))
-        layer = lg.LineGroup(itertools.chain.from_iterable(layerList))
+#        layerList = []
+#        for shape in inShapes:
+#            layerList.append(self.organizeLines(list(shape)))
+#        layer = lg.LineGroup(itertools.chain.from_iterable(layerList))
+        layer = lg.LineGroup(self.organizeLines(list(itertools.chain.from_iterable(inShapes))))
         self.gcode = '' + gc.startGcode()
         partCount = 1
         for partParams in pr.everyPartsParameters:
             print 'Part Count: ' + str(partCount)            
             print 'Part Params: ' + str(partParams)
-            layers = [layer.translate(partParams[c.SHIFT_X],partParams[c.SHIFT_Y],
+            part = [layer.translate(partParams[c.SHIFT_X],partParams[c.SHIFT_Y],
                                       partParams[c.LAYER_HEIGHT]*(currentLayer+1))
                                       for currentLayer in range(partParams[c.NUM_LAYERS])]
             self.gcode += ';\n\nPart number: ' + str(partCount) + '\n'
             self.gcode += ';Parameters: ' + str(partParams) + '\n'
-            self.setGcode(layers, partParams[c.PRINT_SPEED], partParams[c.EXTRUSION_RATE])
+            self.setGcode(part, partParams[c.PRINT_SPEED], partParams[c.EXTRUSION_RATE])
             partCount += 1
         self.gcode += gc.endGcode()
     
-    def setGcode(self, layers, printSpeed, extrusionRate):
+    def setGcode(self, part, printSpeed, extrusionRate):
         layerNumber = 1
         self.gcode += gc.newPart()
         totalExtrusion = 0
         
-        for layer in layers:
+        for layer in part:
             self.gcode += ';Layer: ' + str(layerNumber) + '\n'
             self.gcode += ';T' + str(layerNumber) + '\n'
             self.gcode += ';M6\n'
@@ -47,7 +48,8 @@ class Figura:
             self.gcode += gc.firstApproach(layer[0].start)
             
             for line in layer:
-                totalExtrusion += line.length*extrusionRate
+                line.extrusionRate = extrusionRate
+                totalExtrusion += line.length*line.extrusionRate
                 self.gcode += gc.rapidMove(line.start, pr.OMIT_Z)
                 self.gcode += gc.feedMove(line.end, pr.OMIT_Z, totalExtrusion, printSpeed)
             

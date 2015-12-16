@@ -10,7 +10,8 @@ import math
 """
 Printing Parameters.
 """
-extrusionRate = [0.0212] #mm of filament/mm of travel
+fullExtrusionRate = 0.7 #fill for grips
+extrusionRate = [0.0212, 0.1, 0.05] #mm of filament/mm of travel
 pathWidth = 0.5 #mm distance between centerline of paths
 printSpeed = [2000] #mm/min head travel speed
 shiftX = [20, 70]
