@@ -9,7 +9,7 @@ import numpy
 from parameters import constants as c
 
 class Line:
-    def __init__(self, start, end):
+    def __init__(self, start, end, extrusionRate = 0):
         self.start = start
         self.end = end
         self._length = self.length
@@ -18,6 +18,7 @@ class Line:
                     str(self.start))
         self.upperLeft = None
         self.lowerRight = None
+        self.extrusionRate = extrusionRate
         self.setBoundingBox()
     
     @property
@@ -28,14 +29,11 @@ class Line:
         if(not(allowProjInt) and not(self.doBoundingBoxesIntersect(other))): return -1, None #return if bounding boxes do not intersect
         if(self.areColinear(other)):
             pointList = sorted(list(set([self.start, self.end, other.start, other.end])))
-#            if(self.doBoundingBoxesIntersect(other)):                
-#                return 2, pointList[1:3] #If lines are colinear and they overlap then there are two intersections
-#            else:
             if len(pointList) == 3:
-                return -2, pointList[1]
+                return -2, pointList[1] #if they are colinear and two ends have the same point return that point
             else:
                 tempLine = Line(pointList[1], pointList[2])
-                return -2, tempLine.getMidPoint() #If they are colinear and do not overlap return half way inbetween lines
+                return -2, tempLine.getMidPoint() #If they are colinear return half way inbetween middle two points
         
         r = numpy.subtract(self.end.get2DPoint(), self.start.get2DPoint())
         s = numpy.subtract(other.end.get2DPoint(), other.start.get2DPoint())
@@ -136,8 +134,6 @@ class Line:
         
     def getMidPoint(self):
         midVect = (self.start.normalVector - self.end.normalVector)/2.0 + self.end.normalVector
-#        x = (self.start.x - self.end.x)/2.0 + self.end.x
-#        y = (self.start.y - self.end.y)/2.0 + self.end.y
         return p.Point(midVect[c.X], midVect[c.Y], midVect[c.Z])
         
     def getStart(self):
