@@ -42,23 +42,23 @@ slopeOverY = 0 #not implemented yet how much you want it to move over in Y per l
 backgroundAngle = (infillAngleDegrees/360.0*2*math.pi) #angle of the paths in the layer 0 = X direction, PI/2 = Y direction
 solidityRatio = None #get calculation from Karsten
 
-def nrVariables_gen(inList):
-    varGens = []
-    for sublist in inList:
-        varGens.append(variable_gen(sublist))
+def zipVariables_gen(inputLists):
+    variableGenorators = []
+    for sublist in inputLists:
+        variableGenorators.append(variable_gen(sublist))
         
-    for i in range(len(max(inList, key=len))):
+    for _ in max(inputLists, key=len):
         tempList = []
-        for VG in varGens:
-            tempList.append(next(VG))
+        for varGen in variableGenorators:
+            tempList.append(next(varGen))
         yield tempList
     
-def variable_gen(inList):
+def variable_gen(variableList):
     while True:
-        for var in inList:
+        for var in variableList: 
             yield var
             
-everyPartsParameters = nrVariables_gen([
+everyPartsParameters = zipVariables_gen([
                           extrusionRate, printSpeed, shiftX, shiftY,
                           layerHeight, numLayers
                           ])
@@ -69,7 +69,7 @@ Standard printing settings
 """
 OMIT_Z = True
 INCLUDE_Z = False
-RAPID = 8000. #mm/min
+RAPID = 8000 #mm/min
 TRAVERSE_RETRACT = 0.5 #mm to retract when traversing longer distances
 MAX_EXTRUDE_SPEED = 100 #mm/min max speed to move filament
 Z_CLEARANCE = 10.0 #mm to move Z up
