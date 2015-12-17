@@ -41,17 +41,9 @@ p10 = p.Point(3,12)
 
 ds1 = ds.DoneShapes()
 s1 = ds1.regularDogBone
+s2 = ds1.wideDogBone
 
+sl1 = [s1, s2]
+full = sum(sl1)
 
-l1 = s1[0]
-print l1.extrusionRate
-l1.extrusionRate = 1.0
-print l1.extrusionRate
-l1.freezeExRate = True
-l1.extrusionRate = 2
-print l1.extrusionRate
-print s1[0].freezeExRate
-
-
-
-
+print full

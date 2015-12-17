@@ -70,9 +70,18 @@ class LineGroup(object):
         self.lines.append(line)
         self.updateMinMax(line)
     
+    def remove(self, line):
+        self.lines.remove(line)
+    
+    def sort(self):
+        self.lines.sort()
+    
+    def pop(self, index=-1):
+        return self.lines.pop(index)
+    
     def __add__(self, other):
         cls = type(self)
-        return cls(self, list(self)+list(other))
+        return cls(list(self)+list(other))
     
     def __getitem__(self, index):
         return self.lines[index]
@@ -88,3 +97,9 @@ class LineGroup(object):
         for line in self.lines:
             tempString = tempString + str(line) + '\n'
         return tempString
+        
+    def CSVstr(self):
+        tempString = ''
+        for line in self:
+            tempString += line.CSVstr() + '\n'
+        return tempString[:-1]

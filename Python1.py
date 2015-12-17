@@ -38,7 +38,13 @@ for line in filledGrips:
     line.extrusionRate = pr.fullExtrusionRate
     line.freezeExRate = True
 
-filledList = [filledGrips, filledCenter]
+filledList = [filledLeft, filledCenter, filledRight]
+
+
+
+#print 'StartX,StartY,EndX,EndY'
+#for shape in filledList:
+#    print shape.CSVstr()
 
 fig = fg.Figura(filledList)
 generateTime = time.time()
