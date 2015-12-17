@@ -16,10 +16,6 @@ import itertools
 class Figura:
     
     def __init__(self, inShapes):
-#        layerList = []
-#        for shape in inShapes:
-#            layerList.append(self.organizeLines(list(shape)))
-#        layer = lg.LineGroup(itertools.chain.from_iterable(layerList))
         layer = lg.LineGroup(self.organizeLines(list(itertools.chain.from_iterable(inShapes))))
         self.gcode = '' + gc.startGcode()
         partCount = 1

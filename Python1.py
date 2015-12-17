@@ -40,16 +40,19 @@ for line in filledGrips:
 
 filledList = [filledGrips, filledCenter]
 
-
-
-#infill = InF.InFill()
 fig = fg.Figura(filledList)
+generateTime = time.time()
 
 print '\nCode generated, writting file...\n'
 
 with open(pr.outputSubDirectory+'\\'+pr.outputFileName, 'w') as f:
     f.write(fig.gcode)
 
-print 'Dong writting: ' + pr.outputFileName
+endTime = time.time()
+print 'Dong writting: ' + pr.outputFileName + '\n'
 
-print '{:.2f} seconds to produce.'.format(time.time() - startTime)
+print '{:.2f} seconds to generate code.'.format(generateTime - startTime)
+print '{:.2f} seconds to write.'.format(endTime - generateTime)
+print '______'
+print '{:.2f} total time'.format(endTime - startTime)
+
