@@ -12,11 +12,12 @@ import InFill as Inf
 import LineGroup as lg
 from parameters import constants as c
 import itertools
+from Shape import Shape
 
 class Figura:
     
     def __init__(self, inShapes):
-        layer = lg.LineGroup(self.organizeLines(list(itertools.chain.from_iterable(inShapes))))
+        layer = self.organizedLayer(inShapes)        
         self.gcode = '' + gc.startGcode()
         partCount = 1
         for partParams in pr.everyPartsParameters:
@@ -53,35 +54,47 @@ class Figura:
             self.gcode += '\n\n'
             layerNumber += 1        
                            
-    def organizeLines(self, lines):
-        lines.sort()
-        organizedLines = [lines.pop(0)]
+    def organizedLayer(self, inShapes):
+        layer = lg.LineGroup()
+        for lineGroup in inShapes:
+            firstLine = None
+            if not isinstance(lineGroup, Shape):
+                i = 1#TODO method to find first line
+            nl_gen = self.nearestLine_gen(lineGroup, firstLine)
+            for line in nl_gen:
+                layer.append(line)
+        return layer
+                
+    
+    def nearestLine_gen(self, inGroup, prevLine=None):       
+        if prevLine is None:
+            prevLine = min(inGroup)
+            inGroup.remove(prevLine)
+        yield prevLine
         
-        while len(lines) > 0:
-            nearestEnd = lines[0].start
+        while len(inGroup) > 0:
+            nearestEnd = inGroup[0].start
             nearestOffset = 0
-            dist = nearestEnd.distance(organizedLines[0].end)
+            dist = nearestEnd.distance(prevLine.end)
             isStart = True
             
-            for i in range(len(lines)):
-                tempDist = organizedLines[-1].end.distance(lines[i].start)
+            for i in range(len(inGroup)):
+                tempDist = prevLine.end.distance(inGroup[i].start)
                 if(tempDist < dist):
-                    nearestEnd = lines[i].start
+                    nearestEnd = inGroup[i].start
                     dist = tempDist
                     isStart = True
                     nearestOffset = i
-                tempDist = organizedLines[-1].end.distance(lines[i].end)
+                tempDist = prevLine.end.distance(inGroup[i].end)
                 if(tempDist < dist):
-                    nearestEnd = lines[i].end
+                    nearestEnd = inGroup[i].end
                     dist = tempDist
                     isStart = False
                     nearestOffset = i
                 if(dist == 0): break
             if(not isStart):
-                lines[nearestOffset].flip()
-            organizedLines.append(lines.pop(nearestOffset))
-            
-        return organizedLines
+                inGroup[nearestOffset].flip()
+            yield inGroup.pop(nearestOffset)
     
     def __str__(self):
         tempString = ''
