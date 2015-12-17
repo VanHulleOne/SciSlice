@@ -154,15 +154,20 @@ class Line(object):
         return p.Point(self.end.x, self.end.y, self.end.z)
     
     def __lt__(self, other):
-        selfLower = self.start if self.start < self.end else self.end
-        otherLower = other.start if other.start < other.end else other.end
-        return (selfLower < otherLower)
+        selfList = sorted(list([self.start, self.end]))
+        otherList = sorted(list([other.start, other.end]))
+        if(selfList[0] < otherList[0]):
+            return True
+        return (selfList[1] < otherList[1])
         
     def __eq__(self, other):
         return (self.start == other.start and self.end == other.end)      
     
     def __str__(self):
         return str(self.start) + '    \t' + str(self.end)
+    
+    def CSVstr(self):
+        return self.start.CSVstr() + ',' + self.end.CSVstr()
     
     def printBoudningBox(self):
         print 'Bounding Box for: ' + str(self)
