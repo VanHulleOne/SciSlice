@@ -59,10 +59,10 @@ def variable_gen(variableList):
         for var in variableList: 
             yield var
             
-everyPartsParameters = zipVariables_gen([
+everyPartsParameters = zipVariables_gen((
                           extrusionRate, printSpeed, shiftX, shiftY,
                           layerHeight, numLayers
-                          ])
+                          ))
                                                    
 
 """
@@ -99,5 +99,3 @@ class constants:
     SHIFT_Y = 3
     LAYER_HEIGHT = 4
     NUM_LAYERS = 5
-    
-Python1()  
