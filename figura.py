@@ -13,6 +13,7 @@ import LineGroup as lg
 from parameters import constants as c
 import itertools
 from Shape import Shape
+import Line as l
 
 class Figura:
     
@@ -65,7 +66,18 @@ class Figura:
                 layer.append(line)
         return layer
                 
-    
+    def orgLayer2(self, inShapes):
+        layer = lg.LineGroup()
+        lineGens = []
+        seedLine = l.Line(p.Point(0,0), p.Point(-1,-1))
+        for lineGroup in inShapes:
+            lineGens.append(self.nearest2_gen(lineGroup, seedLine))
+        
+        distances = []
+        for gen in lineGens:
+            distances.append(next(gen))
+            
+            
     def nearestLine_gen(self, inGroup, prevLine=None):       
         if prevLine is None:
             prevLine = min(inGroup)
