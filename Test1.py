@@ -20,6 +20,8 @@ from itertools import islice
 import LineGroup as lg
 import doneShapes as ds
 import itertools
+from operator import itemgetter
+import time
 
 CW = -1
 CCW = 1
@@ -43,73 +45,70 @@ ds1 = ds.DoneShapes()
 s1 = ds1.regularDogBone
 s2 = ds1.wideDogBone
 
-<<<<<<< HEAD
-def min_gen(inList, seed):
+#def coro_avg():
+#    total = 0.0
+#    count = 0
+#    current = yield
+#    while True:
+#        count += 1
+#        total += current
+#        current = yield total/count
+#        
+#avg = coro_avg()
+#next(avg)
+#for i in range(1,20,2):
+#    print avg.send(i)
+def min_gen(inList, index):
+    seed = yield
     while len(inList) > 0:
-        lowest, dist = min(((val, abs(val - seed)) for val in inList), key=itemgetter(1))
-        try:
-            used, seed = yield lowest, dist 
-        except:
-            pass
-        else:
-            if used:
-                inList.remove(lowest)
+        lowest, dist = min(((val, abs(val - seed)) for val in inList), key=itemgetter(1))     
+        used, seed = yield lowest, dist, index
+#        print inList
+        if used:
+            inList.remove(lowest)
 
 
-l1 = [7,4,1, 99, 100]
+l1 = [7,4,1, 99, 100, 103]
 l2 = [2,5,6,10,-127, 96]
-l3 = [3,9,8,1, 98]
+l3 = [-128]
 l0 = [0.5, 1.5, 2.1, 7.8, 3.3, 1.0]
 l4 = [l1,l2,l3, l0]
 
 #g = min_gen(l3, 0)
 #print next(g)
+#print next(g)
 #print g.send((True,0))
 #print next(g)
 
-genList = []           
-for sub in l4:
-    genList.append(min_gen(sub, 98))
- 
+print min(None, -1, 2)
+
+genList = {i : min_gen(l4[i], i) for i in range(len(l4))}           
+
+for key, gen in genList.iteritems():
+    gen.next()
+
+value, dist, index = min((genList[key].send(0) for key in genList), key=itemgetter(1))
 while len(genList) > 0:
-    results = [next(gen) for gen in genList]
-    index = min(enumerate(result[1] for result in results), key=itemgetter(1))[0]
-    value = results[index][0]    
+    time.sleep(0.5)    
     print value    
     if isinstance(value, float):
         while True:            
             try:
-                genList[index].send((True, value))
+                value = genList[index].send((True, value))[0]
+                print value
             except:
                 break
-            print next(genList[index])[0]
-        genList.pop(index)
-    else:
-        removeList = []    
-        for i in range(len(genList)):
-            keep = False        
-            if i == index:
-                keep = True
-            try:
-                genList[i].send((keep, value))
-            except:
-                removeList.append(genList[i])
-        
-        for gen in removeList:
-            genList.remove(gen)
-for gen in genList:
-    gen.close()
-    
-    
-    
-    
-    
-    
-    
-    
-=======
-sl1 = [s1, s2]
-full = sum(sl1)
-
-print full
->>>>>>> parent of 06c80e0... Getting close on nearest line test coroutine
+        genList[index].close()
+        del genList[index]
+#    try:
+    tempList = []
+    delList = []
+    for key, gen in genList.iteritems():
+        try:
+            tempList.append(gen.send((True if key == index else False, value)))
+        except:
+            delList.append(key)
+        else:
+            value, dist, index = min(tempList, key=itemgetter(1))
+    for key in delList:
+        del genList[key]
