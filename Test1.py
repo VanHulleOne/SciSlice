@@ -20,6 +20,7 @@ from itertools import islice
 import LineGroup as lg
 import doneShapes as ds
 import itertools
+from operator import itemgetter
 
 CW = -1
 CCW = 1
@@ -43,7 +44,55 @@ ds1 = ds.DoneShapes()
 s1 = ds1.regularDogBone
 s2 = ds1.wideDogBone
 
-sl1 = [s1, s2]
-full = sum(sl1)
+def min_gen(inList, seed):
+    while len(inList) > 0:
+        lowest = min(inList)
+        if (yield lowest):
+            inList.remove(lowest)
+        
 
-print full
+l1 = [7,4,1]
+l2 = [2,5,6,10,-127]
+l3 = [3,9,8,1]
+l0 = [1.5, 2.1, 7.8, 3.3, 1.0]
+l4 = [l1,l2,l3, l0]
+
+print ord('a') < 100
+
+genList = []           
+for sub in l4:
+    genList.append(min_gen(sub, 0))
+   
+while len(genList) > 0:
+    index, value = min(enumerate(next(gen) for gen in genList), key=itemgetter(1))
+    print value    
+    if isinstance(value, float):
+        while True:            
+            try:
+                genList[index].send(True)
+            except:
+                break
+            print next(genList[index])
+        genList.pop(index)
+    else:
+        removeList = []    
+        for i in range(len(genList)):
+            keep = False        
+            if i == index:
+                keep = True
+            try:
+                genList[i].send(keep)
+            except:
+                removeList.append(genList[i])
+        
+        for gen in removeList:
+            genList.remove(gen)
+
+    
+    
+    
+    
+    
+    
+    
+    
