@@ -62,13 +62,13 @@ def min_gen(inList, index):
     used, seed = yield
     while len(inList) > 0:
         lowest, dist = min(((val, abs(val - seed)) for val in inList), key=itemgetter(1))     
-        used, seed = yield lowest, dist, index
+        used, seed = yield lowest, index, dist
         if used:
             inList.remove(lowest)
 
 
 l1 = [7,4,1, 99, 100, 103]
-l2 = [2,5,6,10,-127, 96]
+l2 = [2,5,6,10,-127, 96, 33, 98]
 l3 = [-128]
 l0 = [0.5, 1.5, 2.1, 7.8, 3.3, 1.0]
 l4 = [l1,l2,l3, l0]
@@ -84,10 +84,8 @@ genList = {i : min_gen(l4[i], i) for i in range(len(l4))}
 for key, gen in genList.iteritems():
     gen.next()
 
-#value, dist, index = min((genList[key].send(98) for key in genList), key=itemgetter(1))
-value = -126
+value = 98
 index = -1
-
 while True:
     time.sleep(0.25)
     tempList = []
@@ -97,7 +95,7 @@ while True:
         except StopIteration:
             del genList[key]
     if len(tempList) == 0: break
-    value, dist, index = min(tempList, key=itemgetter(1))
+    value, index = min(tempList, key=itemgetter(2))[:2]
     print value    
     if isinstance(value, float):
         while True:            
