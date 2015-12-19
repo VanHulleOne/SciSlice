@@ -59,11 +59,10 @@ s2 = ds1.wideDogBone
 #for i in range(1,20,2):
 #    print avg.send(i)
 def min_gen(inList, index):
-    seed = yield
+    used, seed = yield
     while len(inList) > 0:
         lowest, dist = min(((val, abs(val - seed)) for val in inList), key=itemgetter(1))     
         used, seed = yield lowest, dist, index
-#        print inList
         if used:
             inList.remove(lowest)
 
@@ -85,28 +84,29 @@ genList = {i : min_gen(l4[i], i) for i in range(len(l4))}
 for key, gen in genList.iteritems():
     gen.next()
 
-value, dist, index = min((genList[key].send(0) for key in genList), key=itemgetter(1))
-while len(genList) > 0:
-    time.sleep(0.5)    
+#value, dist, index = min((genList[key].send(98) for key in genList), key=itemgetter(1))
+value = -126
+index = -1
+
+while True:
+    time.sleep(0.25)
+    tempList = []
+    for key in genList.keys():
+        try:
+            tempList.append(genList[key].send((True if key == index else False, value)))
+        except StopIteration:
+            del genList[key]
+    if len(tempList) == 0: break
+    value, dist, index = min(tempList, key=itemgetter(1))
     print value    
     if isinstance(value, float):
         while True:            
             try:
-                value = genList[index].send((True, value))[0]
-                print value
-            except:
+                value = genList[index].send((True, value))[0]                
+            except StopIteration:
+                del genList[index]
                 break
-        genList[index].close()
-        del genList[index]
-#    try:
-    tempList = []
-    delList = []
-    for key, gen in genList.iteritems():
-        try:
-            tempList.append(gen.send((True if key == index else False, value)))
-        except:
-            delList.append(key)
-    if len(tempList) > 0:
-        value, dist, index = min(tempList, key=itemgetter(1))
-    for key in delList:
-        del genList[key]
+            else:
+                print value
+        
+
