@@ -80,8 +80,6 @@ l4 = [l1,l2,l3, l0]
 #print g.send((True,0))
 #print next(g)
 
-print min(None, -1, 2)
-
 genList = {i : min_gen(l4[i], i) for i in range(len(l4))}           
 
 for key, gen in genList.iteritems():
@@ -108,7 +106,7 @@ while len(genList) > 0:
             tempList.append(gen.send((True if key == index else False, value)))
         except:
             delList.append(key)
-        else:
-            value, dist, index = min(tempList, key=itemgetter(1))
+    if len(tempList) > 0:
+        value, dist, index = min(tempList, key=itemgetter(1))
     for key in delList:
         del genList[key]
