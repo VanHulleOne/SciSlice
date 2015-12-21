@@ -11,14 +11,15 @@ import Point as p
 import InFill as Inf
 import LineGroup as lg
 from parameters import constants as c
-import itertools
 from Shape import Shape
 import Line as l
+from operator import itemgetter
 
 class Figura:
     
     def __init__(self, inShapes):
-        layer = self.organizedLayer(inShapes)        
+        layer = self.organizedLayer2(inShapes)
+        print layer.CSVstr()
         self.gcode = '' + gc.startGcode()
         partCount = 1
         for partParams in pr.everyPartsParameters:
@@ -66,18 +67,57 @@ class Figura:
                 layer.append(line)
         return layer
                 
-    def orgLayer2(self, inShapes):
+    def organizedLayer2(self, inShapes):
         layer = lg.LineGroup()
-        lineGens = []
-        seedLine = l.Line(p.Point(0,0), p.Point(-1,-1))
-        for lineGroup in inShapes:
-            lineGens.append(self.nearest2_gen(lineGroup, seedLine))
         
-        distances = []
-        for gen in lineGens:
-            distances.append(next(gen))
+        lineGens = {i : self.nearestLine_gen2(inShapes[i], i) for i in range(len(inShapes))}
+        for key, gen in lineGens.iteritems():
+            next(gen)
+        
+        lastPoint = p.Point(0,0)
+        index = -1
+        while True:
+            results = []
+            for key in lineGens.keys():
+                try:
+                    results.append(lineGens[key].send(
+                        (True if key == index else False, lastPoint)))
+                except StopIteration:
+                    del lineGens[key]
+            if len(results) == 0: break
+            line, index = min(results, key=itemgetter(2))[:2]
+            lastPoint = line.end
+            layer.append(line)
+            if isinstance(inShapes[index], Shape):
+                try:
+                    line = lineGens[index].send((True, lastPoint))[0]
+                except StopIteration:
+                    del lineGens[index]
+                    break
+                else:
+                    lastPoint = line.end
+                    layer.append(line)
+        return layer
             
             
+    def nearestLine_gen2(self, inGroup, key):
+        used, testPoint = yield
+        while len(inGroup) > 0:
+            startLine, startDist = min(((line, testPoint.distance(line.start))\
+                for line in inGroup), key=itemgetter(1))
+            endLine, endDist = min(((line, testPoint.distance(line.end))\
+                for line in inGroup), key=itemgetter(1))
+            if startDist <= endDist:
+                sendLine = startLine
+                sendDist = startDist
+            else:
+                endLine.flip()
+                sendLine = endLine
+                sendDist = endDist
+            used, testPoint = yield sendLine, key, sendDist
+            if used:
+                inGroup.remove(sendLine)
+    
     def nearestLine_gen(self, inGroup, prevLine=None):       
         if prevLine is None:
             prevLine = min(inGroup)

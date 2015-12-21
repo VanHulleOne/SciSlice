@@ -58,11 +58,11 @@ s2 = ds1.wideDogBone
 #next(avg)
 #for i in range(1,20,2):
 #    print avg.send(i)
-def min_gen(inList, index):
+def min_gen(inList, name):
     used, seed = yield
     while len(inList) > 0:
         lowest, dist = min(((val, abs(val - seed)) for val in inList), key=itemgetter(1))     
-        used, seed = yield lowest, index, dist
+        used, seed = yield lowest, name, dist
         if used:
             inList.remove(lowest)
 
@@ -82,7 +82,7 @@ l4 = [l1,l2,l3, l0]
 genList = {i : min_gen(l4[i], i) for i in range(len(l4))}           
 
 for key, gen in genList.iteritems():
-    gen.next()
+    next(gen)
 
 value = 98
 index = -1
