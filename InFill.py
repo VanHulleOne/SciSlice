@@ -44,6 +44,7 @@ class InFill(LG):
         
         for i in range(self.designType, self.TRIMMED_FIELD):
             self.operations[i]();
+            print 'Operation: ' + str(i)
         
     def extendDesign(self):
         tempDesign = lg.LineGroup(self.design.lines)

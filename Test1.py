@@ -45,6 +45,10 @@ ds1 = ds.DoneShapes()
 s1 = ds1.regularDogBone
 s2 = ds1.wideDogBone
 
+startStuff = min(((index, p1.distance(line.start)) for index, line in enumerate(s2)), key=itemgetter(1))
+
+print startStuff
+
 #def coro_avg():
 #    total = 0.0
 #    count = 0
@@ -58,20 +62,23 @@ s2 = ds1.wideDogBone
 #next(avg)
 #for i in range(1,20,2):
 #    print avg.send(i)
-def min_gen(inList, name):
-    used, seed = yield
-    while len(inList) > 0:
-        lowest, dist = min(((val, abs(val - seed)) for val in inList), key=itemgetter(1))     
-        used, seed = yield lowest, name, dist
-        if used:
-            inList.remove(lowest)
-
-
-l1 = [7,4,1, 99, 100, 103]
-l2 = [2,5,6,10,-127, 96, 33, 98]
-l3 = [-128]
-l0 = [0.5, 1.5, 2.1, 7.8, 3.3, 1.0]
-l4 = [l1,l2,l3, l0]
+#def min_gen(inList, name):
+#    used, seed = yield
+#    while len(inList) > 0:
+#        lowest, dist = min(((val, abs(val - seed)) for val in inList), key=itemgetter(1))     
+#        used, seed = yield lowest, name, dist
+#        if used:
+#            inList.remove(lowest)
+#
+#
+#l1 = [7,4,1, 99, 100, 103]
+#l2 = [2,5,6,10,-127, 96, 33, 98]
+#l3 = [-128]
+#l0 = [0.5, 1.5, 2.1, 7.8, 3.3, 1.0]
+#l4 = [l1,l2,l3, l0]
+#
+#l1 += l2
+#print l1
 
 #g = min_gen(l3, 0)
 #print next(g)
@@ -79,32 +86,32 @@ l4 = [l1,l2,l3, l0]
 #print g.send((True,0))
 #print next(g)
 
-genList = {i : min_gen(l4[i], i) for i in range(len(l4))}           
-
-for key, gen in genList.iteritems():
-    next(gen)
-
-value = 98
-index = -1
-while True:
-    time.sleep(0.25)
-    tempList = []
-    for key in genList.keys():
-        try:
-            tempList.append(genList[key].send((True if key == index else False, value)))
-        except StopIteration:
-            del genList[key]
-    if len(tempList) == 0: break
-    value, index = min(tempList, key=itemgetter(2))[:2]
-    print value    
-    if isinstance(value, float):
-        while True:            
-            try:
-                value = genList[index].send((True, value))[0]                
-            except StopIteration:
-                del genList[index]
-                break
-            else:
-                print value
-        
-
+#genList = {i : min_gen(l4[i], i) for i in range(len(l4))}           
+#
+#for key, gen in genList.iteritems():
+#    next(gen)
+#
+#value = 98
+#index = -1
+#while True:
+#    time.sleep(0.25)
+#    tempList = []
+#    for key in genList.keys():
+#        try:
+#            tempList.append(genList[key].send((True if key == index else False, value)))
+#        except StopIteration:
+#            del genList[key]
+#    if len(tempList) == 0: break
+#    value, index = min(tempList, key=itemgetter(2))[:2]
+#    print value    
+#    if isinstance(value, float):
+#        while True:            
+#            try:
+#                value = genList[index].send((True, value))[0]                
+#            except StopIteration:
+#                del genList[index]
+#                break
+#            else:
+#                print value
+#        
+#

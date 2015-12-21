@@ -22,7 +22,7 @@ Part Parameters
 """
 #mainShape = ps.wideDogBone
 layerHeight = [0.3] #mm height per layer
-numLayers = [9] #number of layers to make
+numLayers = [2] #number of layers to make
 infillAngleDegrees = 90 #degrees infill angle 90 is in Y direction 0 is in X direction
 
 """

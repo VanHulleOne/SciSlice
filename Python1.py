@@ -32,41 +32,41 @@ regDB = ds1.regularDogBone
 
 
 pattern = lg.LineGroup()
-pattern.addLinesFromCoordinateList([[0,0], [4,4], [0,0]])
+pattern.addLinesFromCoordinateList([[0,0], [4,4], [8,0]])
 
-filledLeft = InF.InFill(leftGrip, pr.pathWidth, 90)
-filledCenter = InF.InFill(center, pr.pathWidth, 90)
-filledRight = InF.InFill(rightGrip, pr.pathWidth, 90)
-filledGrips = InF.InFill(grips, pr.pathWidth, 90)
-filledDB = InF.InFill(regDB, pr.pathWidth, 0, pattern, 0)
+#print pattern
 
-print filledDB
+#filledLeft = InF.InFill(leftGrip, pr.pathWidth, 90)
+#filledCenter = InF.InFill(center, pr.pathWidth, 90)
+#filledRight = InF.InFill(rightGrip, pr.pathWidth, 90)
+#filledGrips = InF.InFill(grips, pr.pathWidth, 90)
+filledDB = InF.InFill(regDB, pr.pathWidth, 20, pattern, 0)
+print 'Created Infill: {:.2f}'.format(time.time()-startTime)
+#with open('I:\RedBench\static\data\LineList.txt', 'w') as f:
+#    f.write('test\n')
+#    f.write(filledDB.CSVstr())
 
 #for line in filledGrips:
 #    line.extrusionRate = pr.fullExtrusionRate
 #    line.freezeExRate = True
 #
-#filledList = [filledDB]
+filledList = [filledDB]
 #
+
 #
-#
-##print 'StartX,StartY,EndX,EndY'
-##for shape in filledList:
-##    print shape.CSVstr()
-#
-#fig = fg.Figura(filledList)
-#generateTime = time.time()
-#
-#print '\nCode generated, writting file...\n'
-#
-#with open(pr.outputSubDirectory+'\\'+pr.outputFileName, 'w') as f:
-#    f.write(fig.gcode)
-#
-#endTime = time.time()
-#print 'Dong writting: ' + pr.outputFileName + '\n'
-#
-#print '{:.2f} seconds to generate code.'.format(generateTime - startTime)
-#print '{:.2f} seconds to write.'.format(endTime - generateTime)
-#print '______'
-#print '{:.2f} total time'.format(endTime - startTime)
+fig = fg.Figura(filledList)
+generateTime = time.time()
+
+print '\nCode generated, writting file...\n'
+
+with open(pr.outputSubDirectory+'\\'+pr.outputFileName, 'w') as f:
+    f.write(fig.gcode)
+
+endTime = time.time()
+print 'Dong writting: ' + pr.outputFileName + '\n'
+
+print '{:.2f} seconds to generate code.'.format(generateTime - startTime)
+print '{:.2f} seconds to write.'.format(endTime - generateTime)
+print '______'
+print '{:.2f} total time'.format(endTime - startTime)
 
