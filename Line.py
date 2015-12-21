@@ -53,7 +53,7 @@ class Line(object):
         t = numpy.cross(Q_Less_P, s)/denom
         u = numpy.cross(Q_Less_P, r)/denom
         #If t or u are not in the range 0-1 then the intersection is projected
-        if(t > 1 or u > 1 or t < 0 or u < 0):
+        if(t > 1.0001 or u > 1.0001 or t < -0.0001 or u < -0.0001):
             return -1, p.Point(self.start.x + r[c.X]*t,
                           self.start.y+r[c.Y]*t) #return for projected intersection of non-colinear lines
 
