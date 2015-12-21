@@ -19,9 +19,9 @@ class Figura:
     
     def __init__(self, inShapes):
         layer = self.organizedLayer2(inShapes)
-#        with open('I:\RedBench\static\data\LineList.txt', 'w') as f:
-#            f.write('test\n')
-#            f.write(layer.CSVstr())
+        with open('I:\RedBench\static\data\LineList.txt', 'w') as f:
+            f.write('test\n')
+            f.write(layer.CSVstr())
         self.gcode = '' + gc.startGcode()
         self.partCount = 1
         for partParams in pr.everyPartsParameters:
@@ -104,21 +104,20 @@ class Figura:
             
     def nearestLine_gen2(self, inGroup, key):
         used, testPoint = yield
-        while len(inGroup) > 0:
-            startLine, startDist = min(((line, testPoint.distance(line.start))\
-                for line in inGroup), key=itemgetter(1))
-            endLine, endDist = min(((line, testPoint.distance(line.end))\
-                for line in inGroup), key=itemgetter(1))
-            if startDist <= endDist:
-                sendLine = startLine
-                sendDist = startDist
+        while len(inGroup) > 0:                
+            index, sDistance = min(((index, testPoint.distance(line.start)) for index, line in enumerate(inGroup)), key=itemgetter(1))
+            eIndex, eDistance = min(((index, testPoint.distance(line.end)) for index, line in enumerate(inGroup)), key=itemgetter(1))
+
+            if eDistance < sDistance:
+                tempLine = inGroup[eIndex]
+                tempLine.flip()
+                index = eIndex
+                used, testPoint = yield tempLine, key, eDistance
             else:
-                endLine.flip()
-                sendLine = endLine
-                sendDist = endDist
-            used, testPoint = yield sendLine, key, sendDist
+                used, testPoint = yield inGroup[index], key, sDistance
             if used:
-                inGroup.remove(sendLine)
+                inGroup.pop(index)
+                            
     
     def nearestLine_gen(self, inGroup, prevLine=None):       
         if prevLine is None:
