@@ -28,17 +28,25 @@ leftGrip = ds1.leftGrip
 center = ds1.center
 rightGrip = ds1.rightGrip
 grips = ds1.grips
+regDB = ds1.regularDogBone
 
-filledLeft = InF.InFill(leftGrip, pr.pathWidth, 45)
+filledLeft = InF.InFill(leftGrip, pr.pathWidth, 90)
 filledCenter = InF.InFill(center, pr.pathWidth, 90)
-filledRight = InF.InFill(rightGrip, pr.pathWidth, -45)
+filledRight = InF.InFill(rightGrip, pr.pathWidth, 90)
 filledGrips = InF.InFill(grips, pr.pathWidth, 90)
+filledDB = InF.InFill(regDB, pr.pathWidth, 0)
 
 for line in filledGrips:
     line.extrusionRate = pr.fullExtrusionRate
     line.freezeExRate = True
 
-filledList = [filledGrips, filledCenter]
+filledList = [filledDB]
+
+
+
+#print 'StartX,StartY,EndX,EndY'
+#for shape in filledList:
+#    print shape.CSVstr()
 
 fig = fg.Figura(filledList)
 generateTime = time.time()

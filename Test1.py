@@ -20,6 +20,8 @@ from itertools import islice
 import LineGroup as lg
 import doneShapes as ds
 import itertools
+from operator import itemgetter
+import time
 
 CW = -1
 CCW = 1
@@ -41,17 +43,68 @@ p10 = p.Point(3,12)
 
 ds1 = ds.DoneShapes()
 s1 = ds1.regularDogBone
+s2 = ds1.wideDogBone
+
+#def coro_avg():
+#    total = 0.0
+#    count = 0
+#    current = yield
+#    while True:
+#        count += 1
+#        total += current
+#        current = yield total/count
+#        
+#avg = coro_avg()
+#next(avg)
+#for i in range(1,20,2):
+#    print avg.send(i)
+def min_gen(inList, name):
+    used, seed = yield
+    while len(inList) > 0:
+        lowest, dist = min(((val, abs(val - seed)) for val in inList), key=itemgetter(1))     
+        used, seed = yield lowest, name, dist
+        if used:
+            inList.remove(lowest)
 
 
-l1 = s1[0]
-print l1.extrusionRate
-l1.extrusionRate = 1.0
-print l1.extrusionRate
-l1.freezeExRate = True
-l1.extrusionRate = 2
-print l1.extrusionRate
-print s1[0].freezeExRate
+l1 = [7,4,1, 99, 100, 103]
+l2 = [2,5,6,10,-127, 96, 33, 98]
+l3 = [-128]
+l0 = [0.5, 1.5, 2.1, 7.8, 3.3, 1.0]
+l4 = [l1,l2,l3, l0]
 
+#g = min_gen(l3, 0)
+#print next(g)
+#print next(g)
+#print g.send((True,0))
+#print next(g)
 
+genList = {i : min_gen(l4[i], i) for i in range(len(l4))}           
 
+for key, gen in genList.iteritems():
+    next(gen)
+
+value = 98
+index = -1
+while True:
+    time.sleep(0.25)
+    tempList = []
+    for key in genList.keys():
+        try:
+            tempList.append(genList[key].send((True if key == index else False, value)))
+        except StopIteration:
+            del genList[key]
+    if len(tempList) == 0: break
+    value, index = min(tempList, key=itemgetter(2))[:2]
+    print value    
+    if isinstance(value, float):
+        while True:            
+            try:
+                value = genList[index].send((True, value))[0]                
+            except StopIteration:
+                del genList[index]
+                break
+            else:
+                print value
+        
 

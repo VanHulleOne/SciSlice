@@ -98,6 +98,9 @@ class Point(object):
     def __hash__(self):
         return hash(self.__key())
     
+    def CSVstr(self):
+        return '{:.3f},{:.3f}'.format(self.x, self.y)
+    
     def __str__(self):
         return 'X{:.3f} Y{:.3f} Z{:.3f}'.format(self.x, self.y, self.z)
     

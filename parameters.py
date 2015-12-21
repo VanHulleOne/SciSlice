@@ -22,7 +22,7 @@ Part Parameters
 """
 #mainShape = ps.wideDogBone
 layerHeight = [0.3] #mm height per layer
-numLayers = [10] #number of layers to make
+numLayers = [9] #number of layers to make
 infillAngleDegrees = 90 #degrees infill angle 90 is in Y direction 0 is in X direction
 
 """
@@ -59,10 +59,10 @@ def variable_gen(variableList):
         for var in variableList: 
             yield var
             
-everyPartsParameters = zipVariables_gen([
+everyPartsParameters = zipVariables_gen((
                           extrusionRate, printSpeed, shiftX, shiftY,
                           layerHeight, numLayers
-                          ])
+                          ))
                                                    
 
 """
@@ -99,5 +99,3 @@ class constants:
     SHIFT_Y = 3
     LAYER_HEIGHT = 4
     NUM_LAYERS = 5
-    
-    

@@ -53,7 +53,7 @@ class Line(object):
         t = numpy.cross(Q_Less_P, s)/denom
         u = numpy.cross(Q_Less_P, r)/denom
         #If t or u are not in the range 0-1 then the intersection is projected
-        if(t > 1 or u > 1 or t < 0 or u < 0):
+        if(t > 1.0001 or u > 1.0001 or t < -0.0001 or u < -0.0001):
             return -1, p.Point(self.start.x + r[c.X]*t,
                           self.start.y+r[c.Y]*t) #return for projected intersection of non-colinear lines
 
@@ -154,15 +154,20 @@ class Line(object):
         return p.Point(self.end.x, self.end.y, self.end.z)
     
     def __lt__(self, other):
-        selfLower = self.start if self.start < self.end else self.end
-        otherLower = other.start if other.start < other.end else other.end
-        return (selfLower < otherLower)
+        selfList = sorted(list([self.start, self.end]))
+        otherList = sorted(list([other.start, other.end]))
+        if(selfList[0] < otherList[0]):
+            return True
+        return (selfList[1] < otherList[1])
         
     def __eq__(self, other):
         return (self.start == other.start and self.end == other.end)      
     
     def __str__(self):
         return str(self.start) + '    \t' + str(self.end)
+    
+    def CSVstr(self):
+        return self.start.CSVstr() + ',' + self.end.CSVstr()
     
     def printBoudningBox(self):
         print 'Bounding Box for: ' + str(self)
