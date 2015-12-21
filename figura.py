@@ -12,13 +12,12 @@ import InFill as Inf
 import LineGroup as lg
 from parameters import constants as c
 from Shape import Shape
-import Line as l
 from operator import itemgetter
 
 class Figura:
     
     def __init__(self, inShapes):
-        layer = self.organizedLayer2(inShapes)
+        layer = self.organizedLayer(inShapes)
         with open('I:\RedBench\static\data\LineList.txt', 'w') as f:
             f.write('test\n')
             f.write(layer.CSVstr())
@@ -57,22 +56,11 @@ class Figura:
             self.gcode += gc.retractLayer(totalExtrusion, layer[-1].end)
             self.gcode += '\n\n'
             layerNumber += 1        
-                           
+                
     def organizedLayer(self, inShapes):
         layer = lg.LineGroup()
-        for lineGroup in inShapes:
-            firstLine = None
-            if not isinstance(lineGroup, Shape):
-                i = 1#TODO method to find first line
-            nl_gen = self.nearestLine_gen(lineGroup, firstLine)
-            for line in nl_gen:
-                layer.append(line)
-        return layer
-                
-    def organizedLayer2(self, inShapes):
-        layer = lg.LineGroup()
         
-        lineGens = {i : self.nearestLine_gen2(inShapes[i], i) for i in range(len(inShapes))}
+        lineGens = {i : self.nearestLine_gen(inShapes[i], i) for i in range(len(inShapes))}
         for key, gen in lineGens.iteritems():
             next(gen)
         
@@ -100,13 +88,14 @@ class Figura:
                     lastPoint = line.end
                     layer.append(line)
         return layer
-            
-            
-    def nearestLine_gen2(self, inGroup, key):
+
+    def nearestLine_gen(self, inGroup, key):
         used, testPoint = yield
         while len(inGroup) > 0:                
-            index, sDistance = min(((index, testPoint.distance(line.start)) for index, line in enumerate(inGroup)), key=itemgetter(1))
-            eIndex, eDistance = min(((index, testPoint.distance(line.end)) for index, line in enumerate(inGroup)), key=itemgetter(1))
+            index, sDistance = min(((index, testPoint.distance(line.start))\
+                for index, line in enumerate(inGroup)), key=itemgetter(1))
+            eIndex, eDistance = min(((index, testPoint.distance(line.end))\
+                for index, line in enumerate(inGroup)), key=itemgetter(1))
 
             if eDistance < sDistance:
                 tempLine = inGroup[eIndex]
@@ -117,37 +106,6 @@ class Figura:
                 used, testPoint = yield inGroup[index], key, sDistance
             if used:
                 inGroup.pop(index)
-                            
-    
-    def nearestLine_gen(self, inGroup, prevLine=None):       
-        if prevLine is None:
-            prevLine = min(inGroup)
-            inGroup.remove(prevLine)
-        yield prevLine
-        
-        while len(inGroup) > 0:
-            nearestEnd = inGroup[0].start
-            nearestOffset = 0
-            dist = nearestEnd.distance(prevLine.end)
-            isStart = True
-            
-            for i in range(len(inGroup)):
-                tempDist = prevLine.end.distance(inGroup[i].start)
-                if(tempDist < dist):
-                    nearestEnd = inGroup[i].start
-                    dist = tempDist
-                    isStart = True
-                    nearestOffset = i
-                tempDist = prevLine.end.distance(inGroup[i].end)
-                if(tempDist < dist):
-                    nearestEnd = inGroup[i].end
-                    dist = tempDist
-                    isStart = False
-                    nearestOffset = i
-                if(dist == 0): break
-            if(not isStart):
-                inGroup[nearestOffset].flip()
-            yield inGroup.pop(nearestOffset)
     
     def __str__(self):
         tempString = ''
