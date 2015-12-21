@@ -19,9 +19,9 @@ class Figura:
     
     def __init__(self, inShapes):
         layer = self.organizedLayer2(inShapes)
-        with open('I:\RedBench\static\data\LineList.txt', 'w') as f:
-            f.write('test\n')
-            f.write(layer.CSVstr())
+#        with open('I:\RedBench\static\data\LineList.txt', 'w') as f:
+#            f.write('test\n')
+#            f.write(layer.CSVstr())
         self.gcode = '' + gc.startGcode()
         self.partCount = 1
         for partParams in pr.everyPartsParameters:

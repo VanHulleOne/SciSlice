@@ -21,7 +21,8 @@ class InFill(LG):
     TRIMMED_FIELD = 3    
     
     def __init__(self, trimShape, pathWidth, angleDegrees, design=None, designType=None):
-        LG.__init__(self, None)        
+        LG.__init__(self, None)
+        self.designType = designType
         self.trimShape = s.Shape(trimShape)
         self.angleRad = (angleDegrees/360.0*2*pi)
         self.pathWidth = pathWidth
