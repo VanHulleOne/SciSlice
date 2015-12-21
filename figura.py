@@ -19,19 +19,21 @@ class Figura:
     
     def __init__(self, inShapes):
         layer = self.organizedLayer2(inShapes)
-        print layer.CSVstr()
+        with open('I:\RedBench\static\data\LineList.txt', 'w') as f:
+            f.write('test\n')
+            f.write(layer.CSVstr())
         self.gcode = '' + gc.startGcode()
-        partCount = 1
+        self.partCount = 1
         for partParams in pr.everyPartsParameters:
-            print 'Part Count: ' + str(partCount)            
+            print 'Part Count: ' + str(self.partCount)            
             print 'Part Params: ' + str(partParams)
             part = [layer.translate(partParams[c.SHIFT_X],partParams[c.SHIFT_Y],
                                       partParams[c.LAYER_HEIGHT]*(currentLayer+1))
                                       for currentLayer in range(partParams[c.NUM_LAYERS])]
-            self.gcode += ';\n\nPart number: ' + str(partCount) + '\n'
+            self.gcode += ';\n\nPart number: ' + str(self.partCount) + '\n'
             self.gcode += ';Parameters: ' + str(partParams) + '\n'
             self.setGcode(part, partParams[c.PRINT_SPEED], partParams[c.EXTRUSION_RATE])
-            partCount += 1
+            self.partCount += 1
         self.gcode += gc.endGcode()
     
     def setGcode(self, part, printSpeed, extrusionRate):
@@ -41,7 +43,7 @@ class Figura:
         
         for layer in part:
             self.gcode += ';Layer: ' + str(layerNumber) + '\n'
-            self.gcode += ';T' + str(layerNumber) + '\n'
+            self.gcode += ';T' + str(self.partCount) + str(layerNumber) + '\n'
             self.gcode += ';M6\n'
             self.gcode += gc.rapidMove(layer[0].start, pr.INCLUDE_Z)
             self.gcode += gc.firstApproach(layer[0].start)
