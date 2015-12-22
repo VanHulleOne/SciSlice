@@ -98,10 +98,19 @@ class Figura:
             pointList.append(line.end)
         while len(inGroup) > 0:
             index, dist = min(((index, testPoint.distance(point)) for index, point in enumerate(pointList)), key=itemgetter(1))
-            used, testPoint = yield (inGroup[index/2].flip() if index%2 else inGroup[index/2]), key, dist
-            while used:
-                inGroup.pop(index/2)
-                tempPoints = [inGroup[index/2-1].start, inGroup[index/2-1].end,
+#            print 'Index: ' + str(index) + ' /2: ' + str(index/2)
+#            print 'Line: ' + str(inGroup[index/2])
+            if index%2:
+                inGroup[index/2].flip()
+            index /= 2
+            used, testPoint = yield inGroup[index], key, dist
+            if used:
+                inGroup.pop(index)
+                pointList.pop(index*2)
+                pointList.pop(index*2)
+#            while used:
+#                inGroup.pop(index/2)
+#                tempPoints = [inGroup[index/2-1].start, inGroup[index/2-1].end,
     
     def __str__(self):
         tempString = ''

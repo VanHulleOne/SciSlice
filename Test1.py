@@ -45,9 +45,19 @@ ds1 = ds.DoneShapes()
 s1 = ds1.regularDogBone
 s2 = ds1.wideDogBone
 
-startStuff = min(((index, p1.distance(line.start)) for index, line in enumerate(s2)), key=itemgetter(1))
+base = numpy.array([1,1])
+a1 = numpy.array([4,5])
+a2 = numpy.array([6,13])
+a3 = numpy.array([9,16])
+at = [a1,a2,a3]
+numdots = 10
+an = numpy.array([a1 for i in xrange(numdots)])
+for ag in an:
+    print numpy.linalg.norm(ag - base)
+    
 
-print startStuff
+
+print numpy.linalg.norm(an-base,None,1)
 
 #def coro_avg():
 #    total = 0.0
