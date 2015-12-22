@@ -32,7 +32,7 @@ regDB = ds1.regularDogBone
 
 
 pattern = lg.LineGroup()
-pattern.addLinesFromCoordinateList([[0,0], [4,4], [8,0]])
+pattern.addLinesFromCoordinateList([[0,0], [2,2], [4,0]])
 
 #print pattern
 
