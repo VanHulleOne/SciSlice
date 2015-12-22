@@ -10,7 +10,7 @@ import operator
 import Point as p
 import Line as l
 import Shape as s
-import LineGroup as LG
+import LineGroup as lg
 import InFill as InF
 import arc as a
 import figura as fg
@@ -30,24 +30,30 @@ rightGrip = ds1.rightGrip
 grips = ds1.grips
 regDB = ds1.regularDogBone
 
-filledLeft = InF.InFill(leftGrip, pr.pathWidth, 90)
-filledCenter = InF.InFill(center, pr.pathWidth, 90)
-filledRight = InF.InFill(rightGrip, pr.pathWidth, 90)
-filledGrips = InF.InFill(grips, pr.pathWidth, 90)
-filledDB = InF.InFill(regDB, pr.pathWidth, 0)
 
-for line in filledGrips:
-    line.extrusionRate = pr.fullExtrusionRate
-    line.freezeExRate = True
+pattern = lg.LineGroup()
+pattern.addLinesFromCoordinateList([[0,0], [2,2], [4,0]])
 
+#print pattern
+
+#filledLeft = InF.InFill(leftGrip, pr.pathWidth, 90)
+#filledCenter = InF.InFill(center, pr.pathWidth, 90)
+#filledRight = InF.InFill(rightGrip, pr.pathWidth, 90)
+#filledGrips = InF.InFill(grips, pr.pathWidth, 90)
+filledDB = InF.InFill(regDB, pr.pathWidth, 20, pattern, 0)
+print 'Created Infill: {:.2f}'.format(time.time()-startTime)
+#with open('I:\RedBench\static\data\LineList.txt', 'w') as f:
+#    f.write('test\n')
+#    f.write(filledDB.CSVstr())
+
+#for line in filledGrips:
+#    line.extrusionRate = pr.fullExtrusionRate
+#    line.freezeExRate = True
+#
 filledList = [filledDB]
+#
 
-
-
-#print 'StartX,StartY,EndX,EndY'
-#for shape in filledList:
-#    print shape.CSVstr()
-
+#
 fig = fg.Figura(filledList)
 generateTime = time.time()
 

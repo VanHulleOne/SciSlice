@@ -11,18 +11,18 @@ import math
 Printing Parameters.
 """
 fullExtrusionRate = 0.7 #fill for grips
-extrusionRate = [0.0212, 0.1, 0.05] #mm of filament/mm of travel
+extrusionRate = [0.0212]#, 0.1, 0.05] #mm of filament/mm of travel
 pathWidth = 0.5 #mm distance between centerline of paths
 printSpeed = [2000] #mm/min head travel speed
-shiftX = [20, 70]
-shiftY = [0, 20, 40, 60, 80]
+shiftX = [20]#, 70]
+shiftY = [0]#, 20, 40, 60, 80]
 
 """
 Part Parameters
 """
 #mainShape = ps.wideDogBone
 layerHeight = [0.3] #mm height per layer
-numLayers = [9] #number of layers to make
+numLayers = [2] #number of layers to make
 infillAngleDegrees = 90 #degrees infill angle 90 is in Y direction 0 is in X direction
 
 """

@@ -12,13 +12,13 @@ import InFill as Inf
 import LineGroup as lg
 from parameters import constants as c
 from Shape import Shape
-import Line as l
 from operator import itemgetter
+import numpy as np
 
 class Figura:
     
     def __init__(self, inShapes):
-        layer = self.organizedLayer2(inShapes)
+        layer = self.organizedLayer(inShapes)
         with open('I:\RedBench\static\data\LineList.txt', 'w') as f:
             f.write('test\n')
             f.write(layer.CSVstr())
@@ -57,22 +57,11 @@ class Figura:
             self.gcode += gc.retractLayer(totalExtrusion, layer[-1].end)
             self.gcode += '\n\n'
             layerNumber += 1        
-                           
+                
     def organizedLayer(self, inShapes):
         layer = lg.LineGroup()
-        for lineGroup in inShapes:
-            firstLine = None
-            if not isinstance(lineGroup, Shape):
-                i = 1#TODO method to find first line
-            nl_gen = self.nearestLine_gen(lineGroup, firstLine)
-            for line in nl_gen:
-                layer.append(line)
-        return layer
-                
-    def organizedLayer2(self, inShapes):
-        layer = lg.LineGroup()
         
-        lineGens = {i : self.nearestLine_gen2(inShapes[i], i) for i in range(len(inShapes))}
+        lineGens = {i : self.nearestLine_gen(inShapes[i], i) for i in range(len(inShapes))}
         for key, gen in lineGens.iteritems():
             next(gen)
         
@@ -100,55 +89,25 @@ class Figura:
                     lastPoint = line.end
                     layer.append(line)
         return layer
-            
-            
-    def nearestLine_gen2(self, inGroup, key):
+
+    def nearestLine_gen(self, inGroup, key):
         used, testPoint = yield
+        normList = []
+        for line in inGroup:
+            normList.append(line.start.normalVector)
+            normList.append(line.end.normalVector)
+        normList = np.array(normList)
         while len(inGroup) > 0:
-            startLine, startDist = min(((line, testPoint.distance(line.start))\
-                for line in inGroup), key=itemgetter(1))
-            endLine, endDist = min(((line, testPoint.distance(line.end))\
-                for line in inGroup), key=itemgetter(1))
-            if startDist <= endDist:
-                sendLine = startLine
-                sendDist = startDist
-            else:
-                endLine.flip()
-                sendLine = endLine
-                sendDist = endDist
-            used, testPoint = yield sendLine, key, sendDist
+            index, dist = min(((index, dist) for index, dist in
+                enumerate(np.linalg.norm(normList-testPoint.normalVector, None, 1))),
+                key=itemgetter(1))
+            if index%2:
+                inGroup[index/2].flip()
+            index /= 2
+            used, testPoint = yield inGroup[index], key, dist
             if used:
-                inGroup.remove(sendLine)
-    
-    def nearestLine_gen(self, inGroup, prevLine=None):       
-        if prevLine is None:
-            prevLine = min(inGroup)
-            inGroup.remove(prevLine)
-        yield prevLine
-        
-        while len(inGroup) > 0:
-            nearestEnd = inGroup[0].start
-            nearestOffset = 0
-            dist = nearestEnd.distance(prevLine.end)
-            isStart = True
-            
-            for i in range(len(inGroup)):
-                tempDist = prevLine.end.distance(inGroup[i].start)
-                if(tempDist < dist):
-                    nearestEnd = inGroup[i].start
-                    dist = tempDist
-                    isStart = True
-                    nearestOffset = i
-                tempDist = prevLine.end.distance(inGroup[i].end)
-                if(tempDist < dist):
-                    nearestEnd = inGroup[i].end
-                    dist = tempDist
-                    isStart = False
-                    nearestOffset = i
-                if(dist == 0): break
-            if(not isStart):
-                inGroup[nearestOffset].flip()
-            yield inGroup.pop(nearestOffset)
+                inGroup.pop(index)
+                normList = np.delete(normList, [index*2, index*2+1],0)
     
     def __str__(self):
         tempString = ''
