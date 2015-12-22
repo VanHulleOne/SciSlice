@@ -12,22 +12,34 @@ class Point(object):
     COMPARE_PRECISION = 10000
     
     def __init__(self, x, y, z=0):
-        self.__x = x
-        self.__y = y
-        self.__z = z
+        self.x = x
+        self.y = y
+        self.z = z
         self.normalVector = numpy.array([x, y, z, 1])
         
     @property
     def x(self):
-        return self.__x
+        return self.__x/float(self.COMPARE_PRECISION)
+        
+    @x.setter
+    def x(self, value):
+        self.__x = int(round(value*self.COMPARE_PRECISION))
         
     @property
     def y(self):
-        return self.__y
+        return self.__y/float(self.COMPARE_PRECISION)
+        
+    @y.setter
+    def y(self, value):
+        self.__y = int(round(value*self.COMPARE_PRECISION))
     
     @property
     def z(self):
-        return self.__z
+        return self.__z/float(self.COMPARE_PRECISION)
+        
+    @z.setter
+    def z(self, value):
+        self.__z = int(round(value*self.COMPARE_PRECISION))
     
     def __iter__(self):
         return(i for i in (self.x, self.y, self.z))
