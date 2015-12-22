@@ -92,21 +92,16 @@ class Figura:
     def nearestLine_gen(self, inGroup, key):
         #create a list with all of the point in order, the divide the index by to to get the nearest line
         used, testPoint = yield
-        while len(inGroup) > 0:                
-            index, sDistance = min(((index, testPoint.distance(line.start))\
-                for index, line in enumerate(inGroup)), key=itemgetter(1))
-            eIndex, eDistance = min(((index, testPoint.distance(line.end))\
-                for index, line in enumerate(inGroup)), key=itemgetter(1))
-
-            if eDistance < sDistance:
-                tempLine = inGroup[eIndex]
-                tempLine.flip()
-                index = eIndex
-                used, testPoint = yield tempLine, key, eDistance
-            else:
-                used, testPoint = yield inGroup[index], key, sDistance
-            if used:
-                inGroup.pop(index)
+        pointList = []
+        for line in inGroup:
+            pointList.append(line.start)
+            pointList.append(line.end)
+        while len(inGroup) > 0:
+            index, dist = min(((index, testPoint.distance(point)) for index, point in enumerate(pointList)), key=itemgetter(1))
+            used, testPoint = yield (inGroup[index/2].flip() if index%2 else inGroup[index/2]), key, dist
+            while used:
+                inGroup.pop(index/2)
+                tempPoints = [inGroup[index/2-1].start, inGroup[index/2-1].end,
     
     def __str__(self):
         tempString = ''
