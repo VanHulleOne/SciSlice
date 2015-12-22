@@ -40,7 +40,7 @@ class InFill(LG):
             self.design = lg.LineGroup([l.Line(point1, point2)])
             self.designType = self.PARTIAL_ROW
         else:
-            self.design = design
+            self.design = lg.LineGroup(design)
         
         for i in range(self.designType, self.TRIMMED_FIELD):
             self.operations[i]();
