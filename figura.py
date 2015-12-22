@@ -90,6 +90,7 @@ class Figura:
         return layer
 
     def nearestLine_gen(self, inGroup, key):
+        #create a list with all of the point in order, the divide the index by to to get the nearest line
         used, testPoint = yield
         while len(inGroup) > 0:                
             index, sDistance = min(((index, testPoint.distance(line.start))\
