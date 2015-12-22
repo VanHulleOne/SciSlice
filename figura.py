@@ -13,6 +13,7 @@ import LineGroup as lg
 from parameters import constants as c
 from Shape import Shape
 from operator import itemgetter
+import numpy as np
 
 class Figura:
     
@@ -90,27 +91,23 @@ class Figura:
         return layer
 
     def nearestLine_gen(self, inGroup, key):
-        #create a list with all of the point in order, the divide the index by to to get the nearest line
         used, testPoint = yield
-        pointList = []
+        normList = []
         for line in inGroup:
-            pointList.append(line.start)
-            pointList.append(line.end)
+            normList.append(line.start.normalVector)
+            normList.append(line.end.normalVector)
+        normList = np.array(normList)
         while len(inGroup) > 0:
-            index, dist = min(((index, testPoint.distance(point)) for index, point in enumerate(pointList)), key=itemgetter(1))
-#            print 'Index: ' + str(index) + ' /2: ' + str(index/2)
-#            print 'Line: ' + str(inGroup[index/2])
+            index, dist = min(((index, dist) for index, dist in
+                enumerate(np.linalg.norm(normList-testPoint.normalVector, None, 1))),
+                key=itemgetter(1))
             if index%2:
                 inGroup[index/2].flip()
             index /= 2
             used, testPoint = yield inGroup[index], key, dist
             if used:
                 inGroup.pop(index)
-                pointList.pop(index*2)
-                pointList.pop(index*2)
-#            while used:
-#                inGroup.pop(index/2)
-#                tempPoints = [inGroup[index/2-1].start, inGroup[index/2-1].end,
+                normList = np.delete(normList, [index*2, index*2+1],0)
     
     def __str__(self):
         tempString = ''
