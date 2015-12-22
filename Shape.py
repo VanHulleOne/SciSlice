@@ -90,7 +90,7 @@ class Shape(LG):
         
         downLine = l.Line(point, p.Point(point.x, self.minY - 10, point.z))
 
-        downSet = set([])
+        downSet = set([]) 
         for line in self:
             if(line.isOnLine(point)):
 #                print 'Line: ' + str(line) + ' Point: ' + str(point)                

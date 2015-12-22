@@ -52,13 +52,8 @@ a3 = numpy.array([9,16])
 at = [a1,a2,a3]
 numdots = 10
 
-l1 = l.Line(p1, p2)
+print p1
 
-an = numpy.array([[i,i*2] for i in xrange(numdots)])
-
-print an
-an2 = numpy.delete(an, [1,2], 0)
-print an2
 #def coro_avg():
 #    total = 0.0
 #    count = 0
