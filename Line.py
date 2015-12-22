@@ -36,6 +36,10 @@ class Line(object):
             self.__extrusionRate = value
         
     
+    def __iter__(self):
+        yield self.start
+        yield self.end
+    
     def segmentsIntersect(self, other, allowProjInt = False):
         if(not(allowProjInt) and not(self.doBoundingBoxesIntersect(other))): return -1, None #return if bounding boxes do not intersect
         if(self.areColinear(other)):
