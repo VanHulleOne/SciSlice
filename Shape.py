@@ -52,22 +52,12 @@ class Shape(LG):
     def offset(self, distance, desiredSide):
         trimJoin = self.trimJoin_coro()
         next(trimJoin)
-        nearestCoro = pr.nearestLine_Coro(self)
-        next(nearestCoro)
-        testPoint = p.Point(0,0)
-        while True:
-            try:
-                line, _, _ = nearestCoro.send((True, testPoint))
-            except StopIteration:
-                break
+        for line in self:
+            try1, try2 = line.getOffsetLines(distance)
+            if self.isInside(try1.getMidPoint()) is desiredSide:
+                trimJoin.send(try1)
             else:
-                testPoint = line.end
-                try1, try2 = line.getOffsetLines(distance)
-                if self.isInside(try1.getMidPoint()) is desiredSide:
-                    trimJoin.send(try1)
-                else:
-                    trimJoin.send(try2)
-        nearestCoro.close()
+                trimJoin.send(try2)
         return Shape(trimJoin.send(None))
        
     def trimJoin_coro(self):
