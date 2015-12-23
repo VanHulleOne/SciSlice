@@ -36,9 +36,9 @@ p3 = p.Point(28.5, 6.5)
 p4 = p.Point(-82.501, -9.5)
 p5 = p.Point(3,3.0001)
 p6 = p.Point(0,0)
-p7 = p.Point(0,4)
-p8 = p.Point(2,2)
-p9 = p.Point(5,10)
+p7 = p.Point(4,0)
+p8 = p.Point(4,4)
+p9 = p.Point(0,4)
 p10 = p.Point(3,12)
 
 ds1 = ds.DoneShapes()
@@ -52,13 +52,33 @@ a3 = numpy.array([9,16])
 at = [a1,a2,a3]
 numdots = 10
 
-s1 = s.Shape(None)
-s1.addLinesFromCoordinateList([[0,0],[4,0],[4,4], [0,4]])
-s1.closeShape()
+l1 = l.Line(p6, p7)
+l2 = l.Line(p8, p7)
+l3 = l.Line(p8, p9)
+l4 = l.Line(p9, p6)
 
+lA = [l1, l2, l3, l4]
+
+s1 = s.Shape(lA)
 print s1
-s2 = s1.offset(1.0, c.INSIDE)
+s2 = s1.offset(1, c.INSIDE)
 print s2
+print s1
+#coro1 = pr.nearestLine_gen(s1)
+#next(coro1)
+#testPoint = p6
+#lines = []
+#while True:
+#    try:
+#        line, _, _ = coro1.send((True, testPoint))
+#    except StopIteration:
+#        break
+#    else:
+#        lines.append(line)
+#        testPoint = line.end
+#
+#for line in lines:
+#    print line
 
 #def coro_avg():
 #    total = 0.0
