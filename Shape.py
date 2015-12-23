@@ -8,6 +8,7 @@ import Line as l
 import Point as p
 from LineGroup import LineGroup as LG
 from parameters import constants as c
+import parameters as pr
 
 class Shape(LG):    
     def __init__(self, shape):
@@ -72,6 +73,7 @@ class Shape(LG):
             moveStart = yield
         _, point = moveEnd.segmentsIntersect(offsetLines[0], c.ALLOW_PROJECTION)
         moveEnd.end = point
+        offsetLines.append(moveEnd)
         offsetLines[0].start = point
         yield offsetLines
     

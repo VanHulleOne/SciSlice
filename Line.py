@@ -146,11 +146,14 @@ class Line(object):
         line2 = self.translate(-rn[c.X], -rn[c.Y]) #the "minus" side line
         return (line1, line2)
         
-        
+    
     def getMidPoint(self):
         midVect = (self.start.normalVector - self.end.normalVector)/2.0 + self.end.normalVector
         return p.Point(midVect[c.X], midVect[c.Y], midVect[c.Z])
-        
+    
+    def deepCopy(self):
+        return Line(self.start, self.end)        
+    
     def getStart(self):
         return p.Point(self.start.x, self.start.y, self.start.z)
         
