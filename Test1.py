@@ -35,9 +35,9 @@ p2 = p.Point(161.361, 111.157)
 p3 = p.Point(28.5, 6.5)
 p4 = p.Point(-82.501, -9.5)
 p5 = p.Point(3,3.0001)
-p6 = p.Point(3,4)
-p7 = p.Point(5,6)
-p8 = p.Point(7,8)
+p6 = p.Point(0,0)
+p7 = p.Point(0,4)
+p8 = p.Point(2,2)
 p9 = p.Point(5,10)
 p10 = p.Point(3,12)
 
@@ -52,7 +52,13 @@ a3 = numpy.array([9,16])
 at = [a1,a2,a3]
 numdots = 10
 
-print p1
+s1 = s.Shape(None)
+s1.addLinesFromCoordinateList([[0,0],[4,0],[4,4], [0,4]])
+s1.closeShape()
+
+print s1
+s2 = s1.offset(1.0, c.INSIDE)
+print s2
 
 #def coro_avg():
 #    total = 0.0

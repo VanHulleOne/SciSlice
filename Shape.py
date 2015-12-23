@@ -72,6 +72,7 @@ class Shape(LG):
             moveStart = yield
         _, point = moveEnd.segmentsIntersect(offsetLines[0], c.ALLOW_PROJECTION)
         moveEnd.end = point
+        offsetLines.append(moveEnd)
         offsetLines[0].start = point
         yield offsetLines
     
