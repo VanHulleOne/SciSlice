@@ -10,24 +10,32 @@ from LineGroup import LineGroup as LG
 from parameters import constants as c
 from functools import wraps
 
-def finished(func):
+def finishedOutline(func):
     @wraps(func)
     def checker(self, *args):            
-        if self.finished:
+        if self.outlineFinished:
             return func(self, *args)
         else:
-            raise Exception('Shape must be finished to use ' + func.__name__ + '()')
+            raise Exception('Shape must have outlinefinished == True to use '
+                            + func.__name__ + '()')
     return checker
 
 class Shape(LG):    
-    def __init__(self, shape, finished=False):
+    def __init__(self, shape, outlineFinished=False):
         LG.__init__(self, shape)
-        self.shapeIsClosed = self.isShapeClosed()
-        if(finished):
-            self.finished = self.checkFinish()
-        else:
-            self.finished = finished 
+#        self.outlineFinished = outlineFinished
+    
+    @property
+    def outlineFinished(self):
+        return self.__outlineFinished
         
+    @outlineFinished.setter
+    def outLineFinished(self, value):
+        if not value:
+            self.__outlineFinished = False
+        else:
+            self.__outlineFinished = self.__finishOutline()
+    
     def addInternalShape(self, inShape):
         if(not inShape.shapeIsClosed):
             print '********** Your internal shape was not closed. **********'
@@ -46,23 +54,49 @@ class Shape(LG):
                 if(result > 0):
                     return True
         return False
-    
+
+#TODO: Is this still needed?    
     def addLineGroup(self, inGroup):
         super(Shape, self).addLineGroup(inGroup)
-        self.shapeIsClosed = self.isShapeClosed()
+    
+    def finishOutline(self):
+        if(len(self) < 3):
+            raise Exception('Cannot finish outline. Min shape length == 3')
+        tempLines = [self.pop(0)]
+        while len(self) > 0:
+            if(tempLines[-1].end.distance(self[0].start) == 0):
+                tempLines.append(self.pop(0))
+            else:
+                nearestDist = tempLines[-1].end.distance(self[0].start)
+                for i in xrange(len(self)):
+                    dist = tempLines[-1].end.distance(self[i].start)
+                    if dist == 0:
+                        nearestDist = dist                        
+                        tempLines.append(self.pop(i))
+                        break
+                    elif dist < nearestDist:
+                        nearestDist = dist
+                    dist = tempLines[-1].end.distance(self[0].end)
+                    if dist == 0:
+                        nearestDist = dist 
+                        self[i].flip()
+                        tempLines.append(self.pop(i))
+                        break
+                    elif dist < nearestDist:
+                        nearestDist = dist
+                if nearestDist != 0:
+                    raise Exception('Outline has a gap of ' + str(nearestDist)
+                                    + '. Outline must be continuous.')
+        self.lines = tempLines
+        return True
+                        
+            
     
     def closeShape(self):
         if(self[0].start != self[-1].end):
             self.append(l.Line(self[-1].end, self[0].start))
-        self.shapeIsClosed = True
-        
-    def isShapeClosed(self):
-        if(len(self) <= 2): return False
-        if(self[0].start == self[-1].end):
-            return True
-        return False
 
-    @finished                                 
+    @finishedOutline                                
     def offset(self, distance, desiredSide):
         trimJoin = self.trimJoin_Coro()
         next(trimJoin)
@@ -73,10 +107,6 @@ class Shape(LG):
             else:
                 trimJoin.send(try2)
         return Shape(trimJoin.send(None))
-       
-    @addOne
-    def returnNum(num):
-        return num
     
     def trimJoin_Coro(self):
         offsetLines = []

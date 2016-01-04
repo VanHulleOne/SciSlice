@@ -53,7 +53,7 @@ at = [a1,a2,a3]
 numdots = 10
 
 l1 = l.Line(p6, p7)
-l2 = l.Line(p7, p8)
+l2 = l.Line(p8, p7)
 l3 = l.Line(p8, p9)
 l4 = l.Line(p9, p6)
 
@@ -61,9 +61,8 @@ lA = [l1, l2, l3, l4]
 
 s1 = s.Shape(lA)
 print s1
-s1.finished = True
-s2 = s1.offset(1, c.OUTSIDE)
-print s2
+print s1.finishOutline()
+print s1
 
 #coro1 = pr.nearestLine_gen(s1)
 #next(coro1)
