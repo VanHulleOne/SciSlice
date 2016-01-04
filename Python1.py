@@ -53,7 +53,7 @@ with open('I:\RedBench\static\data\LineList.txt', 'w') as f:
 #    line.extrusionRate = pr.fullExtrusionRate
 #    line.freezeExRate = True
 #
-filledList = [regDB, regDB1, regDB2, filledDB]
+filledList = [regDB, regDB1, filledDB]
 #filledList = [filledLeft, filledCenter, filledRight]
 
 fig = fg.Figura(filledList)

@@ -61,7 +61,7 @@ class Figura:
     def organizedLayer(self, inShapes):
         layer = lg.LineGroup()
         
-        lineGens = {i : pr.nearestLine_Coro(inShapes[i], i) for i in range(len(inShapes))}
+        lineGens = {i : inShapes[i].nearestLine_Coro(i) for i in range(len(inShapes))}
         for key, gen in lineGens.iteritems():
             next(gen)
         
