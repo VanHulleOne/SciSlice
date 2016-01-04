@@ -61,7 +61,7 @@ lA = [l1, l2, l3, l4]
 
 s1 = s.Shape(lA)
 print s1
-print s1.finishOutline()
+s1.outlineFinished = True
 print s1
 
 #coro1 = pr.nearestLine_gen(s1)

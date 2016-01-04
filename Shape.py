@@ -23,19 +23,20 @@ def finishedOutline(func):
 class Shape(LG):    
     def __init__(self, shape, outlineFinished=False):
         LG.__init__(self, shape)
-#        self.outlineFinished = outlineFinished
+        self.outlineFinished = outlineFinished
     
     @property
     def outlineFinished(self):
         return self.__outlineFinished
         
     @outlineFinished.setter
-    def outLineFinished(self, value):
+    def outlineFinished(self, value):
         if not value:
             self.__outlineFinished = False
         else:
             self.__outlineFinished = self.__finishOutline()
     
+    @finishedOutline
     def addInternalShape(self, inShape):
         if(not inShape.shapeIsClosed):
             print '********** Your internal shape was not closed. **********'
@@ -47,6 +48,7 @@ class Shape(LG):
         for line in inShape:
             self.append(line)
     
+    @finishedOutline
     def doShapesIntersect(self, inShape):
         for line in self.lines:
             for line2 in inShape.lines:
@@ -59,7 +61,7 @@ class Shape(LG):
     def addLineGroup(self, inGroup):
         super(Shape, self).addLineGroup(inGroup)
     
-    def finishOutline(self):
+    def __finishOutline(self):
         if(len(self) < 3):
             raise Exception('Cannot finish outline. Min shape length == 3')
         tempLines = [self.pop(0)]
@@ -88,9 +90,7 @@ class Shape(LG):
                     raise Exception('Outline has a gap of ' + str(nearestDist)
                                     + '. Outline must be continuous.')
         self.lines = tempLines
-        return True
-                        
-            
+        return True 
     
     def closeShape(self):
         if(self[0].start != self[-1].end):
@@ -106,7 +106,7 @@ class Shape(LG):
                 trimJoin.send(try1)
             else:
                 trimJoin.send(try2)
-        return Shape(trimJoin.send(None))
+        return Shape(trimJoin.send(None), True)
     
     def trimJoin_Coro(self):
         offsetLines = []
@@ -125,6 +125,7 @@ class Shape(LG):
         offsetLines[0].start = point
         yield offsetLines
     
+    @finishedOutline    
     def isInside(self, point):
         """
         This method determines if the point is inside
