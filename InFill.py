@@ -67,12 +67,12 @@ class InFill(LG):
     def trimField(self):
         tempLines = []
         for line in self.design.lines:
-            pointSet = set([line.getStart()])
+            pointSet = set([line.start])
             for tLine in self.trimShape.lines:
                 result, point = tLine.segmentsIntersect(line)
                 if(result == 1):
                     pointSet.add(point)
-            pointSet.add(line.getEnd())
+            pointSet.add(line.end)
             pointList = sorted(list(pointSet))
             for i in range(len(pointList)-1):                
                 tempLines.append(l.Line(pointList[i], pointList[i+1]))
