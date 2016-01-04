@@ -8,12 +8,25 @@ import Line as l
 import Point as p
 from LineGroup import LineGroup as LG
 from parameters import constants as c
-import parameters as pr
+from functools import wraps
+
+def finished(func):
+    @wraps(func)
+    def checker(self, *args):            
+        if self.finished:
+            return func(self, *args)
+        else:
+            raise Exception('Shape must be finished to use ' + func.__name__ + '()')
+    return checker
 
 class Shape(LG):    
-    def __init__(self, shape):
+    def __init__(self, shape, finished=False):
         LG.__init__(self, shape)
-        self.shapeIsClosed = self.isShapeClosed() #False
+        self.shapeIsClosed = self.isShapeClosed()
+        if(finished):
+            self.finished = self.checkFinish()
+        else:
+            self.finished = finished 
         
     def addInternalShape(self, inShape):
         if(not inShape.shapeIsClosed):
@@ -48,19 +61,24 @@ class Shape(LG):
         if(self[0].start == self[-1].end):
             return True
         return False
-                                     
+
+    @finished                                 
     def offset(self, distance, desiredSide):
-        trimJoin = self.trimJoin_coro()
+        trimJoin = self.trimJoin_Coro()
         next(trimJoin)
         for line in self:
             try1, try2 = line.getOffsetLines(distance)
-            if self.isInside(try1.getMidPoint()) is desiredSide:
+            if self.isInside(try1.getMidPoint()) == desiredSide:
                 trimJoin.send(try1)
             else:
                 trimJoin.send(try2)
         return Shape(trimJoin.send(None))
        
-    def trimJoin_coro(self):
+    @addOne
+    def returnNum(num):
+        return num
+    
+    def trimJoin_Coro(self):
         offsetLines = []
         moveEnd = yield
         moveStart = yield
@@ -103,3 +121,4 @@ class Shape(LG):
             if(result == 1): downSet.add(intPoint)
 #        print 'Len: ' + str(len(downSet)) + ' Point: ' + str(point)    
         return (True if len(downSet) % 2 == 1 else False)
+
