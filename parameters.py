@@ -95,11 +95,11 @@ def nearestLine_Coro(inGroupM, key=None):
             This actually subtracts the testPointNormVector from each individual
             element in the normList
         2) Use numpy.linalg.norm to get the length of each element. The first
-            object is out subtracted array, None is for something I don't understand
+            object is our subtracted array, None is for something I don't understand
             1 is so that it takes the norm of each element and not of the whole
             array
         3) enumerate over the array of norms so we can later have the index
-        4) enumerate is a generator, for our using a for comprehension to
+        4) enumerate is a generator, so we are using a for comprehension to
             send the tuple (index, dist) to the min function. The norm stored
             in each element of the array is the distance from the testPoint to
             the point which was at that index
