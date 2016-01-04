@@ -45,9 +45,9 @@ pattern.addLinesFromCoordinateList([[0,0], [2,2], [4,0]])
 filledDB = InF.InFill(regDB2, pr.pathWidth, 90)
 
 print 'Created Infill: {:.2f}'.format(time.time()-startTime)
-#with open('I:\RedBench\static\data\LineList.txt', 'w') as f:
-#    f.write('test\n')
-#    f.write(filledCenter.CSVstr())
+with open('I:\RedBench\static\data\LineList.txt', 'w') as f:
+    f.write('test\n')
+    f.write(filledDB.CSVstr())
 
 #for line in filledGrips:
 #    line.extrusionRate = pr.fullExtrusionRate
