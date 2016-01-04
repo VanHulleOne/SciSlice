@@ -60,10 +60,14 @@ l4 = l.Line(p9, p6)
 lA = [l1, l2, l3, l4]
 
 s1 = s.Shape(lA)
+s2 = copy.deepcopy(s1)
 print s1
-s2 = s1.offset(1, c.INSIDE)
+print 'flip'
+s1[0].flip()
+print s1
 print s2
-print s1
+
+
 #coro1 = pr.nearestLine_gen(s1)
 #next(coro1)
 #testPoint = p6

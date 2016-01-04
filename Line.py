@@ -151,15 +151,6 @@ class Line(object):
         midVect = (self.start.normalVector - self.end.normalVector)/2.0 + self.end.normalVector
         return p.Point(midVect[c.X], midVect[c.Y], midVect[c.Z])
     
-    def deepCopy(self):
-        return Line(self.start, self.end)        
-    
-    def getStart(self):
-        return p.Point(self.start.x, self.start.y, self.start.z)
-        
-    def getEnd(self):
-        return p.Point(self.end.x, self.end.y, self.end.z)
-    
     def __lt__(self, other):
         selfList = sorted(list([self.start, self.end]))
         otherList = sorted(list([other.start, other.end]))

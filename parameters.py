@@ -78,46 +78,6 @@ MAX_EXTRUDE_SPEED = 100 #mm/min max speed to move filament
 Z_CLEARANCE = 10.0 #mm to move Z up
 APPROACH_FR = 2000 #mm/min aproach feedrate
 
-
-def nearestLine_Coro(inGroupM, key=None):
-    inGroup = [line.deepCopy() for line in inGroupM]
-    used, testPoint = yield
-    normList = []
-    for line in inGroup:
-        normList.append(line.start.normalVector)
-        normList.append(line.end.normalVector)
-    normList = np.array(normList)
-    while len(inGroup) > 0:
-        """
-        This got a little complicated but sped up this section by about 10X
-        This next line inside out does as follows:
-        1) take the normList and subtract the normVector from the test point
-            This actually subtracts the testPointNormVector from each individual
-            element in the normList
-        2) Use numpy.linalg.norm to get the length of each element. The first
-            object is out subtracted array, None is for something I don't understand
-            1 is so that it takes the norm of each element and not of the whole
-            array
-        3) enumerate over the array of norms so we can later have the index
-        4) enumerate is a generator, for our using a for comprehension to
-            send the tuple (index, dist) to the min function. The norm stored
-            in each element of the array is the distance from the testPoint to
-            the point which was at that index
-        5) Find the min of the tuples (index, dist) key-itemgetter(1) is telling min
-            to look at dist when comparing the tuples
-        6) min returns the lowest tuple, which we split into index and dist
-        """
-        index, dist = min(((index, dist) for index, dist in
-            enumerate(np.linalg.norm(normList-testPoint.normalVector, None, 1))),
-            key=itemgetter(1))
-        if index%2: #If index is odd we are at the end of a line so the line needs to be flipped
-            inGroup[index/2].flip()
-        index /= 2
-        used, testPoint = yield inGroup[index], key, dist
-        if used:
-            inGroup.pop(index)
-            normList = np.delete(normList, [index*2, index*2+1],0)
-
 """
 Constants
 """
