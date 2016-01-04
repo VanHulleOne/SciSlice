@@ -66,7 +66,7 @@ class Figura:
             next(gen)
         
         lastPoint = p.Point(0,0)
-        index = -1
+        index = -1        
         while True:
             results = []
             for key in lineGens.keys():

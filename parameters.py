@@ -112,9 +112,12 @@ def nearestLine_Coro(inGroupM, key=None):
             key=itemgetter(1))
         if index%2: #If index is odd we are at the end of a line so the line needs to be flipped
             inGroup[index/2].flip()
-        index /= 2
-        used, testPoint = yield inGroup[index], key, dist
+
+        used, testPoint = yield inGroup[index/2], key, dist
+        if not used and index%2:
+            inGroup[index/2].flip()
         if used:
+            index /= 2
             inGroup.pop(index)
             normList = np.delete(normList, [index*2, index*2+1],0)
 
