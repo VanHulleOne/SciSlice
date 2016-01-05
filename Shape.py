@@ -11,18 +11,20 @@ from parameters import constants as c
 from functools import wraps
 
 def finishedOutline(func):
+    """
+    This method is used as a decorator to make sure that the Shape is valid
+    before certian functions are used. See finishOutline() for what makes a 
+    valid shape.
+    """
     @wraps(func)
     def checker(self, *args):            
-        if self.outlineFinished:
-            return func(self, *args)
-        else:
+        if not self.outlineFinished:
             try:
-                self.finisheOutline()
+                self.finishOutline()
             except Exception as e:
                 raise Exception('Shape must have a continuous closed outline to use '
                             + func.__name__ + '()\n\t\t' + e.message)
-            else:
-                return func(self, *args)
+        return func(self, *args)
     return checker
 
 class Shape(LG):    
@@ -64,24 +66,34 @@ class Shape(LG):
                 yield tempLines
                 tempLines = []
         if len(tempLines) != 0:
-            raise Exception(self.subShape_gen.__name__ + '() error: subshape not complete')
+            yield tempLines
             
     
-    def finisheOutline(self):
+    def finishOutline(self):
+        """
+        Checks to see if the Shape is valid and can be finished. For a shape to
+        be valid it must be continuous and closed. If a shape has subshapes those
+        must also be continuous and closed. The lines must be in order as well.
+        
+        First this method uses sortNearest_gen() to organize all of its lines.
+        Then it uses subShape_gen() to get the sub-shapes if there are any.
+        If the start of the first point does not equal the end of the last point
+        the shape is not closed.
+        Next each line is tested to see if the end of one line is the same as
+        the start of the next line. If not the gap distance is calculated and
+        sent in the Exception message.
+        """
         self.lines = list(self.sortNearest_gen())
         self.outlineFinished = True #to run subShape_gen this must be set to True since it uses the @finishedOutline decorator
-        try:
-            for subShape in self.subShape_gen():
-                if(len(subShape) < 3):
-                    raise Exception('Cannot finish outline. Min shape length == 3')
-                if subShape[0].start.distance(subShape[-1].end) != 0:
-                    raise Exception('Subshape not closed')            
-                for i in xrange(len(subShape)-1):
+        for subShape in self.subShape_gen():
+            if  subShape[0].start != subShape[-1].end:
+                dist = subShape[0].start.distance(subShape[-1].end)
+                raise Exception('Shape not closed. End gap of ' + str(dist))            
+            for i in xrange(len(subShape)-1):                     
+                if subShape[i].end != subShape[i+1].start:
                     dist = subShape[i].end.distance(subShape[i+1].start)
-                    if dist != 0:
-                        raise Exception('Outline has a gap of ' + str(dist))
-        except Exception as e:
-            raise Exception(e.message)
+                    raise Exception('Outline has a gap of ' + str(dist))
+
     
     def closeShape(self):
         if(self[0].start != self[-1].end):
