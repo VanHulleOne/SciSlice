@@ -66,4 +66,11 @@ class DoneShapes():
                                           [28.5, -6.5], [28.5, 6.5]])
         return shape.translate(82.5, 9.5)
         
+    @property
+    def squareWithHole(self):
+        shape = s.Shape(None)
+        shape.addLinesFromCoordinateList([[0,0], [50,0], [50,50], [0,50], [0,0]])
+        circle = a.Arc(p.Point(35,25), p.Point(35,25), c.CW, p.Point(25,25))
+        shape.addLineGroup(circle)
+        return shape
 
