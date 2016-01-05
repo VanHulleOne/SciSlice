@@ -76,9 +76,9 @@ class InFill(LG):
             pointList = sorted(list(pointSet))
             for i in range(len(pointList)-1):                
                 tempLines.append(l.Line(pointList[i], pointList[i+1]))
-        for i in range(len(tempLines)):
-            if(self.trimShape.isInside(tempLines[i].getMidPoint())):
-                self.lines.append(tempLines[i])
+        for line in tempLines:            
+            if(self.trimShape.isInside(line.getMidPoint())):
+                self.lines.append(line)
     
     def centerAndRotateField(self):
         designCP = self.design.getMidPoint()
