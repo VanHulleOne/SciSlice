@@ -10,8 +10,8 @@ from parameters import constants as c
 
 class Line(object):
     def __init__(self, start, end, extrusionRate = 0, freezeExtrusionRate = False):
-        self.start = start
-        self.end = end
+        self.__start = start
+        self.__end = end
         self._length = self.length
         if(self.length == 0):
             print ('SNAFU detected, a line was created with no length at: ' + 
@@ -21,7 +21,25 @@ class Line(object):
         self.__extrusionRate = extrusionRate
         self.freezeExRate = freezeExtrusionRate
         self.setBoundingBox()
-    
+
+    @property
+    def start(self):
+        return self.__start
+        
+    @start.setter
+    def start(self, point):
+        self.__start = point
+        self.setBoundingBox()
+        
+    @property
+    def end(self):
+        return self.__end
+        
+    @end.setter
+    def end(self, point):
+        self.__end = point
+        self.setBoundingBox()
+  
     @property
     def length(self):
         return self.start.distance(self.end)
@@ -41,7 +59,7 @@ class Line(object):
         yield self.end
     
     def segmentsIntersect(self, other, allowProjInt = False):
-        if(not(allowProjInt) and not(self.doBoundingBoxesIntersect(other))): return -1, None #return if bounding boxes do not intersect
+        if(not(allowProjInt) and not(self.doBoundingBoxesIntersect(other))): return -3, None #return if bounding boxes do not intersect
         if(self.areColinear(other)):
             pointList = sorted(list(set([self.start, self.end, other.start, other.end])))
             if len(pointList) == 3:
@@ -55,7 +73,7 @@ class Line(object):
         Q_Less_P = numpy.subtract(other.start.get2DPoint(), self.start.get2DPoint())
         denom = numpy.cross(r, s)*1.0
         t = numpy.cross(Q_Less_P, s)/denom
-        u = numpy.cross(Q_Less_P, r)/denom
+        u = numpy.cross(Q_Less_P, r)/denom             
         #If t or u are not in the range 0-1 then the intersection is projected
         if(t > 1 or u > 1 or t < 0 or u < 0):
             return -1, p.Point(self.start.x + r[c.X]*t,
