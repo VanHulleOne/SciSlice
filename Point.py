@@ -92,8 +92,7 @@ class Point(object):
         return ((self.x - other.x)**2 + (self.y - other.y)**2)
 
     def __key(self):
-        return(int(round(self.z*self.COMPARE_PRECISION)), int(round(self.x*self.COMPARE_PRECISION)),
-               int(round(self.y*self.COMPARE_PRECISION)))
+        return (self.__z, self.__x, self.__y)
     
     def __lt__(self, other):
         return self.__key() < other.__key()

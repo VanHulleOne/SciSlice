@@ -58,7 +58,7 @@ class DoneShapes():
         shape = self.leftGrip
         shape.addLineGroup(self.rightGrip)
         return shape
-    
+
     @property
     def center(self):
         shape = s.Shape(None)
