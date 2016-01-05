@@ -59,7 +59,18 @@ l4 = l.Line(p9, p6)
 
 lA = [l1, l2, l3, l4]
 
-print True and None
+s1 = s.Shape(lA)
+
+s2 = s1 + s1.translate(8, 0)
+
+s3 = s2.offset(1, c.INSIDE)
+
+print s3
+
+#for shape in s3.subShape_gen():
+#    print '\nshape'
+#    for line in shape:
+#        print line
 
 #coro1 = pr.nearestLine_gen(s1)
 #next(coro1)

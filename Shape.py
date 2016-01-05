@@ -17,7 +17,7 @@ def finishedOutline(func):
             return func(self, *args)
         else:
             try:
-                self.outlineFinished = self.finishOutline()
+                self.finisheOutline()
             except Exception as e:
                 raise Exception('Shape must have a continuous closed outline to use '
                             + func.__name__ + '()\n\t\t' + e.message)
@@ -29,11 +29,6 @@ class Shape(LG):
     def __init__(self, shape):
         LG.__init__(self, shape)
         self.outlineFinished = False
-        try:
-            pass
-#            self.outlineFinished = self.__finishOutline()
-        except:
-            pass
     
     @finishedOutline
     def addInternalShape(self, inShape):
@@ -60,35 +55,30 @@ class Shape(LG):
         super(Shape, self).addLineGroup(inGroup)
         self.outlineFinished = False
     
-    def finishOutline(self):
-        if(len(self) < 3):
-            raise Exception('Cannot finish outline. Min shape length == 3')
-        tempLines = [self.pop(0)]
-        while len(self) > 0:
-            if(tempLines[-1].end.distance(self[0].start) == 0):
-                tempLines.append(self.pop(0))
-            else:
-                nearestDist = tempLines[-1].end.distance(self[0].start)
-                for i in xrange(len(self)):
-                    dist = tempLines[-1].end.distance(self[i].start)
-                    if dist == 0:
-                        nearestDist = dist                        
-                        tempLines.append(self.pop(i))
-                        break
-                    elif dist < nearestDist:
-                        nearestDist = dist
-                    dist = tempLines[-1].end.distance(self[0].end)
-                    if dist == 0:
-                        nearestDist = dist 
-                        self[i].flip()
-                        tempLines.append(self.pop(i))
-                        break
-                    elif dist < nearestDist:
-                        nearestDist = dist
-                if nearestDist != 0:
-                    raise Exception('Outline has a gap of ' + str(nearestDist))
-        self.lines = tempLines
-        return True 
+    @finishedOutline    
+    def subShape_gen(self):
+        tempLines = []
+        for line in self:
+            tempLines.append(line)
+            if tempLines[0].start == tempLines[-1].end:
+                yield tempLines
+                tempLines = []
+        if len(tempLines) != 0:
+            raise Exception('subshape not complete')
+            
+    
+    def finisheOutline(self):
+        self.lines = list(self.sortNearest_gen())
+        self.outlineFinished = True
+        for subShape in self.subShape_gen():
+            if(len(subShape) < 3):
+                raise Exception('Cannot finish outline. Min shape length == 3')
+            if subShape[0].start.distance(subShape[-1].end) != 0:
+                raise Exception('Subshape not closed')            
+            for i in xrange(len(subShape)-1):
+                dist = subShape[i].end.distance(subShape[i+1].start)
+                if dist != 0:
+                    raise Exception('Outline has a gap of ' + str(dist)) 
     
     def closeShape(self):
         if(self[0].start != self[-1].end):
@@ -96,15 +86,18 @@ class Shape(LG):
 
     @finishedOutline                                
     def offset(self, distance, desiredSide):
-        trimJoin = self.trimJoin_Coro()
-        next(trimJoin)
-        for line in self:
-            try1, try2 = line.getOffsetLines(distance)
-            if self.isInside(try1.getMidPoint()) == desiredSide:
-                trimJoin.send(try1)
-            else:
-                trimJoin.send(try2)
-        return Shape(trimJoin.send(None))
+        tempLines = []
+        for subShape in self.subShape_gen():
+            trimJoin = self.trimJoin_Coro()
+            next(trimJoin)
+            for line in subShape:
+                try1, try2 = line.getOffsetLines(distance)
+                if self.isInside(try1.getMidPoint()) == desiredSide:
+                    trimJoin.send(try1)
+                else:
+                    trimJoin.send(try2)
+            tempLines.extend(trimJoin.send(None))
+        return Shape(tempLines)
     
     def trimJoin_Coro(self):
         offsetLines = []
@@ -123,7 +116,7 @@ class Shape(LG):
         offsetLines[0].start = point
         yield offsetLines
     
-#    @finishedOutline    
+    @finishedOutline    
     def isInside(self, point):
         """
         This method determines if the point is inside
