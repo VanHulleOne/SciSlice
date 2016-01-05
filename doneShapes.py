@@ -22,7 +22,6 @@ class DoneShapes():
         dogBone.addLinesFromCoordinateList([[28.5, 6.5], [0, 6.5]])
         dogBone.addLineGroup(dogBone.mirror(c.Y))
         dogBone.addLineGroup(dogBone.mirror(c.X))
-        dogBone.outlineFinished = True
         return dogBone.translate(82.5, 9.5)
     
     @property
@@ -35,7 +34,6 @@ class DoneShapes():
         wideDogBone.addLinesFromCoordinateList([[28.5, 6.5 + halfWidth], [0, 6.5 + halfWidth]])
         wideDogBone.addLineGroup(wideDogBone.mirror(c.Y))
         wideDogBone.addLineGroup(wideDogBone.mirror(c.X))
-        wideDogBone.outlineFinished = True
         return wideDogBone.translate(82.5, 9.5 + halfWidth)
         
     @property
@@ -46,7 +44,6 @@ class DoneShapes():
         shape.addLineGroup(arc)
         shape.addLinesFromCoordinateList([[28.5, 6.5], [28.5, 0]])
         shape.addLineGroup(shape.mirror(c.X))
-        shape.outlineFinished = True
         return shape.translate(82.5, 9.5)
         
     @property
@@ -54,22 +51,19 @@ class DoneShapes():
         shape = s.Shape(self.rightGrip)
         shape = shape.translate(-82.5, -9.5)
         shape = shape.mirror(c.Y)
-        shape.outlineFinished = True
         return shape.translate(82.5, 9.5)
         
     @property
     def grips(self):
         shape = self.leftGrip
         shape.addLineGroup(self.rightGrip)
-        shape.outlineFinished = True
         return shape
 
     @property
     def center(self):
         shape = s.Shape(None)
         shape.addLinesFromCoordinateList([[28.5, 6.5], [-28.5, 6.5], [-28.5, -6.5],
-                                          [28.5, -6.5], [28.5, 6.5]])                                          
-        shape.outlineFinished = True
+                                          [28.5, -6.5], [28.5, 6.5]])
         return shape.translate(82.5, 9.5)
         
 

@@ -59,10 +59,7 @@ l4 = l.Line(p9, p6)
 
 lA = [l1, l2, l3, l4]
 
-s1 = s.Shape(lA)
-print s1
-s1.outlineFinished = True
-print s1
+print True and None
 
 #coro1 = pr.nearestLine_gen(s1)
 #next(coro1)

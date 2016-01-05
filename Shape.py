@@ -16,30 +16,29 @@ def finishedOutline(func):
         if self.outlineFinished:
             return func(self, *args)
         else:
-            raise Exception('Shape must have outlinefinished == True to use '
-                            + func.__name__ + '()')
+            try:
+                self.outlineFinished = self.finishOutline()
+            except Exception as e:
+                raise Exception('Shape must have a continuous closed outline to use '
+                            + func.__name__ + '()\n\t\t' + e.message)
+            else:
+                return func(self, *args)
     return checker
 
 class Shape(LG):    
-    def __init__(self, shape, outlineFinished=False):
+    def __init__(self, shape):
         LG.__init__(self, shape)
-        self.outlineFinished = outlineFinished
-    
-    @property
-    def outlineFinished(self):
-        return self.__outlineFinished
-        
-    @outlineFinished.setter
-    def outlineFinished(self, value):
-        if not value:
-            self.__outlineFinished = False
-        else:
-            self.__outlineFinished = self.__finishOutline()
+        self.outlineFinished = False
+        try:
+            pass
+#            self.outlineFinished = self.__finishOutline()
+        except:
+            pass
     
     @finishedOutline
     def addInternalShape(self, inShape):
-        if(not inShape.shapeIsClosed):
-            print '********** Your internal shape was not closed. **********'
+        if(not inShape.outlineFinished):
+            print '********** Your internal shape was not a finished outline **********'
         if(not self.isInside(inShape.lines[0].start)):
             print '********** The internal shape is not inside the main shape. **********'
         if(self.doShapesIntersect(inShape)):
@@ -56,12 +55,12 @@ class Shape(LG):
                 if(result > 0):
                     return True
         return False
-
-#TODO: Is this still needed?    
+   
     def addLineGroup(self, inGroup):
         super(Shape, self).addLineGroup(inGroup)
+        self.outlineFinished = False
     
-    def __finishOutline(self):
+    def finishOutline(self):
         if(len(self) < 3):
             raise Exception('Cannot finish outline. Min shape length == 3')
         tempLines = [self.pop(0)]
@@ -87,8 +86,7 @@ class Shape(LG):
                     elif dist < nearestDist:
                         nearestDist = dist
                 if nearestDist != 0:
-                    raise Exception('Outline has a gap of ' + str(nearestDist)
-                                    + '. Outline must be continuous.')
+                    raise Exception('Outline has a gap of ' + str(nearestDist))
         self.lines = tempLines
         return True 
     
@@ -106,7 +104,7 @@ class Shape(LG):
                 trimJoin.send(try1)
             else:
                 trimJoin.send(try2)
-        return Shape(trimJoin.send(None), True)
+        return Shape(trimJoin.send(None))
     
     def trimJoin_Coro(self):
         offsetLines = []
@@ -125,7 +123,7 @@ class Shape(LG):
         offsetLines[0].start = point
         yield offsetLines
     
-    @finishedOutline    
+#    @finishedOutline    
     def isInside(self, point):
         """
         This method determines if the point is inside
