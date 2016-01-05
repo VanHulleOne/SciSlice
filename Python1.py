@@ -28,6 +28,7 @@ leftGrip = ds1.leftGrip
 center = ds1.center
 rightGrip = ds1.rightGrip
 grips = ds1.grips
+grips2 = grips.offset(1, c.INSIDE)
 regDB = ds1.regularDogBone
 regDB1 = regDB.offset(0.5, c.INSIDE)
 regDB2 = regDB1.offset(0.5, c.INSIDE)
@@ -42,16 +43,16 @@ pattern.addLinesFromCoordinateList([[0,0], [2,2], [4,0]])
 #filledCenter = InF.InFill(center, pr.pathWidth, 90, pattern, 0)
 #filledRight = InF.InFill(rightGrip, pr.pathWidth, -45, pattern, 0)
 #filledGrips = InF.InFill(grips, pr.pathWidth, 90)
+#filledList = [filledLeft, filledCenter, filledRight]
+
 filledDB = InF.InFill(regDB2, pr.pathWidth, 90)
+filledList = [regDB, regDB1, filledDB]
 
 print 'Created Infill: {:.2f}'.format(time.time()-startTime)
 
 #for line in filledGrips:
 #    line.extrusionRate = pr.fullExtrusionRate
 #    line.freezeExRate = True
-#
-filledList = [regDB, regDB1, filledDB]
-#filledList = [filledLeft, filledCenter, filledRight]
 
 fig = fg.Figura(filledList)
 generateTime = time.time()
