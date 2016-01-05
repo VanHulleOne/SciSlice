@@ -132,18 +132,14 @@ class Shape(LG):
         """
         if(point.x > self.maxX or point.x < self.minX): return False
         if(point.y > self.maxY or point.y < self.minY): return False
-        
         downLine = l.Line(point, p.Point(point.x, self.minY - 10, point.z))
-
         downSet = set([]) 
         for line in self:
-            if(line.isOnLine(point)):
-#                print 'Line: ' + str(line) + ' Point: ' + str(point)                
+            if(line.isOnLine(point)):                
                 return True
                 
             result, intPoint = line.segmentsIntersect(downLine)
-            #print 'Result: ' + str(result) + ' Point: ' + str(point)
-            if(result == 1): downSet.add(intPoint)
-#        print 'Len: ' + str(len(downSet)) + ' Point: ' + str(point)    
+            if(result == 1): downSet.add(intPoint)         
+
         return (True if len(downSet) % 2 == 1 else False)
 

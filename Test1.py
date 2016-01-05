@@ -61,12 +61,11 @@ lA = [l1, l2, l3, l4]
 
 s1 = s.Shape(lA)
 
-s2 = s1 + s1.translate(8, 0)
+l1 = l.Line(p.Point(31.0242, 15.7797), p.Point(27.7037, 14.3232))
+l2 = l.Line(p.Point(27.787, 22.1301), p.Point(27.787, -10.0))
 
-s3 = s2.offset(1, c.INSIDE)
-
-
-print s3
+result, point =  l1.segmentsIntersect(l2)
+print str(point)
 
 #for shape in s3.subShape_gen():
 #    print '\nshape'

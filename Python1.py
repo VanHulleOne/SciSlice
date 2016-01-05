@@ -32,21 +32,28 @@ grips2 = grips.offset(1, c.INSIDE)
 regDB = ds1.regularDogBone
 regDB1 = regDB.offset(0.5, c.INSIDE)
 regDB2 = regDB1.offset(0.5, c.INSIDE)
+sq1 = ds1.squareWithHole
+sq2 = sq1.offset(1, c.INSIDE)
+sq3 = sq2.offset(1, c.INSIDE)
+
 
 
 pattern = lg.LineGroup()
 pattern.addLinesFromCoordinateList([[0,0], [2,2], [4,0]])
 
+#sqFill = InF.InFill(sq3, pr.pathWidth, 45, pattern, 0)
 #print pattern
 
-#filledLeft = InF.InFill(leftGrip, pr.pathWidth, 45, pattern, 0)
-#filledCenter = InF.InFill(center, pr.pathWidth, 90, pattern, 0)
-#filledRight = InF.InFill(rightGrip, pr.pathWidth, -45, pattern, 0)
+filledLeft = InF.InFill(leftGrip, pr.pathWidth, 45, pattern, 0)
+filledCenter = InF.InFill(center, pr.pathWidth, 90, pattern, 0)
+filledRight = InF.InFill(rightGrip, pr.pathWidth, -45, pattern, 0)
 #filledGrips = InF.InFill(grips, pr.pathWidth, 90)
-#filledList = [filledLeft, filledCenter, filledRight]
+filledList = [filledLeft, filledCenter, filledRight]
 
-filledDB = InF.InFill(regDB2, pr.pathWidth, 90)
-filledList = [regDB, regDB1, filledDB]
+#filledDB = InF.InFill(regDB2, pr.pathWidth, 90)
+#filledList = [regDB, regDB1, filledDB]
+
+#filledList = [sq1, sq2, sqFill]
 
 print 'Created Infill: {:.2f}'.format(time.time()-startTime)
 
