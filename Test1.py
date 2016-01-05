@@ -65,6 +65,7 @@ s2 = s1 + s1.translate(8, 0)
 
 s3 = s2.offset(1, c.INSIDE)
 
+
 print s3
 
 #for shape in s3.subShape_gen():

@@ -64,21 +64,24 @@ class Shape(LG):
                 yield tempLines
                 tempLines = []
         if len(tempLines) != 0:
-            raise Exception('subshape not complete')
+            raise Exception(self.subShape_gen.__name__ + '() error: subshape not complete')
             
     
     def finisheOutline(self):
         self.lines = list(self.sortNearest_gen())
-        self.outlineFinished = True
-        for subShape in self.subShape_gen():
-            if(len(subShape) < 3):
-                raise Exception('Cannot finish outline. Min shape length == 3')
-            if subShape[0].start.distance(subShape[-1].end) != 0:
-                raise Exception('Subshape not closed')            
-            for i in xrange(len(subShape)-1):
-                dist = subShape[i].end.distance(subShape[i+1].start)
-                if dist != 0:
-                    raise Exception('Outline has a gap of ' + str(dist)) 
+        self.outlineFinished = True #to run subShape_gen this must be set to True since it uses the @finishedOutline decorator
+        try:
+            for subShape in self.subShape_gen():
+                if(len(subShape) < 3):
+                    raise Exception('Cannot finish outline. Min shape length == 3')
+                if subShape[0].start.distance(subShape[-1].end) != 0:
+                    raise Exception('Subshape not closed')            
+                for i in xrange(len(subShape)-1):
+                    dist = subShape[i].end.distance(subShape[i+1].start)
+                    if dist != 0:
+                        raise Exception('Outline has a gap of ' + str(dist))
+        except Exception as e:
+            raise Exception(e.message)
     
     def closeShape(self):
         if(self[0].start != self[-1].end):
