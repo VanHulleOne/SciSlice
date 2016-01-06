@@ -9,36 +9,28 @@ import numpy
 from parameters import constants as c
 
 class Line(object):
-    def __init__(self, start, end, extrusionRate = 0, freezeExtrusionRate = False):
+    def __init__(self, start, end, oldLine = None):
         self.__start = start
         self.__end = end
-        self.__length = self.length
-        if(self.__length == 0):
+        if(self.__start == self.__end):
             print ('SNAFU detected, a line was created with no length at: ' + 
                     str(self.start))
         self.upperLeft = None
-        self.lowerRight = None        
-        self.__extrusionRate = extrusionRate
-        self.freezeExRate = freezeExtrusionRate
+        self.lowerRight = None
+        self.__extrusionRate = 0
+        self.freezeExRate = False
+        if not(oldLine is None):
+            self.__extrusionRate = oldLine.extrusionRate
+            self.freezeExRate = oldLine.freezeExRate
         self.setBoundingBox()
 
     @property
     def start(self):
         return self.__start
         
-    @start.setter
-    def start(self, point):
-        self.__start = point
-        self.setBoundingBox()
-        
     @property
     def end(self):
         return self.__end
-        
-    @end.setter
-    def end(self, point):
-        self.__end = point
-        self.setBoundingBox()
   
     @property
     def length(self):
@@ -52,8 +44,7 @@ class Line(object):
     def extrusionRate(self, value):
         if (not self.freezeExRate):
             self.__extrusionRate = value
-        
-    
+            
     def __iter__(self):
         yield self.start
         yield self.end
@@ -124,21 +115,21 @@ class Line(object):
     def translate(self, shiftX, shiftY, shiftZ=0):
         newStart = self.start.translate(shiftX, shiftY, shiftZ)
         newEnd = self.end.translate(shiftX, shiftY, shiftZ)
-        return Line(newStart, newEnd, self.extrusionRate, self.freezeExRate)
+        return Line(newStart, newEnd, self)
         
     def mirror(self, axis):
         newStart = self.start.mirror(axis)
         newEnd = self.end.mirror(axis)
-        return Line(newStart, newEnd, self.extrusionRate, self.freezeExRate)
+        return Line(newStart, newEnd, self)
     
     def rotate(self, angle, point):
         if(point is None): point = p.Point(0,0)
         newStart = self.start.rotate(angle, point)
         newEnd = self.end.rotate(angle, point)
-        return Line(newStart, newEnd, self.extrusionRate, self.freezeExRate)
+        return Line(newStart, newEnd, self)
 
-    def flip(self):
-        self.start, self.end = self.end, self.start
+    def fliped(self):
+        return Line(self.end, self.start, self)
         
     def setBoundingBox(self):
         """
@@ -151,7 +142,6 @@ class Line(object):
             row.sort()
         self.upperLeft = p.Point(tempList[0][0], tempList[1][1])
         self.lowerRight = p.Point(tempList[0][1], tempList[1][0])
-        return None
     
     def getOffsetLines(self, distance):
         """ Calculates and returns the two lines on either side of self offset distance."""

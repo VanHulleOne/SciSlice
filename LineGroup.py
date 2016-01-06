@@ -101,11 +101,11 @@ class LineGroup(object):
                 enumerate(np.linalg.norm(normList-testPoint.normalVector, None, 1))),
                 key=itemgetter(1))
             if index%2: #If index is odd we are at the end of a line so the line needs to be flipped
-                lineList[index/2].flip()
+                lineList[index/2] = lineList[index/2].fliped()
     
             used, testPoint = yield lineList[index/2], key, dist
             if not used and index%2:
-                lineList[index/2].flip()
+                lineList[index/2] = lineList[index/2].fliped()
             if used:
                 index /= 2
                 lineList.pop(index)
@@ -142,7 +142,7 @@ class LineGroup(object):
                 enumerate(np.linalg.norm(normList-testPoint.normalVector, None, 1))),
                 key=itemgetter(1))
             if index%2: #If index is odd we are at the end of a line so the line needs to be flipped
-                lineList[index/2].flip()
+                lineList[index/2] = lineList[index/2].fliped()
             index /= 2
             testPoint = lineList[index].end
             yield lineList.pop(index)
