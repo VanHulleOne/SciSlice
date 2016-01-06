@@ -5,9 +5,6 @@ Created on Thu Nov 19 19:52:29 2015
 @author: lvanhulle
 """
 import math
-import numpy as np
-from operator import itemgetter
-#import handleParameters
 
 """
 Printing Parameters.
@@ -46,13 +43,13 @@ backgroundAngle = (infillAngleDegrees/360.0*2*math.pi) #angle of the paths in th
 solidityRatio = None #get calculation from Karsten
 
 def zipVariables_gen(inputLists):
-    variableGenorators = []
+    variableGenerators = []
     for sublist in inputLists:
-        variableGenorators.append(variable_gen(sublist))
+        variableGenerators.append(variable_gen(sublist))
         
     for _ in max(inputLists, key=len):
         tempList = []
-        for varGen in variableGenorators:
+        for varGen in variableGenerators:
             tempList.append(next(varGen))
         yield tempList
     
