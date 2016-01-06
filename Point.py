@@ -85,7 +85,7 @@ class Point(object):
         nv = numpy.dot(transMatrix, self.normalVector)
         return Point(nv[c.X], nv[c.Y], nv[c.Z])
         
-    def distance(self, other):
+    def __sub__(self, other):
         return numpy.linalg.norm(self.normalVector - other.normalVector)
         
     def squareDistance(self, other):

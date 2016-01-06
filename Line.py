@@ -34,7 +34,7 @@ class Line(object):
   
     @property
     def length(self):
-        return self.start.distance(self.end)
+        return self.start - self.end
         
     @property
     def extrusionRate(self):

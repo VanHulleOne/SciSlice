@@ -87,11 +87,11 @@ class Shape(LG):
         self.outlineFinished = True #to run subShape_gen this must be set to True since it uses the @finishedOutline decorator
         for subShape in self.subShape_gen():
             if  subShape[0].start != subShape[-1].end:
-                dist = subShape[0].start.distance(subShape[-1].end)
+                dist = subShape[0].start - subShape[-1].end
                 raise Exception('Shape not closed. End gap of ' + str(dist))            
             for i in xrange(len(subShape)-1):                     
                 if subShape[i].end != subShape[i+1].start:
-                    dist = subShape[i].end.distance(subShape[i+1].start)
+                    dist = subShape[i].end - subShape[i+1].start
                     raise Exception('Outline has a gap of ' + str(dist))
 
     

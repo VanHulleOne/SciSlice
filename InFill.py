@@ -29,7 +29,7 @@ class InFill(LG):
         lowerLeft = p.Point(self.trimShape.minX, self.trimShape.minY)
         upperRight = p.Point(self.trimShape.maxX, self.trimShape.maxY)
         
-        self.trimDiagonal = lowerLeft.distance(upperRight)*1.1       
+        self.trimDiagonal = (lowerLeft - upperRight)*1.1       
         self.operations = {0 : self.extendDesign,
                            1 : self.createField,
                            2 : self.trimField}

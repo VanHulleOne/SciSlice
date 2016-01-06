@@ -24,7 +24,7 @@ class Arc(LG):
         
     def arcToLines(self):
         """Converts an arc to a set of line segments"""
-        radius = self.start.distance(self.center)
+        radius = self.start - self.center
         startAngle = math.atan2(self.start.y- self.center.y,
                             self.start.x - self.center.x)
         startAngle = startAngle if startAngle >= 0 else 2*math.pi+startAngle
