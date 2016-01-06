@@ -20,7 +20,7 @@ class InFill(LG):
     FULL_FIELD = 2
     TRIMMED_FIELD = 3    
     
-    def __init__(self, trimShape, pathWidth, angleDegrees, design=None, designType=None):
+    def __init__(self, trimShape, pathWidth, angleDegrees, design=None, designType=PARTIAL_ROW):
         LG.__init__(self, None)
         self.designType = designType
         self.trimShape = s.Shape(trimShape)

@@ -40,12 +40,12 @@ sq3 = sq2.offset(1, c.INSIDE)
 pattern = lg.LineGroup()
 pattern.addLinesFromCoordinateList([[0,0], [2,2], [4,0]])
 
-#sqFill = InF.InFill(sq3, pr.pathWidth, 45, pattern, 0)
+#sqFill = InF.InFill(sq3, pr.pathWidth, 45, pattern)
 #print pattern
 
-filledLeft = InF.InFill(leftGrip, pr.pathWidth, 45, pattern, 0)
-filledCenter = InF.InFill(center, pr.pathWidth, 90, pattern, 0)
-filledRight = InF.InFill(rightGrip, pr.pathWidth, -45, pattern, 0)
+filledLeft = InF.InFill(leftGrip, pr.pathWidth, 45, pattern)
+filledCenter = InF.InFill(center, pr.pathWidth, 90, pattern)
+filledRight = InF.InFill(rightGrip, pr.pathWidth, -45, pattern)
 #filledGrips = InF.InFill(grips, pr.pathWidth, 90)
 filledList = [filledLeft, filledCenter, filledRight]
 
