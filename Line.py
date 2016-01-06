@@ -12,8 +12,8 @@ class Line(object):
     def __init__(self, start, end, extrusionRate = 0, freezeExtrusionRate = False):
         self.__start = start
         self.__end = end
-        self._length = self.length
-        if(self.length == 0):
+        self.__length = self.length
+        if(self.__length == 0):
             print ('SNAFU detected, a line was created with no length at: ' + 
                     str(self.start))
         self.upperLeft = None
