@@ -120,15 +120,15 @@ class Shape(LG):
         moveStart = yield
         while not(moveStart is None):
             _, point = moveEnd.segmentsIntersect(moveStart, c.ALLOW_PROJECTION)
-            moveEnd.end = point
-            moveStart.start = point
+            moveEnd = l.Line(moveEnd.start, point, moveEnd)
+            moveStart = l.Line(point, moveStart.end, moveStart)
             offsetLines.append(moveEnd)
             moveEnd = moveStart
             moveStart = yield
         _, point = moveEnd.segmentsIntersect(offsetLines[0], c.ALLOW_PROJECTION)
-        moveEnd.end = point
+        moveEnd = l.Line(moveEnd.start, point, moveEnd)
         offsetLines.append(moveEnd)
-        offsetLines[0].start = point
+        offsetLines[0] = l.Line(point, offsetLines[0].end, offsetLines[0])
         yield offsetLines
     
     @finishedOutline    
