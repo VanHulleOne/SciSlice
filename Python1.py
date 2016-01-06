@@ -23,16 +23,15 @@ import time
 startTime = time.time()
 print '\nGenerating code, please wait...\n'
 
-ds1 = ds.DoneShapes()
-leftGrip = ds1.leftGrip
-center = ds1.center
-rightGrip = ds1.rightGrip
-grips = ds1.grips
+leftGrip = ds.leftGrip()
+center = ds.center()
+rightGrip = ds.rightGrip()
+grips = ds.grips()
 grips2 = grips.offset(1, c.INSIDE)
-regDB = ds1.regularDogBone
+regDB = ds.regularDogBone()
 regDB1 = regDB.offset(0.5, c.INSIDE)
 regDB2 = regDB1.offset(0.5, c.INSIDE)
-sq1 = ds1.squareWithHole
+sq1 = ds.squareWithHole()
 sq2 = sq1.offset(1, c.INSIDE)
 sq3 = sq2.offset(1, c.INSIDE)
 
