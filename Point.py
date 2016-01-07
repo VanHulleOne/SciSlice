@@ -85,6 +85,9 @@ class Point(object):
         nv = numpy.dot(transMatrix, self.normalVector)
         return Point(nv[c.X], nv[c.Y], nv[c.Z])
         
+    def __getitem__(self, index):
+        return self.normalVector[index]
+    
     def __sub__(self, other):
         return numpy.linalg.norm(self.normalVector - other.normalVector)
         
