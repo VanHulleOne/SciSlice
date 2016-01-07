@@ -30,9 +30,7 @@ class InFill(LG):
         upperRight = p.Point(self.trimShape.maxX, self.trimShape.maxY)
         
         self.trimDiagonal = (lowerLeft - upperRight)*1.1       
-        self.operations = {0 : self.extendDesign,
-                           1 : self.createField,
-                           2 : self.trimField}
+        self.operations = (self.extendDesign, self.createField, self.trimField)
         
         if(design is None):
             point1 = p.Point(-self.trimDiagonal-10, 0)
