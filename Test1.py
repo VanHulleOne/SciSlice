@@ -28,30 +28,20 @@ CCW = 1
 
 #X, Y = 0, 1
 #
-#arc = a.Arc(p.Point(49.642, 9.5), p.Point(28.5, 6.5), CW, p.Point(28.5, 82.5), 20)
+arc = a.Arc(p.Point(49.642, 9.5), p.Point(28.5, 6.5), CW, p.Point(28.5, 82.5), 20)
 #
 p1 = p.Point(-82.500, -9.500, 0)
-#p2 = p.Point(161.361, 111.157)
-#p3 = p.Point(28.5, 6.5)
-#p4 = p.Point(-82.501, -9.5)
-#p5 = p.Point(3,3.0001)
-#p6 = p.Point(0,0)
-#p7 = p.Point(4,0)
-#p8 = p.Point(4,4)
-#p9 = p.Point(0,4)
-#p10 = p.Point(3,12)
+p2 = p.Point(161.361, 111.157)
+p3 = p.Point(28.5, 6.5)
+p4 = p.Point(-82.501, -9.5)
+p5 = p.Point(3,3.0001)
+p6 = p.Point(0,0)
+p7 = p.Point(4,0)
+p8 = p.Point(4,4)
+p9 = p.Point(0,4)
+p10 = p.Point(3,12)
 
-num = 1.01
 
-layerParams = pr.zipVariables_gen(pr.layerParameters, repeat=True)
-for i in range(10):
-    print next(layerParams)
-
-print '\nSpace\n'
-
-lP = pr.zipVariables_gen(pr.layerParameters, repeat=True)
-for i in range(5):
-    print next(lP)
 
 #ds1 = ds.DoneShapes()
 #s1 = ds1.regularDogBone

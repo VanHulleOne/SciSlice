@@ -23,11 +23,12 @@ import time
 startTime = time.time()
 print '\nGenerating code, please wait...\n'
 
-bigTest = True
+bigTest = False
 
 if bigTest:
     leftGrip = ds.leftGrip()
     center = ds.center()
+    center.addLineGroup(ds.circle(82.5, 9.5, 4))
     rightGrip = ds.rightGrip()
     grips = ds.grips()
     grips2 = grips.offset(1, c.INSIDE)
