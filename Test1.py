@@ -40,8 +40,16 @@ p7 = p.Point(4,0)
 p8 = p.Point(4,4)
 p9 = p.Point(0,4)
 p10 = p.Point(3,12)
+p11 = p.Point(5,0)
 
+points = [p6, p7, p8, p9, p6]
 
+circle = s.Shape(None)
+circle.addLinesFromPoints(points)
+
+print circle
+
+print circle.mirror(l.Line(p6, p11))
 
 #ds1 = ds.DoneShapes()
 #s1 = ds1.regularDogBone
