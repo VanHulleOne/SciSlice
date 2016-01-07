@@ -12,13 +12,15 @@ from LineGroup import LineGroup as LG
 import LineGroup as lg
 import parameters as pr
 from math import pi
+import time
 
 class InFill(LG):
     
     PARTIAL_ROW = 0
     FULL_ROW = 1
     FULL_FIELD = 2
-    TRIMMED_FIELD = 3    
+    CENTERED_FIELD = 3
+    TRIMMED_FIELD = 4    
     
     def __init__(self, trimShape, pathWidth, angleDegrees, design=None, designType=PARTIAL_ROW):
         LG.__init__(self, None)
@@ -30,7 +32,8 @@ class InFill(LG):
         upperRight = p.Point(self.trimShape.maxX, self.trimShape.maxY)
         
         self.trimDiagonal = (lowerLeft - upperRight)*1.1       
-        self.operations = (self.extendDesign, self.createField, self.trimField)
+        self.operations = (self.extendDesign, self.createField,
+                           self.centerAndRotateField, self.trimField)
         
         if(design is None):
             point1 = p.Point(-self.trimDiagonal-10, 0)
@@ -41,8 +44,9 @@ class InFill(LG):
             self.design = lg.LineGroup(design)
         
         for i in range(self.designType, self.TRIMMED_FIELD):
+            startTime = time.time()
             self.operations[i]();
-            print 'Operation: ' + str(i)
+            print 'Operation: ' + str(i) + ' Took %.2f sec' %(time.time()-startTime)
         
     def extendDesign(self):
         tempDesign = lg.LineGroup(self.design.lines)
@@ -60,7 +64,7 @@ class InFill(LG):
             self.design.addLineGroup(tempDesign)
             tempDesign = tempDesign.translate(0, self.pathWidth)
             designHeight += pr.pathWidth
-        self.centerAndRotateField()
+#        self.centerAndRotateField()
         
     def trimField(self):
         tempLines = []
