@@ -64,3 +64,8 @@ def squareWithHole():
     circle = a.Arc(p.Point(35,25), p.Point(35,25), c.CW, p.Point(25,25))
     shape.addLineGroup(circle)
     return shape
+    
+def circle(centerX, centerY, radius):
+    startPoint = p.Point(centerX+radius, centerY)
+    center = p.Point(centerX, centerY)
+    return s.Shape(a.Arc(startPoint, startPoint, c.CW, center))
