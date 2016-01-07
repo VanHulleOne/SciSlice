@@ -38,9 +38,21 @@ class Figura:
         self.gcode += gc.endGcode()
     
     def part_Gen(self, baseLayer, partParams):
+        centerY = (baseLayer.maxY-baseLayer.minY)/2+baseLayer.minY
+        mirroredBase = baseLayer.translate(0, -centerY)
+        mirroredBase = mirroredBase.mirror(c.X)
+        mirroredBase = mirroredBase.translate(0, centerY)
+        layerParam_Gen = pr.zipVariables_gen(pr.layerParameters)
         for i in range(partParams[c.NUM_LAYERS]):
-            yield baseLayer.translate(partParams[c.SHIFT_X], partParams[c.SHIFT_Y],
-                                      partParams[c.LAYER_HEIGHT]*(i+1))
+            layerParams = next(layerParam_Gen)
+            if layerParams[c.FLIP_LAYER]:
+                currentLayer = mirroredBase
+            else:
+                currentLayer = baseLayer
+                
+            yield currentLayer.translate(partParams[c.SHIFT_X]+layerParams[c.LAYERSHIFT_X],
+                                         partParams[c.SHIFT_Y]+layerParams[c.LAYERSHIFT_Y],
+                                         partParams[c.LAYER_HEIGHT]*(i+1))
     
     def setGcode(self, part, printSpeed, extrusionRate):
         layerNumber = 1

@@ -155,3 +155,10 @@ class Shape(LG):
 
         return (True if len(downSet) % 2 == 1 else False)
 
+#    def mirror(self, axis):
+#        tempLines = list(super(Shape, self).mirror(axis))
+#        tempLines.reverse()
+#        tempLines2 = []
+#        for line in tempLines:
+#            tempLines2.append(l.Line(line.end, line.start))
+#        return Shape(tempLines2)
