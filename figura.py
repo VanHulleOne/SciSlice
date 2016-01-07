@@ -27,14 +27,17 @@ class Figura:
         for partParams in pr.everyPartsParameters:
             print 'Part Count: ' + str(self.partCount)            
             print 'Part Params: ' + str(partParams)
-            part = [layer.translate(partParams[c.SHIFT_X],partParams[c.SHIFT_Y],
-                                      partParams[c.LAYER_HEIGHT]*(currentLayer+1))
-                                      for currentLayer in range(partParams[c.NUM_LAYERS])]
+            part = self.part_Gen(layer, partParams)
             self.gcode += ';\n\nPart number: ' + str(self.partCount) + '\n'
             self.gcode += ';Parameters: ' + str(partParams) + '\n'
             self.setGcode(part, partParams[c.PRINT_SPEED], partParams[c.EXTRUSION_RATE])
             self.partCount += 1
         self.gcode += gc.endGcode()
+    
+    def part_Gen(self, baseLayer, partParams):
+        for i in range(partParams[c.NUM_LAYERS]):
+            yield baseLayer.translate(partParams[c.SHIFT_X], partParams[c.SHIFT_Y],
+                                      partParams[c.LAYER_HEIGHT]*(i+1))
     
     def setGcode(self, part, printSpeed, extrusionRate):
         layerNumber = 1
@@ -61,20 +64,20 @@ class Figura:
     def organizedLayer(self, inShapes):
         layer = lg.LineGroup()
         
-        lineGens = {i : inShapes[i].nearestLine_Coro(i) for i in range(len(inShapes))}
-        for key, gen in lineGens.iteritems():
-            next(gen)
+        lineCoros = {i : inShapes[i].nearestLine_Coro(i) for i in range(len(inShapes))}
+        for key, coro in lineCoros.iteritems():
+            next(coro)
         
         lastPoint = p.Point(0,0)
         index = -1        
         while True:
             results = []
-            for key in lineGens.keys():
+            for key in lineCoros.keys():
                 try:
-                    results.append(lineGens[key].send(
+                    results.append(lineCoros[key].send(
                         (True if key == index else False, lastPoint)))
                 except StopIteration:
-                    del lineGens[key]
+                    del lineCoros[key]
             if len(results) == 0: break
             line, index = min(results, key=itemgetter(2))[:2]
             lastPoint = line.end
@@ -82,9 +85,9 @@ class Figura:
             if isinstance(inShapes[index], Shape):
                 while True:
                     try:
-                        line = lineGens[index].send((True, lastPoint))[0]
+                        line = lineCoros[index].send((True, lastPoint))[0]
                     except StopIteration:
-                        del lineGens[index]
+                        del lineCoros[index]
                         break
                     else:
                         lastPoint = line.end
