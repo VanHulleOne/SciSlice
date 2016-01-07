@@ -42,20 +42,17 @@ p9 = p.Point(0,4)
 p10 = p.Point(3,12)
 p11 = p.Point(0,5)
 
-
-#m = p1.mirrorMatrix(l.Line(p6, p8))
-#print 
-#print m
-#print p7
-#print p7.transform(m)
+mLine = l.Line(p6, p10)
+m = p1.mirrorMatrix(mLine)
 points = [p6, p7, p8, p9, p6]
 
-circle = s.Shape(None)
-circle.addLinesFromPoints(points)
-circle = circle.translate(1,1)
-print circle
-
-print circle.mirror(l.Line(p9, p8))
+square = s.Shape(None)
+square.addLinesFromPoints(points)
+square = square.translate(1,1)
+print square
+print square.mirror(mLine)
+npArray = numpy.array([point.normalVector for point in square.iterPoints()])
+print numpy.dot(npArray, m)
 
 #ds1 = ds.DoneShapes()
 #s1 = ds1.regularDogBone
