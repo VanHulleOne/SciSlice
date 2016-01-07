@@ -43,7 +43,15 @@ p1 = p.Point(-82.500, -9.500, 0)
 
 num = 1.01
 
-print 'Num: %.3f' %num
+layerParams = pr.zipVariables_gen(pr.layerParameters, repeat=True)
+for i in range(10):
+    print next(layerParams)
+
+print '\nSpace\n'
+
+lP = pr.zipVariables_gen(pr.layerParameters, repeat=True)
+for i in range(5):
+    print next(lP)
 
 #ds1 = ds.DoneShapes()
 #s1 = ds1.regularDogBone

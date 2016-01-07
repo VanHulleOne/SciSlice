@@ -21,8 +21,17 @@ Part Parameters
 """
 #mainShape = ps.wideDogBone
 layerHeight = [0.3] #mm height per layer
-numLayers = [2] #number of layers to make
+numLayers = [4] #number of layers to make
 infillAngleDegrees = 90 #degrees infill angle 90 is in Y direction 0 is in X direction
+
+"""
+Layer Parameters Only parameters that don't require the layer to be
+re-organized are allowed
+"""
+layerShiftX = [0, pathWidth/2.0]
+layerShiftY = [0]
+flipLayer = [0,0,1,1]
+
 
 """
 File Parameters
@@ -42,26 +51,30 @@ slopeOverY = 0 #not implemented yet how much you want it to move over in Y per l
 backgroundAngle = (infillAngleDegrees/360.0*2*math.pi) #angle of the paths in the layer 0 = X direction, PI/2 = Y direction
 solidityRatio = None #get calculation from Karsten
 
-def zipVariables_gen(inputLists):
+def zipVariables_gen(inputLists, repeat=False):
     variableGenerators = []
     for sublist in inputLists:
         variableGenerators.append(variable_gen(sublist))
         
-    for _ in max(inputLists, key=len):
-        tempList = []
-        for varGen in variableGenerators:
-            tempList.append(next(varGen))
-        yield tempList
+    while True:
+        for _ in max(inputLists, key=len):
+            tempList = []
+            for varGen in variableGenerators:
+                tempList.append(next(varGen))
+            yield tempList
+        if not repeat:
+            break
     
 def variable_gen(variableList):
     while True:
         for var in variableList: 
             yield var
             
+layerParameters = (layerShiftX, layerShiftY, flipLayer)
+
 everyPartsParameters = zipVariables_gen((
                           extrusionRate, printSpeed, shiftX, shiftY,
-                          layerHeight, numLayers
-                          ))
+                          layerHeight, numLayers))
                                                    
 
 """
@@ -96,3 +109,6 @@ class constants:
     SHIFT_Y = 3
     LAYER_HEIGHT = 4
     NUM_LAYERS = 5
+    LAYERSHIFT_X = 0
+    LAYERSHIFT_Y = 1
+    FLIP_LAYER = 2
