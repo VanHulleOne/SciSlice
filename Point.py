@@ -55,47 +55,47 @@ class Point(object):
         transMatrix[c.Z][3] = shiftZ
         return transMatrix
         
-    def rotateMatrix(self, angle):
+    def rotateMatrix(self, angle, point=None):
+        if point is None:
+            point = Point(0,0)
+            
+        toOrigin = self.translateMatrix(-point.x, -point.y)
         rotateMatrix = numpy.identity(4)
         rotateMatrix[c.X][0] = math.cos(angle)
         rotateMatrix[c.Y][0] = math.sin(angle)
         rotateMatrix[c.X][1] = -rotateMatrix[c.Y][0]
         rotateMatrix[c.Y][1] = rotateMatrix[c.X][0]
-        return rotateMatrix
+        transBack = self.translateMatrix(point.x, point.y)        
+        transMatrix = numpy.dot(transBack, numpy.dot(rotateMatrix, toOrigin))
+        return transMatrix
         
     def mirrorMatrix(self, axis):
         transMatrix = numpy.identity(4)
+        if type(axis) is l.Line:
+            mList = []
+            mList.append(self.translateMatrix(-axis.start.x, -axis.start.y)) #toOrigin
+            angle = math.asin((axis.end.y-axis.start.y)/axis.length) #angle
+#            print 'Angle: %.2f'%(angle/(2*math.pi)*360)
+            mList.append(self.rotateMatrix(-angle)) #rotate to X-axis
+            xMirror = numpy.identity(4)
+            xMirror[c.Y][1] = -1
+            mList.append(xMirror) #mirror about X axis
+            mList.append(self.rotateMatrix(angle)) #rotate back
+            mList.append(self.translateMatrix(axis.start.x, axis.start.y)) #translate back         
+            for matrix in mList:
+                transMatrix = numpy.dot(matrix, transMatrix)
+            return transMatrix
         if(axis == c.X):
-            transMatrix[c.Y][1] *= -1
+                transMatrix[c.Y][1] *= -1
         else:
             transMatrix[c.X][0] *= -1
         return transMatrix
     
     def mirror(self, axis):
-        if type(axis) is l.Line:
-            mList = []
-            mList.append(self.translateMatrix(-axis.start.x, -axis.start.y)) #toOrigin
-            angle = math.tan((axis.end.y-axis.start.y)/(axis.end.x-axis.start.x)) #angle
-            mList.append(self.rotateMatrix(angle)) #rotate to X-axis
-            mList.append(self.mirrorMatrix(c.X)) #mirror about X axis
-            mList.append(self.rotateMatrix(-angle)) #rotate back
-            mList.append(self.translateMatrix(axis.start.x, axis.start.y)) #translate back
-            transMatrix = numpy.identity(4)
-            for matrix in mList:
-                transMatrix = numpy.dot(matrix, transMatrix)
-            return self.transform(transMatrix)
-        else:
-            return self.transform(self.mirrorMatrix(axis))
+        return self.transform(self.mirrorMatrix(axis))
     
     def rotate(self, angle, point=None):
-        if point is None:
-            point = Point(0,0)
-            
-        toOrigin = self.translateMatrix(-point.x, -point.y)        
-        rotateMatrix = self.rotateMatrix(angle)        
-        transBack = self.translateMatrix(point.x, point.y)        
-        transMatrix = numpy.dot(transBack, numpy.dot(rotateMatrix, toOrigin))
-        return self.transform(transMatrix)
+        return self.transform(self.rotateMatrix(angle, point))
     
     def translate(self, shiftX, shiftY, shiftZ=0):
         return self.transform(self.translateMatrix(shiftX, shiftY, shiftZ))

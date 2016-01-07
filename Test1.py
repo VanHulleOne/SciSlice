@@ -40,16 +40,22 @@ p7 = p.Point(4,0)
 p8 = p.Point(4,4)
 p9 = p.Point(0,4)
 p10 = p.Point(3,12)
-p11 = p.Point(5,0)
+p11 = p.Point(0,5)
 
+
+#m = p1.mirrorMatrix(l.Line(p6, p8))
+#print 
+#print m
+#print p7
+#print p7.transform(m)
 points = [p6, p7, p8, p9, p6]
 
 circle = s.Shape(None)
 circle.addLinesFromPoints(points)
-
+circle = circle.translate(1,1)
 print circle
 
-print circle.mirror(l.Line(p6, p11))
+print circle.mirror(l.Line(p9, p8))
 
 #ds1 = ds.DoneShapes()
 #s1 = ds1.regularDogBone
