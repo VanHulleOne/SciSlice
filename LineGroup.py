@@ -48,13 +48,8 @@ class LineGroup(object):
             self.append(l.Line(pointList[i], pointList[i+1]))
             
     def mirror(self, axis):
-        tempLines = [line.mirror(axis) for line in self]
-        tempLines.reverse()
-        tempLines2 = []
-        for line in tempLines:
-            tempLines2.append(l.Line(line.end, line.start))
         cls = type(self)
-        return cls(tempLines2)
+        return cls([line.mirror(axis) for line in self])
     
     def translate(self, xShift, yShift,zShift=0):
         cls = type(self)

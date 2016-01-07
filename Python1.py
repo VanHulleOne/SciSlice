@@ -23,7 +23,7 @@ import time
 startTime = time.time()
 print '\nGenerating code, please wait...\n'
 
-bigTest = False
+bigTest = True
 
 if bigTest:
     leftGrip = ds.leftGrip()
@@ -32,8 +32,8 @@ if bigTest:
     grips = ds.grips()
     grips2 = grips.offset(1, c.INSIDE)
     regDB = ds.regularDogBone()
-    regDB1 = regDB.offset(0.5, c.INSIDE)
-    regDB2 = regDB1.offset(0.5, c.INSIDE)
+    regDB1 = regDB.offset(0.5, c.OUTSIDE)
+    regDB2 = regDB1.offset(0.5, c.OUTSIDE)
     sq1 = ds.squareWithHole()
     sq2 = sq1.offset(1, c.INSIDE)
     sq3 = sq2.offset(1, c.INSIDE)
@@ -44,7 +44,7 @@ if bigTest:
     filledLeft = InF.InFill(leftGrip, pr.pathWidth, 45, pattern)
     filledCenter = InF.InFill(center, pr.pathWidth, 90, pattern)
     filledRight = InF.InFill(rightGrip, pr.pathWidth, -45, pattern)
-    filledList = [filledLeft, filledCenter, filledRight]
+    filledList = [filledLeft, filledCenter, filledRight, regDB1, regDB2]
     
 else:
     regDB = ds.regularDogBone()
