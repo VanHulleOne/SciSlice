@@ -164,6 +164,8 @@ class Line(object):
         otherList = sorted(list([other.start, other.end]))
         if(selfList[0] < otherList[0]):
             return True
+        if(selfList[0] > otherList[0]):
+            return False
         return (selfList[1] < otherList[1])
         
     def __eq__(self, other):
