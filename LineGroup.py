@@ -26,7 +26,7 @@ class LineGroup(object):
         else:
             for line in self:
                 self.updateMinMax(line)
-        
+    
     def updateMinMax(self, line):
         if(line.upperLeft.x < self.minX or self.minX is None): self.minX = line.upperLeft.x
         if(line.upperLeft.y > self.maxY or self.maxY is None): self.maxY = line.upperLeft.y
@@ -67,11 +67,7 @@ class LineGroup(object):
     def nearestLine_Coro(self, key=None):
         lineList = copy.deepcopy(self.lines)
         used, testPoint = yield
-        normList = []
-        for line in lineList:
-            normList.append(line.start.normalVector)
-            normList.append(line.end.normalVector)
-        normList = np.array(normList)
+        normList = np.array([point.normalVector for point in self.iterPoints()])
         while len(lineList) > 0:
             """
             This got a little complicated but sped up this section by about 10X
@@ -108,11 +104,7 @@ class LineGroup(object):
 
     def sortNearest_gen(self, testPoint=p.Point(0,0)):
         lineList = copy.deepcopy(self.lines)
-        normList = []
-        for line in lineList:
-            normList.append(line.start.normalVector)
-            normList.append(line.end.normalVector)
-        normList = np.array(normList)
+        normList = np.array([point.normalVector for point in self.iterPoints()])
         while len(lineList) > 0:
             """
             This got a little complicated but sped up this section by about 10X
@@ -159,6 +151,11 @@ class LineGroup(object):
     def __add__(self, other):
         cls = type(self)
         return cls(list(self)+list(other))
+    
+    def iterPoints(self):
+        for line in self:
+            yield line.start
+            yield line.end
     
     def __getitem__(self, index):
         return self.lines[index]
