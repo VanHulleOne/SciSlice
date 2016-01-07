@@ -41,7 +41,9 @@ p1 = p.Point(-82.500, -9.500, 0)
 #p9 = p.Point(0,4)
 #p10 = p.Point(3,12)
 
-print ds.wideDogBone
+num = 1.01
+
+print 'Num: %.3f' %num
 
 #ds1 = ds.DoneShapes()
 #s1 = ds1.regularDogBone

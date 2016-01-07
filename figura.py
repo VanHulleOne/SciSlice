@@ -14,11 +14,14 @@ from parameters import constants as c
 from Shape import Shape
 from operator import itemgetter
 import numpy as np
+import time
 
 class Figura:
     
     def __init__(self, inShapes):
+        startTime = time.time()
         layer = self.organizedLayer(inShapes)
+        print '\nLayer organized in: %.2f sec\n' %(time.time() - startTime)
         with open('I:\RedBench\static\data\LineList.txt', 'w') as f:
             f.write('test\n')
             f.write(layer.CSVstr())
