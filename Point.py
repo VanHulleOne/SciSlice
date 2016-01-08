@@ -25,7 +25,7 @@ class Point(object):
             self.x = x[c.X]
             self.y = x[c.Y]
             self.z = x[c.Z]
-        self.normalVector = numpy.array([x, y, z, 1])
+        self.normalVector = numpy.array([self.x, self.y, self.z, 1])
         
     @property
     def x(self):

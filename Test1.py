@@ -48,16 +48,36 @@ m = mt.mirrorMatrix(mLine)
 trans = mt.translateMatrix(1,1)
 points = [p6, p7, p8, p9, p6]
 
+#print m
+#print trans
+#
+#m2 = mt.mirrorMatrix(l.Line(p6,p7))
+#print m2
+#print mLine
+
+
 square = s.Shape(None)
 square.addLinesFromPoints(points)
-#square = square.translate(1,1)
-#print square
-print trans
-print
-npArray = numpy.array([point.normalVector for point in square.iterPoints()])
-print numpy.dot(npArray, trans)
+square = square.translate(1,1)
+sq2 = s.Shape(square)
+print square is sq2
+print square
+print 'sq2'
+print sq2
+print sq2.translate(2,2)
 #print
-#print square.mirror(mLine)
+#mirror = square.mirror(mLine)
+#print mirror
+#print type(mirror)
+#print trans
+#print
+#npArray = numpy.array([point.normalVector for point in square.iterPoints()])
+#npArray = numpy.rot90(npArray)
+#print (numpy.inner(npArray, trans))
+#for array in npArray:
+#    print numpy.dot(trans, array)
+#print numpy.multiply(npArray, trans)
+
 #npArray = numpy.array([point.normalVector for point in square.iterPoints()])
 #print numpy.dot(npArray, m)
 

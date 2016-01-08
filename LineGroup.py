@@ -61,9 +61,8 @@ class LineGroup(object):
         return cls(self.transform(mt.rotateMatrix(angle, point)))
         
     def transform(self, transMatrix):
-        print transMatrix
-        numpyArray = np.array([point.normalVector for point in self.iterPoints()])
-        result = np.dot(numpyArray, transMatrix)
+        numpyArray = np.array([point.normalVector for point in self.iterPoints()])        
+        result = np.inner(numpyArray, transMatrix)
         lines = []        
         for i in range(0,len(result),2):
             start = p.Point(result[i])
