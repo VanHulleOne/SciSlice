@@ -23,9 +23,9 @@ class Figura:
         startTime = time.time()
         layer = self.organizedLayer(inShapes)
         print '\nLayer organized in: %.2f sec\n' %(time.time() - startTime)
-        with open('I:\RedBench\static\data\LineList.txt', 'w') as f:
-            f.write('test\n')
-            f.write(layer.CSVstr())
+#        with open('I:\RedBench\static\data\LineList.txt', 'w') as f:
+#            f.write('test\n')
+#            f.write(layer.CSVstr())
         self.gcode = '' + gc.startGcode()
         self.partCount = 1
         for partParams in pr.everyPartsParameters:

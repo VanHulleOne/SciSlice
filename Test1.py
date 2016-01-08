@@ -22,6 +22,7 @@ import doneShapes as ds
 import itertools
 from operator import itemgetter
 import time
+import matrixTrans as mt
 
 CW = -1
 CCW = 1
@@ -42,17 +43,23 @@ p9 = p.Point(0,4)
 p10 = p.Point(3,12)
 p11 = p.Point(0,5)
 
-mLine = l.Line(p6, p10)
-m = p1.mirrorMatrix(mLine)
+mLine = l.Line(p6, p9)
+m = mt.mirrorMatrix(mLine)
+trans = mt.translateMatrix(1,1)
 points = [p6, p7, p8, p9, p6]
 
 square = s.Shape(None)
 square.addLinesFromPoints(points)
-square = square.translate(1,1)
-print square
-print square.mirror(mLine)
+#square = square.translate(1,1)
+#print square
+print trans
+print
 npArray = numpy.array([point.normalVector for point in square.iterPoints()])
-print numpy.dot(npArray, m)
+print numpy.dot(npArray, trans)
+#print
+#print square.mirror(mLine)
+#npArray = numpy.array([point.normalVector for point in square.iterPoints()])
+#print numpy.dot(npArray, m)
 
 #ds1 = ds.DoneShapes()
 #s1 = ds1.regularDogBone

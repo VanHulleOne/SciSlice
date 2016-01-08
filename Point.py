@@ -7,15 +7,24 @@ Created on Tue Oct 27 13:13:34 2015
 import numpy
 import math
 from parameters import constants as c
-import Line as l
+import matrixTrans as mt
 class Point(object):
     
     COMPARE_PRECISION = 10000
     
-    def __init__(self, x, y, z=0):
-        self.x = x
-        self.y = y
-        self.z = z
+    def __init__(self, x, y=None, z=0):
+        try:
+            len(x)
+        except:            
+            self.x = x
+            self.y = y
+            self.z = z
+            if y is None:
+                raise Exception('You did not initialize a Point correctly')
+        else:
+            self.x = x[c.X]
+            self.y = x[c.Y]
+            self.z = x[c.Z]
         self.normalVector = numpy.array([x, y, z, 1])
         
     @property
@@ -47,58 +56,15 @@ class Point(object):
     
     def get2DPoint(self):
         return [self.x, self.y]
-
-    def translateMatrix(self, shiftX, shiftY, shiftZ=0):
-        transMatrix = numpy.identity(4)
-        transMatrix[c.X][3] = shiftX
-        transMatrix[c.Y][3] = shiftY
-        transMatrix[c.Z][3] = shiftZ
-        return transMatrix
-        
-    def rotateMatrix(self, angle, point=None):
-        if point is None:
-            point = Point(0,0)
-            
-        toOrigin = self.translateMatrix(-point.x, -point.y)
-        rotateMatrix = numpy.identity(4)
-        rotateMatrix[c.X][0] = math.cos(angle)
-        rotateMatrix[c.Y][0] = math.sin(angle)
-        rotateMatrix[c.X][1] = -rotateMatrix[c.Y][0]
-        rotateMatrix[c.Y][1] = rotateMatrix[c.X][0]
-        transBack = self.translateMatrix(point.x, point.y)        
-        transMatrix = numpy.dot(transBack, numpy.dot(rotateMatrix, toOrigin))
-        return transMatrix
-        
-    def mirrorMatrix(self, axis):
-        transMatrix = numpy.identity(4)
-        if type(axis) is l.Line:
-            mList = []
-            mList.append(self.translateMatrix(-axis.start.x, -axis.start.y)) #toOrigin
-            angle = math.asin((axis.end.y-axis.start.y)/axis.length) #angle
-#            print 'Angle: %.2f'%(angle/(2*math.pi)*360)
-            mList.append(self.rotateMatrix(-angle)) #rotate to X-axis
-            xMirror = numpy.identity(4)
-            xMirror[c.Y][1] = -1
-            mList.append(xMirror) #mirror about X axis
-            mList.append(self.rotateMatrix(angle)) #rotate back
-            mList.append(self.translateMatrix(axis.start.x, axis.start.y)) #translate back         
-            for matrix in mList:
-                transMatrix = numpy.dot(matrix, transMatrix)
-            return transMatrix
-        if(axis == c.X):
-                transMatrix[c.Y][1] *= -1
-        else:
-            transMatrix[c.X][0] *= -1
-        return transMatrix
     
     def mirror(self, axis):
-        return self.transform(self.mirrorMatrix(axis))
+        return self.transform(mt.mirrorMatrix(axis))
     
     def rotate(self, angle, point=None):
-        return self.transform(self.rotateMatrix(angle, point))
+        return self.transform(mt.rotateMatrix(angle, point))
     
     def translate(self, shiftX, shiftY, shiftZ=0):
-        return self.transform(self.translateMatrix(shiftX, shiftY, shiftZ))
+        return self.transform(mt.translateMatrix(shiftX, shiftY, shiftZ))
         
     def transform(self, transMatrix):
         nv = numpy.dot(transMatrix, self.normalVector)

@@ -9,6 +9,7 @@ import Line as l
 import numpy as np
 from operator import itemgetter
 import copy
+import matrixTrans as mt
 
 from parameters import constants as c
 class LineGroup(object):
@@ -49,16 +50,27 @@ class LineGroup(object):
             
     def mirror(self, axis):
         cls = type(self)
-        return cls([line.mirror(axis) for line in self])
+        return cls(self.transform(mt.mirrorMatrix(axis)))
     
     def translate(self, xShift, yShift,zShift=0):
         cls = type(self)
-        return cls([line.translate(xShift, yShift, zShift) for line in self])        
+        return cls(self.transform(mt.translateMatrix(xShift, yShift, zShift)))        
         
     def rotate(self, angle, point=p.Point(0,0)):      
         cls = type(self)
-        return cls([line.rotate(angle, point) for line in self])
+        return cls(self.transform(mt.rotateMatrix(angle, point)))
         
+    def transform(self, transMatrix):
+        print transMatrix
+        numpyArray = np.array([point.normalVector for point in self.iterPoints()])
+        result = np.dot(numpyArray, transMatrix)
+        lines = []        
+        for i in range(0,len(result),2):
+            start = p.Point(result[i])
+            end = p.Point(result[i+1])
+            lines.append(l.Line(start, end, self[i%2]))
+        return lines
+    
     def getMidPoint(self):
         x = (self.maxX - self.minX)/2.0 + self.minX
         y = (self.maxY - self.minY)/2.0 + self.minY
@@ -133,7 +145,7 @@ class LineGroup(object):
             index /= 2
             testPoint = lineList[index].end
             yield lineList.pop(index)
-            normList = np.delete(normList, [index*2, index*2+1],0)
+            normList = np.delete(normList, [index*2, index*2+1],0)   
     
     def append(self, line):
         self.lines.append(line)
