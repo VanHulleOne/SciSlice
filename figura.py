@@ -32,7 +32,7 @@ class Figura:
             print 'Part Count: ' + str(self.partCount)            
             print 'Part Params: ' + str(partParams)
             part = self.part_Gen(layer, partParams)
-            self.gcode += ';\n\nPart number: ' + str(self.partCount) + '\n'
+            self.gcode += '\n\n;Part number: ' + str(self.partCount) + '\n'
             self.gcode += ';Parameters: ' + str(partParams) + '\n'
             self.setGcode(part, partParams[c.PRINT_SPEED], partParams[c.EXTRUSION_RATE])
             self.partCount += 1
@@ -42,7 +42,8 @@ class Figura:
         centerY = (baseLayer.maxY-baseLayer.minY)/2.0+baseLayer.minY
         axis = l.Line(p.Point(0, centerY), p.Point(100, centerY))
         mirroredBase = baseLayer.mirror(axis)
-        layerParam_Gen = pr.zipVariables_gen(pr.layerParameters)
+        layerParam_Gen = pr.zipVariables_gen(pr.layerParameters, repeat=True)
+        print 'Num Layers: ' + str(partParams[c.NUM_LAYERS])
         for i in range(partParams[c.NUM_LAYERS]):
             layerParams = next(layerParam_Gen)
             if layerParams[c.FLIP_LAYER]:
