@@ -14,30 +14,30 @@ fullExtrusionRate = 0.7 #fill for grips
 extrusionRate = [0.0212]#, 0.1, 0.05] #mm of filament/mm of travel
 pathWidth = 0.5 #mm distance between centerline of paths
 printSpeed = [2000] #mm/min head travel speed
-shiftX = [0]#, 70]
-shiftY = [0]#, 20, 40, 60, 80]
+shiftX = [20]#, 70]
+shiftY = [10]#, 20, 40, 60, 80]
 
 """
 Part Parameters
 """
 #mainShape = ps.wideDogBone
 layerHeight = [0.3] #mm height per layer
-numLayers = [4] #number of layers to make
+numLayers = [11] #number of layers to make
 infillAngleDegrees = 90 #degrees infill angle 90 is in Y direction 0 is in X direction
 
 """
 Layer Parameters Only parameters that don't require the layer to be
 re-organized are allowed
 """
-layerShiftX = [0, pathWidth/2.0]
+layerShiftX = [0]
 layerShiftY = [0]
-flipLayer = [0,0,1,1]
+flipLayer = [0]
 
 
 """
 File Parameters
 """
-outputFileName = 'DB_10-23_Test.gcode' #the name of the file you want output. git will ignore all .gcode unless they start with SAVE
+outputFileName = 'Square2.gcode' #the name of the file you want output. git will ignore all .gcode unless they start with SAVE
 start_Gcode_FileName = 'Start_Gcode_Taz5.txt' #the file name for the starting gcode
 end_Gcode_FileName = 'End_Gcode_Taz5.txt' #The file name for the end gcode
 outputSubDirectory = 'Gcode'

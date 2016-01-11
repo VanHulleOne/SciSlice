@@ -24,7 +24,7 @@ def run():
     startTime = time.time()
     print '\nGenerating code, please wait...\n'
     
-    bigTest = True
+    bigTest = False
     
     if bigTest:
         leftGrip = ds.leftGrip()
@@ -49,9 +49,11 @@ def run():
         filledList = [filledLeft, filledCenter, filledRight, regDB1, regDB2]
         
     else:
-        regDB = ds.regularDogBone()
-        filledDB = InF.InFill(regDB, pr.pathWidth, 90)
-        filledList = [filledDB]
+        square = s.Shape(None)
+        square.addLinesFromCoordinateList([[0,0], [15,0],[15,13],[0,13]])
+        square.closeShape()
+        filledSquare = InF.InFill(square, pr.pathWidth, 90)
+        filledList = [filledSquare]
     
     print 'Created Infill: {:.2f}'.format(time.time()-startTime)
     
