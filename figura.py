@@ -22,6 +22,7 @@ class Figura:
     def __init__(self, inShapes):
         startTime = time.time()
         layer = self.organizedLayer(inShapes)
+        layer = layer.translate(0,0, pr.firstLayerShiftZ)
         print '\nLayer organized in: %.2f sec\n' %(time.time() - startTime)
 #        with open('I:\RedBench\static\data\LineList.txt', 'w') as f:
 #            f.write('test\n')
@@ -64,7 +65,8 @@ class Figura:
             self.gcode += ';Layer: ' + str(layerNumber) + '\n'
             self.gcode += ';T' + str(self.partCount) + str(layerNumber) + '\n'
             self.gcode += ';M6\n'
-            self.gcode += gc.rapidMove(layer[0].start, pr.INCLUDE_Z)
+            self.gcode += 'M117 Layer ' + str(layerNumber) + '..\n'
+            self.gcode += gc.rapidMove(layer[0].start, pr.OMIT_Z)# pr.INCLUDE_Z)
             self.gcode += gc.firstApproach(layer[0].start)
             
             for line in layer:

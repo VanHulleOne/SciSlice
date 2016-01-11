@@ -11,11 +11,12 @@ import numpy
 Printing Parameters.
 """
 fullExtrusionRate = 0.7 #fill for grips
-extrusionRate = [0.0212]#, 0.1, 0.05] #mm of filament/mm of travel
+extrusionRate = [0.020]#12]#, 0.1, 0.05] #mm of filament/mm of travel
 pathWidth = 0.5 #mm distance between centerline of paths
-printSpeed = [2000] #mm/min head travel speed
+printSpeed = [1500] #mm/min head travel speed
 shiftX = [20]#, 70]
 shiftY = [10]#, 20, 40, 60, 80]
+firstLayerShiftZ = 0.0 #correct for bed leveling
 
 """
 Part Parameters
@@ -31,13 +32,13 @@ re-organized are allowed
 """
 layerShiftX = [0]
 layerShiftY = [0]
-flipLayer = [0]
+flipLayer = [0,1]
 
 
 """
 File Parameters
 """
-outputFileName = 'Square2.gcode' #the name of the file you want output. git will ignore all .gcode unless they start with SAVE
+outputFileName = 'Square4.gcode' #the name of the file you want output. git will ignore all .gcode unless they start with SAVE
 start_Gcode_FileName = 'Start_Gcode_Taz5.txt' #the file name for the starting gcode
 end_Gcode_FileName = 'End_Gcode_Taz5.txt' #The file name for the end gcode
 outputSubDirectory = 'Gcode'
@@ -83,7 +84,7 @@ Standard printing settings
 """
 OMIT_Z = True
 INCLUDE_Z = False
-RAPID = 8000 #mm/min
+RAPID = 4000 #mm/min
 TRAVERSE_RETRACT = 0.5 #mm to retract when traversing longer distances
 MAX_EXTRUDE_SPEED = 100 #mm/min max speed to move filament
 Z_CLEARANCE = 10.0 #mm to move Z up
