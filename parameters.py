@@ -11,12 +11,12 @@ import numpy
 Printing Parameters.
 """
 fullExtrusionRate = 0.7 #fill for grips
-extrusionRate = [0.020]#12]#, 0.1, 0.05] #mm of filament/mm of travel
-pathWidth = 0.5 #mm distance between centerline of paths
+extrusionRate = [0.019]#12]#, 0.1, 0.05] #mm of filament/mm of travel
+pathWidth = 0.707 #mm distance between centerline of paths
 printSpeed = [1500] #mm/min head travel speed
 shiftX = [20]#, 70]
 shiftY = [10]#, 20, 40, 60, 80]
-firstLayerShiftZ = 0.0 #correct for bed leveling
+firstLayerShiftZ = 0.1 #correct for bed leveling
 
 """
 Part Parameters
@@ -38,7 +38,7 @@ flipLayer = [0,1]
 """
 File Parameters
 """
-outputFileName = 'Square4.gcode' #the name of the file you want output. git will ignore all .gcode unless they start with SAVE
+outputFileName = 'ZigZag.gcode' #the name of the file you want output. git will ignore all .gcode unless they start with SAVE
 start_Gcode_FileName = 'Start_Gcode_Taz5.txt' #the file name for the starting gcode
 end_Gcode_FileName = 'End_Gcode_Taz5.txt' #The file name for the end gcode
 outputSubDirectory = 'Gcode'

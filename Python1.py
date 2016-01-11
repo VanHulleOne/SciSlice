@@ -26,6 +26,9 @@ def run():
     
     bigTest = False
     
+    pattern = lg.LineGroup()
+    pattern.addLinesFromCoordinateList([[0,0], [2,2], [4,0]])
+    
     if bigTest:
         leftGrip = ds.leftGrip()
         center = ds.center()
@@ -40,8 +43,7 @@ def run():
         sq2 = sq1.offset(1, c.INSIDE)
         sq3 = sq2.offset(1, c.INSIDE)
         
-        pattern = lg.LineGroup()
-        pattern.addLinesFromCoordinateList([[0,0], [2,2], [4,0]])
+        
         
         filledLeft = InF.InFill(leftGrip, pr.pathWidth, 45, pattern)
         filledCenter = InF.InFill(center, pr.pathWidth, 90, pattern)
@@ -49,11 +51,15 @@ def run():
         filledList = [filledLeft, filledCenter, filledRight, regDB1, regDB2]
         
     else:
-        square = s.Shape(None)
-        square.addLinesFromCoordinateList([[0,0], [15,0],[15,13],[0,13]])
-        square.closeShape()
-        filledSquare = InF.InFill(square, pr.pathWidth, 90)
-        filledList = [filledSquare]
+#        square = s.Shape(None)
+#        square.addLinesFromCoordinateList([[0,0], [15,0],[15,13],[0,13]])
+#        square.closeShape()
+#        filledSquare = InF.InFill(square, pr.pathWidth, 90)
+#        filledList = [filledSquare]
+        regDB = ds.regularDogBone()
+        db1 = regDB.offset(0.5, c.INSIDE)
+        filledDB = InF.InFill(db1, pr.pathWidth, 45, pattern)
+        filledList = [regDB, filledDB]
     
     print 'Created Infill: {:.2f}'.format(time.time()-startTime)
     
