@@ -5,6 +5,7 @@ Created on Thu Nov 19 19:52:29 2015
 @author: lvanhulle
 """
 import math
+import numpy
 
 """
 Printing Parameters.

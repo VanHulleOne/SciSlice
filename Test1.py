@@ -22,6 +22,7 @@ import doneShapes as ds
 import itertools
 from operator import itemgetter
 import time
+import matrixTrans as mt
 
 CW = -1
 CCW = 1
@@ -40,8 +41,53 @@ p7 = p.Point(4,0)
 p8 = p.Point(4,4)
 p9 = p.Point(0,4)
 p10 = p.Point(3,12)
+p11 = p.Point(0,5)
+
+mLine = l.Line(p6, p9)
+m = mt.mirrorMatrix(mLine)
+trans = mt.translateMatrix(1,1)
+points = [p6, p7, p8, p9, p6]
+
+#print m
+#print trans
+#
+#m2 = mt.mirrorMatrix(l.Line(p6,p7))
+#print m2
+#print mLine
 
 
+square = s.Shape(None)
+square.addLinesFromPoints(points)
+square = square.translate(1,1)
+sq2 = s.Shape(square)
+print square is sq2
+print square
+print 'sq2'
+print sq2
+print sq2.translate(2,2)
+
+nv = p1.normalVector
+print p1.normalVector
+nv[0] = -99
+print nv
+print p1.normalVector
+
+
+#print
+#mirror = square.mirror(mLine)
+#print mirror
+#print type(mirror)
+#print trans
+#print
+#npArray = numpy.array([point.normalVector for point in square.iterPoints()])
+#npArray = numpy.rot90(npArray)
+#print (numpy.inner(npArray, trans))
+#for array in npArray:
+#    print numpy.dot(trans, array)
+#print numpy.multiply(npArray, trans)
+
+#npArray = numpy.array([point.normalVector for point in square.iterPoints()])
+#print numpy.dot(npArray, m)
 
 #ds1 = ds.DoneShapes()
 #s1 = ds1.regularDogBone

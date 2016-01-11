@@ -15,6 +15,7 @@ from Shape import Shape
 from operator import itemgetter
 import numpy as np
 import time
+import Line as l
 
 class Figura:
     
@@ -22,9 +23,9 @@ class Figura:
         startTime = time.time()
         layer = self.organizedLayer(inShapes)
         print '\nLayer organized in: %.2f sec\n' %(time.time() - startTime)
-        with open('I:\RedBench\static\data\LineList.txt', 'w') as f:
-            f.write('test\n')
-            f.write(layer.CSVstr())
+#        with open('I:\RedBench\static\data\LineList.txt', 'w') as f:
+#            f.write('test\n')
+#            f.write(layer.CSVstr())
         self.gcode = '' + gc.startGcode()
         self.partCount = 1
         for partParams in pr.everyPartsParameters:
@@ -38,10 +39,9 @@ class Figura:
         self.gcode += gc.endGcode()
     
     def part_Gen(self, baseLayer, partParams):
-        centerY = (baseLayer.maxY-baseLayer.minY)/2+baseLayer.minY
-        mirroredBase = baseLayer.translate(0, -centerY)
-        mirroredBase = mirroredBase.mirror(c.X)
-        mirroredBase = mirroredBase.translate(0, centerY)
+        centerY = (baseLayer.maxY-baseLayer.minY)/2.0+baseLayer.minY
+        axis = l.Line(p.Point(0, centerY), p.Point(100, centerY))
+        mirroredBase = baseLayer.mirror(axis)
         layerParam_Gen = pr.zipVariables_gen(pr.layerParameters)
         for i in range(partParams[c.NUM_LAYERS]):
             layerParams = next(layerParam_Gen)
