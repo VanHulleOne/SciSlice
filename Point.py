@@ -29,18 +29,10 @@ class Point(object):
     @property
     def x(self):
         return self.__normalVector[c.X]
-#        
-#    @x.setter
-#    def x(self, value):
-#        self.__x = int(round(value*self.COMPARE_PRECISION))
         
     @property
     def y(self):
         return self.__normalVector[c.Y]
-#        
-#    @y.setter
-#    def y(self, value):
-#        self.__y = int(round(value*self.COMPARE_PRECISION))
     
     @property
     def z(self):
@@ -49,10 +41,6 @@ class Point(object):
     @property
     def normalVector(self):
         return numpy.array(self.__normalVector)
-#        
-#    @z.setter
-#    def z(self, value):
-#        self.__z = int(round(value*self.COMPARE_PRECISION))
     
     def __iter__(self):
         return(i for i in self.__normalVector[:3])
@@ -84,9 +72,6 @@ class Point(object):
     
     def squareDistance(self, other):
         return ((self.x - other.x)**2 + (self.y - other.y)**2)
-
-#    def __key(self):
-#        return self.keyTuple #(self.__z, self.__x, self.__y)
     
     def __lt__(self, other):
         return self.__key < other.__key

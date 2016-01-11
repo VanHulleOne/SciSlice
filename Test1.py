@@ -72,6 +72,7 @@ nv[0] = -99
 print nv
 print p1.normalVector
 
+
 #print
 #mirror = square.mirror(mLine)
 #print mirror
