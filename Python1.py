@@ -23,7 +23,7 @@ import time
 startTime = time.time()
 print '\nGenerating code, please wait...\n'
 
-bigTest = False
+bigTest = True
 
 if bigTest:
     leftGrip = ds.leftGrip()
