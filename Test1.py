@@ -65,6 +65,13 @@ print square
 print 'sq2'
 print sq2
 print sq2.translate(2,2)
+
+nv = p1.normalVector
+print p1.normalVector
+nv[0] = -99
+print nv
+print p1.normalVector
+
 #print
 #mirror = square.mirror(mLine)
 #print mirror

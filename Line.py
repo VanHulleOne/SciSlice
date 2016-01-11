@@ -89,7 +89,7 @@ class Line(object):
         Uses the determinant of a matrix containing the three to find the area
         of the triangle formed by the three points.
         """
-        matrix = [p1.getNormalVector(), p2.getNormalVector(), p3.getNormalVector(), [1,1,1,1]]
+        matrix = [p1.normalVector, p2.normalVector, p3.normalVector, [1,1,1,1]]
         matrix = numpy.rot90(matrix)
         return abs(numpy.linalg.det(matrix))/2.0
     
