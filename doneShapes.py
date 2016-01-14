@@ -9,7 +9,7 @@ import Shape as s
 import arc as a
 import Point as p
 from parameters import constants as c
-
+import math
     
 def regularDogBone():    
     dogBone = s.Shape(None)
@@ -69,3 +69,30 @@ def circle(centerX, centerY, radius):
     startPoint = p.Point(centerX+radius, centerY)
     center = p.Point(centerX, centerY)
     return s.Shape(a.Arc(startPoint, startPoint, c.CW, center))
+    
+def rect(lowerLeftX, lowerLeftY, width, height):
+    rect = [p.Point(lowerLeftX, lowerLeftY)]
+    rect.append(p.Point(lowerLeftX+width, lowerLeftY))
+    rect.append(p.Point(lowerLeftX+width, lowerLeftY+height))
+    rect.append(p.Point(lowerLeftX, lowerLeftY+height))
+    rectLG = s.Shape(None)
+    rectLG.addLinesFromPoints(rect)
+    rectLG.closeShape()
+    return rectLG
+    
+def polygon(centerX, centerY, radius, numCorners):
+    angle = 1.5*math.pi
+    points = []
+    incAngle = 2*math.pi/numCorners
+    for i in range(numCorners):
+        x = math.cos(angle+incAngle*i)*radius+centerX
+        y = math.sin(angle+incAngle*i)*radius+centerY
+        points.append(p.Point(x,y))
+    poly = s.Shape(None)
+    poly.addLinesFromPoints(points)
+    poly.closeShape()
+    poly = poly.rotate(incAngle/2.0, p.Point(centerX, centerY))
+    return poly
+        
+    
+    

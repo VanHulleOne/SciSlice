@@ -24,7 +24,7 @@ def run():
     startTime = time.time()
     print '\nGenerating code, please wait...\n'
     
-    bigTest = False
+    bigTest = True
     
     pattern = lg.LineGroup()
     pattern.addLinesFromCoordinateList([[0,0], [2,2], [4,0]])
