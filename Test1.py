@@ -43,5 +43,6 @@ p9 = p.Point(0,4)
 p10 = p.Point(3,12)
 p11 = p.Point(0,5)
 
-hexField = ds.hexField(5.0, 20, 20)
-print hexField
+hexField = ds.hexField(5, pr.pathWidth/2, 20,20)
+print hexField[0].length
+print hexField[1].length

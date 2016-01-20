@@ -96,23 +96,26 @@ def polygon(centerX, centerY, radius, numCorners):
     poly = poly.rotate(incAngle/2.0, p.Point(centerX, centerY))
     return poly
         
-def hexField(side, length, height):
+def hexField(side, space, length, height):
     baseLine = lg.LineGroup(None)
     baseLine.addLinesFromCoordinateList([[0,0], [side, 0],
-             [side+math.cos(math.pi/2)*side, math.cos(math.pi/2)*side],
-              [side*2+math.cos(math.pi/2)*side, math.cos(math.pi/2)*side],
-               [2*(side+math.cos(math.pi/2)*side), 0]])
+             [side+math.cos(math.pi/4)*side, math.cos(math.pi/4)*side],
+              [side*2+math.cos(math.pi/4)*side, math.cos(math.pi/4)*side],
+               [2*(side+math.cos(math.pi/4)*side), 0]])
     fullLine = lg.LineGroup(baseLine)
+    
     while fullLine.maxX - fullLine.minX < length:
         baseLine = baseLine.translate(baseLine.maxX - baseLine.minX, 0)
         fullLine.addLineGroup(baseLine)
+        
     mirrorLine = lg.LineGroup(fullLine)
     mirrorLine = mirrorLine.mirror(c.X)
-    mirrorLine = mirrorLine.translate(0, -pr.pathWidth)
+    mirrorLine = mirrorLine.translate(0, -space)
     fullLine.addLineGroup(mirrorLine)
     field = lg.LineGroup(fullLine)
+    
     while field.maxY - field.minY < height:
-        fullLine = fullLine.translate(0, fullLine.maxY-fullLine.minY+pr.pathWidth)
+        fullLine = fullLine.translate(0, fullLine.maxY-fullLine.minY+space)
         field.addLineGroup(fullLine)
     return field
     
