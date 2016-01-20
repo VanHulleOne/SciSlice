@@ -43,5 +43,5 @@ p9 = p.Point(0,4)
 p10 = p.Point(3,12)
 p11 = p.Point(0,5)
 
-poly = ds.rect(0,0,6,4)
-print poly
+hexField = ds.hexField(5.0, 20, 20)
+print hexField
