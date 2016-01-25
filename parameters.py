@@ -10,8 +10,8 @@ import numpy
 """
 Printing Parameters.
 """
-fullExtrusionRate = 0.7 #fill for grips
-extrusionRate = [0.019]#12]#, 0.1, 0.05] #mm of filament/mm of travel
+gripSolidityRatio = 1.1 #fill for grips
+solidityRatio = [0.9]#12]#, 0.1, 0.05] solidityRatio = PathArea/beadArea
 pathWidth = 0.5 #mm distance between centerline of paths
 printSpeed = [1500] #mm/min head travel speed
 shiftX = [20]#, 70]
@@ -50,8 +50,10 @@ Misc Parameters
 maxFeedStep = 5.0 #not implemented yet
 slopeOverX = 0.0 #not yet implemented how much you want it to move over in X per level
 slopeOverY = 0 #not implemented yet how much you want it to move over in Y per level
-backgroundAngle = (infillAngleDegrees/360.0*2*math.pi) #angle of the paths in the layer 0 = X direction, PI/2 = Y direction
-solidityRatio = None #get calculation from Karsten
+filamentDiameter = 5.0 #mm dia of incoming filament
+filamentArea = math.pi*filamentDiameter**2/4.0
+nozzleDiameter = 0.5 #mm
+
 
 def zipVariables_gen(inputLists, repeat=False):
     variableGenerators = []
@@ -75,7 +77,7 @@ def variable_gen(variableList):
 layerParameters = (layerShiftX, layerShiftY, flipLayer)
 
 everyPartsParameters = zipVariables_gen((
-                          extrusionRate, printSpeed, shiftX, shiftY,
+                          solidityRatio, printSpeed, shiftX, shiftY,
                           layerHeight, numLayers))
                                                    
 
