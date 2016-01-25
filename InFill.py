@@ -43,10 +43,14 @@ class InFill(LG):
         else:
             self.design = lg.LineGroup(design)
         
+        print '\nInFill times:'
+        maxLength = max(len(f.__name__) for f in self.operations) + 2 
         for i in range(self.designType, self.TRIMMED_FIELD):
             startTime = time.time()
             self.operations[i]();
-            print 'Operation: ' + str(i) + ' Took %.2f sec' %(time.time()-startTime)
+            print (self.operations[i].__name__ +
+                    ''.ljust(maxLength - len(self.operations[i].__name__)) +
+                    '%.2f sec' %(time.time()-startTime))
         
     def extendDesign(self):
         tempDesign = lg.LineGroup(self.design.lines)
@@ -64,7 +68,6 @@ class InFill(LG):
             self.design.addLineGroup(tempDesign)
             tempDesign = tempDesign.translate(0, self.pathWidth)
             designHeight += pr.pathWidth
-#        self.centerAndRotateField()
         
     def trimField(self):
         tempLines = []
@@ -72,7 +75,7 @@ class InFill(LG):
             pointSet = set([line.start])
             for tLine in self.trimShape.lines:
                 result, point = tLine.segmentsIntersect(line)
-                if(result == 1):
+                if(result >= 1):
                     pointSet.add(point)
             pointSet.add(line.end)
             pointList = sorted(list(pointSet))

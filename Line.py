@@ -54,26 +54,32 @@ class Line(object):
         if(self.areColinear(other)):
             pointList = sorted(list(set([self.start, self.end, other.start, other.end])))
             if len(pointList) == 3:
-                return -2, pointList[1] #if they are colinear and two ends have the same point return that point
+                return 2, pointList[1] #if they are colinear and two ends have the same point return that point
             else:
                 tempLine = Line(pointList[1], pointList[2])
-                return -2, tempLine.getMidPoint() #If they are colinear return half way inbetween middle two points
+                return 3, tempLine.getMidPoint() #If they are colinear return half way inbetween middle two points
         
         r = numpy.subtract(self.end.get2DPoint(), self.start.get2DPoint())
         s = numpy.subtract(other.end.get2DPoint(), other.start.get2DPoint())
         Q_Less_P = numpy.subtract(other.start.get2DPoint(), self.start.get2DPoint())
         denom = numpy.cross(r, s)*1.0
         t = numpy.cross(Q_Less_P, s)/denom
-        u = numpy.cross(Q_Less_P, r)/denom             
+        u = numpy.cross(Q_Less_P, r)/denom 
+        point = p.Point(self.start.x + r[c.X]*t, self.start.y+r[c.Y]*t)         
         #If t or u are not in the range 0-1 then the intersection is projected
         if(t > 1 or u > 1 or t < 0 or u < 0):
-            return -1, p.Point(self.start.x + r[c.X]*t,
-                          self.start.y+r[c.Y]*t) #return for projected intersection of non-colinear lines
+            #Due to floating point problems sometimes if t or u is outside the 0-1
+            #range we end up inside this if statement but a actually at the end
+            #of one of the lines. I can't figure out how to properly add in a tolerance
+            #so we are taking the four end points putting them into a list,
+            #then comparing them to the calculated point (where tolerances are
+            #properly handled) if the point == any of the end points then we
+            #should not return a projected point
+            if not any(point == lineEnd for lineEnd in (self.start, self.end,
+                                                        other.start, other.end)):
+                return -1, point #return for projected intersection of non-colinear lines
+        return 1, point #lines intersect at given point
 
-        return 1, p.Point(self.start.x + r[c.X]*t,
-                          self.start.y+r[c.Y]*t) #lines intersect at given point
-           
-    
     def isOnLine(self, point):
         if((point < self.start and point < self.end) or (
             point > self.start and point > self.end)):
