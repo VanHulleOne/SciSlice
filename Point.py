@@ -89,10 +89,10 @@ class Point(object):
         return hash(self.__key)
     
     def CSVstr(self):
-        return '{:.3f},{:.3f}'.format(self.x, self.y)
+        return '{:.4f},{:.4f}'.format(self.x, self.y)
     
     def __str__(self):
-        return 'X{:.3f} Y{:.3f} Z{:.3f}'.format(self.x, self.y, self.z)
+        return 'X{:.4f} Y{:.4f} Z{:.4f}'.format(self.x, self.y, self.z)
     
 #    def getNormalVector(self):
 #        nv = [n for n in self.normalVector]

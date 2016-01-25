@@ -12,7 +12,7 @@ Printing Parameters.
 """
 fullExtrusionRate = 0.7 #fill for grips
 extrusionRate = [0.019]#12]#, 0.1, 0.05] #mm of filament/mm of travel
-pathWidth = 0.707 #mm distance between centerline of paths
+pathWidth = 0.5 #mm distance between centerline of paths
 printSpeed = [1500] #mm/min head travel speed
 shiftX = [20]#, 70]
 shiftY = [10]#, 20, 40, 60, 80]

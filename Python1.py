@@ -52,9 +52,16 @@ def run():
         filledList = [filledLeft, filledCenter, filledRight, regDB1, regDB2]
         
     else:
-        regDB = ds.regularDogBone()
-        filledDB = InF.InFill(regDB, pr.pathWidth, 0, hexField, 2)
-        filledList = [filledDB]
+        grips = ds.grips()
+        leftGrip = ds.leftGrip()
+        rightGrip = ds.rightGrip()
+        center = ds.center()
+        
+        filledLeft = InF.InFill(leftGrip, pr.pathWidth, 90)
+        filledRight = InF.InFill(rightGrip, pr.pathWidth, 90)
+        filledGrips = InF.InFill(grips, pr.pathWidth, 90)
+        filledCenter = InF.InFill(center, pr.pathWidth, 90)
+        filledList = [filledGrips]
     
     print 'Created Infill: {:.2f}'.format(time.time()-startTime)
     

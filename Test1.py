@@ -15,7 +15,7 @@ import copy
 import gcode as gc
 import parameters as pr
 from parameters import constants as c
-import InFill as inf
+import InFill as InF
 from itertools import islice
 import LineGroup as lg
 import doneShapes as ds
@@ -32,8 +32,8 @@ CCW = 1
 arc = a.Arc(p.Point(49.642, 9.5), p.Point(28.5, 6.5), CW, p.Point(28.5, 82.5), 20)
 #
 p1 = p.Point(-82.500, -9.500, 0)
-p2 = p.Point(161.361, 111.157)
-p3 = p.Point(28.5, 6.5)
+p2 = p.Point(74, -101.5052)
+p3 = p.Point(74, 101.5052)
 p4 = p.Point(-82.501, -9.5)
 p5 = p.Point(3,3.0001)
 p6 = p.Point(0,0)
@@ -43,6 +43,14 @@ p9 = p.Point(0,4)
 p10 = p.Point(3,12)
 p11 = p.Point(0,5)
 
-hexField = ds.hexField(5, pr.pathWidth/2, 20,20)
-print hexField[0].length
-print hexField[1].length
+tLine = l.Line(p2, p3)
+
+s1 = s.Shape(None)
+s1.addLinesFromCoordinateList([[0,0],[0,19],[74,19],[74,0]])
+s1 = s1 + s1.mirror(c.X)
+
+s1.finishOutline()
+print s1
+s1Filled = InF.InFill(s1, 1, 90)
+__
+    
