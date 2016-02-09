@@ -64,8 +64,8 @@ print '\nGenerating code, please wait...\n'
 #        filledList = [filledGrips]
     
 dbOutline = ds.regularDogBone()
-dbTrimShape = dbOutline.offset(0.4, c.INSIDE)
-dbInfill = InF.InFill(dbTrimShape, pr.pathWidth, 90)
+dbTrimShape = dbOutline.offset(0.5, c.INSIDE)
+dbInfill = InF.InFill(dbTrimShape, pr.pathWidth, pr.infillAngleDegrees)
 
 filledList = [dbOutline, dbInfill]
 

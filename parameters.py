@@ -10,7 +10,7 @@ import numpy
 """
 Printing Parameters.
 """
-fullExtrusionRate = 0.7 #fill for grips
+#fullExtrusionRate = 0.7 """Not implimented yet""" 
 extrusionRate = [0.019]#12]#, 0.1, 0.05] #mm of filament/mm of travel
 pathWidth = 0.5 #mm distance between centerline of paths
 printSpeed = [1500] #mm/min head travel speed
@@ -22,7 +22,7 @@ firstLayerShiftZ = 0.1 #correct for bed leveling
 Part Parameters
 """
 #mainShape = ps.wideDogBone
-layerHeight = [0.3] #mm height per layer
+layerHeight = [0.3] # You can change the layer height but don't make a list of layer height
 numLayers = [2] #number of layers to make
 infillAngleDegrees = 90 #degrees infill angle 90 is in Y direction 0 is in X direction
 
