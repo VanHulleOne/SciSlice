@@ -107,7 +107,7 @@ class constants:
     INSIDE = 1 #Point is inside shape
     OUTSIDE = 0 #point is outside shape
     ALLOW_PROJECTION = True
-    EXTRUSION_RATE = 0
+    SOLIDITY_RATIO = 0
     PRINT_SPEED = 1
     SHIFT_X = 2
     SHIFT_Y = 3
