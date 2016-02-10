@@ -11,7 +11,7 @@ import numpy
 Printing Parameters.
 """
 gripSolidityRatio = 1.1 #fill for grips
-solidityRatio = [0.9]#12]#, 0.1, 0.05] solidityRatio = PathArea/beadArea
+solidityRatio = [1.09]#12]#, 0.1, 0.05] solidityRatio = PathArea/beadArea
 pathWidth = 0.5 #mm distance between centerline of paths
 printSpeed = [1500] #mm/min head travel speed
 shiftX = [20]#, 70]
@@ -22,7 +22,7 @@ firstLayerShiftZ = 0.1 #correct for bed leveling
 Part Parameters
 """
 #mainShape = ps.wideDogBone
-layerHeight = [0.3] #mm height per layer
+layerHeight = [0.4] #mm height per layer
 numLayers = [2] #number of layers to make
 infillAngleDegrees = 90 #degrees infill angle 90 is in Y direction 0 is in X direction
 
@@ -50,7 +50,7 @@ Misc Parameters
 maxFeedStep = 5.0 #not implemented yet
 slopeOverX = 0.0 #not yet implemented how much you want it to move over in X per level
 slopeOverY = 0 #not implemented yet how much you want it to move over in Y per level
-filamentDiameter = 5.0 #mm dia of incoming filament
+filamentDiameter = 3.0 #mm dia of incoming filament
 filamentArea = math.pi*filamentDiameter**2/4.0
 nozzleDiameter = 0.5 #mm
 
