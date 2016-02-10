@@ -43,14 +43,11 @@ p9 = p.Point(0,4)
 p10 = p.Point(3,12)
 p11 = p.Point(0,5)
 
-tLine = l.Line(p2, p3)
+i = 1
 
-s1 = s.Shape(None)
-s1.addLinesFromCoordinateList([[0,0],[0,19],[74,19],[74,0]])
-s1 = s1 + s1.mirror(c.X)
+print 'Start'
 
-s1.finishOutline()
-print s1
-s1Filled = InF.InFill(s1, 1, 90)
-__
-    
+for j in range(i):
+    print j
+
+print 'end'

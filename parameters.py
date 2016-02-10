@@ -25,6 +25,7 @@ Part Parameters
 layerHeight = [0.4] #mm height per layer
 numLayers = [2] #number of layers to make
 infillAngleDegrees = 90 #degrees infill angle 90 is in Y direction 0 is in X direction
+numShells = 2 # the number of shells max is 13
 
 """
 Layer Parameters Only parameters that don't require the layer to be
