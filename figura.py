@@ -59,7 +59,6 @@ class Figura:
     
     def setGcode(self, part, printSpeed, solidityRatio, layerHeight):
         extrusionRate = solidityRatio*layerHeight*pr.pathWidth/pr.filamentArea
-        print 'Extrusion Rate: ' + str(extrusionRate)
         layerNumber = 1
         self.gcode += gc.newPart()
         totalExtrusion = 0
