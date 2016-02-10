@@ -10,8 +10,8 @@ import numpy
 """
 Printing Parameters.
 """
-#fullExtrusionRate = 0.7 """Not implimented yet""" 
-extrusionRate = [0.019]#12]#, 0.1, 0.05] #mm of filament/mm of travel
+gripSolidityRatio = 1.1 #fill for grips
+solidityRatio = [1.09]#12]#, 0.1, 0.05] solidityRatio = PathArea/beadArea
 pathWidth = 0.5 #mm distance between centerline of paths
 printSpeed = [1500] #mm/min head travel speed
 shiftX = [20]#, 70]
@@ -22,7 +22,7 @@ firstLayerShiftZ = 0.1 #correct for bed leveling
 Part Parameters
 """
 #mainShape = ps.wideDogBone
-layerHeight = [0.3] # You can change the layer height but don't make a list of layer height
+layerHeight = [0.4] #mm height per layer
 numLayers = [2] #number of layers to make
 infillAngleDegrees = 90 #degrees infill angle 90 is in Y direction 0 is in X direction
 
@@ -50,8 +50,10 @@ Misc Parameters
 maxFeedStep = 5.0 #not implemented yet
 slopeOverX = 0.0 #not yet implemented how much you want it to move over in X per level
 slopeOverY = 0 #not implemented yet how much you want it to move over in Y per level
-backgroundAngle = (infillAngleDegrees/360.0*2*math.pi) #angle of the paths in the layer 0 = X direction, PI/2 = Y direction
-solidityRatio = None #get calculation from Karsten
+filamentDiameter = 3.0 #mm dia of incoming filament
+filamentArea = math.pi*filamentDiameter**2/4.0
+nozzleDiameter = 0.5 #mm
+
 
 def zipVariables_gen(inputLists, repeat=False):
     variableGenerators = []
@@ -75,7 +77,7 @@ def variable_gen(variableList):
 layerParameters = (layerShiftX, layerShiftY, flipLayer)
 
 everyPartsParameters = zipVariables_gen((
-                          extrusionRate, printSpeed, shiftX, shiftY,
+                          solidityRatio, printSpeed, shiftX, shiftY,
                           layerHeight, numLayers))
                                                    
 
@@ -105,7 +107,7 @@ class constants:
     INSIDE = 1 #Point is inside shape
     OUTSIDE = 0 #point is outside shape
     ALLOW_PROJECTION = True
-    EXTRUSION_RATE = 0
+    SOLIDITY_RATIO = 0
     PRINT_SPEED = 1
     SHIFT_X = 2
     SHIFT_Y = 3

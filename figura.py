@@ -17,7 +17,7 @@ import numpy as np
 import time
 import Line as l
 
-class Figura:
+class Figura:  
     
     def __init__(self, inShapes):
         startTime = time.time()
@@ -35,7 +35,8 @@ class Figura:
             part = self.part_Gen(layer, partParams)
             self.gcode += '\n\n;Part number: ' + str(self.partCount) + '\n'
             self.gcode += ';Parameters: ' + str(partParams) + '\n'
-            self.setGcode(part, partParams[c.PRINT_SPEED], partParams[c.EXTRUSION_RATE])
+            self.setGcode(part, partParams[c.PRINT_SPEED],
+                          partParams[c.SOLIDITY_RATIO], partParams[c.LAYER_HEIGHT])
             self.partCount += 1
         self.gcode += gc.endGcode()
     
@@ -56,7 +57,9 @@ class Figura:
                                          partParams[c.SHIFT_Y]+layerParams[c.LAYERSHIFT_Y],
                                          partParams[c.LAYER_HEIGHT]*(i+1))
     
-    def setGcode(self, part, printSpeed, extrusionRate):
+    def setGcode(self, part, printSpeed, solidityRatio, layerHeight):
+        extrusionRate = solidityRatio*layerHeight*pr.pathWidth/pr.filamentArea
+        print 'Extrusion Rate: ' + str(extrusionRate)
         layerNumber = 1
         self.gcode += gc.newPart()
         totalExtrusion = 0
