@@ -8,11 +8,28 @@ import Point as p
 import numpy
 from parameters import constants as c
 
+"""
+Line stores a start and end points of a line. The module also provides many of
+the important line checking fucntions such as hceking intersection and offsets.
+Line start/end points are immutable but the extrusion rate and freezeExRate
+can be changed.
+"""
 class Line(object):
     def __init__(self, start, end, oldLine = None):
+        """
+        Takes in the start and end points of a line plus an optional "oldLine".
+        oldLine is used when a new line is created from an exhisting line and
+        the operator wants the new line to have the same extrusion properties
+        as the exhisting line. This is used for all of the line transformations.
+        """
         self.__start = start
         self.__end = end
         if(self.__start == self.__end):
+            """
+            If a zero length line is created that most likely means there is a
+            logic problem somewhere in the program. This does not throw and error
+            so that the output can still be examined to help diagnose the problem.
+            """
             print ('SNAFU detected, a line was created with no length at: ' + 
                     str(self.start))
         self.upperLeft = None
