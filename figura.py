@@ -64,21 +64,21 @@ class Figura:
         totalExtrusion = 0
         
         for layer in part:
-            self.gcode += ';Layer: ' + str(layerNumber) + '\n'
-            self.gcode += ';T' + str(self.partCount) + str(layerNumber) + '\n'
-            self.gcode += ';M6\n'
-            self.gcode += 'M117 Layer ' + str(layerNumber) + '..\n'
-            self.gcode += gc.rapidMove(layer[0].start, pr.OMIT_Z)# pr.INCLUDE_Z)
-            self.gcode += gc.firstApproach(layer[0].start)
+            self.gcode.join(';Layer: ' + str(layerNumber) + '\n')
+            self.gcode.join(';T' + str(self.partCount) + str(layerNumber) + '\n')
+            self.gcode.join(';M6\n')
+            self.gcode.join('M117 Layer ' + str(layerNumber) + '..\n')
+            self.gcode.join(gc.rapidMove(layer[0].start, pr.OMIT_Z))# pr.INCLUDE_Z)
+            self.gcode.join(gc.firstApproach(layer[0].start))
             
             for line in layer:
                 line.extrusionRate = extrusionRate
                 totalExtrusion += line.length*line.extrusionRate
-                self.gcode += gc.rapidMove(line.start, pr.OMIT_Z)
-                self.gcode += gc.feedMove(line.end, pr.OMIT_Z, totalExtrusion, printSpeed)
+                self.gcode.join(gc.rapidMove(line.start, pr.OMIT_Z))
+                self.gcode.join(gc.feedMove(line.end, pr.OMIT_Z, totalExtrusion, printSpeed))
             
-            self.gcode += gc.retractLayer(totalExtrusion, layer[-1].end)
-            self.gcode += '\n\n'
+            self.gcode.join(gc.retractLayer(totalExtrusion, layer[-1].end))
+            self.gcode.join('\n\n')
             layerNumber += 1        
                 
     def organizedLayer(self, inShapes):
