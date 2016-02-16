@@ -31,7 +31,9 @@ for shellNumber in range(pr.numShells):
     filledList.append(currOutline)
     currOutline = currOutline.offset(pr.pathWidth, c.INSIDE)
 
-infill = InF.InFill(currOutline, pr.pathWidth, pr.infillAngleDegrees)
+pattern = lg.LineGroup()
+pattern.addLinesFromCoordinateList([[0,0],[2,2],[4,0]])
+infill = InF.InFill(currOutline, pr.pathWidth, pr.infillAngleDegrees, pattern)
 
 filledList.append(infill)
 

@@ -43,11 +43,12 @@ p9 = p.Point(0,4)
 p10 = p.Point(3,12)
 p11 = p.Point(0,5)
 
-i = 1
+NUM = 1000000
 
-print 'Start'
+st = time.time()
+word = 'Word '
+whole = ' '
+for _ in xrange(NUM):
+    whole.join(word)
 
-for j in range(i):
-    print j
-
-print 'end'
+print 'Elapsed %f' %(time.time()-st)
