@@ -32,7 +32,9 @@ class Line(object):
             """
             print ('SNAFU detected, a line was created with no length at: ' + 
                     str(self.start))
+        """ The Point which is the upper left corner of the lines bounding box """
         self.upperLeft = None
+        """ The Point of the lower right corner of the bounding box. """
         self.lowerRight = None
         self.__extrusionRate = 0
         self.freezeExRate = False
@@ -59,6 +61,9 @@ class Line(object):
         
     @extrusionRate.setter
     def extrusionRate(self, value):
+        """
+        If the extrusion rate is not frozen then change the extrusion rate
+        """
         if (not self.freezeExRate):
             self.__extrusionRate = value
             
@@ -67,15 +72,59 @@ class Line(object):
         yield self.end
     
     def segmentsIntersect(self, other, allowProjInt = False):
+        """
+        Probably the most important method in the Line module. This tests to
+        see if two line segments intersect and returns a tuple containing
+        a number code for the type of intersection and the Point of intersection
+        or projected point of intersection if there is one and it was allowed.
+        
+        The calculation of t and u is stable but testing to make sure that the
+        point in on the line is the difficult part of this method. A better
+        solution should probably be found.
+        
+        -3 = bounding boxes do not intersect
+        3 = lines were colinear and shared an end point
+        3 = lines were colinear and did not share an end point
+        -1 = Projected intersection of non-colinear lines
+        1 = intersection of non-colinear lines
+        """
+        
+        """
+        If we are not allowing projected intersection and the bounding boxes
+        do not intersect then return -3, None.
+        """
         if(not(allowProjInt) and not(self.doBoundingBoxesIntersect(other))): return -3, None #return if bounding boxes do not intersect
+        """ A special case for colinear lines. """        
         if(self.areColinear(other)):
-            pointList = sorted(list(set([self.start, self.end, other.start, other.end])))
+            """
+            First place all four endpoint into a set. This will elliminate shared
+            end points. Next, convert the set back into a list so it can
+            finally be sorted.
+            """
+            pointList = sorted(list(set([self.start, self.end, other.start, other.end])))            
             if len(pointList) == 3:
+                """
+                if there are only three points in the list then return 2, the
+                middle point in the list since it is the shared point of the
+                two lines.
+                """
                 return 2, pointList[1] #if they are colinear and two ends have the same point return that point
             else:
+                """
+                If the length was not three then we know it is length 4 in which case
+                we turn the two middle points into a line and return 3, the line's
+                midpoint.
+                """
                 tempLine = Line(pointList[1], pointList[2])
                 return 3, tempLine.getMidPoint() #If they are colinear return half way inbetween middle two points
-        
+        """
+        To calculate the intersection of two points we put the lines into the
+        form P+tr and Q+us where P and Q are the starting points of the lines
+        r and s are vectors form the starting point to the end point, and
+        t and u are scalars. Set the two equations equal to each other and 
+        then solve for t and u. If t and u are in the range [0-1] then the
+        intersection point lines on the lines, else it is a projected point.
+        """
         r = numpy.subtract(self.end.get2DPoint(), self.start.get2DPoint())
         s = numpy.subtract(other.end.get2DPoint(), other.start.get2DPoint())
         Q_Less_P = numpy.subtract(other.start.get2DPoint(), self.start.get2DPoint())
@@ -85,19 +134,22 @@ class Line(object):
         point = p.Point(self.start.x + r[c.X]*t, self.start.y+r[c.Y]*t)         
         #If t or u are not in the range 0-1 then the intersection is projected
         if(t > 1 or u > 1 or t < 0 or u < 0):
-            #Due to floating point problems sometimes if t or u is outside the 0-1
-            #range we end up inside this if statement but a actually at the end
-            #of one of the lines. I can't figure out how to properly add in a tolerance
-            #so we are taking the four end points putting them into a list,
-            #then comparing them to the calculated point (where tolerances are
-            #properly handled) if the point == any of the end points then we
-            #should not return a projected point
+            """
+            Due to floating point problems sometimes if t or u is outside the 0-1
+            range we end up inside this if statement but are actually at the end
+            of one of the lines. I can't figure out how to properly add in a tolerance
+            so we are taking the four end points putting them into a list,
+            then comparing them to the calculated point. The Point module is
+            properly handling tolerances so if the point == any of the end
+            points then we should not return a projected point.
+            """
             if not any(point == lineEnd for lineEnd in (self.start, self.end,
                                                         other.start, other.end)):
                 return -1, point #return for projected intersection of non-colinear lines
         return 1, point #lines intersect at given point
 
     def isOnLine(self, point):
+        """ Tests to see if a point is on the line. """
         if((point < self.start and point < self.end) or (
             point > self.start and point > self.end)):
             return False #point is not between the start and end of self
@@ -128,6 +180,12 @@ class Line(object):
         return False        
     
     def doBoundingBoxesIntersect(self, other):
+        """
+        The bounding box of the line is represented be the upper left and
+        lower right corners of the smallest box which contains the line. If
+        the bounding boxes for two lines do not intersect then we know that the
+        two lines do not intersect and we can save a bunch of work.
+        """
         if(self.upperLeft.x <= other.lowerRight.x and
             self.lowerRight.x >= other.upperLeft.x and
             self.upperLeft.y >= other.lowerRight.y and
@@ -152,6 +210,7 @@ class Line(object):
         return Line(newStart, newEnd, self)
 
     def fliped(self):
+        """ returns a line with the start and end points flipped form self. """
         return Line(self.end, self.start, self)
         
     def setBoundingBox(self):
@@ -179,10 +238,17 @@ class Line(object):
         
     
     def getMidPoint(self):
-        midVect = (self.start.normalVector - self.end.normalVector)/2.0 + self.end.normalVector
-        return p.Point(midVect[c.X], midVect[c.Y], midVect[c.Z])
+        """ Calculate and return the midpoint of self. """
+        return p.Point((self.start.normalVector - self.end.normalVector)/2.0 +
+                self.end.normalVector)
     
     def __lt__(self, other):
+        """
+        Sort the points of the lines first and then compare their lowest Points.
+        If those points are equal then compare the other points.
+        
+        Please also read __eq__ for more about line comparisons.
+        """
         selfList = sorted(list([self.start, self.end]))
         otherList = sorted(list([other.start, other.end]))
         if(selfList[0] < otherList[0]):
@@ -192,12 +258,20 @@ class Line(object):
         return (selfList[1] < otherList[1])
         
     def __eq__(self, other):
+        """
+        If the start point and end point of the two lines are the same then
+        the lines are equal. Note that this means that self != flipped(self).
+        I don't know if that is necessary but that hasn't caused me any problems...
+        yet.
+        """
         return (self.start == other.start and self.end == other.end)      
     
     def __str__(self):
+        """ The string of the line. """
         return str(self.start) + '    \t' + str(self.end)
     
     def CSVstr(self):
+        """ A comma seperated form for the gui. """
         return self.start.CSVstr() + ',' + self.end.CSVstr()
     
     def printBoudningBox(self):
