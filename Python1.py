@@ -32,7 +32,7 @@ for shellNumber in range(pr.numShells):
     currOutline = currOutline.offset(pr.pathWidth, c.INSIDE)
 
 pattern = lg.LineGroup()
-pattern.addLinesFromCoordinateList([[0,0],[2,2],[4,0]])
+pattern.addLinesFromCoordinateList([[0,0],[4,4],[8,0]])
 infill = InF.InFill(currOutline, pr.pathWidth, pr.infillAngleDegrees, pattern)
 
 filledList.append(infill)
