@@ -15,6 +15,9 @@ copy problems.
 """
 class Point(object):
     
+    NUM_DEC = 3
+    printFormat = 'X{:.%df} Y{:.%df} Z{:.%df}' % tuple([NUM_DEC]*3)
+    
     """
     To prevent floating point problems the coordinates of a point are stored
     as integers. The input number is multiplied by COMPARE_PRECISION and
@@ -142,5 +145,5 @@ class Point(object):
     
     """ String for printing """
     def __str__(self):
-        return 'X{:.4f} Y{:.4f} Z{:.4f}'.format(self.x, self.y, self.z)
+        return self.printFormat.format(*self.__normalVector[:3])
     
