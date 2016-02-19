@@ -146,4 +146,7 @@ class Point(object):
     """ String for printing """
     def __str__(self):
         return self.printFormat.format(*self.__normalVector[:3])
+        
+    def __repr__(self):
+        return 'Point(%f, %f, %f)'%tuple(self.__normalVector[:3])
     
