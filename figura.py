@@ -24,21 +24,21 @@ class Figura:
         layer = self.organizedLayer(inShapes)
         layer = layer.translate(0,0, pr.firstLayerShiftZ)
         print '\nLayer organized in: %.2f sec\n' %(time.time() - startTime)
-        with open('I:\RedBench\static\data\LineList.txt', 'w') as f:
-            f.write('test\n')
-            f.write(layer.CSVstr())
-        self.gcode = '' + gc.startGcode()
+#        with open('I:\RedBench\static\data\LineList.txt', 'w') as f:
+#            f.write('test\n')
+#            f.write(layer.CSVstr())
+        self.gcode = [gc.startGcode()]
         self.partCount = 1
         for partParams in pr.everyPartsParameters:
             print 'Part Count: ' + str(self.partCount)            
             print 'Part Params: ' + str(partParams)
             part = self.part_Gen(layer, partParams)
-            self.gcode.join('\n\n;Part number: ' + str(self.partCount) + '\n')
-            self.gcode.join(';Parameters: ' + str(partParams) + '\n')
+            self.gcode += '\n\n;Part number: ' + str(self.partCount) + '\n'
+            self.gcode += ';Parameters: ' + str(partParams) + '\n'
             self.setGcode(part, partParams[c.PRINT_SPEED],
                           partParams[c.SOLIDITY_RATIO], partParams[c.LAYER_HEIGHT])
             self.partCount += 1
-        self.gcode.join(gc.endGcode())
+        self.gcode += gc.endGcode()
     
     def part_Gen(self, baseLayer, partParams):
         centerY = (baseLayer.maxY-baseLayer.minY)/2.0+baseLayer.minY
@@ -60,25 +60,25 @@ class Figura:
     def setGcode(self, part, printSpeed, solidityRatio, layerHeight):
         extrusionRate = solidityRatio*layerHeight*pr.pathWidth/pr.filamentArea
         layerNumber = 1
-        self.gcode.join(gc.newPart())
+        self.gcode += gc.newPart()
         totalExtrusion = 0
         
         for layer in part:
-            self.gcode.join(';Layer: ' + str(layerNumber) + '\n')
-            self.gcode.join(';T' + str(self.partCount) + str(layerNumber) + '\n')
-            self.gcode.join(';M6\n')
-            self.gcode.join('M117 Layer ' + str(layerNumber) + '..\n')
-            self.gcode.join(gc.rapidMove(layer[0].start, pr.OMIT_Z))# pr.INCLUDE_Z)
-            self.gcode.join(gc.firstApproach(layer[0].start))
+            self.gcode += ';Layer: ' + str(layerNumber) + '\n'
+            self.gcode += ';T' + str(self.partCount) + str(layerNumber) + '\n'
+            self.gcode += ';M6\n'
+            self.gcode += 'M117 Layer ' + str(layerNumber) + '..\n'
+            self.gcode += gc.rapidMove(layer[0].start, pr.OMIT_Z)
+            self.gcode += gc.firstApproach(layer[0].start)
             
             for line in layer:
                 line.extrusionRate = extrusionRate
                 totalExtrusion += line.length*line.extrusionRate
-                self.gcode.join(gc.rapidMove(line.start, pr.OMIT_Z))
-                self.gcode.join(gc.feedMove(line.end, pr.OMIT_Z, totalExtrusion, printSpeed))
+                self.gcode += gc.rapidMove(line.start, pr.OMIT_Z)
+                self.gcode += gc.feedMove(line.end, pr.OMIT_Z, totalExtrusion, printSpeed)
             
-            self.gcode.join(gc.retractLayer(totalExtrusion, layer[-1].end))
-            self.gcode.join('\n\n')
+            self.gcode += gc.retractLayer(totalExtrusion, layer[-1].end)
+            self.gcode += '\n\n'
             layerNumber += 1        
                 
     def organizedLayer(self, inShapes):
