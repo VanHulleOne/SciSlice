@@ -33,12 +33,12 @@ class Figura:
             print 'Part Count: ' + str(self.partCount)            
             print 'Part Params: ' + str(partParams)
             part = self.part_Gen(layer, partParams)
-            self.gcode += '\n\n;Part number: ' + str(self.partCount) + '\n'
-            self.gcode += ';Parameters: ' + str(partParams) + '\n'
+            self.gcode.join('\n\n;Part number: ' + str(self.partCount) + '\n')
+            self.gcode.join(';Parameters: ' + str(partParams) + '\n')
             self.setGcode(part, partParams[c.PRINT_SPEED],
                           partParams[c.SOLIDITY_RATIO], partParams[c.LAYER_HEIGHT])
             self.partCount += 1
-        self.gcode += gc.endGcode()
+        self.gcode.join(gc.endGcode())
     
     def part_Gen(self, baseLayer, partParams):
         centerY = (baseLayer.maxY-baseLayer.minY)/2.0+baseLayer.minY
@@ -60,7 +60,7 @@ class Figura:
     def setGcode(self, part, printSpeed, solidityRatio, layerHeight):
         extrusionRate = solidityRatio*layerHeight*pr.pathWidth/pr.filamentArea
         layerNumber = 1
-        self.gcode += gc.newPart()
+        self.gcode.join(gc.newPart())
         totalExtrusion = 0
         
         for layer in part:
