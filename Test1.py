@@ -23,6 +23,8 @@ import itertools
 from operator import itemgetter
 import time
 import matrixTrans as mt
+import random
+import bisect
 
 CW = -1
 CCW = 1
@@ -43,12 +45,10 @@ p9 = p.Point(0,4)
 p10 = p.Point(3,12)
 p11 = p.Point(0,5)
 
-NUM = 1000000
+s1 = [str(i) for i in xrange(10)]
 
-st = time.time()
-word = 'Word '
-whole = ' '
-for _ in xrange(NUM):
-    whole.join(word)
-
-print 'Elapsed %f' %(time.time()-st)
+s2 = ""
+for i in s1:
+    s2.join()
+    
+print s2

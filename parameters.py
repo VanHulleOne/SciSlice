@@ -33,7 +33,7 @@ re-organized are allowed
 """
 layerShiftX = [0]
 layerShiftY = [0]
-flipLayer = [0,1]
+flipLayer = [0]
 
 
 """
