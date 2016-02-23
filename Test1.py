@@ -10,7 +10,7 @@ import Shape as s
 import Line as l
 import arc as a
 import math
-import numpy
+import numpy as np
 import copy
 import gcode as gc
 import parameters as pr
@@ -45,10 +45,11 @@ p9 = p.Point(0,4)
 p10 = p.Point(3,12)
 p11 = p.Point(0,5)
 
-s1 = [str(i) for i in xrange(10)]
+t1 = np.array([0,0,1])
+t2 = np.array([3,4,1])
 
-s2 = ""
-for i in s1:
-    s2.join()
-    
-print s2
+N = 100000
+start = time.time()
+for _ in xrange(N):
+    l = tuple(x for x in range(6))
+print 'Time: %f' %(time.time() - start)

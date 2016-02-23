@@ -57,21 +57,16 @@ nozzleDiameter = 0.5 #mm
 
 
 def zipVariables_gen(inputLists, repeat=False):
-    variableGenerators = []
-    for sublist in inputLists:
-        variableGenerators.append(variable_gen(sublist))
+    variableGenerators = [variable_gen(sublist) for sublist in inputLists]
         
-    while True:
+    while 1:
         for _ in max(inputLists, key=len):
-            tempList = []
-            for varGen in variableGenerators:
-                tempList.append(next(varGen))
-            yield tempList
+            yield tuple(next(varGen) for varGen in variableGenerators)
         if not repeat:
             break
     
 def variable_gen(variableList):
-    while True:
+    while 1:
         for var in variableList: 
             yield var
             
