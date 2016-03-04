@@ -46,6 +46,3 @@ p8 = p.Point(4,4)
 p9 = p.Point(0,4)
 p10 = p.Point(3,12)
 p11 = p.Point(0,5)
-
-test = col.namedtuple('Tests', 'Age Height')
-

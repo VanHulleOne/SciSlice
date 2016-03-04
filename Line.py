@@ -32,7 +32,7 @@ class Line(object):
             """
             print ('SNAFU detected, a line was created with no length at: ' + 
                     str(self.start))
-        """ The Point which is the upper left corner of the lines bounding box """
+        """ The Point which is the upper left corner of the line's bounding box """
         self.upperLeft = None
         """ The Point of the lower right corner of the bounding box. """
         self.lowerRight = None
