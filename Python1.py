@@ -24,7 +24,8 @@ import time
 startTime = time.time()
 print '\nGenerating code, please wait...\n'
    
-currOutline = ds.regularDogBone()
+#currOutline = ds.regularDogBone()
+currOutline = ds.rect(0,0,15,250)
 filledList = []
 
 for shellNumber in range(pr.numShells):
