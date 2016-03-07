@@ -24,17 +24,17 @@ import time
 startTime = time.time()
 print '\nGenerating code, please wait...\n'
    
-#currOutline = ds.regularDogBone()
-currOutline = ds.rect(0,0,15,250)
+currOutline = ds.regularDogBone()
+#currOutline = ds.rect(0,0,15,250)
 filledList = []
 
 for shellNumber in range(pr.numShells):
     filledList.append(currOutline)
     currOutline = currOutline.offset(pr.pathWidth, c.INSIDE)
 
-#pattern = lg.LineGroup()
-#pattern.addLinesFromCoordinateList([[0,0],[4,4],[8,0]])
-infill = InF.InFill(currOutline, pr.pathWidth, pr.infillAngleDegrees)#, pattern)
+pattern = lg.LineGroup()
+pattern.addLinesFromCoordinateList([[0,0],[2,2],[4,0]])
+infill = InF.InFill(currOutline, pr.pathWidth, pr.infillAngleDegrees, pattern)
 
 filledList.append(infill)
 

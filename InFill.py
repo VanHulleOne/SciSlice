@@ -13,6 +13,7 @@ import LineGroup as lg
 import parameters as pr
 from math import pi
 import time
+import matrixTrans as mt
 
 class InFill(LG):
     
@@ -73,14 +74,15 @@ class InFill(LG):
         tempLines = []
         for line in self.design.lines:
             pointSet = set([line.start])
-            for tLine in self.trimShape.lines:
-                result, point = tLine.segmentsIntersect(line)
-                if(result >= 1):
-                    pointSet.add(point)
-            pointSet.add(line.end)
-            pointList = sorted(list(pointSet))
-            for i in range(len(pointList)-1):                
-                tempLines.append(l.Line(pointList[i], pointList[i+1]))
+            if not self.trimShape.lineOutsideBoundingBox(line):
+                for tLine in self.trimShape.lines:
+                    result, point = tLine.segmentsIntersect(line)
+                    if(result >= 1):
+                        pointSet.add(point)
+                pointSet.add(line.end)
+                pointList = sorted(list(pointSet))
+                for i in range(len(pointList)-1):                
+                    tempLines.append(l.Line(pointList[i], pointList[i+1]))
         for line in tempLines:            
             if(self.trimShape.isInside(line.getMidPoint())):
                 self.lines.append(line)
@@ -90,6 +92,7 @@ class InFill(LG):
         trimShapeCP = self.trimShape.getMidPoint()
         transX = trimShapeCP.x - designCP.x
         transY = trimShapeCP.y - designCP.y
-        self.design = self.design.translate(transX, transY)
-        self.design = self.design.rotate(self.angleRad, trimShapeCP)
+        self.design = self.design.transform(mt.combineTransformations(
+                        [mt.translateMatrix(transX, transY),
+                         mt.rotateMatrix(self.angleRad, trimShapeCP)]))
         

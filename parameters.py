@@ -14,8 +14,8 @@ gripSolidityRatio = 1.1 #fill for grips
 solidityRatio = [1.09]#12]#, 0.1, 0.05] solidityRatio = PathArea/beadArea
 pathWidth = 0.5 #mm distance between centerline of paths
 printSpeed = [2000] #mm/min head travel speed
-shiftX = [10, 50]#, 70]
-shiftY = [10, 35]
+shiftX = [10]#, 50]#, 70]
+shiftY = [10]#, 35]
 firstLayerShiftZ = 0.1 #correct for bed leveling
 
 """
@@ -23,9 +23,9 @@ Part Parameters
 """
 #mainShape = ps.wideDogBone
 layerHeight = [0.4] #mm height per layer
-numLayers = [8] #number of layers to make
+numLayers = [1] #number of layers to make
 infillAngleDegrees = 90 #degrees infill angle 90 is in Y direction 0 is in X direction
-numShells = 2 # the number of shells max is 13
+numShells = 1 # the number of shells max is 13
 
 """
 Layer Parameters Only parameters that don't require the layer to be
