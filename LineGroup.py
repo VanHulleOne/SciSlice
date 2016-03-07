@@ -75,6 +75,17 @@ class LineGroup(object):
         y = (self.maxY - self.minY)/2.0 + self.minY
         return p.Point(x, y)
     
+    def lineOutsideBoundingBox(self, line):
+        startX = line.start.x
+        startY = line.start.y
+        endX = line.end.x
+        endY = line.end.y
+        if(startX < self.minX > endX): return True # Both ends are less than minX
+        if(startX > self.maxX < endX): return True # Both ends are greater than maxX
+        if(startY < self.minY > endY): return True # Both ends are less than minY
+        if(startY > self.maxY < endY): return True # Both ends are greater than maxY
+        return False
+    
     def nearestLine_Coro(self, key=None):
         lineList = copy.deepcopy(self.lines)
         used, testPoint = yield
