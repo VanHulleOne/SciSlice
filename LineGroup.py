@@ -49,18 +49,16 @@ class LineGroup(object):
             self.append(l.Line(pointList[i], pointList[i+1]))
             
     def mirror(self, axis):
-        cls = type(self)
-        return cls(self.transform(mt.mirrorMatrix(axis)))
+        return self.transform(mt.mirrorMatrix(axis))
     
     def translate(self, xShift, yShift,zShift=0):
-        cls = type(self)
-        return cls(self.transform(mt.translateMatrix(xShift, yShift, zShift)))        
+        return self.transform(mt.translateMatrix(xShift, yShift, zShift))      
         
-    def rotate(self, angle, point=p.Point(0,0)):      
-        cls = type(self)
-        return cls(self.transform(mt.rotateMatrix(angle, point)))
+    def rotate(self, angle, point=p.Point(0,0)):
+        return self.transform(mt.rotateMatrix(angle, point))
         
     def transform(self, transMatrix):
+        cls = type(self)
         numpyArray = np.array([point.normalVector for point in self.iterPoints()])        
         result = np.inner(numpyArray, transMatrix)
         lines = []        
@@ -68,7 +66,7 @@ class LineGroup(object):
             start = p.Point(result[i])
             end = p.Point(result[i+1])
             lines.append(l.Line(start, end, self[i%2]))
-        return lines
+        return cls(lines)
     
     def getMidPoint(self):
         x = (self.maxX - self.minX)/2.0 + self.minX

@@ -53,3 +53,10 @@ def mirrorMatrix(axis):
     else:
         transMatrix[c.X][0] *= -1
     return transMatrix
+    
+def combineTransformations(matrixList):
+    transMatrix = numpy.identity(4)
+    for matrix in matrixList:
+        transMatrix = numpy.dot(matrix, transMatrix)
+    return transMatrix
+        

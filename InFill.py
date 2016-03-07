@@ -13,6 +13,7 @@ import LineGroup as lg
 import parameters as pr
 from math import pi
 import time
+import matrixTrans as mt
 
 class InFill(LG):
     
@@ -91,6 +92,7 @@ class InFill(LG):
         trimShapeCP = self.trimShape.getMidPoint()
         transX = trimShapeCP.x - designCP.x
         transY = trimShapeCP.y - designCP.y
-        self.design = self.design.translate(transX, transY)
-        self.design = self.design.rotate(self.angleRad, trimShapeCP)
+        self.design = self.design.transform(mt.combineTransformations(
+                        [mt.translateMatrix(transX, transY),
+                         mt.rotateMatrix(self.angleRad, trimShapeCP)]))
         
