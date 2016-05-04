@@ -19,9 +19,9 @@ import Line as l
 
 class Figura:  
     
-    def __init__(self, inShapes):
-        self.shape = inShapes
-        startTime = time.time()
+    def __init__(self, shape):
+        self.shape = shape
+#        startTime = time.time()
 #        layer = self.organizedLayer(inShapes)
 #        layer = layer.translate(0,0, pr.firstLayerShiftZ)
 #        print '\nLayer organized in: %.2f sec\n' %(time.time() - startTime)
@@ -30,11 +30,11 @@ class Figura:
 #            f.write(layer.CSVstr())
         self.gcode = [gc.startGcode()]
         self.partCount = 1
-        
+#        layer = self.layer_gen()
         for partParams in pr.everyPartsParameters:
             print 'Part Count: ' + str(self.partCount)            
             print 'Part Params: ' + str(partParams)
-            part = self.part_Gen(layer, partParams)
+            part = self.part_Gen(self.layer_gen(), partParams)
             self.gcode += '\n\n;Part number: ' + str(self.partCount) + '\n'
             self.gcode += ';Parameters: ' + str(partParams) + '\n'
             self.setGcode(part, partParams[c.PRINT_SPEED],
@@ -57,18 +57,15 @@ class Figura:
                 layers[angle] = self.organizedLayer(filledList + [infill])
             yield layers[angle]
     
-    def part_Gen(self, baseLayer, partParams):
-        centerY = (baseLayer.maxY-baseLayer.minY)/2.0+baseLayer.minY
-        axis = l.Line(p.Point(0, centerY), p.Point(100, centerY))
-        mirroredBase = baseLayer.mirror(axis)
+    def part_Gen(self, layer, partParams):
+#        centerY = (baseLayer.maxY-baseLayer.minY)/2.0+baseLayer.minY
+#        axis = l.Line(p.Point(0, centerY), p.Point(100, centerY))
+#        mirroredBase = baseLayer.mirror(axis)
         layerParam_Gen = pr.zipVariables_gen(pr.layerParameters, repeat=True)
         print 'Num Layers: ' + str(partParams[c.NUM_LAYERS])
         for i in range(partParams[c.NUM_LAYERS]):
             layerParams = next(layerParam_Gen)
-            if layerParams[c.FLIP_LAYER]:
-                currentLayer = mirroredBase
-            else:
-                currentLayer = baseLayer
+            currentLayer = next(layer)
                 
             yield currentLayer.translate(partParams[c.SHIFT_X]+layerParams[c.LAYERSHIFT_X],
                                          partParams[c.SHIFT_Y]+layerParams[c.LAYERSHIFT_Y],
