@@ -8,7 +8,7 @@ Created on Thu Nov 19 16:45:00 2015
 import gcode as gc
 import parameters as pr
 import Point as p
-import InFill as Inf
+import InFill as InF
 import LineGroup as lg
 from parameters import constants as c
 from Shape import Shape
@@ -20,15 +20,17 @@ import Line as l
 class Figura:  
     
     def __init__(self, inShapes):
+        self.shape = inShapes
         startTime = time.time()
-        layer = self.organizedLayer(inShapes)
-        layer = layer.translate(0,0, pr.firstLayerShiftZ)
-        print '\nLayer organized in: %.2f sec\n' %(time.time() - startTime)
-        with open('I:\RedBench\static\data\LineList.txt', 'w') as f:
-            f.write('test\n')
-            f.write(layer.CSVstr())
+#        layer = self.organizedLayer(inShapes)
+#        layer = layer.translate(0,0, pr.firstLayerShiftZ)
+#        print '\nLayer organized in: %.2f sec\n' %(time.time() - startTime)
+#        with open('I:\RedBench\static\data\LineList.txt', 'w') as f:
+#            f.write('test\n')
+#            f.write(layer.CSVstr())
         self.gcode = [gc.startGcode()]
         self.partCount = 1
+        
         for partParams in pr.everyPartsParameters:
             print 'Part Count: ' + str(self.partCount)            
             print 'Part Params: ' + str(partParams)
@@ -39,6 +41,21 @@ class Figura:
                           partParams[c.SOLIDITY_RATIO], partParams[c.LAYER_HEIGHT])
             self.partCount += 1
         self.gcode += gc.endGcode()
+    
+    def layer_gen(self):
+        currOutline = self.shape
+        filledList = []
+        for shellNumber in xrange(pr.numShells):
+            filledList.append(currOutline)
+            currOutline = currOutline.offset(pr.pathWidth, c.INSIDE)
+        
+        layers = {}
+        layerAngles = pr.variable_gen(pr.infillAngleDegrees)
+        for angle in layerAngles:
+            if angle not in layers:
+                infill = InF.InFill(currOutline, pr.pathWidth, angle)
+                layers[angle] = self.organizedLayer(filledList + [infill])
+            yield layers[angle]
     
     def part_Gen(self, baseLayer, partParams):
         centerY = (baseLayer.maxY-baseLayer.minY)/2.0+baseLayer.minY

@@ -32,9 +32,9 @@ for shellNumber in range(pr.numShells):
     filledList.append(currOutline)
     currOutline = currOutline.offset(pr.pathWidth, c.INSIDE)
 
-pattern = lg.LineGroup()
-pattern.addLinesFromCoordinateList([[0,0],[2,2],[4,0]])
-infill = InF.InFill(currOutline, pr.pathWidth, pr.infillAngleDegrees, pattern)
+#pattern = lg.LineGroup()
+#pattern.addLinesFromCoordinateList([[0,0],[2,2],[4,0]])
+infill = InF.InFill(currOutline, pr.pathWidth, pr.infillAngleDegrees)#, pattern)
 
 filledList.append(infill)
 
@@ -52,7 +52,7 @@ with open(pr.outputSubDirectory+'\\'+pr.outputFileName, 'w') as f:
     f.write(string.join(fig.gcode))
 
 endTime = time.time()
-print 'Dong writting: ' + pr.outputFileName + '\n'
+print 'Done writting: ' + pr.outputFileName + '\n'
 
 print '{:.2f} seconds to generate code.'.format(generateTime - startTime)
 print '{:.2f} seconds to write.'.format(endTime - generateTime)
