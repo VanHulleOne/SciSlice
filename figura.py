@@ -57,7 +57,8 @@ class Figura:
             yield self.layers[angle]
     
     def part_Gen(self, layer, partParams):
-        layerParam_Gen = pr.zipVariables_gen(pr.layerParameters, repeat=True)
+        layerParam_Gen = pr.zipVariables_gen(pr.layerParameters,
+                                             namedTuple = pr.LayerParams, repeat=True)
         print 'Num Layers: ' + str(partParams[c.NUM_LAYERS])
         for i in range(partParams[c.NUM_LAYERS]):
             layerParams = next(layerParam_Gen)
