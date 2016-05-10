@@ -1,0 +1,8 @@
+#Files to ignore
+
+#Ignore extensions
+*.gcode
+*.pyc
+
+#Keep gcode files that start with SAVE
+!SAVE*.gcode
