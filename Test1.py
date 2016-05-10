@@ -68,18 +68,35 @@ def endPoints(points):
     
 def pairwise(l1):
     l1Iter = iter(l1)
-    first = curr = next(l1Iter)
+    first = pre = next(l1Iter)
     result = []
-    for pre in l1Iter:
-        result.append([curr, pre])
-        curr = pre
-    result.append([curr, first])
+    for curr in l1Iter:
+        result.append([pre, curr])
+        pre = curr
+    result.append([pre, first])
     return result
     
 def pairwise_gen(l1):
     l1Iter = iter(l1)
-    first = curr = next(l1Iter)
-    for pre in l1Iter:
-       yield [curr, pre]
-       curr = pre
-    yield [curr, first]
+    first = pre = next(l1Iter)
+    for curr in l1Iter:
+       yield [pre, curr]
+       pre = curr
+    yield [pre, first]
+    
+    
+    
+NT = col.namedtuple('NT', ['X', 'Y', 'Z'])
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
