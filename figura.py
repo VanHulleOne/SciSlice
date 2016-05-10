@@ -49,7 +49,7 @@ class Figura:
             filledList.append(currOutline)
             currOutline = currOutline.offset(pr.pathWidth, c.INSIDE)
 
-        layerAngles = pr.variable_gen(pr.infillAngleDegrees)
+        layerAngles = pr.infinit_gen(pr.infillAngleDegrees)
         for angle in layerAngles:
             if angle not in self.layers:
                 infill = InF.InFill(currOutline, pr.pathWidth, angle)
