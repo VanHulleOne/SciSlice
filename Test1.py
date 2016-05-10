@@ -48,12 +48,55 @@ p10 = p.Point(3,12)
 p11 = p.Point(0,5)
 
 
-for i in xrange(7):
-    if i%2:
-        st = 'top'
-        if i%3:
-            st = 'double'
-    else:
-        st = 'bottom'
-    print st
-        
+def endPoints(points):
+    end = []
+    current = [] 
+    num = 0
+    for cur_point in points:
+        num+=1
+        if(num==1): 
+            first = cur_point 
+        previous = current 
+        current = [] 
+        previous.append(cur_point) 
+        current.append(cur_point) 
+        if(num>1): 
+            end.append(previous) 
+    current.append(first)
+    end.append(current) 
+    return end
+    
+def pairwise(l1):
+    l1Iter = iter(l1)
+    first = pre = next(l1Iter)
+    result = []
+    for curr in l1Iter:
+        result.append([pre, curr])
+        pre = curr
+    result.append([pre, first])
+    return result
+    
+def pairwise_gen(l1):
+    l1Iter = iter(l1)
+    first = pre = next(l1Iter)
+    for curr in l1Iter:
+       yield [pre, curr]
+       pre = curr
+    yield [pre, first]
+    
+    
+    
+NT = col.namedtuple('NT', ['X', 'Y', 'Z'])
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    

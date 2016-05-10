@@ -8,7 +8,7 @@ Created on Thu Nov 19 16:45:00 2015
 import gcode as gc
 import parameters as pr
 import Point as p
-import InFill as Inf
+import InFill as InF
 import LineGroup as lg
 from parameters import constants as c
 from Shape import Shape
@@ -19,20 +19,22 @@ import Line as l
 
 class Figura:  
     
-    def __init__(self, inShapes):
-        startTime = time.time()
-        layer = self.organizedLayer(inShapes)
-        layer = layer.translate(0,0, pr.firstLayerShiftZ)
-        print '\nLayer organized in: %.2f sec\n' %(time.time() - startTime)
-        with open('I:\RedBench\static\data\LineList.txt', 'w') as f:
-            f.write('test\n')
-            f.write(layer.CSVstr())
+    def __init__(self, shape):
+        self.shape = shape
+#        startTime = time.time()
+#        layer = self.organizedLayer(inShapes)
+#        layer = layer.translate(0,0, pr.firstLayerShiftZ)
+#        print '\nLayer organized in: %.2f sec\n' %(time.time() - startTime)
+#        with open('I:\RedBench\static\data\LineList.txt', 'w') as f:
+#            f.write('test\n')
+#            f.write(layer.CSVstr())
         self.gcode = [gc.startGcode()]
         self.partCount = 1
+        self.layers = {}
         for partParams in pr.everyPartsParameters:
             print 'Part Count: ' + str(self.partCount)            
             print 'Part Params: ' + str(partParams)
-            part = self.part_Gen(layer, partParams)
+            part = self.part_Gen(self.layer_gen(), partParams)
             self.gcode += '\n\n;Part number: ' + str(self.partCount) + '\n'
             self.gcode += ';Parameters: ' + str(partParams) + '\n'
             self.setGcode(part, partParams[c.PRINT_SPEED],
@@ -40,22 +42,30 @@ class Figura:
             self.partCount += 1
         self.gcode += gc.endGcode()
     
-    def part_Gen(self, baseLayer, partParams):
-        centerY = (baseLayer.maxY-baseLayer.minY)/2.0+baseLayer.minY
-        axis = l.Line(p.Point(0, centerY), p.Point(100, centerY))
-        mirroredBase = baseLayer.mirror(axis)
+    def layer_gen(self):
+        currOutline = self.shape
+        filledList = []
+        for shellNumber in xrange(pr.numShells):
+            filledList.append(currOutline)
+            currOutline = currOutline.offset(pr.pathWidth, c.INSIDE)
+
+        layerAngles = pr.variable_gen(pr.infillAngleDegrees)
+        for angle in layerAngles:
+            if angle not in self.layers:
+                infill = InF.InFill(currOutline, pr.pathWidth, angle)
+                self.layers[angle] = self.organizedLayer(filledList + [infill])
+            yield self.layers[angle]
+    
+    def part_Gen(self, layer, partParams):
         layerParam_Gen = pr.zipVariables_gen(pr.layerParameters, repeat=True)
         print 'Num Layers: ' + str(partParams[c.NUM_LAYERS])
         for i in range(partParams[c.NUM_LAYERS]):
             layerParams = next(layerParam_Gen)
-            if layerParams[c.FLIP_LAYER]:
-                currentLayer = mirroredBase
-            else:
-                currentLayer = baseLayer
+            currentLayer = next(layer)
                 
             yield currentLayer.translate(partParams[c.SHIFT_X]+layerParams[c.LAYERSHIFT_X],
                                          partParams[c.SHIFT_Y]+layerParams[c.LAYERSHIFT_Y],
-                                         partParams[c.LAYER_HEIGHT]*(i+1))
+                                         partParams[c.LAYER_HEIGHT]*(i+1)+pr.firstLayerShiftZ)
     
     def setGcode(self, part, printSpeed, solidityRatio, layerHeight):
         extrusionRate = solidityRatio*layerHeight*pr.pathWidth/pr.filamentArea
