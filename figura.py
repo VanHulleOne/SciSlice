@@ -30,7 +30,7 @@ class Figura:
 #            f.write(layer.CSVstr())
         self.gcode = [gc.startGcode()]
         self.partCount = 1
-#        layer = self.layer_gen()
+        self.layers = {}
         for partParams in pr.everyPartsParameters:
             print 'Part Count: ' + str(self.partCount)            
             print 'Part Params: ' + str(partParams)
@@ -48,19 +48,15 @@ class Figura:
         for shellNumber in xrange(pr.numShells):
             filledList.append(currOutline)
             currOutline = currOutline.offset(pr.pathWidth, c.INSIDE)
-        
-        layers = {}
+
         layerAngles = pr.variable_gen(pr.infillAngleDegrees)
         for angle in layerAngles:
-            if angle not in layers:
+            if angle not in self.layers:
                 infill = InF.InFill(currOutline, pr.pathWidth, angle)
-                layers[angle] = self.organizedLayer(filledList + [infill])
-            yield layers[angle]
+                self.layers[angle] = self.organizedLayer(filledList + [infill])
+            yield self.layers[angle]
     
     def part_Gen(self, layer, partParams):
-#        centerY = (baseLayer.maxY-baseLayer.minY)/2.0+baseLayer.minY
-#        axis = l.Line(p.Point(0, centerY), p.Point(100, centerY))
-#        mirroredBase = baseLayer.mirror(axis)
         layerParam_Gen = pr.zipVariables_gen(pr.layerParameters, repeat=True)
         print 'Num Layers: ' + str(partParams[c.NUM_LAYERS])
         for i in range(partParams[c.NUM_LAYERS]):
@@ -69,7 +65,7 @@ class Figura:
                 
             yield currentLayer.translate(partParams[c.SHIFT_X]+layerParams[c.LAYERSHIFT_X],
                                          partParams[c.SHIFT_Y]+layerParams[c.LAYERSHIFT_Y],
-                                         partParams[c.LAYER_HEIGHT]*(i+1))
+                                         partParams[c.LAYER_HEIGHT]*(i+1)+pr.firstLayerShiftZ)
     
     def setGcode(self, part, printSpeed, solidityRatio, layerHeight):
         extrusionRate = solidityRatio*layerHeight*pr.pathWidth/pr.filamentArea
