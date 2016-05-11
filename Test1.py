@@ -97,30 +97,7 @@ def cantorPairing(l1):
     k2 = l1[-1]
     k1 = cantorPairing(l1[:-1])
     return (0.5*(k1+k2)*(k1+k2+1)+k2)
-    
-d1 = {}    
-i = 0
-step = 0.1
 
-while i <= 10:
-    j = 0
-    while j <= 1:
-        k = 0
-        while k <= 1:
-            pair = (i,j, k)
-            cp = cantorPairing(pair)
-            if cp in d1:
-                print 'duplicate found'
-                print d1[cp]
-                print 'and'
-                print pair
-            else:
-                d1[cp] = pair
-            k += 0.1
-        j += 0.1
-    i += 1
-    
-    
     
     
     
