@@ -76,10 +76,11 @@ class Figura:
             extrusionRate = (partParams.solidityRatio*layerPar.layerHeight*
                             layerPar.pathWidth/pr.filamentArea)
             self.gcode += ';Layer: ' + str(layerNumber) + '\n'
-            self.gcode += str(layerPar) + '\n'
+            self.gcode += ';' + str(layerPar) + '\n'
             self.gcode += ';T' + str(self.partCount) + str(layerNumber) + '\n'
             self.gcode += ';M6\n'
-            self.gcode += 'M117 Layer ' + str(layerNumber) + '..\n'
+            self.gcode += ('M117 Layer ' + str(layerNumber) + ' of ' +
+                            str(partParams.numLayers) + '..\n')
             self.gcode += gc.rapidMove(layer[0].start, pr.OMIT_Z)
             self.gcode += gc.firstApproach(totalExtrusion, layer[0].start)
             
@@ -103,7 +104,7 @@ class Figura:
             self.gcode += gc.retractLayer(totalExtrusion, layer[-1].end)
             self.gcode += '\n'
             layerNumber += 1
-        self.gcode += ';Part total extrusion distance ({:.1f} mm)\n\n'.format(totalExtrusion)
+        self.gcode += ';Extrusion amount for part is ({:.1f} mm)\n\n'.format(totalExtrusion)
                 
     def organizedLayer(self, inShapes):
         layer = lg.LineGroup()
