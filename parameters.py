@@ -16,7 +16,6 @@ printSpeed = [2000] #mm/min head travel speed
 shiftX = [10, 50, 70]
 shiftY = [10, 35, 60]
 firstLayerShiftZ = 0 #correct for bed leveling
-#mainShape = ps.wideDogBone
 numLayers = [8] #number of layers to make
 trimAdjust = 0.00001
 
@@ -44,9 +43,6 @@ startEndSubDirectory = 'Start_End_Gcode'
 """
 Misc Parameters
 """
-maxFeedStep = 5.0 #not implemented yet
-slopeOverX = 0.0 #not yet implemented how much you want it to move over in X per level
-slopeOverY = 0 #not implemented yet how much you want it to move over in Y per level
 filamentDiameter = 3.0 #mm dia of incoming filament
 filamentArea = math.pi*filamentDiameter**2/4.0
 nozzleDiameter = 0.5 #mm
