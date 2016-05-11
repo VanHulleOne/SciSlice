@@ -57,7 +57,7 @@ class Figura:
                 filledList = []
                 for shellNumber in xrange(layerPar.numShells):
                     filledList.append(currOutline)
-                    currOutline = currOutline.offset(layerPar.pathWidth, c.INSIDE)
+                    currOutline = currOutline.offset(layerPar.pathWidth-pr.trimAdjust, c.INSIDE)
                     
                 infill = InF.InFill(currOutline, layerPar.pathWidth, layerPar.infillAngle,
                                     shiftX=layerPar.infillShiftX, shiftY=layerPar.infillShiftY)
