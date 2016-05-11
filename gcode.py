@@ -7,6 +7,8 @@ Created on Fri Nov 06 10:30:44 2015
 
 import parameters as pr
 
+modalGroups = [0]
+
 def feedMove(endPoint, ommitZ, extrudeTo, printSpeed):
     if ommitZ:
         return ('G01 X{:.3f} Y{:.3f} F{:.0f} E{:.3f}\n'.format(endPoint.x, endPoint.y,
@@ -16,6 +18,7 @@ def feedMove(endPoint, ommitZ, extrudeTo, printSpeed):
                 printSpeed, extrudeTo))
 
 def rapidMove(endPoint, ommitZ):
+    group1[0] = 0
     if ommitZ:
         return ('G00 X{:.3f} Y{:.3f} F{:.0f}\n'.format(endPoint.x, endPoint.y,
                 pr.RAPID))
@@ -30,13 +33,13 @@ def retractLayer(currentE, currentPoint):
     
 def approachLayer(lastE, startPoint):
     tempString = 'G1 Z{:.3f} F{:.0f} E{:.3f}\n'.format(startPoint.z+pr.Z_CLEARANCE/2.0,
-                    pr.APPROACH_FR, lastE-pr.TRAVERSE_RETRACT*0.75)
+                    pr.RAPID, lastE-pr.TRAVERSE_RETRACT*0.75)
     tempString += 'G1 Z{:.3f} F{:.0f} E{:.3f}\n'.format(startPoint.z,
-                    pr.APPROACH_FR/2.0, lastE)
+                    pr.APPROACH_FR, lastE)
     return tempString
 
-def firstApproach(startPoint):
-    return 'G1 Z{:.3f} F{:.0f}\n'.format(startPoint.z, pr.APPROACH_FR)
+def firstApproach(lastE, startPoint):
+    return 'G1 Z{:.3f} F{:.0f} E{:.3f}\n'.format(startPoint.z, pr.APPROACH_FR, lastE)
     
 def newPart():
     return 'G92 E0\n'
