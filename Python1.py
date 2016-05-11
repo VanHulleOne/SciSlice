@@ -4,19 +4,9 @@ Created on Mon Sep 21 09:51:36 2015
 
 @author: lvanhulle
 """
-import math
-import numpy
-import operator
-import Point as p
-import Line as l
-import Shape as s
-import LineGroup as lg
-import InFill as InF
-import arc as a
+
 import figura as fg
 import parameters as pr
-import gcode as gc
-from parameters import constants as c
 import doneShapes as ds
 import time
 
