@@ -26,10 +26,10 @@ Layer Parameters
 infillAngleDegrees = [0, -45, 90, 45, 45, 90, -45, 0] #degrees infill angle 90 is in Y direction 0 is in X direction
 pathWidth = [0.5] #mm distance between centerline of paths
 layerHeight = [0.4] #mm height per layer
-layerShiftX = [0]
-layerShiftY = [0]
+infillShiftX = [0]
+infillShiftY = [0.25,0,0,0,0,0, 0, 0.25]
 #flipLayer = [0] No longer implimented
-numShells = [10,1,1,0,0,1,1,10] # the number of shells max is 13
+numShells = [12,1,1,0,0,1,1,10] # the number of shells max is 13 if 0.4999 path width is used
 
 """
 File Parameters
@@ -67,10 +67,10 @@ def infinit_gen(variableList):
         for var in variableList: 
             yield var
 
-LayerParams = namedtuple('LayerParams', ['layerShiftX', 'layerShiftY',
+LayerParams = namedtuple('LayerParams', ['infillShiftX', 'infillShiftY',
                                          'infillAngle', 'numShells', 'layerHeight',
                                          'pathWidth'])            
-layerParameters = (layerShiftX, layerShiftY, infillAngleDegrees, numShells,
+layerParameters = (infillShiftX, infillShiftY, infillAngleDegrees, numShells,
                    layerHeight, pathWidth)
 
 PartParams = namedtuple('PartParams', ['solidityRatio', 'printSpeed',
@@ -87,10 +87,11 @@ Standard printing settings
 OMIT_Z = True
 INCLUDE_Z = False
 RAPID = 4000 #mm/min
-TRAVERSE_RETRACT = 0.5 #mm to retract when traversing longer distances
+TRAVERSE_RETRACT = 0.5 #mm of filament to retract when traversing longer distances
+MAX_FEED_TRAVERSE = 10 # max mm to move without lifting the head
 MAX_EXTRUDE_SPEED = 100 #mm/min max speed to move filament
 Z_CLEARANCE = 10.0 #mm to move Z up
-APPROACH_FR = 2000 #mm/min aproach feedrate
+APPROACH_FR = 1500 #mm/min aproach feedrate
 
 """
 Constants

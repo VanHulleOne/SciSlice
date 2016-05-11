@@ -23,8 +23,11 @@ class InFill(LG):
     CENTERED_FIELD = 3
     TRIMMED_FIELD = 4    
     
-    def __init__(self, trimShape, pathWidth, angleDegrees, design=None, designType=PARTIAL_ROW):
+    def __init__(self, trimShape, pathWidth, angleDegrees, shiftX=0, shiftY=0,
+                 design=None, designType=PARTIAL_ROW):
         LG.__init__(self, None)
+        self.shiftX = shiftX
+        self.shiftY = shiftY
         self.designType = designType
         self.trimShape = s.Shape(trimShape)
         self.angleRad = (angleDegrees/360.0*2*pi)
@@ -93,6 +96,6 @@ class InFill(LG):
         transX = trimShapeCP.x - designCP.x
         transY = trimShapeCP.y - designCP.y
         self.design = self.design.transform(mt.combineTransformations(
-                        [mt.translateMatrix(transX, transY),
+                        [mt.translateMatrix(transX+self.shiftX, transY+self.shiftY),
                          mt.rotateMatrix(self.angleRad, trimShapeCP)]))
         

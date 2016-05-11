@@ -40,21 +40,7 @@ class Figura:
             self.setGcode(part, partParams)
             self.partCount += 1
         self.gcode += gc.endGcode()
-    
-#    def layer_gen(self):
-#        currOutline = self.shape
-#        filledList = []
-#        for shellNumber in xrange(pr.numShells):
-#            filledList.append(currOutline)
-#            currOutline = currOutline.offset(pr.pathWidth, c.INSIDE)
-#
-#        layerAngles = pr.infinit_gen(pr.infillAngleDegrees)
-#        for angle in layerAngles:
-#            if angle not in self.layers:
-#                infill = InF.InFill(currOutline, pr.pathWidth, angle)
-#                self.layers[angle] = self.organizedLayer(filledList + [infill])
-#            yield self.layers[angle]
-    
+
     def part_Gen(self, partParams):
         layerParam_Gen = pr.zipVariables_gen(pr.layerParameters,
                                              namedTuple = pr.LayerParams, repeat=True)
@@ -62,7 +48,8 @@ class Figura:
         
         for i in range(partParams.numLayers):
             layerPar = next(layerParam_Gen)
-            layerName = (layerPar.infillAngle, layerPar.numShells)
+            layerName = (layerPar.infillAngle, layerPar.numShells,
+                         layerPar.infillShiftX, layerPar.infillShiftY)
             currHeight += layerPar.layerHeight
             
             if layerName not in self.layers:
@@ -72,12 +59,12 @@ class Figura:
                     filledList.append(currOutline)
                     currOutline = currOutline.offset(layerPar.pathWidth, c.INSIDE)
                     
-                infill = InF.InFill(currOutline, layerPar.pathWidth, layerPar.infillAngle)
+                infill = InF.InFill(currOutline, layerPar.pathWidth, layerPar.infillAngle,
+                                    shiftX=layerPar.infillShiftX, shiftY=layerPar.infillShiftY)
                 self.layers[layerName] = self.organizedLayer(filledList + [infill])
                 
-            yield self.layers[layerName].translate(partParams.shiftX+layerPar.layerShiftX,
-                                         partParams.shiftY+layerPar.layerShiftY,
-                                         currHeight), layerPar
+            yield (self.layers[layerName].translate(partParams.shiftX,
+                                            partParams.shiftY, currHeight), layerPar)
     
     def setGcode(self, part, partParams):
         
@@ -86,24 +73,37 @@ class Figura:
         totalExtrusion = 0
         
         for layer, layerPar in part:
-            extrusionRate = partParams.solidityRatio*layerPar.layerHeight*layerPar.pathWidth/pr.filamentArea
+            extrusionRate = (partParams.solidityRatio*layerPar.layerHeight*
+                            layerPar.pathWidth/pr.filamentArea)
             self.gcode += ';Layer: ' + str(layerNumber) + '\n'
             self.gcode += str(layerPar) + '\n'
             self.gcode += ';T' + str(self.partCount) + str(layerNumber) + '\n'
             self.gcode += ';M6\n'
             self.gcode += 'M117 Layer ' + str(layerNumber) + '..\n'
             self.gcode += gc.rapidMove(layer[0].start, pr.OMIT_Z)
-            self.gcode += gc.firstApproach(layer[0].start)
+            self.gcode += gc.firstApproach(totalExtrusion, layer[0].start)
             
+            prevLoc = layer[0].start
             for line in layer:
+                
+                if prevLoc != line.start:
+                    if (prevLoc - line.start) < pr.MAX_FEED_TRAVERSE:
+                        self.gcode += gc.rapidMove(line.start, pr.OMIT_Z)
+                    else:
+                        self.gcode += gc.retractLayer(totalExtrusion, prevLoc)
+                        self.gcode += gc.rapidMove(line.start, pr.OMIT_Z)
+                        self.gcode += gc.approachLayer(totalExtrusion, line.start)
+                        
                 line.extrusionRate = extrusionRate
                 totalExtrusion += line.length*line.extrusionRate
-                self.gcode += gc.rapidMove(line.start, pr.OMIT_Z)
-                self.gcode += gc.feedMove(line.end, pr.OMIT_Z, totalExtrusion, partParams.printSpeed)
+                self.gcode += gc.feedMove(line.end, pr.OMIT_Z, totalExtrusion,
+                                          partParams.printSpeed)
+                prevLoc = line.end
             
             self.gcode += gc.retractLayer(totalExtrusion, layer[-1].end)
-            self.gcode += '\n\n'
-            layerNumber += 1        
+            self.gcode += '\n'
+            layerNumber += 1
+        self.gcode += ';Part total extrusion distance ({:.1f} mm)\n\n'.format(totalExtrusion)
                 
     def organizedLayer(self, inShapes):
         layer = lg.LineGroup()
