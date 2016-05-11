@@ -6,6 +6,7 @@ Created on Thu Nov 19 19:52:29 2015
 """
 import math
 import numpy
+from collections import namedtuple
 
 """
 Printing Parameters.
@@ -14,7 +15,7 @@ solidityRatio = [1.09]#12]#, 0.1, 0.05] solidityRatio = PathArea/beadArea
 pathWidth = 0.5 #mm distance between centerline of paths
 printSpeed = [2000] #mm/min head travel speed
 shiftX = [10, 50, 70]
-shiftY = [10]#, 35]
+shiftY = [10, 35, 60]
 firstLayerShiftZ = 0 #correct for bed leveling
 
 """
@@ -55,25 +56,31 @@ filamentArea = math.pi*filamentDiameter**2/4.0
 nozzleDiameter = 0.5 #mm
 
 
-def zipVariables_gen(inputLists, repeat=False):
-    variableGenerators = [variable_gen(sublist) for sublist in inputLists]
+def zipVariables_gen(inputLists, namedTuple = None, repeat=False):
+    if namedTuple is None:
+        namedTuple = namedtuple('n', ('n_'+str(i) for i in xrange(len(inputLists))))
+    variableGenerators = [infinit_gen(sublist) for sublist in inputLists]
         
     while 1:
         for _ in max(inputLists, key=len):
-            yield tuple(next(varGen) for varGen in variableGenerators)
+            yield namedTuple(*(next(varGen) for varGen in variableGenerators))
         if not repeat:
             break
     
-def variable_gen(variableList):
+def infinit_gen(variableList):
     while 1:
         for var in variableList: 
             yield var
-            
+
+LayerParams = namedtuple('LayerParams', ['layerShiftX', 'layerShiftY', 'flipLayer'])            
 layerParameters = (layerShiftX, layerShiftY, flipLayer)
 
+PartParams = namedtuple('PartParams', ['solidityRatio', 'printSpeed',
+                                                   'shiftX', 'shiftY', 'layerHeight',
+                                                   'numLayers'])
 everyPartsParameters = zipVariables_gen((
                           solidityRatio, printSpeed, shiftX, shiftY,
-                          layerHeight, numLayers))
+                          layerHeight, numLayers), namedTuple = PartParams)
                                                    
 
 """
