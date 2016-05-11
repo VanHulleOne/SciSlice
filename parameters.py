@@ -9,32 +9,27 @@ import numpy
 from collections import namedtuple
 
 """
-Printing Parameters.
+Part Parameters
 """
 solidityRatio = [1.09]#12]#, 0.1, 0.05] solidityRatio = PathArea/beadArea
-pathWidth = 0.5 #mm distance between centerline of paths
 printSpeed = [2000] #mm/min head travel speed
 shiftX = [10, 50, 70]
 shiftY = [10, 35, 60]
 firstLayerShiftZ = 0 #correct for bed leveling
-
-"""
-Part Parameters
-"""
 #mainShape = ps.wideDogBone
-layerHeight = [0.4] #mm height per layer
-numLayers = [4] #number of layers to make
-infillAngleDegrees = [0, -45, 90, 45, 45, 90, -45, 0] #degrees infill angle 90 is in Y direction 0 is in X direction
-numShells = 1 # the number of shells max is 13
+numLayers = [8] #number of layers to make
+
 
 """
-Layer Parameters Only parameters that don't require the layer to be
-re-organized are allowed
+Layer Parameters
 """
+infillAngleDegrees = [0, -45, 90, 45, 45, 90, -45, 0] #degrees infill angle 90 is in Y direction 0 is in X direction
+pathWidth = [0.5] #mm distance between centerline of paths
+layerHeight = [0.4] #mm height per layer
 layerShiftX = [0]
 layerShiftY = [0]
-flipLayer = [0]
-
+#flipLayer = [0] No longer implimented
+numShells = [10,1,1,0,0,1,1,10] # the number of shells max is 13
 
 """
 File Parameters
@@ -72,15 +67,18 @@ def infinit_gen(variableList):
         for var in variableList: 
             yield var
 
-LayerParams = namedtuple('LayerParams', ['layerShiftX', 'layerShiftY', 'flipLayer'])            
-layerParameters = (layerShiftX, layerShiftY, flipLayer)
+LayerParams = namedtuple('LayerParams', ['layerShiftX', 'layerShiftY',
+                                         'infillAngle', 'numShells', 'layerHeight',
+                                         'pathWidth'])            
+layerParameters = (layerShiftX, layerShiftY, infillAngleDegrees, numShells,
+                   layerHeight, pathWidth)
 
 PartParams = namedtuple('PartParams', ['solidityRatio', 'printSpeed',
-                                                   'shiftX', 'shiftY', 'layerHeight',
+                                                   'shiftX', 'shiftY',
                                                    'numLayers'])
 everyPartsParameters = zipVariables_gen((
                           solidityRatio, printSpeed, shiftX, shiftY,
-                          layerHeight, numLayers), namedTuple = PartParams)
+                          numLayers), namedTuple = PartParams)
                                                    
 
 """
