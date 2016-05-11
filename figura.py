@@ -32,13 +32,13 @@ class Figura:
         self.partCount = 1
         self.layers = {}
         for partParams in pr.everyPartsParameters:
-            print 'Part Count: ' + str(self.partCount)            
-            print 'Part Params: ' + str(partParams)
+            print '\nPart number: ' + str(self.partCount)            
+            print partParams
             part = self.part_Gen(self.layer_gen(), partParams)
             self.gcode += '\n\n;Part number: ' + str(self.partCount) + '\n'
-            self.gcode += ';Parameters: ' + str(partParams) + '\n'
-            self.setGcode(part, partParams[c.PRINT_SPEED],
-                          partParams[c.SOLIDITY_RATIO], partParams[c.LAYER_HEIGHT])
+            self.gcode += ';' + str(partParams) + '\n'
+            self.setGcode(part, partParams.printSpeed,
+                          partParams.solidityRatio, partParams.layerHeight)
             self.partCount += 1
         self.gcode += gc.endGcode()
     
@@ -59,14 +59,14 @@ class Figura:
     def part_Gen(self, layer, partParams):
         layerParam_Gen = pr.zipVariables_gen(pr.layerParameters,
                                              namedTuple = pr.LayerParams, repeat=True)
-        print 'Num Layers: ' + str(partParams[c.NUM_LAYERS])
-        for i in range(partParams[c.NUM_LAYERS]):
+
+        for i in range(partParams.numLayers):
             layerParams = next(layerParam_Gen)
             currentLayer = next(layer)
                 
-            yield currentLayer.translate(partParams[c.SHIFT_X]+layerParams[c.LAYERSHIFT_X],
-                                         partParams[c.SHIFT_Y]+layerParams[c.LAYERSHIFT_Y],
-                                         partParams[c.LAYER_HEIGHT]*(i+1)+pr.firstLayerShiftZ)
+            yield currentLayer.translate(partParams.shiftX+layerParams.layerShiftX,
+                                         partParams.shiftY+layerParams.layerShiftY,
+                                         partParams.layerHeight*(i+1)+pr.firstLayerShiftZ)
     
     def setGcode(self, part, printSpeed, solidityRatio, layerHeight):
         extrusionRate = solidityRatio*layerHeight*pr.pathWidth/pr.filamentArea

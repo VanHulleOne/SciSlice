@@ -22,7 +22,7 @@ import time
 
 
 startTime = time.time()
-print '\nGenerating code, please wait...\n'
+print '\nGenerating code, please wait...'
    
 currOutline = ds.regularDogBone()
 #currOutline = ds.rect(0,0,15,250)
@@ -37,10 +37,6 @@ currOutline = ds.regularDogBone()
 #infill = InF.InFill(currOutline, pr.pathWidth, pr.infillAngleDegrees)#, pattern)
 #
 #filledList.append(infill)
-
-
-print 'Created Infill: {:.2f}'.format(time.time()-startTime)
-
 
 fig = fg.Figura(currOutline)
 generateTime = time.time()
