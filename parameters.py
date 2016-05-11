@@ -18,6 +18,7 @@ shiftY = [10, 35, 60]
 firstLayerShiftZ = 0 #correct for bed leveling
 #mainShape = ps.wideDogBone
 numLayers = [8] #number of layers to make
+trimAdjust = 0.00001
 
 
 """
@@ -29,7 +30,7 @@ layerHeight = [0.4] #mm height per layer
 infillShiftX = [0]
 infillShiftY = [0.25,0,0,0,0,0, 0, 0.25]
 #flipLayer = [0] No longer implimented
-numShells = [12,1,1,0,0,1,1,10] # the number of shells max is 13 if 0.4999 path width is used
+numShells = [13,1,1,0,0,1,1,13] # the number of shells max is 13 if 0.4999 path width is used
 
 """
 File Parameters
@@ -92,6 +93,7 @@ MAX_FEED_TRAVERSE = 10 # max mm to move without lifting the head
 MAX_EXTRUDE_SPEED = 100 #mm/min max speed to move filament
 Z_CLEARANCE = 10.0 #mm to move Z up
 APPROACH_FR = 1500 #mm/min aproach feedrate
+EPSILON = 10000
 
 """
 Constants
@@ -108,12 +110,3 @@ class constants:
     INSIDE = 1 #Point is inside shape
     OUTSIDE = 0 #point is outside shape
     ALLOW_PROJECTION = True
-    SOLIDITY_RATIO = 0
-    PRINT_SPEED = 1
-    SHIFT_X = 2
-    SHIFT_Y = 3
-    LAYER_HEIGHT = 4
-    NUM_LAYERS = 5
-    LAYERSHIFT_X = 0
-    LAYERSHIFT_Y = 1
-    FLIP_LAYER = 2
