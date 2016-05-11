@@ -37,8 +37,7 @@ class Figura:
             part = self.part_Gen(partParams)
             self.gcode += '\n\n;Part number: ' + str(self.partCount) + '\n'
             self.gcode += ';' + str(partParams) + '\n'
-            self.setGcode(part, partParams.printSpeed,
-                          partParams.solidityRatio, partParams.layerHeight)
+            self.setGcode(part, partParams)
             self.partCount += 1
         self.gcode += gc.endGcode()
     
@@ -80,15 +79,16 @@ class Figura:
                                          partParams.shiftY+layerPar.layerShiftY,
                                          currHeight), layerPar
     
-    def setGcode(self, part, printSpeed, solidityRatio, layerHeight):
-        extrusionRate = solidityRatio*layerHeight*pr.pathWidth/pr.filamentArea
+    def setGcode(self, part, partParams):
+        
         layerNumber = 1
         self.gcode += gc.newPart()
         totalExtrusion = 0
         
         for layer, layerPar in part:
+            extrusionRate = partParams.solidityRatio*layerPar.layerHeight*layerPar.pathWidth/pr.filamentArea
             self.gcode += ';Layer: ' + str(layerNumber) + '\n'
-            self.gcode += str(layerPar)
+            self.gcode += str(layerPar) + '\n'
             self.gcode += ';T' + str(self.partCount) + str(layerNumber) + '\n'
             self.gcode += ';M6\n'
             self.gcode += 'M117 Layer ' + str(layerNumber) + '..\n'
@@ -99,7 +99,7 @@ class Figura:
                 line.extrusionRate = extrusionRate
                 totalExtrusion += line.length*line.extrusionRate
                 self.gcode += gc.rapidMove(line.start, pr.OMIT_Z)
-                self.gcode += gc.feedMove(line.end, pr.OMIT_Z, totalExtrusion, printSpeed)
+                self.gcode += gc.feedMove(line.end, pr.OMIT_Z, totalExtrusion, partParams.printSpeed)
             
             self.gcode += gc.retractLayer(totalExtrusion, layer[-1].end)
             self.gcode += '\n\n'
