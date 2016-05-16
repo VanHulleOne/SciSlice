@@ -62,29 +62,28 @@ MAX_EXTRUDE_SPEED = 100 #mm/min max speed to move filament
 Z_CLEARANCE = 10.0 #mm to move Z up
 APPROACH_FR = 1500 #mm/min aproach feedrate
 
-def zipVariables_gen(inputLists, namedTuple = None, repeat=False):
-    if namedTuple is None:
-        namedTuple = namedtuple('NoName', ('n_'+str(i) for i in xrange(len(inputLists))))
+def zipVariables_gen(inputLists, repeat=False):
+    tupleType = type(inputLists)
     variableGenerators = map(itertools.cycle, inputLists)
         
     while 1:
         for _ in max(inputLists, key=len):
-            yield namedTuple(*map(next, variableGenerators))
+            if tupleType is tuple:
+                yield tuple(map(next, variableGenerators))
+            else:
+                yield tupleType(*map(next, variableGenerators))
         if not repeat:
             break
 
-LayerParams = namedtuple('LayerParams', ['infillShiftX', 'infillShiftY',
-                                         'infillAngle', 'numShells', 'layerHeight',
-                                         'pathWidth'])            
-layerParameters = (infillShiftX, infillShiftY, infillAngleDegrees, numShells,
+LayerParams = namedtuple('LayerParams', 'infillShiftX infillShiftY infillAngle \
+                                        numShells layerHeight pathWidth')            
+layerParameters = LayerParams(infillShiftX, infillShiftY, infillAngleDegrees, numShells,
                    layerHeight, pathWidth)
 
-PartParams = namedtuple('PartParams', ['solidityRatio', 'printSpeed',
-                                                   'shiftX', 'shiftY',
-                                                   'numLayers'])
-everyPartsParameters = zipVariables_gen((
+PartParams = namedtuple('PartParams', 'solidityRatio printSpeed shiftX shiftY numLayers')
+everyPartsParameters = zipVariables_gen(PartParams(
                           solidityRatio, printSpeed, shiftX, shiftY,
-                          numLayers), namedTuple = PartParams)
+                          numLayers))
                           
 if __name__ == '__main__':
     startTime = time.time()

@@ -42,8 +42,7 @@ class Figura:
         self.gcode += gc.endGcode()
 
     def part_Gen(self, partParams):
-        layerParam_Gen = pr.zipVariables_gen(pr.layerParameters,
-                                             namedTuple = pr.LayerParams, repeat=True)
+        layerParam_Gen = pr.zipVariables_gen(pr.layerParameters, repeat=True)
         currHeight = pr.firstLayerShiftZ
         
         for i in range(partParams.numLayers):
