@@ -10,8 +10,8 @@ import numpy as np
 from operator import itemgetter
 import copy
 import matrixTrans as mt
+import constants as c
 
-from parameters import constants as c
 class LineGroup(object):
     
     def __init__(self, inGroup=None):

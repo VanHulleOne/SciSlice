@@ -6,7 +6,7 @@ Created on Tue Oct 27 13:40:56 2015
 """
 import Point as p
 import numpy
-from parameters import constants as c
+import constants as c
 
 """
 Line stores a start and end points of a line. The module also provides many of

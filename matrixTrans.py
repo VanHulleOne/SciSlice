@@ -7,7 +7,7 @@ Created on Thu Jan 07 17:44:20 2016
 
 import Point as p
 import Line as l
-from parameters import constants as c
+import constants as c
 import numpy
 import math
 

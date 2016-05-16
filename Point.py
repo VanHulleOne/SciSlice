@@ -5,8 +5,7 @@ Created on Tue Oct 27 13:13:34 2015
 @author: lvanhulle
 """
 import numpy
-from parameters import constants as c
-import parameters as pr
+import constants as c
 import matrixTrans as mt
 
 """
@@ -24,7 +23,7 @@ class Point(object):
     as integers. The input number is multiplied by COMPARE_PRECISION and
     then converted to an int.
     """        
-    COMPARE_PRECISION = pr.EPSILON
+    COMPARE_PRECISION = c.EPSILON
     
     """
     Each Point stores an X, Y, Z coordinate. All points must have at least

@@ -5,19 +5,23 @@ Created on Thu Nov 19 19:52:29 2015
 @author: lvanhulle
 """
 import math
-import numpy
 from collections import namedtuple
+import constants as c
+import doneShapes as ds
+import figura as fg
+import time
 
 """
 Part Parameters
 """
+outline = ds.regularDogBone() # The shape we will be printing
 solidityRatio = [1.09]#12]#, 0.1, 0.05] solidityRatio = PathArea/beadArea
 printSpeed = [2000] #mm/min head travel speed
 shiftX = [10, 50, 70]
 shiftY = [10, 35, 60]
 firstLayerShiftZ = 0 #correct for bed leveling
 numLayers = [8] #number of layers to make
-trimAdjust = 0.00001
+trimAdjust = 1.0/c.EPSILON
 
 
 """
@@ -45,8 +49,19 @@ Misc Parameters
 """
 filamentDiameter = 3.0 #mm dia of incoming filament
 filamentArea = math.pi*filamentDiameter**2/4.0
-nozzleDiameter = 0.5 #mm
+nozzleDiameter = 0.5 #mm                                                   
 
+"""
+Standard printing settings
+"""
+OMIT_Z = True
+INCLUDE_Z = False
+RAPID = 4000 #mm/min
+TRAVERSE_RETRACT = 0.5 #mm of filament to retract when traversing longer distances
+MAX_FEED_TRAVERSE = 10 # max mm to move without lifting the head
+MAX_EXTRUDE_SPEED = 100 #mm/min max speed to move filament
+Z_CLEARANCE = 10.0 #mm to move Z up
+APPROACH_FR = 1500 #mm/min aproach feedrate
 
 def zipVariables_gen(inputLists, namedTuple = None, repeat=False):
     if namedTuple is None:
@@ -76,33 +91,24 @@ PartParams = namedtuple('PartParams', ['solidityRatio', 'printSpeed',
 everyPartsParameters = zipVariables_gen((
                           solidityRatio, printSpeed, shiftX, shiftY,
                           numLayers), namedTuple = PartParams)
-                                                   
-
-"""
-Standard printing settings
-"""
-OMIT_Z = True
-INCLUDE_Z = False
-RAPID = 4000 #mm/min
-TRAVERSE_RETRACT = 0.5 #mm of filament to retract when traversing longer distances
-MAX_FEED_TRAVERSE = 10 # max mm to move without lifting the head
-MAX_EXTRUDE_SPEED = 100 #mm/min max speed to move filament
-Z_CLEARANCE = 10.0 #mm to move Z up
-APPROACH_FR = 1500 #mm/min aproach feedrate
-EPSILON = 10000
-
-"""
-Constants
-"""
-class constants:
-    ARC_NUMPOINTS = 20
-    CW = -1 #Circle direction clock wise
-    CCW = 1 #circle direction counter clowise
-    X, Y, Z = 0, 1, 2
-    START = 0 #start of circle
-    END = 1 #end of circle
-    DIR = 2 #direction to travel
-    CENTER = 3 #center of circle
-    INSIDE = 1 #Point is inside shape
-    OUTSIDE = 0 #point is outside shape
-    ALLOW_PROJECTION = True
+                          
+if __name__ == '__main__':
+    startTime = time.time()
+    print '\nGenerating code, please wait...'
+    
+    fig = fg.Figura(outline)
+    generateTime = time.time()
+    
+    print '\nCode generated, writting file...\n'
+    
+    with open(outputSubDirectory+'\\'+outputFileName, 'w') as f:
+        string = ''
+        f.write(string.join(fig.gcode))
+    
+    endTime = time.time()
+    print 'Done writting: ' + outputFileName + '\n'
+    
+    print '{:.2f} seconds to generate code.'.format(generateTime - startTime)
+    print '{:.2f} seconds to write.'.format(endTime - generateTime)
+    print '______'
+    print '{:.2f} total time'.format(endTime - startTime)

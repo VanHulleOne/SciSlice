@@ -10,7 +10,7 @@ import parameters as pr
 import Point as p
 import InFill as InF
 import LineGroup as lg
-from parameters import constants as c
+import constants as c
 from Shape import Shape
 from operator import itemgetter
 import numpy as np
