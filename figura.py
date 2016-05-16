@@ -81,7 +81,7 @@ class Figura:
             self.gcode += ';M6\n'
             self.gcode += ('M117 Layer ' + str(layerNumber) + ' of ' +
                             str(partParams.numLayers) + '..\n')
-            self.gcode += gc.rapidMove(layer[0].start, pr.OMIT_Z)
+            self.gcode += gc.rapidMove(layer[0].start, c.OMIT_Z)
             self.gcode += gc.firstApproach(totalExtrusion, layer[0].start)
             
             prevLoc = layer[0].start
@@ -89,15 +89,15 @@ class Figura:
                 
                 if prevLoc != line.start:
                     if (prevLoc - line.start) < pr.MAX_FEED_TRAVERSE:
-                        self.gcode += gc.rapidMove(line.start, pr.OMIT_Z)
+                        self.gcode += gc.rapidMove(line.start, c.OMIT_Z)
                     else:
                         self.gcode += gc.retractLayer(totalExtrusion, prevLoc)
-                        self.gcode += gc.rapidMove(line.start, pr.OMIT_Z)
+                        self.gcode += gc.rapidMove(line.start, c.OMIT_Z)
                         self.gcode += gc.approachLayer(totalExtrusion, line.start)
                         
                 line.extrusionRate = extrusionRate
                 totalExtrusion += line.length*line.extrusionRate
-                self.gcode += gc.feedMove(line.end, pr.OMIT_Z, totalExtrusion,
+                self.gcode += gc.feedMove(line.end, c.OMIT_Z, totalExtrusion,
                                           partParams.printSpeed)
                 prevLoc = line.end
             

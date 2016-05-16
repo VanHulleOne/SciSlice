@@ -54,8 +54,6 @@ nozzleDiameter = 0.5 #mm
 """
 Standard printing settings
 """
-OMIT_Z = True
-INCLUDE_Z = False
 RAPID = 4000 #mm/min
 TRAVERSE_RETRACT = 0.5 #mm of filament to retract when traversing longer distances
 MAX_FEED_TRAVERSE = 10 # max mm to move without lifting the head

@@ -16,4 +16,5 @@ CENTER = 3 #center of circle
 INSIDE = 1 #Point is inside shape
 OUTSIDE = 0 #point is outside shape
 ALLOW_PROJECTION = True
-EPSILON = 10000
+OMIT_Z = True # When moving to a new point this chooses the Z level should not be used
+INCLUDE_Z = False
