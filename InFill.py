@@ -10,7 +10,6 @@ import Point as p
 import Shape as s
 from LineGroup import LineGroup as LG
 import LineGroup as lg
-import parameters as pr
 from math import pi
 import time
 import matrixTrans as mt
@@ -71,7 +70,7 @@ class InFill(LG):
         while(designHeight < self.trimDiagonal):
             self.design.addLineGroup(tempDesign)
             tempDesign = tempDesign.translate(0, self.pathWidth)
-            designHeight += pr.pathWidth
+            designHeight += self.pathWidth
         
     def trimField(self):
         tempLines = []

@@ -9,8 +9,7 @@ import Shape as s
 import LineGroup as lg
 import arc as a
 import Point as p
-from parameters import constants as c
-import parameters as pr
+import constants as c
 import math
     
 def regularDogBone():    

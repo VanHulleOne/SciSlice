@@ -9,7 +9,7 @@ from LineGroup import LineGroup as LG
 import math
 import Point as p
 import Line as l
-from parameters import constants as c
+import constants as c
 
 class Arc(LG):
     

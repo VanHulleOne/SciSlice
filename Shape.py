@@ -7,7 +7,7 @@ Created on Wed Oct 28 14:09:55 2015
 import Line as l
 import Point as p
 from LineGroup import LineGroup as LG
-from parameters import constants as c
+import constants as c
 from functools import wraps
 
 def finishedOutline(func):

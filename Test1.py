@@ -14,7 +14,7 @@ import numpy as np
 import copy
 import gcode as gc
 import parameters as pr
-from parameters import constants as c
+import constants as c
 import InFill as InF
 from itertools import islice
 import LineGroup as lg
