@@ -7,10 +7,14 @@ Created on Thu Nov 19 19:52:29 2015
 import math
 from collections import namedtuple
 import constants as c
+import doneShapes as ds
+import figura as fg
+import time
 
 """
 Part Parameters
 """
+outline = ds.regularDogBone() # The shape we will be printing
 solidityRatio = [1.09]#12]#, 0.1, 0.05] solidityRatio = PathArea/beadArea
 printSpeed = [2000] #mm/min head travel speed
 shiftX = [10, 50, 70]
@@ -45,8 +49,19 @@ Misc Parameters
 """
 filamentDiameter = 3.0 #mm dia of incoming filament
 filamentArea = math.pi*filamentDiameter**2/4.0
-nozzleDiameter = 0.5 #mm
+nozzleDiameter = 0.5 #mm                                                   
 
+"""
+Standard printing settings
+"""
+OMIT_Z = True
+INCLUDE_Z = False
+RAPID = 4000 #mm/min
+TRAVERSE_RETRACT = 0.5 #mm of filament to retract when traversing longer distances
+MAX_FEED_TRAVERSE = 10 # max mm to move without lifting the head
+MAX_EXTRUDE_SPEED = 100 #mm/min max speed to move filament
+Z_CLEARANCE = 10.0 #mm to move Z up
+APPROACH_FR = 1500 #mm/min aproach feedrate
 
 def zipVariables_gen(inputLists, namedTuple = None, repeat=False):
     if namedTuple is None:
@@ -76,16 +91,24 @@ PartParams = namedtuple('PartParams', ['solidityRatio', 'printSpeed',
 everyPartsParameters = zipVariables_gen((
                           solidityRatio, printSpeed, shiftX, shiftY,
                           numLayers), namedTuple = PartParams)
-                                                   
-
-"""
-Standard printing settings
-"""
-OMIT_Z = True
-INCLUDE_Z = False
-RAPID = 4000 #mm/min
-TRAVERSE_RETRACT = 0.5 #mm of filament to retract when traversing longer distances
-MAX_FEED_TRAVERSE = 10 # max mm to move without lifting the head
-MAX_EXTRUDE_SPEED = 100 #mm/min max speed to move filament
-Z_CLEARANCE = 10.0 #mm to move Z up
-APPROACH_FR = 1500 #mm/min aproach feedrate
+                          
+if __name__ == '__main__':
+    startTime = time.time()
+    print '\nGenerating code, please wait...'
+    
+    fig = fg.Figura(outline)
+    generateTime = time.time()
+    
+    print '\nCode generated, writting file...\n'
+    
+    with open(outputSubDirectory+'\\'+outputFileName, 'w') as f:
+        string = ''
+        f.write(string.join(fig.gcode))
+    
+    endTime = time.time()
+    print 'Done writting: ' + outputFileName + '\n'
+    
+    print '{:.2f} seconds to generate code.'.format(generateTime - startTime)
+    print '{:.2f} seconds to write.'.format(endTime - generateTime)
+    print '______'
+    print '{:.2f} total time'.format(endTime - startTime)
