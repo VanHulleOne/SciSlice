@@ -10,6 +10,7 @@ import constants as c
 import doneShapes as ds
 import figura as fg
 import time
+import itertools
 
 """
 Part Parameters
@@ -63,19 +64,14 @@ APPROACH_FR = 1500 #mm/min aproach feedrate
 
 def zipVariables_gen(inputLists, namedTuple = None, repeat=False):
     if namedTuple is None:
-        namedTuple = namedtuple('n', ('n_'+str(i) for i in xrange(len(inputLists))))
-    variableGenerators = [infinit_gen(sublist) for sublist in inputLists]
+        namedTuple = namedtuple('NoName', ('n_'+str(i) for i in xrange(len(inputLists))))
+    variableGenerators = map(itertools.cycle, inputLists)
         
     while 1:
         for _ in max(inputLists, key=len):
-            yield namedTuple(*(next(varGen) for varGen in variableGenerators))
+            yield namedTuple(*map(next, variableGenerators))
         if not repeat:
             break
-    
-def infinit_gen(variableList):
-    while 1:
-        for var in variableList: 
-            yield var
 
 LayerParams = namedtuple('LayerParams', ['infillShiftX', 'infillShiftY',
                                          'infillAngle', 'numShells', 'layerHeight',
