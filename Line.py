@@ -2,18 +2,17 @@
 """
 Created on Tue Oct 27 13:40:56 2015
 
+Line stores a start and end points of a line. The module also provides many of
+the important line checking fucntions such as hceking intersection and offsets.
+Line start/end points are immutable but the extrusion rate and freezeExRate
+can be changed.
+
 @author: lvanhulle
 """
 import Point as p
 import numpy
 import constants as c
 
-"""
-Line stores a start and end points of a line. The module also provides many of
-the important line checking fucntions such as hceking intersection and offsets.
-Line start/end points are immutable but the extrusion rate and freezeExRate
-can be changed.
-"""
 class Line(object):
     def __init__(self, start, end, oldLine = None):
         """
