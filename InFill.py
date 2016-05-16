@@ -2,6 +2,43 @@
 """
 Created on Thu Oct 29 15:45:02 2015
 
+InFill inherits from LineGroup and is the class responsible for creating the
+pattern which will be used as the tool path inside the part.
+
+The most basic operation is to send in a trimShape (typically of type Shape),
+a pathWidth, and and angle. From that information a field of lines is created
+over trimShape with those lines then being trimmed to trimShape.
+
+If a specific infill pattern is desired a design (typically of type LineGroup)
+can be sent in. The design can be in one of several levels of completion.
+
+PARTIAL_ROW
+If the design is a partial row the first step is to extend the design by copying
+it and placing the start of the first line onto the end of the last line, and
+repeating until the design is sifficiently longer than the diagonal of
+trimDesign. Although this method would allow for a vertical row the next method
+FULL_ROW copies the line only in the Y direction so this shape should be made
+to be in the X direction. From there the designed moves to FULL_ROW
+
+FULL_ROW
+This is a row that is assumed (and not checked) to be longer than trimShape's
+diagonal. This row is then copied in the Y direction until it is taller than
+trimShape's diagonal.
+
+FULL_FIELD
+This is a field of lines assumed to be wider and taller than trimShape's diagonal.
+The center of this field is found and then the field is translated to be at the
+center of trimShape
+
+CENTERED_FIELD
+This field is wider and taller than trimShape and already centered over the
+desired trimShape. The only operation left is to trim all of the lines in the field
+to the outline of trimShape
+
+TRIMMED_FIELD
+This is a field which requires no additional operations. It is fully formed,
+trimmed, and centered over trimShape.
+
 @author: lvanhulle
 """
 
@@ -66,7 +103,7 @@ class InFill(LG):
         
     def createField(self):
         tempDesign = self.design.translate(0, self.pathWidth)
-        designHeight = abs(self.design.maxY - self.design.minY)
+        designHeight = 0 # abs(self.design.maxY - self.design.minY)
         while(designHeight < self.trimDiagonal):
             self.design.addLineGroup(tempDesign)
             tempDesign = tempDesign.translate(0, self.pathWidth)
