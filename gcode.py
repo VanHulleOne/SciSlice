@@ -2,6 +2,8 @@
 """
 Created on Fri Nov 06 10:30:44 2015
 
+Used creating all of the lines of Gcode.
+
 @author: lvanhulle
 """
 

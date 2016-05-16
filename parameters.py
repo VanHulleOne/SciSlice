@@ -2,6 +2,9 @@
 """
 Created on Thu Nov 19 19:52:29 2015
 
+Contains all of the print parameters and the if __name__ == __main__: logic
+so the whole program can be run from here after making parameter changes.
+
 @author: lvanhulle
 """
 import math

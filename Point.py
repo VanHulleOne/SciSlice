@@ -2,17 +2,17 @@
 """
 Created on Tue Oct 27 13:13:34 2015
 
+The Point module stores the X, Y, Z of a point and performs basic Point opeartions.
+All Points are immutable so that they can be hashed and to prevent deep/shallow
+copy problems.
+
 @author: lvanhulle
 """
 import numpy
 import constants as c
 import matrixTrans as mt
 
-"""
-The Point module stroes the X, Y, Z of a point and performs basic Point opeartions.
-all Points are immutable so that they can be hashed and to prevent deep/shallow
-copy problems.
-"""
+
 class Point(object):
     
     NUM_DEC = 3

@@ -2,6 +2,8 @@
 """
 Created on Mon May 16 10:44:25 2016
 
+Constants used across modules.
+
 @author: lvanhulle
 """
 

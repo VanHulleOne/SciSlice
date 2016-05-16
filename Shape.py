@@ -2,6 +2,11 @@
 """
 Created on Wed Oct 28 14:09:55 2015
 
+Shape should probably have been called outline but I have not yet bothered to
+rename it. It is a subclass of LineGroup with extra methods for checking if it
+is a closed polygon. The shape can be manifold (have internal holes) as long
+as they are fully enclosed inside of the boundry.
+
 @author: lvanhulle
 """
 import Line as l

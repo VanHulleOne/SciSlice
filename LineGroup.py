@@ -2,6 +2,12 @@
 """
 Created on Tue Nov 03 09:46:30 2015
 
+LineGroup at its core is simply a list of lines and the operations we can perform
+on them. It keeps track of various characteristics of the lines as the are entered
+so they do not need to be calculated when called.
+
+This module stores the 
+
 @author: lvanhulle
 """
 import Point as p
@@ -193,6 +199,7 @@ class LineGroup(object):
         return tempString
         
     def CSVstr(self):
+        """ Creates a comma seperated value string. """
         tempString = ''
         for line in self:
             tempString += line.CSVstr() + '\n'

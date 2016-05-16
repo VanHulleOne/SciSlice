@@ -2,6 +2,8 @@
 """
 Created on Thu Jan 07 17:44:20 2016
 
+A module to store operations related to matrix tranformations. 
+
 @author: Luke
 """
 

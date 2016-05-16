@@ -2,6 +2,8 @@
 """
 Created on Tue Nov 03 17:08:13 2015
 
+A small module for easily creating arcs and circles.
+
 @author: lvanhulle
 """
 

@@ -2,6 +2,10 @@
 """
 Created on Thu Dec 03 16:30:08 2015
 
+Functions used to more quickly create commonly used shapes. Some of the functions
+contain fully defined shapes while others allow parameter inputs to create a
+custom shape.
+
 @author: lvanhulle
 """
 
@@ -25,8 +29,11 @@ def regularDogBone():
 def wideDogBone():
     halfWidth = 5.0    
     wideDogBone = s.Shape(None)
-    wideDogBone.addLinesFromCoordinateList([[82.5, 0], [82.5, 9.5 + halfWidth], [49.642, 9.5 + halfWidth]])
-    wideArc = a.Arc(p.Point(49.642, 9.5 + halfWidth), p.Point(28.5, 6.5 + halfWidth), c.CW, p.Point(28.5, 82.5 + halfWidth), 20)
+    wideDogBone.addLinesFromCoordinateList([[82.5, 0], [82.5, 9.5 + halfWidth],
+                                            [49.642, 9.5 + halfWidth]])
+    wideArc = a.Arc(p.Point(49.642, 9.5 + halfWidth),
+                    p.Point(28.5, 6.5 + halfWidth), c.CW,
+                    p.Point(28.5, 82.5 + halfWidth), 20)
     wideDogBone.addLineGroup(wideArc)
     wideDogBone.addLinesFromCoordinateList([[28.5, 6.5 + halfWidth], [0, 6.5 + halfWidth]])
     wideDogBone.addLineGroup(wideDogBone.mirror(c.Y))
