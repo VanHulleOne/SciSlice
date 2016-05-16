@@ -47,56 +47,12 @@ p9 = p.Point(0,4)
 p10 = p.Point(3,12)
 p11 = p.Point(0,5)
 
+NT = col.namedtuple('NT', 'X Y Z')
 
-def endPoints(points):
-    end = []
-    current = [] 
-    num = 0
-    for cur_point in points:
-        num+=1
-        if(num==1): 
-            first = cur_point 
-        previous = current 
-        current = [] 
-        previous.append(cur_point) 
-        current.append(cur_point) 
-        if(num>1): 
-            end.append(previous) 
-    current.append(first)
-    end.append(current) 
-    return end
+def func(*args):
+    return args
     
-def pairwise(l1):
-    l1Iter = iter(l1)
-    first = pre = next(l1Iter)
-    result = []
-    for curr in l1Iter:
-        result.append([pre, curr])
-        pre = curr
-    result.append([pre, first])
-    return result
-    
-def pairwise_gen(l1):
-    l1Iter = iter(l1)
-    first = pre = next(l1Iter)
-    for curr in l1Iter:
-       yield [pre, curr]
-       pre = curr
-    yield [pre, first]
-    
-    
-    
-NT = col.namedtuple('NT', ['X', 'Y', 'Z'])
 
-    
-# https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function
-    
-def cantorPairing(l1):
-    if len(l1) == 1:
-        return l1[0]
-    k2 = l1[-1]
-    k1 = cantorPairing(l1[:-1])
-    return (0.5*(k1+k2)*(k1+k2+1)+k2)
 
     
     
