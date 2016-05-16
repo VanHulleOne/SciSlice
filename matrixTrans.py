@@ -41,7 +41,7 @@ def mirrorMatrix(axis):
 #            print 'Angle: %.2f'%(angle/(2*math.pi)*360)
         mList.append(rotateMatrix(-angle)) #rotate to X-axis
         xMirror = numpy.identity(4)
-        xMirror[c.Y][1] = -1
+        xMirror[c.Y][c.Y] = -1
         mList.append(xMirror) #mirror about X axis
         mList.append(rotateMatrix(angle)) #rotate back
         mList.append(translateMatrix(axis.start.x, axis.start.y)) #translate back         
@@ -49,9 +49,9 @@ def mirrorMatrix(axis):
             transMatrix = numpy.dot(matrix, transMatrix)
         return transMatrix
     if(axis == c.X):
-            transMatrix[c.Y][1] *= -1
+            transMatrix[c.Y][c.Y] *= -1
     else:
-        transMatrix[c.X][0] *= -1
+        transMatrix[c.X][c.X] *= -1
     return transMatrix
     
 def combineTransformations(matrixList):
