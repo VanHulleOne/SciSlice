@@ -49,62 +49,89 @@ class Figura:
 #        with open('I:\RedBench\static\data\LineList.txt', 'w') as f:
 #            f.write('test\n')
 #            f.write(layer.CSVstr())
-        self.gcode = [gc.startGcode()] # List of strings of Gcode
+        self.gcode = [gc.startGcode()] # List of strings of Gcode starting with the start Gcode
         self.partCount = 1 # The current part number
 
         self.layers = {}
         """ The dictionary which stores the computed layers. The key is created in
-        part_gen(). """
+        layer_gen(). """
         
         for partParams in pr.everyPartsParameters:
+            """ pr.everyPartsParameters is a generator of the parameters for the parts.
+            The generator stops yielding additional parameters when there are no
+            more parts left to print. The parameters are sent to layer_gen() which
+            yields each layer of the part. The generator is sent to setGcode()
+            along with the partParameters (for printing in the gcode).
+            """
             print '\nPart number: ' + str(self.partCount)            
             print partParams
-            part = self.part_Gen(partParams)
+            part = self.layer_gen(partParams)
             self.gcode += '\n\n;Part number: ' + str(self.partCount) + '\n'
             self.gcode += ';' + str(partParams) + '\n'
             self.setGcode(part, partParams)
             self.partCount += 1
         self.gcode += gc.endGcode()
 
-    def part_Gen(self, partParams):
+    def layer_gen(self, partParams):
         """ Creates and yields each organized layer for the part.
         
-        The parameters for the part are sent in
+        The parameters for the part are sent in and the layer parameters
+        are called from parameters. If a layer is not in the self.layers dict
+        then create the layer and add it to the dictionary. Then yield the
+        layer.
+        
+        Parameters
+        ----------
+        partParams - a tuple of the parameters for the part
+        
+        Yields
+        ------
+        tuple - (LineGroup of the layer ordered for printing, the namedtuple of
+        the layer parameters so they can be printed in the gcode.)
         """        
         
-        layerParam_Gen = pr.layerParameters()#pr.zipVariables_gen(pr.layerParameters, repeat=True)
+        layerParam_Gen = pr.layerParameters()
         currHeight = pr.firstLayerShiftZ
         
-        for i in range(partParams.numLayers):
-            layerPar = next(layerParam_Gen)
-            layerKey = (layerPar.infillAngle, layerPar.numShells,
-                         layerPar.infillShiftX, layerPar.infillShiftY)
-            currHeight += layerPar.layerHeight
+        for _ in xrange(partParams.numLayers):
+            """ Iterate through for the correct number of layers. """
+            layerParam = next(layerParam_Gen)
+            
+            """ This is the key for the layer dict. Only these parameters are
+            taken into consideration when deciding if a new layer needs to be created.
+            The whole layerParam namedtuple is not used because layerHeight
+            is not needed for calculating the layer's shells and infill. """
+            layerKey = (layerParam.infillAngle, layerParam.numShells,
+                         layerParam.infillShiftX, layerParam.infillShiftY)
+            
+            currHeight += layerParam.layerHeight
             
             if layerKey not in self.layers:
                 currOutline = self.shape
                 filledList = []
-                for shellNumber in xrange(layerPar.numShells):
+                for shellNumber in xrange(layerParam.numShells):
+                    """ If the layer needs shells create them here. """
                     filledList.append(currOutline)
-                    currOutline = currOutline.offset(layerPar.pathWidth-pr.trimAdjust, c.INSIDE)
+                    currOutline = currOutline.offset(layerParam.pathWidth-pr.trimAdjust, c.INSIDE)
                     
-                infill = InF.InFill(currOutline, layerPar.pathWidth, layerPar.infillAngle,
-                                    shiftX=layerPar.infillShiftX, shiftY=layerPar.infillShiftY)
+                infill = InF.InFill(currOutline, layerParam.pathWidth, layerParam.infillAngle,
+                                    shiftX=layerParam.infillShiftX, shiftY=layerParam.infillShiftY)
                 self.layers[layerKey] = self.organizedLayer(filledList + [infill])
-                
+            
+            """ a tuple of the organized LineGroup and the layer parameters. """
             yield (self.layers[layerKey].translate(partParams.shiftX,
-                                            partParams.shiftY, currHeight), layerPar)
+                                            partParams.shiftY, currHeight), layerParam)
     
     def setGcode(self, part, partParams):        
         layerNumber = 1
         self.gcode += gc.newPart()
         totalExtrusion = 0
         
-        for layer, layerPar in part:
-            extrusionRate = (partParams.solidityRatio*layerPar.layerHeight*
-                            layerPar.pathWidth/pr.filamentArea)
+        for layer, layerParam in part:
+            extrusionRate = (partParams.solidityRatio*layerParam.layerHeight*
+                            layerParam.pathWidth/pr.filamentArea)
             self.gcode += ';Layer: ' + str(layerNumber) + '\n'
-            self.gcode += ';' + str(layerPar) + '\n'
+            self.gcode += ';' + str(layerParam) + '\n'
             self.gcode += ';T' + str(self.partCount) + str(layerNumber) + '\n'
             self.gcode += ';M6\n'
             self.gcode += ('M117 Layer ' + str(layerNumber) + ' of ' +
@@ -135,34 +162,71 @@ class Figura:
         self.gcode += ';Extrusion amount for part is ({:.1f} mm)\n\n'.format(totalExtrusion)
                 
     def organizedLayer(self, inShapes):
+        """ Takes in a list of LineGroup objects and returns them as an organized layer.
+        
+        A dictonary was used to hold the coroutines from LineGroup since we
+        will want to delete keys, value pairs while iterating throught the dict.
+        
+        The coroutines yield in a boolean and a Point and then yield back out
+        the line which is 'closest' to the point. 'Closest' being in quotes
+        because we could use any number of parameters to decide which line is
+        closest from Euclidean distance of end points to time since its neighbor
+        was printed (for cooling purposes). The yielded in boolean is whether or
+        not the previous line was used.
+        
+        Currently if the LineGroup with the closest line is a Shape then the
+        entire Shape is printed before checking any other LineGroups again.
+        
+        Parameters
+        ----------
+        inShapes - a list of LineGroups that make up the layer
+        
+        Return
+        ------
+        A single organized LineGroup 
+        """
         layer = lg.LineGroup()
         
-        lineCoros = {i : inShapes[i].nearestLine_Coro(i) for i in range(len(inShapes))}
+        lineCoros = {i : inShapes[i].nearestLine_Coro(i) for i in xrange(len(inShapes))}
+        
         for coro in lineCoros.itervalues():
             next(coro)
         
-        lastPoint = p.Point(0,0)
-        index = -1        
-        while True:
+        lastPoint = p.Point(0,0) # The starting point is the origin of the printer
+        indexOfClosest = -1 # A default value for the inital run
+        while 1:
             results = []
             for key in lineCoros.keys():
                 try:
                     results.append(lineCoros[key].send(
-                        (True if key == index else False, lastPoint)))
+                        (c.USED if key == indexOfClosest else c.NOT_USED, lastPoint)))
                 except StopIteration:
+                    """ If we get a StopIteration exception from the coroutine
+                    that means it has no more lines and we can remove it from the dictionary. """                    
                     del lineCoros[key]
-            if len(results) == 0: break
-            line, index = min(results, key=itemgetter(2))[:2]
+                    
+            if len(results) == 0: break # No more items in the dictionary
+            result = min(results, key=lambda x:x.distance)
+            line = result.line
+            indexOfClosest = result.name
             lastPoint = line.end
             layer.append(line)
-            if isinstance(inShapes[index], Shape):
-                while True:
+            if isinstance(inShapes[indexOfClosest], Shape):
+                """ If the closest line was from a Shape then go around the whole
+                shape without checking any other LineGroup. Shapes are required
+                to be continuous contours (except if the have internal holes) so
+                there is no need to check any other LineGroup for a closer line.
+                Plus if the shape was being used as a brim to help start a print
+                we would not want to stop party way through the brim.
+                """
+                while 1:
                     try:
-                        line = lineCoros[index].send((True, lastPoint))[0]
+                        line = lineCoros[indexOfClosest].send((c.USED, lastPoint))[0]
                     except StopIteration:
-                        del lineCoros[index]
+                        del lineCoros[indexOfClosest]
                         break
                     else:
+                        """ A reminder than an else is run if there is no exception. """
                         lastPoint = line.end
                         layer.append(line)
         return layer
