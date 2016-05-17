@@ -31,13 +31,13 @@ trimAdjust = 1.0/c.EPSILON
 """
 Layer Parameters
 """
-infillAngleDegrees = [0, -45, 90, 45, 45, 90, -45, 0] #degrees infill angle 90 is in Y direction 0 is in X direction
+infillAngleDegrees = [0, -45, 90, 45, 45, 90, -45] #degrees infill angle 90 is in Y direction 0 is in X direction
 pathWidth = [0.5] #mm distance between centerline of paths
 layerHeight = [0.4] #mm height per layer
 infillShiftX = [0]
-infillShiftY = [0.25,0,0,0,0,0, 0, 0.25]
+infillShiftY = [0.25,0,0,0,0,0, 0]
 #flipLayer = [0] No longer implimented
-numShells = [13,1,1,0,0,1,1,13] # the number of shells max is 13 if 0.4999 path width is used
+numShells = [13,1,1,0,0,1,1] # the number of shells max is 13 if 0.4999 path width is used
 
 """
 File Parameters
@@ -85,8 +85,11 @@ def zipVariables_gen(inputLists, repeat=False):
 
 LayerParams = namedtuple('LayerParams', 'infillShiftX infillShiftY infillAngle \
                                         numShells layerHeight pathWidth')            
-layerParameters = LayerParams(infillShiftX, infillShiftY, infillAngleDegrees, numShells,
+_layerParameters = LayerParams(infillShiftX, infillShiftY, infillAngleDegrees, numShells,
                    layerHeight, pathWidth)
+
+def layerParameters():
+    return zipVariables_gen(_layerParameters, repeat=True)
 
 PartParams = namedtuple('PartParams', 'solidityRatio printSpeed shiftX shiftY numLayers')
 everyPartsParameters = zipVariables_gen(PartParams(

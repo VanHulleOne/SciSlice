@@ -49,9 +49,13 @@ class Figura:
 #        with open('I:\RedBench\static\data\LineList.txt', 'w') as f:
 #            f.write('test\n')
 #            f.write(layer.CSVstr())
-        self.gcode = [gc.startGcode()]
-        self.partCount = 1
+        self.gcode = [gc.startGcode()] # List of strings of Gcode
+        self.partCount = 1 # The current part number
+
         self.layers = {}
+        """ The dictionary which stores the computed layers. The key is created in
+        part_gen(). """
+        
         for partParams in pr.everyPartsParameters:
             print '\nPart number: ' + str(self.partCount)            
             print partParams
@@ -63,16 +67,21 @@ class Figura:
         self.gcode += gc.endGcode()
 
     def part_Gen(self, partParams):
-        layerParam_Gen = pr.zipVariables_gen(pr.layerParameters, repeat=True)
+        """ Creates and yields each organized layer for the part.
+        
+        The parameters for the part are sent in
+        """        
+        
+        layerParam_Gen = pr.layerParameters()#pr.zipVariables_gen(pr.layerParameters, repeat=True)
         currHeight = pr.firstLayerShiftZ
         
         for i in range(partParams.numLayers):
             layerPar = next(layerParam_Gen)
-            layerName = (layerPar.infillAngle, layerPar.numShells,
+            layerKey = (layerPar.infillAngle, layerPar.numShells,
                          layerPar.infillShiftX, layerPar.infillShiftY)
             currHeight += layerPar.layerHeight
             
-            if layerName not in self.layers:
+            if layerKey not in self.layers:
                 currOutline = self.shape
                 filledList = []
                 for shellNumber in xrange(layerPar.numShells):
@@ -81,13 +90,12 @@ class Figura:
                     
                 infill = InF.InFill(currOutline, layerPar.pathWidth, layerPar.infillAngle,
                                     shiftX=layerPar.infillShiftX, shiftY=layerPar.infillShiftY)
-                self.layers[layerName] = self.organizedLayer(filledList + [infill])
+                self.layers[layerKey] = self.organizedLayer(filledList + [infill])
                 
-            yield (self.layers[layerName].translate(partParams.shiftX,
+            yield (self.layers[layerKey].translate(partParams.shiftX,
                                             partParams.shiftY, currHeight), layerPar)
     
-    def setGcode(self, part, partParams):
-        
+    def setGcode(self, part, partParams):        
         layerNumber = 1
         self.gcode += gc.newPart()
         totalExtrusion = 0
