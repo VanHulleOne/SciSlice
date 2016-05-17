@@ -21,3 +21,5 @@ ALLOW_PROJECTION = True
 EPSILON = 10000 # The prcision level to use when doing numerical comparisons
 OMIT_Z = True # When moving to a new point this chooses the Z level should not be used
 INCLUDE_Z = False
+USED = True
+NOT_USED = False
