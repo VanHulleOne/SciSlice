@@ -22,7 +22,7 @@ outline = ds.regularDogBone() # The shape we will be printing
 solidityRatio = [1.09]#12]#, 0.1, 0.05] solidityRatio = PathArea/beadArea
 printSpeed = [2000] #mm/min head travel speed
 shiftX = [10, 50, 70]
-shiftY = [10, 35, 60]
+shiftY = [10, 35]
 firstLayerShiftZ = 0 #correct for bed leveling
 numLayers = [8] #number of layers to make
 trimAdjust = 1.0/c.EPSILON
@@ -66,15 +66,20 @@ Z_CLEARANCE = 10.0 #mm to move Z up
 APPROACH_FR = 1500 #mm/min aproach feedrate
 
 def zipVariables_gen(inputLists, repeat=False):
-    tupleType = type(inputLists)
+    if iter(inputLists) is iter(inputLists):
+        # Tests if inputLists is a generator
+        iterType = tuple
+    else:
+        iterType = type(inputLists)
     variableGenerators = map(itertools.cycle, inputLists)
         
     while 1:
         for _ in max(inputLists, key=len):
-            if tupleType is tuple:
-                yield tuple(map(next, variableGenerators))
-            else:
-                yield tupleType(*map(next, variableGenerators))
+            try:
+                 # This is the logic for a namedtuple
+                yield iterType(*map(next, variableGenerators))
+            except Exception:
+                yield iterType(map(next, variableGenerators))
         if not repeat:
             break
 
