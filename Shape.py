@@ -120,6 +120,20 @@ class Shape(LG):
         return Shape(tempLines)
     
     def trimJoin_Coro(self):
+        """ Yields a list of lines that have their ends properly trimmed/joined
+        after an offset.
+        
+        When the lines are offset their endpoints are just moved away the offset
+        distance. If you offset a circle to the inside this would mean that
+        all of the lines would overlap. If the circle was offset to the outside
+        none of the lines would be touching. This function trims the overlapping
+        ends and extends/joins the non touching ends.
+        
+        Yields
+        ------
+        in - Lines
+        out - one big List of lines at the end since in 2.7 a coroutine can't return.
+        """
         offsetLines = []
         moveEnd = yield
         moveStart = yield
@@ -140,7 +154,7 @@ class Shape(LG):
     def isInside(self, point):
         """
         This method determines if the point is inside
-        or outside the shape. Returns 1 if inside and 0 if outside.
+        or outside the shape. Returns the side of the shape the point in on.
         
         If a line is drawn from the point down to the outside of the part, the number
         of times that line intersects with the shape determines if the point was inside
@@ -158,4 +172,4 @@ class Shape(LG):
             result, intPoint = line.segmentsIntersect(downLine)
             if(result == 1): downSet.add(intPoint)         
 
-        return (True if len(downSet) % 2 == 1 else False)
+        return (c.INSIDE if len(downSet) % 2 == 1 else c.OUTSIDE)
