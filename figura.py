@@ -2,6 +2,27 @@
 """
 Created on Thu Nov 19 16:45:00 2015
 
+Figura takes all of the parameters and the input shape and creates each layer
+for every part. These layers are then converted to Gcode in the form of a list
+of strings. The list is stored in self.gcode which can then be accessed and written
+to the correct output file by using join().
+
+A layer in Figura starts as a list of LineGroups, typically shells in (Shapes)
+and then an InFill but could also be a variety of different shapes all printed
+at the same Z-height. The list of layers is then organized and turned into a single
+LineGroup with the order of the lines being the print order of the layer. The
+goal is to allow easy adjustability when deciding how to organize a layer.
+Different organizedLayer() methods could be written calling different
+organizing coroutines in the LineGroups to create an ideal print order.
+
+The longest computation time is in creating the infill for the layers. As such
+the parameters which make a layer unique are used as a key for the self.layers{}
+dictionary. After the layer has been calculated it is stored in layers so that
+if another layer with the same parameters is used it does not need to be recalculated.
+I will not list the key parameters here since they are still fluid and I am trying
+to avoid having inaccurate comments.
+
+
 @author: lvanhulle
 """
 
@@ -109,7 +130,7 @@ class Figura:
         layer = lg.LineGroup()
         
         lineCoros = {i : inShapes[i].nearestLine_Coro(i) for i in range(len(inShapes))}
-        for key, coro in lineCoros.iteritems():
+        for coro in lineCoros.itervalues():
             next(coro)
         
         lastPoint = p.Point(0,0)
