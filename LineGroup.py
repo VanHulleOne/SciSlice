@@ -17,8 +17,11 @@ from operator import itemgetter
 import copy
 import matrixTrans as mt
 import constants as c
+from collections import namedtuple
 
 class LineGroup(object):
+    
+    Result = namedtuple('Result', 'line name distance')
     
     def __init__(self, inGroup=None):
         self.minX = None
@@ -90,7 +93,7 @@ class LineGroup(object):
         if(startY > self.maxY < endY): return True # Both ends are greater than maxY
         return False
     
-    def nearestLine_Coro(self, key=None):
+    def nearestLine_Coro(self, name=None):
         lineList = copy.deepcopy(self.lines)
         used, testPoint = yield
         normList = np.array([point.normalVector for point in self.iterPoints()])
@@ -120,7 +123,7 @@ class LineGroup(object):
             if index%2: #If index is odd we are at the end of a line so the line needs to be flipped
                 lineList[index/2] = lineList[index/2].fliped()
     
-            used, testPoint = yield lineList[index/2], key, dist
+            used, testPoint = yield self.Result(lineList[index/2], name, dist)
             if not used and index%2:
                 lineList[index/2] = lineList[index/2].fliped()
             if used:
