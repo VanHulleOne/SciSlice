@@ -109,22 +109,18 @@ class LineGroup(object):
                 1 is so that it takes the norm of each element and not of the whole
                 array
             3) enumerate over the array of norms so we can later have the index
-            4) enumerate is a generator, so we are using a for comprehension to
-                send the tuple (index, dist) to the min function. The norm stored
-                in each element of the array is the distance from the testPoint to
-                the point which was at that index
-            5) Find the min of the tuples (index, dist) key-itemgetter(1) is telling min
+            4) Find the min of the tuples (index, dist) key-itemgetter(1) is telling min
                 to look at dist when comparing the tuples
-            6) min returns the lowest tuple, which we split into index and dist
+            5) min returns the lowest tuple, which we split into index and dist
             """
-            index, dist = min(((index, dist) for index, dist in
-                enumerate(np.linalg.norm(normList-testPoint.normalVector, None, 1))),
-                key=itemgetter(1))
+            index, dist = min(enumerate(np.linalg.norm(normList-testPoint.normalVector, None, 1)), key=itemgetter(1))
             if index%2: #If index is odd we are at the end of a line so the line needs to be flipped
                 lineList[index/2] = lineList[index/2].fliped()
     
             used, testPoint = yield self.Result(lineList[index/2], name, dist)
             if not used and index%2:
+                """ If the line was not used and we had flipped it we need to
+                flip it back so that it still matches the orientation in normList. """
                 lineList[index/2] = lineList[index/2].fliped()
             if used:
                 index /= 2
@@ -146,17 +142,11 @@ class LineGroup(object):
                 1 is so that it takes the norm of each element and not of the whole
                 array
             3) enumerate over the array of norms so we can later have the index
-            4) enumerate is a generator, so we are using a for comprehension to
-                send the tuple (index, dist) to the min function. The norm stored
-                in each element of the array is the distance from the testPoint to
-                the point which was at that index
-            5) Find the min of the tuples (index, dist) key-itemgetter(1) is telling min
+            4) Find the min of the tuples (index, dist) key-itemgetter(1) is telling min
                 to look at dist when comparing the tuples
-            6) min returns the lowest tuple, which we split into index and dist
+            5) min returns the lowest tuple, which we split into index and dist
             """
-            index, _ = min(((index, dist) for index, dist in
-                enumerate(np.linalg.norm(normList-testPoint.normalVector, None, 1))),
-                key=itemgetter(1))
+            index, _ = min(enumerate(np.linalg.norm(normList-testPoint.normalVector, None, 1)), key=itemgetter(1))
             if index%2: #If index is odd we are at the end of a line so the line needs to be flipped
                 lineList[index/2] = lineList[index/2].fliped()
             index /= 2
