@@ -202,7 +202,8 @@ class Figura:
                         (c.USED if key == indexOfClosest else c.NOT_USED, lastPoint)))
                 except StopIteration:
                     """ If we get a StopIteration exception from the coroutine
-                    that means it has no more lines and we can remove it from the dictionary. """                    
+                    that means the LineGroup has no more Lines and we can remove
+                    it from the dictionary. """                    
                     del lineCoros[key]
                     
             if len(results) == 0: break # No more items in the dictionary
