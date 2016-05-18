@@ -101,18 +101,16 @@ if __name__ == '__main__':
     print '\nGenerating code, please wait...'
     
     fig = fg.Figura(outline)
-    generateTime = time.time()
     
-    print '\nCode generated, writting file...\n'
-    
-    with open(outputSubDirectory+'\\'+outputFileName, 'w') as f:
-        string = ''
-        f.write(string.join(fig.gcode))
+    with open(outputSubDirectory+'\\'+outputFileName, 'w') as f:      
+        for string in fig.masterGcode_gen():
+            f.write(string)
     
     endTime = time.time()
-    print 'Done writting: ' + outputFileName + '\n'
     
-    print '{:.2f} seconds to generate code.'.format(generateTime - startTime)
-    print '{:.2f} seconds to write.'.format(endTime - generateTime)
-    print '______'
+    print '\nCode generated.'
+    print 'Done writting: ' + outputFileName + '\n'
     print '{:.2f} total time'.format(endTime - startTime)
+    
+    
+    
