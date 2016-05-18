@@ -33,10 +33,6 @@ import InFill as InF
 import LineGroup as lg
 import constants as c
 from Shape import Shape
-from operator import itemgetter
-import numpy as np
-import time
-import Line as l
 
 class Figura:  
     
@@ -56,8 +52,8 @@ class Figura:
         """ The dictionary which stores the computed layers. The key is created in
         layer_gen(). """
         
-    def gcode_gen(self):
-        yield gc.startGcode() # List of strings of Gcode starting with the start Gcode
+    def masterGcode_gen(self):
+        yield gc.startGcode()
         for partParams in pr.everyPartsParameters:
             """ pr.everyPartsParameters is a generator of the parameters for the parts.
             The generator stops yielding additional parameters when there are no
@@ -67,11 +63,14 @@ class Figura:
             """
             print '\nPart number: ' + str(self.partCount)            
             print partParams
-            part = self.layer_gen(partParams)
+#            part = self.layer_gen(partParams)
+           
             yield '\n\n;Part number: ' + str(self.partCount) + '\n'
             yield ';' + str(partParams) + '\n'
-            for i in self.setGcode(part, partParams):            
+            
+            for i in self.partGcode_gen(partParams):            
                 yield i
+                
             self.partCount += 1
         yield gc.endGcode()
 
@@ -125,12 +124,12 @@ class Figura:
             yield (self.layers[layerKey].translate(partParams.shiftX,
                                             partParams.shiftY, currHeight), layerParam)
     
-    def setGcode(self, part, partParams):        
+    def partGcode_gen(self, partParams):        
         layerNumber = 1
         yield gc.newPart()
         totalExtrusion = 0
         
-        for layer, layerParam in part:
+        for layer, layerParam in self.layer_gen(partParams):
             extrusionRate = (partParams.solidityRatio*layerParam.layerHeight*
                             layerParam.pathWidth/pr.filamentArea)
             yield ';Layer: ' + str(layerNumber) + '\n'

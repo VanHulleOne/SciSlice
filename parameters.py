@@ -103,12 +103,12 @@ if __name__ == '__main__':
     fig = fg.Figura(outline)
     
     with open(outputSubDirectory+'\\'+outputFileName, 'w') as f:      
-        for string in fig.gcode_gen():
+        for string in fig.masterGcode_gen():
             f.write(string)
     
     endTime = time.time()
     
-    print '\nCode generated'
+    print '\nCode generated.'
     print 'Done writting: ' + outputFileName + '\n'
     print '{:.2f} total time'.format(endTime - startTime)
     
