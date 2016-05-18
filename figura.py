@@ -49,13 +49,15 @@ class Figura:
 #        with open('I:\RedBench\static\data\LineList.txt', 'w') as f:
 #            f.write('test\n')
 #            f.write(layer.CSVstr())
-        self.gcode = [gc.startGcode()] # List of strings of Gcode starting with the start Gcode
+        
         self.partCount = 1 # The current part number
 
         self.layers = {}
         """ The dictionary which stores the computed layers. The key is created in
         layer_gen(). """
         
+    def gcode_gen(self):
+        yield gc.startGcode() # List of strings of Gcode starting with the start Gcode
         for partParams in pr.everyPartsParameters:
             """ pr.everyPartsParameters is a generator of the parameters for the parts.
             The generator stops yielding additional parameters when there are no
@@ -66,11 +68,12 @@ class Figura:
             print '\nPart number: ' + str(self.partCount)            
             print partParams
             part = self.layer_gen(partParams)
-            self.gcode += '\n\n;Part number: ' + str(self.partCount) + '\n'
-            self.gcode += ';' + str(partParams) + '\n'
-            self.setGcode(part, partParams)
+            yield '\n\n;Part number: ' + str(self.partCount) + '\n'
+            yield ';' + str(partParams) + '\n'
+            for i in self.setGcode(part, partParams):            
+                yield i
             self.partCount += 1
-        self.gcode += gc.endGcode()
+        yield gc.endGcode()
 
     def layer_gen(self, partParams):
         """ Creates and yields each organized layer for the part.
@@ -124,42 +127,42 @@ class Figura:
     
     def setGcode(self, part, partParams):        
         layerNumber = 1
-        self.gcode += gc.newPart()
+        yield gc.newPart()
         totalExtrusion = 0
         
         for layer, layerParam in part:
             extrusionRate = (partParams.solidityRatio*layerParam.layerHeight*
                             layerParam.pathWidth/pr.filamentArea)
-            self.gcode += ';Layer: ' + str(layerNumber) + '\n'
-            self.gcode += ';' + str(layerParam) + '\n'
-            self.gcode += ';T' + str(self.partCount) + str(layerNumber) + '\n'
-            self.gcode += ';M6\n'
-            self.gcode += ('M117 Layer ' + str(layerNumber) + ' of ' +
+            yield ';Layer: ' + str(layerNumber) + '\n'
+            yield ';' + str(layerParam) + '\n'
+            yield ';T' + str(self.partCount) + str(layerNumber) + '\n'
+            yield ';M6\n'
+            yield ('M117 Layer ' + str(layerNumber) + ' of ' +
                             str(partParams.numLayers) + '..\n')
-            self.gcode += gc.rapidMove(layer[0].start, c.OMIT_Z)
-            self.gcode += gc.firstApproach(totalExtrusion, layer[0].start)
+            yield gc.rapidMove(layer[0].start, c.OMIT_Z)
+            yield gc.firstApproach(totalExtrusion, layer[0].start)
             
             prevLoc = layer[0].start
             for line in layer:
                 
                 if prevLoc != line.start:
                     if (prevLoc - line.start) < pr.MAX_FEED_TRAVERSE:
-                        self.gcode += gc.rapidMove(line.start, c.OMIT_Z)
+                        yield gc.rapidMove(line.start, c.OMIT_Z)
                     else:
-                        self.gcode += gc.retractLayer(totalExtrusion, prevLoc)
-                        self.gcode += gc.rapidMove(line.start, c.OMIT_Z)
-                        self.gcode += gc.approachLayer(totalExtrusion, line.start)
+                        yield gc.retractLayer(totalExtrusion, prevLoc)
+                        yield gc.rapidMove(line.start, c.OMIT_Z)
+                        yield gc.approachLayer(totalExtrusion, line.start)
                         
                 line.extrusionRate = extrusionRate
                 totalExtrusion += line.length*line.extrusionRate
-                self.gcode += gc.feedMove(line.end, c.OMIT_Z, totalExtrusion,
+                yield gc.feedMove(line.end, c.OMIT_Z, totalExtrusion,
                                           partParams.printSpeed)
                 prevLoc = line.end
             
-            self.gcode += gc.retractLayer(totalExtrusion, layer[-1].end)
-            self.gcode += '\n'
+            yield gc.retractLayer(totalExtrusion, layer[-1].end)
+            yield '\n'
             layerNumber += 1
-        self.gcode += ';Extrusion amount for part is ({:.1f} mm)\n\n'.format(totalExtrusion)
+        yield ';Extrusion amount for part is ({:.1f} mm)\n\n'.format(totalExtrusion)
                 
     def organizedLayer(self, inShapes):
         """ Takes in a list of LineGroup objects and returns them as an organized layer.
