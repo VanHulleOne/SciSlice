@@ -88,7 +88,9 @@ class Shape(LG):
         the start of the next line. If not the gap distance is calculated and
         sent in the Exception message.
         """
-        self.lines = list(self.sortNearest_gen())
+
+        self.lines = list(self.ccw_gen())
+            
         self.outlineFinished = True #to run subShape_gen this must be set to True since it uses the @finishedOutline decorator
         for subShape in self.subShape_gen():
             if subShape[0].start != subShape[-1].end:

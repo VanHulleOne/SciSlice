@@ -41,6 +41,8 @@ class Line(object):
             self.__extrusionRate = oldLine.extrusionRate
             self.freezeExRate = oldLine.freezeExRate
         self.setBoundingBox()
+        self.vector = numpy.array([self.end.x-self.start.x,
+                                self.end.y-self.start.y])
 
     @property
     def start(self):
@@ -236,6 +238,18 @@ class Line(object):
         return (line1, line2)
         
     
+    def sideOfLine(self, point):
+        dist = self.pointToLineDist(point)
+        if abs(dist) < c.EPSILON:
+            return 0
+        return  c.LEFT if dist < 0 else c.RIGHT
+    
+    def pointToLineDist(self, point):
+        perpVect = numpy.array([self.vector[c.Y], -self.vector[c.X]])
+        difPoint = point.get2DPoint()-self.start.get2DPoint()
+        return numpy.dot(perpVect, difPoint)/numpy.linalg.norm(perpVect)
+        
+    
     def getMidPoint(self):
         """ Calculate and return the midpoint of self. """
         return p.Point((self.start.normalVector - self.end.normalVector)/2.0 +
@@ -265,7 +279,7 @@ class Line(object):
         """
         return (self.start == other.start and self.end == other.end)      
     
-    def __str__(self):
+    def __repr__(self):
         """ The string of the line. """
         return str(self.start) + '    \t' + str(self.end)
     

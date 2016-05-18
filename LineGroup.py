@@ -16,6 +16,7 @@ import copy
 import matrixTrans as mt
 import constants as c
 from collections import namedtuple
+import itertools
 
 class LineGroup(object):
     
@@ -125,9 +126,39 @@ class LineGroup(object):
                 lineList.pop(index)
                 normList = np.delete(normList, [index*2, index*2+1],0)
 
-    def sortNearest_gen(self, testPoint=p.Point(0,0)):
-        lineList = copy.deepcopy(self.lines)
-        normList = np.array([point.normalVector for point in self.iterPoints()])
+    def ccw_gen(self, lineList=None):
+        if lineList is None:
+            lineList = copy.deepcopy(self.lines)
+        firstLine = lineList.pop()
+        firstPoint = firstLine.start
+        secondLine = None
+        for line in lineList:
+            if line.start == firstPoint or line.end == firstPoint:
+                secondLine = line
+                break
+        print 'Exited for loop'
+        if secondLine is None:
+            raise Exception('ccw_gen in LineGroup - shape not closed')
+        print 'Past exception'
+        if secondLine.start != firstPoint:
+            nonSharedPoint = secondLine.start
+        else:
+            nonSharedPoint = secondLine.end
+        print 'past which end test'
+        try:
+            if firstLine.sideOfLine(nonSharedPoint) == c.RIGHT:
+                firstLine = firstLine.fliped()
+        except Exception as e:
+            print 'side of line failed'
+            print e
+#        raise Exception()
+        print 'past side of line test'   
+        testPoint = firstLine.end
+        print 'first Line'
+        print firstLine
+        yield firstLine    
+        
+        normList = np.array([point.normalVector for point in itertools.chain(*lineList)])#[point.normalVector for point in self.iterPoints()])
         while len(lineList) > 0:
             """
             This got a little complicated but sped up this section by about 10X
@@ -144,12 +175,20 @@ class LineGroup(object):
                 to look at dist when comparing the tuples
             5) min returns the lowest tuple, which we split into index and dist
             """
+            if testPoint == firstLine.start:
+                print 'Entered line 171 in LineGroup'
+                for line in self.ccw_gen(lineList):
+                    yield line
+                break
+            
             index, _ = min(enumerate(np.linalg.norm(normList-testPoint.normalVector, None, 1)), key=itemgetter(1))
             if index%2: #If index is odd we are at the end of a line so the line needs to be flipped
                 lineList[index/2] = lineList[index/2].fliped()
             index /= 2
             testPoint = lineList[index].end
-            yield lineList.pop(index)
+            temp = lineList.pop(index)
+#            print temp
+            yield temp
             normList = np.delete(normList, [index*2, index*2+1],0)   
     
     def append(self, line):

@@ -49,6 +49,8 @@ p11 = p.Point(0,5)
 
 l1 = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11]
 
+ll = [l.Line(l1[i], l1[i+1]) for i in xrange(len(l1)-1)]
+
 nv = [pi.normalVector for pi in l1]
 
     
