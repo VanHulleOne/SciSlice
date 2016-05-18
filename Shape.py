@@ -91,7 +91,7 @@ class Shape(LG):
         self.lines = list(self.sortNearest_gen())
         self.outlineFinished = True #to run subShape_gen this must be set to True since it uses the @finishedOutline decorator
         for subShape in self.subShape_gen():
-            if  subShape[0].start != subShape[-1].end:
+            if subShape[0].start != subShape[-1].end:
                 dist = subShape[0].start - subShape[-1].end
                 raise Exception('Shape not closed. End gap of ' + str(dist))            
             for i in xrange(len(subShape)-1):                     
@@ -111,6 +111,9 @@ class Shape(LG):
             trimJoin = self.trimJoin_Coro()
             next(trimJoin)
             for line in subShape:
+                # TODO: Reorganize shape into a CCW direction so we know that
+                # inside/outside is left/right of the line saving the extra
+                # try and check.
                 try1, try2 = line.getOffsetLines(distance)
                 if self.isInside(try1.getMidPoint()) == desiredSide:
                     trimJoin.send(try1)
@@ -132,7 +135,8 @@ class Shape(LG):
         Yields
         ------
         in - Lines
-        out - one big List of lines at the end since in 2.7 a coroutine can't return.
+        out - one big List of lines at the end since in Python 2.7 a coroutine
+        can't return a value.
         """
         offsetLines = []
         moveEnd = yield
