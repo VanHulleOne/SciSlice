@@ -108,7 +108,16 @@ class InFill(LG):
             self.design.addLineGroup(tempDesign)
             tempDesign = tempDesign.translate(0, self.pathWidth)
             designHeight += self.pathWidth
-        
+    
+    def centerAndRotateField(self):
+        designCP = self.design.getMidPoint()
+        trimShapeCP = self.trimShape.getMidPoint()
+        transX = trimShapeCP.x - designCP.x
+        transY = trimShapeCP.y - designCP.y
+        self.design = self.design.transform(mt.combineTransformations(
+                        [mt.translateMatrix(transX+self.shiftX, transY+self.shiftY),
+                         mt.rotateMatrix(self.angleRad, trimShapeCP)]))
+                         
     def trimField(self):
         tempLines = []
         for line in self.design.lines:
@@ -125,13 +134,15 @@ class InFill(LG):
         for line in tempLines:            
             if(self.trimShape.isInside(line.getMidPoint())):
                 self.lines.append(line)
-    
-    def centerAndRotateField(self):
-        designCP = self.design.getMidPoint()
-        trimShapeCP = self.trimShape.getMidPoint()
-        transX = trimShapeCP.x - designCP.x
-        transY = trimShapeCP.y - designCP.y
-        self.design = self.design.transform(mt.combineTransformations(
-                        [mt.translateMatrix(transX+self.shiftX, transY+self.shiftY),
-                         mt.rotateMatrix(self.angleRad, trimShapeCP)]))
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
         
