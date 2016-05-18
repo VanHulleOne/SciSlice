@@ -58,6 +58,8 @@ class Point(object):
         """
         self.__key = tuple(int(round(i*self.COMPARE_PRECISION))
                             for i in self.normalVector[:3])
+        self.__hash = hash(self.__key)                        
+                    
         
     @property
     def x(self):
@@ -75,52 +77,53 @@ class Point(object):
     def normalVector(self):
         return numpy.array(self.__normalVector)
     
-    """ iterate through the coordinates. I don't think this is used anywhere. """
     def __iter__(self):
+        """ iterate through the coordinates. I don't think this is used anywhere. """
         return(i for i in self.__normalVector[:3])
     
-    """ Sometimes we just want the X and Y of a point """
     def get2DPoint(self):
+        """ Sometimes we just want the X and Y of a point """
         return self.__normalVector[:2]
     
-    """ mirror about an axis, mirror about an arbitrary line not yet enabled """
     def mirror(self, axis):
+        """ mirror about an axis or line """
         return self.transform(mt.mirrorMatrix(axis))
-    
-    """ rotate self about the input point by some angle """ 
+     
     def rotate(self, angle, point=None):
+        """ rotate self about the input point by some angle """
         return self.transform(mt.rotateMatrix(angle, point))
     
-    """ translate self by the input amounts """
     def translate(self, shiftX, shiftY, shiftZ=0):
+        """ translate self by the input amounts """
         return self.transform(mt.translateMatrix(shiftX, shiftY, shiftZ))
-    
-    """
-    All transformations, mirror, rotate, translate, simply create their appropriate
-    transformation matricies and pass them to transform which performs
-    the necessary dot product on the transMatrix and the normalVector and return
-    the new Point.
-    """    
+     
     def transform(self, transMatrix):
+        """ Applies the transMatrix to the point.
+        
+        All transformations, mirror, rotate, translate, simply create their appropriate
+        transformation matricies and pass them to transform which performs
+        the necessary dot product on the transMatrix and the normalVector and
+        then returns the new Point.
+        """   
         nv = numpy.dot(transMatrix, self.normalVector)
         return Point(nv)
         
     def __getitem__(self, index):
         return self.normalVector[index]
     
-    """ Subtracting two points gives the distance between the points. """
     def __sub__(self, other):
+        """ Subtracting two points gives the Euclidean distance between the points. """
         return numpy.linalg.norm(self.normalVector - other.normalVector)
         
-    """ Makes x and Y the opposite sign. Can't remember why. """
     def __neg__(self):
+        """ Makes x and Y the opposite sign. Can't remember why. """
         return Point(-self.x, -self.y, self.z)
-    
-    """
-    Sometimes you just need the squaredDistance between two points. This is
-    about twice as fast as subtraction.
-    """
-    def squareDistance(self, other):
+
+    def squareDistance(self, other):    
+        """
+        Sometimes you just need the squaredDistance between two points. This is
+        about twice as fast as subtraction.
+        """
         return ((self.x - other.x)**2 + (self.y - other.y)**2)
     
     """ All comparisons are element wise comparisons in the order X, Y, Z """
@@ -135,16 +138,17 @@ class Point(object):
         
     def __ne__(self, other):
         return self.__key != other.__key
-    
-    """ Create the hash of the Point's key """    
+      
     def __hash__(self):
-        return hash(self.__key)
-    """ Creates a string of just X and Y comma seperatred for gui output """
+        """ hash is hash(self.__key). """
+        return self.__hash
+    
     def CSVstr(self):
+        """ Creates a string of just X and Y comma seperatred for gui output """
         return '{:.4f},{:.4f}'.format(self.x, self.y)
     
-    """ String for printing """
     def __str__(self):
+        """ String for printing """
         return self.printFormat.format(*self.__normalVector[:3])
         
     def __repr__(self):
