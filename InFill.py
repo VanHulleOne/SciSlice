@@ -120,16 +120,16 @@ class InFill(LG):
                          
     def trimField(self):
         tempLines = []
-        for line in self.design.lines:
-            pointSet = set([line.start])
+        for line in self.design:
             if not self.trimShape.lineOutsideBoundingBox(line):
-                for tLine in self.trimShape.lines:
+                pointSet = set([line.start])
+                for tLine in self.trimShape:
                     result, point = tLine.segmentsIntersect(line)
                     if(result >= 1):
                         pointSet.add(point)
                 pointSet.add(line.end)
                 pointList = sorted(list(pointSet))
-                for i in range(len(pointList)-1):                
+                for i in xrange(len(pointList)-1):                
                     tempLines.append(l.Line(pointList[i], pointList[i+1]))
         for line in tempLines:            
             if(self.trimShape.isInside(line.getMidPoint())):
