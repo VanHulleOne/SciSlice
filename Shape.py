@@ -220,7 +220,7 @@ class Shape(LG):
         """
         if(point.x > self.maxX or point.x < self.minX): return c.OUTSIDE
         if(point.y > self.maxY or point.y < self.minY): return c.OUTSIDE
-#        length = (p.Point(self.minX, self.minY) - p.Point(self.maxX, self.maxY))/c.EPSILON
+        
         ray = l.Line(point, p.Point(point.x+np.cos(angle), point.y+np.sin(angle), point.z))
 
         starts = np.array([line.start.get2DPoint() for line in self])
@@ -229,34 +229,13 @@ class Shape(LG):
         denom = 1.0*np.cross(vectors, ray.vector)
         all_u = np.cross(Q_Less_P, vectors)/denom
         all_t = np.cross(Q_Less_P, ray.vector)/denom
-        
-#        print 'Point'
-#        print point
-#        print 'all_u'
-#        print all_u
-#        print 'all_t'
-#        print all_t
-        
-        
-        crosses = 0
-        for u,t in zip(all_u, all_t):
-#            print 'u: {:0.5f} t: {:0.5f}'.format(u,t)
-            if u > 0 and u != np.inf:
-               if abs(t) < c.EPSILON > abs(1-t):# < c.EPSILON:
-                   print 'Recurse'
-                   return  self.isInside(point, angle+np.pi/367)# intersected at endpoint
-               if 0 < t < 1:
-                    crosses += 1
-#        crosses = 0
-#        for line in self:
-#            if(line.isOnLine(point)):                
-#                return c.INSIDE
-#                
-#            result = line.rayIntersects(ray)
-#            if(result == -1):
-#                print 'Repeat in shape.isInside()'
-#                return self.isInside(point, angle+np.pi/367.0)
-#
-#            crosses += result
-#        print 'Crosses: {:d}'.format(crosses)    
-        return (c.INSIDE if crosses % 2 else c.OUTSIDE)
+
+        all_t = all_t[all_u > 0]
+
+        endPoints = (np.abs(all_t) < c.EPSILON) | (np.abs(1-all_t) < c.EPSILON)
+        if np.any(endPoints):
+            print 'Recurse'
+            return  self.isInside(point, angle+np.pi/367)
+            
+        intersections = (0 < all_t) & (all_t < 1)
+        return (c.INSIDE if np.sum(intersections) % 2 else c.OUTSIDE)
