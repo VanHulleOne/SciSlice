@@ -73,6 +73,8 @@ class Line(object):
         yield self.end
     
     def rayIntersects(self, ray):
+        if not self.doBoundingBoxesIntersect(ray):
+            return 0
         Q_Less_P = ray.start.get2DPoint() - self.start.get2DPoint()
         denom = 1.0*np.cross(self.vector, ray.vector)
         if abs(denom) < c.EPSILON:

@@ -219,7 +219,8 @@ class Shape(LG):
         """
         if(point.x > self.maxX or point.x < self.minX): return c.OUTSIDE
         if(point.y > self.maxY or point.y < self.minY): return c.OUTSIDE
-        ray = l.Line(point, p.Point(point.x+np.cos(angle), point.y+np.sin(angle), point.z))
+        length = (p.Point(self.minX, self.minY) - p.Point(self.maxX, self.maxY))/c.EPSILON
+        ray = l.Line(point, p.Point(point.x+length*np.cos(angle), point.y+length*np.sin(angle), point.z))
 
         crosses = 0
         for line in self:
