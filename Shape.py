@@ -223,7 +223,7 @@ class Shape(LG):
         
         ray = l.Line(point, p.Point(point.x+np.cos(angle), point.y+np.sin(angle), point.z))
 
-        starts = np.array([line.start.get2DPoint() for line in self])
+        starts = self.getStarts()
         vectors = self.getVectors()
         Q_Less_P = ray.start.get2DPoint() - starts
         denom = 1.0*np.cross(vectors, ray.vector)
