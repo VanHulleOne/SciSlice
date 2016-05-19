@@ -155,7 +155,7 @@ class Line(object):
             point > self.start and point > self.end)):
             return False #point is not between the start and end of self
         
-        if(self.getArea(self.start, self.end, point) > 0.0001):
+        if(self.getArea(self.start, self.end, point) > c.EPSILON):
             return False #points are not co-linear
         
         return True
@@ -226,16 +226,18 @@ class Line(object):
         self.upperLeft = p.Point(tempList[0][0], tempList[1][1])
         self.lowerRight = p.Point(tempList[0][1], tempList[1][0])
     
-    def getOffsetLines(self, distance):
+    def getOffsetLine(self, distance, side=c.INSIDE):
         """ Calculates and returns the two lines on either side of self offset distance."""
         StartA = numpy.array([self.start.x, self.start.y])
         EndA = numpy.array([self.end.x, self.end.y])
         r = StartA - EndA #The slope vector of self
         rn = numpy.array([-r[c.Y], r[c.X]]) #flip x and y and inverse y to get the normal vector of the slope
         rn = rn/numpy.linalg.norm(rn)*distance #normalize by dividing by its magnitude and multipy by distance to get the correct length
-        line1 = self.translate(rn[c.X], rn[c.Y]) #the "Plus" side line
-        line2 = self.translate(-rn[c.X], -rn[c.Y]) #the "minus" side line
-        return (line1, line2)
+        
+        if side == c.INSIDE:
+            return self.translate(-rn[c.X], -rn[c.Y]) #the "minus" side line is the left side which is inside.
+        
+        return self.translate(rn[c.X], rn[c.Y]) #the "Plus" side of the line is the right side which is outside.
         
     
     def sideOfLine(self, point):
@@ -252,8 +254,7 @@ class Line(object):
     
     def getMidPoint(self):
         """ Calculate and return the midpoint of self. """
-        return p.Point((self.start.normalVector - self.end.normalVector)/2.0 +
-                self.end.normalVector)
+        return p.Point((self.start.normalVector + self.end.normalVector)/2.0)
     
     def __lt__(self, other):
         """
