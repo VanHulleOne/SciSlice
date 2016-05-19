@@ -15,7 +15,7 @@ import matrixTrans as mt
 
 class Point(object):
     
-    NUM_DEC = 3
+    NUM_DEC = 6
     printFormat = 'X{:.%df} Y{:.%df} Z{:.%df}' % tuple([NUM_DEC]*3)
     
     """

@@ -19,6 +19,7 @@ import numpy as np
 from operator import itemgetter
 import itertools
 from collections import Counter
+import itertools
 
 def finishedOutline(func):
     """
@@ -219,19 +220,22 @@ class Shape(LG):
         """
         if(point.x > self.maxX or point.x < self.minX): return c.OUTSIDE
         if(point.y > self.maxY or point.y < self.minY): return c.OUTSIDE
-        length = (p.Point(self.minX, self.minY) - p.Point(self.maxX, self.maxY))/c.EPSILON
-        ray = l.Line(point, p.Point(point.x+length*np.cos(angle), point.y+length*np.sin(angle), point.z))
+        
+        ray = l.Line(point, p.Point(point.x+np.cos(angle), point.y+np.sin(angle), point.z))
 
-        crosses = 0
-        for line in self:
-            if(line.isOnLine(point)):                
-                return c.INSIDE
-                
-            result = line.rayIntersects(ray)
-            if(result == -1):
-                print 'Repeat in shape.isInside()'
-                return self.isInside(point, angle+np.pi/367.0)
+        starts = self.getStarts()
+        vectors = self.getVectors()
+        Q_Less_P = ray.start.get2DPoint() - starts
+        denom = 1.0*np.cross(vectors, ray.vector)
+        all_u = np.cross(Q_Less_P, vectors)/denom
+        all_t = np.cross(Q_Less_P, ray.vector)/denom
 
-            crosses += result
+        all_t = all_t[all_u > 0]
+
+        endPoints = (np.abs(all_t) < c.EPSILON) | (np.abs(1-all_t) < c.EPSILON)
+        if np.any(endPoints):
+            print 'Recurse'
+            return  self.isInside(point, angle+np.pi/367)
             
-        return (c.INSIDE if crosses % 2 else c.OUTSIDE)
+        intersections = (0 < all_t) & (all_t < 1)
+        return (c.INSIDE if np.sum(intersections) % 2 else c.OUTSIDE)
