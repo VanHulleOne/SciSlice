@@ -13,7 +13,12 @@ import Line as l
 import Point as p
 from LineGroup import LineGroup as LG
 import constants as c
+import copy
 from functools import wraps
+import numpy as np
+from operator import itemgetter
+import itertools
+from collections import Counter
 
 def finishedOutline(func):
     """
@@ -88,10 +93,10 @@ class Shape(LG):
         the start of the next line. If not the gap distance is calculated and
         sent in the Exception message.
         """
-
-        self.lines = list(self.ccw_gen())
+        self.outlineFinished = True
+        self.lines = self.__finishOutline()
             
-        self.outlineFinished = True #to run subShape_gen this must be set to True since it uses the @finishedOutline decorator
+         #to run subShape_gen this must be set to True since it uses the @finishedOutline decorator
         for subShape in self.subShape_gen():
             if subShape[0].start != subShape[-1].end:
                 dist = subShape[0].start - subShape[-1].end
@@ -105,6 +110,57 @@ class Shape(LG):
     def closeShape(self):
         if(self[0].start != self[-1].end):
             self.append(l.Line(self[-1].end, self[0].start))
+            
+    def __finishOutline(self, oldList=None, newList=None):
+        if oldList is None:
+            oldList = copy.deepcopy(self.lines)
+        elif len(oldList) == 0:
+            return
+        if newList is None:
+            newList = []
+        firstLine = oldList.pop(0)
+
+        if not self.isInside(firstLine.getOffsetLine(c.EPSILON*2, c.INSIDE).getMidPoint()):
+            firstLine = firstLine.fliped()
+  
+        testPoint = firstLine.end
+
+        newList.append(firstLine)
+        
+        normList = np.array([point.normalVector for point in itertools.chain(*oldList)])
+        while len(oldList) > 0:
+            """
+            This got a little complicated but sped up this section by about 10X
+            This next line from inside to out does as follows:
+            1) take the normList and subtract the normVector from the test point
+                This actually subtracts the testPointNormVector from each individual
+                element in the normList
+            2) Use numpy.linalg.norm to get the length of each element. The first
+                object is our subtracted array, None is for something I don't understand
+                1 is so that it takes the norm of each element and not of the whole
+                array
+            3) enumerate over the array of norms so we can later have the index
+            4) Find the min of the tuples (index, dist) key-itemgetter(1) is telling min
+                to look at dist when comparing the tuples
+            5) min returns the lowest tuple, which we split into index and dist
+            """
+            
+            index, dist = min(enumerate(np.linalg.norm(normList-testPoint.normalVector, None, 1)), key=itemgetter(1))
+            if dist > c.EPSILON:
+                raise Exception('Shape has a gap of ' + str(dist) + 'at point ' + str(testPoint))
+            if index%2: #If index is odd we are at the end of a line so the line needs to be flipped
+                oldList[index/2] = oldList[index/2].fliped()
+            index /= 2
+            testPoint = oldList[index].end
+            temp = oldList.pop(index)
+            newList.append(temp)
+            normList = np.delete(normList, [index*2, index*2+1],0)
+            
+            if testPoint == firstLine.start:
+                self.__finishOutline(oldList, newList)
+                return newList
+        dist = firstLine.start - newList[-1].end
+        raise Exception('Shape now closed. There is a gap of {:0.5f} at point {}'.format(dist, testPoint))
 
     @finishedOutline                                
     def offset(self, distance, desiredSide):
@@ -113,14 +169,7 @@ class Shape(LG):
             trimJoin = self.trimJoin_Coro()
             next(trimJoin)
             for line in subShape:
-                # TODO: Reorganize shape into a CCW direction so we know that
-                # inside/outside is left/right of the line saving the extra
-                # try and check.
-                try1, try2 = line.getOffsetLines(distance)
-                if self.isInside(try1.getMidPoint()) == desiredSide:
-                    trimJoin.send(try1)
-                else:
-                    trimJoin.send(try2)
+                trimJoin.send(line.getOffsetLine(distance, desiredSide))
             tempLines.extend(trimJoin.send(None))
         return Shape(tempLines)
     
@@ -157,7 +206,8 @@ class Shape(LG):
         yield offsetLines
     
     @finishedOutline    
-    def isInside(self, point):
+    def isInside(self, point, angle=np.pi/367.0):
+        # TODO: Fix comment
         """
         This method determines if the point is inside
         or outside the shape. Returns the side of the shape the point in on.
@@ -169,13 +219,22 @@ class Shape(LG):
         """
         if(point.x > self.maxX or point.x < self.minX): return c.OUTSIDE
         if(point.y > self.maxY or point.y < self.minY): return c.OUTSIDE
-        downLine = l.Line(point, p.Point(point.x, self.minY - 10, point.z))
-        downSet = set([]) 
+        length = 2*max(point-corner for corner in self.fourCorners())
+        downLine = l.Line(point, p.Point(point.x+length*np.cos(angle),
+                                         self.minY+length*np.sin(angle), point.z))
+       
+        count = Counter()
+        count[point] += 1
         for line in self:
             if(line.isOnLine(point)):                
                 return c.INSIDE
                 
             result, intPoint = line.segmentsIntersect(downLine)
-            if(result == 1): downSet.add(intPoint)         
+            if(result == 1): count[intPoint] += 1
 
-        return (c.INSIDE if len(downSet) % 2 == 1 else c.OUTSIDE)
+        del count[point]
+        if any(value == 2 for value in count.itervalues()):
+            print 'Repeated an angle in Shape.isInside()'
+            return self.isInside(point, angle+np.pi/367.0)        
+
+        return (c.INSIDE if len(count) % 2 == 1 else c.OUTSIDE)
