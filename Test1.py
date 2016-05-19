@@ -54,8 +54,13 @@ ll = [l.Line(l1[i], l1[i+1]) for i in xrange(len(l1)-1)]
 
 nv = [pi.normalVector for pi in l1]
 
-s1 = ds.squareWithHole()
+s1 = ds.rect(0,0,10,10)#squareWithHole()
 
+l6 = ll[6]
+r1 = l.Line(p.Point(0,2), p.Point(1,2))
+r1f = r1.fliped()
+print 'Good: ' + str(l6.rayIntersects(r1))
+print 'Bad: ' + str(l6.rayIntersects(r1f))
 
     
     

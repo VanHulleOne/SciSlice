@@ -219,22 +219,17 @@ class Shape(LG):
         """
         if(point.x > self.maxX or point.x < self.minX): return c.OUTSIDE
         if(point.y > self.maxY or point.y < self.minY): return c.OUTSIDE
-        length = 2*max(point-corner for corner in self.fourCorners())
-        downLine = l.Line(point, p.Point(point.x+length*np.cos(angle),
-                                         self.minY+length*np.sin(angle), point.z))
-       
-        count = Counter()
-        count[point] += 1
+#        length = 2*max(point-corner for corner in self.fourCorners())
+        ray = l.Line(point, p.Point(point.x+np.cos(angle), point.y+np.sin(angle), point.z))
+
+        crosses = 0
         for line in self:
             if(line.isOnLine(point)):                
                 return c.INSIDE
                 
-            result, intPoint = line.segmentsIntersect(downLine)
-            if(result == 1): count[intPoint] += 1
-
-        del count[point]
-        if any(value == 2 for value in count.itervalues()):
-            print 'Repeated an angle in Shape.isInside()'
-            return self.isInside(point, angle+np.pi/367.0)        
-
-        return (c.INSIDE if len(count) % 2 == 1 else c.OUTSIDE)
+            result = line.rayIntersects(ray)
+            if(result == -1):
+                return self.isInside(point, angle+np.pi/367.0)
+            crosses += result 
+#        print 'Crosses: {:d}'.format(crosses)    
+        return (c.INSIDE if crosses % 2 == 1 else c.OUTSIDE)
