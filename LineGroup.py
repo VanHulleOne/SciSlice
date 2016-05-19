@@ -12,11 +12,10 @@ import Point as p
 import Line as l
 import numpy as np
 from operator import itemgetter
-import copy
 import matrixTrans as mt
 import constants as c
 from collections import namedtuple
-import itertools
+import copy
 
 class LineGroup(object):
     
@@ -45,6 +44,14 @@ class LineGroup(object):
     def addLineGroup(self, inGroup):
         for line in inGroup:
             self.append(line)
+            
+    def fourCorners(self):
+        corners = []
+        corners.append(p.Point(self.minX, self.minY))
+        corners.append(p.Point(self.maxX, self.minY))
+        corners.append(p.Point(self.maxX, self.maxY))
+        corners.append(p.Point(self.minX, self.maxY))
+        return corners
             
     def addLinesFromCoordinateList(self, coordList):
         pointList = []        
@@ -125,71 +132,6 @@ class LineGroup(object):
                 index /= 2
                 lineList.pop(index)
                 normList = np.delete(normList, [index*2, index*2+1],0)
-
-    def ccw_gen(self, lineList=None):
-        if lineList is None:
-            lineList = copy.deepcopy(self.lines)
-        firstLine = lineList.pop()
-        firstPoint = firstLine.start
-        secondLine = None
-        for line in lineList:
-            if line.start == firstPoint or line.end == firstPoint:
-                secondLine = line
-                break
-        print 'Exited for loop'
-        if secondLine is None:
-            raise Exception('ccw_gen in LineGroup - shape not closed')
-        print 'Past exception'
-        if secondLine.start != firstPoint:
-            nonSharedPoint = secondLine.start
-        else:
-            nonSharedPoint = secondLine.end
-        print 'past which end test'
-        try:
-            if firstLine.sideOfLine(nonSharedPoint) == c.RIGHT:
-                firstLine = firstLine.fliped()
-        except Exception as e:
-            print 'side of line failed'
-            print e
-#        raise Exception()
-        print 'past side of line test'   
-        testPoint = firstLine.end
-        print 'first Line'
-        print firstLine
-        yield firstLine    
-        
-        normList = np.array([point.normalVector for point in itertools.chain(*lineList)])#[point.normalVector for point in self.iterPoints()])
-        while len(lineList) > 0:
-            """
-            This got a little complicated but sped up this section by about 10X
-            This next line from inside to out does as follows:
-            1) take the normList and subtract the normVector from the test point
-                This actually subtracts the testPointNormVector from each individual
-                element in the normList
-            2) Use numpy.linalg.norm to get the length of each element. The first
-                object is our subtracted array, None is for something I don't understand
-                1 is so that it takes the norm of each element and not of the whole
-                array
-            3) enumerate over the array of norms so we can later have the index
-            4) Find the min of the tuples (index, dist) key-itemgetter(1) is telling min
-                to look at dist when comparing the tuples
-            5) min returns the lowest tuple, which we split into index and dist
-            """
-            if testPoint == firstLine.start:
-                print 'Entered line 171 in LineGroup'
-                for line in self.ccw_gen(lineList):
-                    yield line
-                break
-            
-            index, _ = min(enumerate(np.linalg.norm(normList-testPoint.normalVector, None, 1)), key=itemgetter(1))
-            if index%2: #If index is odd we are at the end of a line so the line needs to be flipped
-                lineList[index/2] = lineList[index/2].fliped()
-            index /= 2
-            testPoint = lineList[index].end
-            temp = lineList.pop(index)
-#            print temp
-            yield temp
-            normList = np.delete(normList, [index*2, index*2+1],0)   
     
     def append(self, line):
         self.lines.append(line)
