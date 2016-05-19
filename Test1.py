@@ -63,7 +63,20 @@ from collections import Counter
 #print 'Bad: ' + str(l6.rayIntersects(r1f))
 
 s1 = ds.rect(0,0,10,12)
-in1 = InF.InFill(s1, 0.5, 45)
+in1 = InF.InFill(s1, 2, 90)
+
+s2 = ds.rect(2,2,6,8)
+
+fieldStarts = in1.getStarts()
+trimStarts = s2.getStarts()
+Q_P = fieldStarts - trimStarts.reshape(4,1,2)
+
+fieldVectors = in1.getVectors()
+trimVectors = s2.getVectors()
+denom = np.cross(trimVectors, fieldVectors.reshape(5,1,2))
+all_t = np.cross(Q_P, trimVectors.reshape(4,1,2))/denom.reshape(4,5)
+
+
 
     
 """ An example of how to do other infills. """  

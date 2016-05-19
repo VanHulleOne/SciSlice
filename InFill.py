@@ -130,22 +130,17 @@ class InFill(LG):
                 
                 Q_Less_P = line.start.get2DPoint() - starts
                 denom = 1.0*np.cross(vectors, line.vector)
+#                print denom
                 all_t = np.cross(Q_Less_P, vectors)/denom
                 all_u = np.cross(Q_Less_P, line.vector)/denom
                 
                 all_t = all_t[(0 <= all_u) & (all_u <= 1) &
                                 (0 <= all_t) & (all_t <= 1)]
-                                
-#                print 'all_t'
-#                print all_t
                 
                 pointSet |= set(p.Point(line.start.x + line.vector[c.X]*t,
                                         line.start.y+line.vector[c.Y]*t)
                                         for t in all_t)
-#                for tLine in self.trimShape:
-#                    result, point = tLine.segmentsIntersect(line)
-#                    if(result >= 1):
-#                        pointSet.add(point)
+
                 pointSet.add(line.end)
                 pointList = sorted(list(pointSet))
                 for i in xrange(len(pointList)-1):                
