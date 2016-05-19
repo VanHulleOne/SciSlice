@@ -53,6 +53,9 @@ class LineGroup(object):
         corners.append(p.Point(self.minX, self.maxY))
         return corners
             
+    def getVectors(self):
+        return np.array([line.vector for line in self])
+    
     def addLinesFromCoordinateList(self, coordList):
         pointList = []        
         for coord in coordList:

@@ -62,8 +62,9 @@ from collections import Counter
 #print 'Good: ' + str(l6.rayIntersects(r1))
 #print 'Bad: ' + str(l6.rayIntersects(r1f))
 
-s1 = ds.regularDogBone()
-in1 = InF.InFill(s1, 0.5, 45)  
+s1 = ds.rect(0,0,10,12)
+print s1.isInside(p.Point(5,5))
+
     
 """ An example of how to do other infills. """  
 #currOutline = ds.rect(0,0,15,250)
