@@ -72,23 +72,17 @@ class Line(object):
         yield self.start
         yield self.end
     
-    
-    def getIntersectConstant(self, cLine, otherLine):
-        return (np.cross(otherLine.start.get2DPoint()-cLine.start.get2DPoint(),
-                         otherLine.vector)/(1.0*np.cross(cLine.vector, otherLine.vector)))
     def rayIntersects(self, ray):
-        if self.areParallel(ray):
-            return 0 # No intersection
-        u = self.getIntersectConstant(ray, self)
+        Q_Less_P = ray.start.get2DPoint() - self.start.get2DPoint()
+        denom = 1.0*np.cross(self.vector, ray.vector)
+        if abs(denom) < c.EPSILON:
+            return 0 # Parallel
+        u = np.cross(Q_Less_P, self.vector)/denom
         if u < 0:
-            return 0
-        t = self.getIntersectConstant(self, ray)
-#        print 'self'
-#        print self
-#        print 'ray'
-#        print ray
-#        print 't: ' + str(t)
-        if abs(t) < c.EPSILON or abs(1-t) < c.EPSILON:
+            return 0 # behind ray
+        t = np.cross(Q_Less_P, ray.vector)/denom
+
+        if abs(t) < c.EPSILON > abs(1-t):# < c.EPSILON:
             return -1 # intersected at endpoint
         if t < 0 or t > 1:
             return 0 # No intersection

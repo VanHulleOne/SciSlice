@@ -219,7 +219,7 @@ class Shape(LG):
         """
         if(point.x > self.maxX or point.x < self.minX): return c.OUTSIDE
         if(point.y > self.maxY or point.y < self.minY): return c.OUTSIDE
-#        length = 2*max(point-corner for corner in self.fourCorners())
+        
         ray = l.Line(point, p.Point(point.x+np.cos(angle), point.y+np.sin(angle), point.z))
 
         crosses = 0
@@ -229,7 +229,9 @@ class Shape(LG):
                 
             result = line.rayIntersects(ray)
             if(result == -1):
+                print 'Repeat in shape.isInside()'
                 return self.isInside(point, angle+np.pi/367.0)
-            crosses += result 
-#        print 'Crosses: {:d}'.format(crosses)    
-        return (c.INSIDE if crosses % 2 == 1 else c.OUTSIDE)
+
+            crosses += result
+            
+        return (c.INSIDE if crosses % 2 else c.OUTSIDE)
