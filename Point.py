@@ -23,7 +23,7 @@ class Point(object):
     as integers. The input number is multiplied by COMPARE_PRECISION and
     then converted to an int.
     """        
-    COMPARE_PRECISION = c.EPSILON
+    COMPARE_PRECISION = int(1.0/c.EPSILON)
     
     """
     Each Point stores an X, Y, Z coordinate. All points must have at least

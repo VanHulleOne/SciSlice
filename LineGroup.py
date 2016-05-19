@@ -12,10 +12,10 @@ import Point as p
 import Line as l
 import numpy as np
 from operator import itemgetter
-import copy
 import matrixTrans as mt
 import constants as c
 from collections import namedtuple
+import copy
 
 class LineGroup(object):
     
@@ -44,6 +44,14 @@ class LineGroup(object):
     def addLineGroup(self, inGroup):
         for line in inGroup:
             self.append(line)
+            
+    def fourCorners(self):
+        corners = []
+        corners.append(p.Point(self.minX, self.minY))
+        corners.append(p.Point(self.maxX, self.minY))
+        corners.append(p.Point(self.maxX, self.maxY))
+        corners.append(p.Point(self.minX, self.maxY))
+        return corners
             
     def addLinesFromCoordinateList(self, coordList):
         pointList = []        
@@ -124,33 +132,6 @@ class LineGroup(object):
                 index /= 2
                 lineList.pop(index)
                 normList = np.delete(normList, [index*2, index*2+1],0)
-
-    def sortNearest_gen(self, testPoint=p.Point(0,0)):
-        lineList = copy.deepcopy(self.lines)
-        normList = np.array([point.normalVector for point in self.iterPoints()])
-        while len(lineList) > 0:
-            """
-            This got a little complicated but sped up this section by about 10X
-            This next line from inside to out does as follows:
-            1) take the normList and subtract the normVector from the test point
-                This actually subtracts the testPointNormVector from each individual
-                element in the normList
-            2) Use numpy.linalg.norm to get the length of each element. The first
-                object is our subtracted array, None is for something I don't understand
-                1 is so that it takes the norm of each element and not of the whole
-                array
-            3) enumerate over the array of norms so we can later have the index
-            4) Find the min of the tuples (index, dist) key-itemgetter(1) is telling min
-                to look at dist when comparing the tuples
-            5) min returns the lowest tuple, which we split into index and dist
-            """
-            index, _ = min(enumerate(np.linalg.norm(normList-testPoint.normalVector, None, 1)), key=itemgetter(1))
-            if index%2: #If index is odd we are at the end of a line so the line needs to be flipped
-                lineList[index/2] = lineList[index/2].fliped()
-            index /= 2
-            testPoint = lineList[index].end
-            yield lineList.pop(index)
-            normList = np.delete(normList, [index*2, index*2+1],0)   
     
     def append(self, line):
         self.lines.append(line)

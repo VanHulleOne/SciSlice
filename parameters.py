@@ -25,7 +25,7 @@ shiftX = [10, 50] # amount to shift part from printer origin in X
 shiftY = [10, 35, 60] # amount to shift part from printer origin in Y
 firstLayerShiftZ = 0 #correct for bed leveling
 numLayers = [8] #number of layers to make
-trimAdjust = 1.0/c.EPSILON
+trimAdjust = c.EPSILON
 
 
 """
