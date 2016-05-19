@@ -10,7 +10,7 @@ can be changed.
 @author: lvanhulle
 """
 import Point as p
-import numpy
+import numpy as np
 import constants as c
 
 class Line(object):
@@ -41,7 +41,7 @@ class Line(object):
             self.__extrusionRate = oldLine.extrusionRate
             self.freezeExRate = oldLine.freezeExRate
         self.setBoundingBox()
-        self.vector = numpy.array([self.end.x-self.start.x,
+        self.vector = np.array([self.end.x-self.start.x,
                                 self.end.y-self.start.y])
 
     @property
@@ -71,6 +71,48 @@ class Line(object):
     def __iter__(self):
         yield self.start
         yield self.end
+    
+    def rayIntersects(self, ray):
+        if self.areParallel(ray):
+            return 0 # No intersection
+        t = (np.cross(ray.start.get2DPoint()-self.start.get2DPoint(), ray.vector)/
+                np.cross(self.vector, ray.vector))
+        if abs(t) < c.EPSILON or abs(1-t) < c.EPSILON:
+            return -1 # intersected at endpoint
+        if t < 0 or t > 1:
+            return 0 # No intersection
+        return 1 # and intersection
+        
+    
+    def areParallel(self, line):
+        """
+        returns True if the two lines are parallel
+        
+        This method tests if two lines are parallel by finding the angle
+        between the perpendicular vector of the first line and the second line.
+        If the dot product between perpVect and the vect of line2 is zero then
+        line1 and line2 are parallel. Farin and Hansford recommend checking within
+        a physically meaningful tolerance so equation 3.14 from pg 50 of
+        Farin-Hansford Geometry Toolbox is used to compute the cosine of the angle
+        and compare that to our ANGLE_EPS. If cosTheda < ANGLE_EPS then the lines
+        are parallel.
+        
+        Parameters
+        ----------
+        line1 - the first line
+        line2 - the second line
+        
+        Return
+        ------
+        True if lines are parallel within ANGLE_EPS else False
+        """
+        # A vector perpendicular to line1
+        perpVect = np.array([-self.vector[c.Y], self.vector[c.X]])
+        # Farin-Hansford eq 3.14
+        cosTheda = (np.dot(perpVect, line.vector)/
+                    (np.linalg.norm(perpVect)*np.linalg.norm(line.vector)))
+        # if cosTheda is < c.EPSILON then the lines are parallel and we return True
+        return abs(cosTheda) < c.EPSILON   
     
     def segmentsIntersect(self, other, allowProjInt = False):
         """
@@ -126,12 +168,12 @@ class Line(object):
         then solve for t and u. If t and u are in the range [0-1] then the
         intersection point lines on the lines, else it is a projected point.
         """
-        r = numpy.subtract(self.end.get2DPoint(), self.start.get2DPoint())
-        s = numpy.subtract(other.end.get2DPoint(), other.start.get2DPoint())
-        Q_Less_P = numpy.subtract(other.start.get2DPoint(), self.start.get2DPoint())
-        denom = numpy.cross(r, s)*1.0
-        t = numpy.cross(Q_Less_P, s)/denom
-        u = numpy.cross(Q_Less_P, r)/denom 
+        r = np.subtract(self.end.get2DPoint(), self.start.get2DPoint())
+        s = np.subtract(other.end.get2DPoint(), other.start.get2DPoint())
+        Q_Less_P = np.subtract(other.start.get2DPoint(), self.start.get2DPoint())
+        denom = np.cross(r, s)*1.0
+        t = np.cross(Q_Less_P, s)/denom
+        u = np.cross(Q_Less_P, r)/denom 
         point = p.Point(self.start.x + r[c.X]*t, self.start.y+r[c.Y]*t)         
         #If t or u are not in the range 0-1 then the intersection is projected
         if(t > 1 or u > 1 or t < 0 or u < 0):
@@ -166,8 +208,8 @@ class Line(object):
         of the triangle formed by the three points.
         """
         matrix = [p1.normalVector, p2.normalVector, p3.normalVector, [1,1,1,1]]
-        matrix = numpy.rot90(matrix)
-        return abs(numpy.linalg.det(matrix))/2.0
+        matrix = np.rot90(matrix)
+        return abs(np.linalg.det(matrix))/2.0
     
     def areColinear(self, other):
         """
@@ -228,11 +270,11 @@ class Line(object):
     
     def getOffsetLine(self, distance, side=c.INSIDE):
         """ Calculates and returns the two lines on either side of self offset distance."""
-        StartA = numpy.array([self.start.x, self.start.y])
-        EndA = numpy.array([self.end.x, self.end.y])
+        StartA = np.array([self.start.x, self.start.y])
+        EndA = np.array([self.end.x, self.end.y])
         r = StartA - EndA #The slope vector of self
-        rn = numpy.array([-r[c.Y], r[c.X]]) #flip x and y and inverse y to get the normal vector of the slope
-        rn = rn/numpy.linalg.norm(rn)*distance #normalize by dividing by its magnitude and multipy by distance to get the correct length
+        rn = np.array([-r[c.Y], r[c.X]]) #flip x and y and inverse y to get the normal vector of the slope
+        rn = rn/np.linalg.norm(rn)*distance #normalize by dividing by its magnitude and multipy by distance to get the correct length
         
         if side == c.INSIDE:
             return self.translate(-rn[c.X], -rn[c.Y]) #the "minus" side line is the left side which is inside.
@@ -247,9 +289,9 @@ class Line(object):
         return  c.LEFT if dist < 0 else c.RIGHT
     
     def pointToLineDist(self, point):
-        perpVect = numpy.array([self.vector[c.Y], -self.vector[c.X]])
+        perpVect = np.array([self.vector[c.Y], -self.vector[c.X]])
         difPoint = point.get2DPoint()-self.start.get2DPoint()
-        return numpy.dot(perpVect, difPoint)/numpy.linalg.norm(perpVect)
+        return np.dot(perpVect, difPoint)/np.linalg.norm(perpVect)
         
     
     def getMidPoint(self):
