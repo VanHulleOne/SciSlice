@@ -66,6 +66,8 @@ s1 = ds.rect(0,0,10,12)
 in1 = InF.InFill(s1, 2, 90)
 
 s2 = ds.rect(2,2,6,8)
+print 'second shape'
+in2 = InF.InFill(s2, 0.5, 0, design=in1, designType=3)
 
 fieldStarts = in1.getStarts()
 trimStarts = s2.getStarts()
@@ -74,10 +76,11 @@ Q_P = fieldStarts - trimStarts.reshape(4,1,2)
 fieldVectors = in1.getVectors()
 trimVectors = s2.getVectors()
 denom = np.cross(trimVectors, fieldVectors.reshape(5,1,2))
-all_t = np.cross(Q_P, trimVectors.reshape(4,1,2))/denom.reshape(4,5)
+all_t = np.cross(Q_P, trimVectors.reshape(4,1,2)).transpose()/denom#.reshape(4,5)
+all_u = np.cross(Q_P, fieldVectors).transpose()/denom#.reshape(4,5)
 
-
-
+all_t_f = all_t[(0 <= all_u) & (all_u <= 1) &
+                            (0 <= all_t) & (all_t <= 1)]
     
 """ An example of how to do other infills. """  
 #currOutline = ds.rect(0,0,15,250)
