@@ -15,6 +15,7 @@ import arc as a
 import Point as p
 import constants as c
 import math
+import Line as l
     
 def regularDogBone():    
     dogBone = s.Shape(None)
@@ -104,6 +105,21 @@ def polygon(centerX, centerY, radius, numCorners):
     poly = poly.rotate(incAngle/2.0, p.Point(centerX, centerY))
     return poly
         
+def lineField(space, length, height):
+    lines = []
+    currHeight = 0
+    while currHeight < height:
+        lines.append(l.Line(p.Point(0,currHeight), p.Point(length,currHeight)))
+        currHeight += space
+    group = lg.LineGroup()
+    group.lines = lines
+    group.minX = 0
+    group.minY = 0
+    group.maxX = length
+    group.maxY = currHeight-space
+    return group
+    
+
 def hexField(side, space, length, height):
     baseLine = lg.LineGroup(None)
     baseLine.addLinesFromCoordinateList([[0,0], [side, 0],
