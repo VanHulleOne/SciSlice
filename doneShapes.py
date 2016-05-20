@@ -24,7 +24,7 @@ def regularDogBone():
     dogBone.addLinesFromCoordinateList([[28.5, 6.5], [0, 6.5]])
     dogBone.addLineGroup(dogBone.mirror(c.Y))
     dogBone.addLineGroup(dogBone.mirror(c.X))
-    dogBone.translate(82.5, 9.5)
+    dogBone = dogBone.translate(82.5, 9.5)
     dogBone.finishOutline()
     return dogBone
 

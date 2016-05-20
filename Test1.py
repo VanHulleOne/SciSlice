@@ -36,7 +36,7 @@ from collections import Counter
 ##
 #arc = a.Arc(p.Point(49.642, 9.5), p.Point(28.5, 6.5), CW, p.Point(28.5, 82.5), 20)
 ##
-#p1 = p.Point(2.073, 0.0806)
+p1 = p.Point(2.073, 0.0806)
 #p2 = p.Point(2.1512, 0.0323)
 #p3 = p.Point(2.144081, 0.0389)
 #p4 = p.Point(2.0251, 0.1612)

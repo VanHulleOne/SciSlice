@@ -26,6 +26,8 @@ class LineGroup(object):
         self.minY = None
         self.maxX = None
         self.maxY = None
+        self.__starts = None
+        self.__vectors = None
         
         try:
             self.lines = list(inGroup)
@@ -52,12 +54,18 @@ class LineGroup(object):
         corners.append(p.Point(self.maxX, self.maxY))
         corners.append(p.Point(self.minX, self.maxY))
         return corners
-            
-    def getVectors(self):
-        return np.array([line.vector for line in self])
-        
-    def getStarts(self):
-        return np.array([line.start.get2DPoint() for line in self])
+    
+    @property       
+    def vectors(self):
+        if self.__vectors is None:
+            self.__vectors = np.array([line.vector for line in self])
+        return self.__vectors
+    
+    @property    
+    def starts(self):
+        if self.__starts is None:
+            self.__starts = np.array([line.start.get2DPoint() for line in self])
+        return self.__starts
     
     def addLinesFromCoordinateList(self, coordList):
         pointList = []        

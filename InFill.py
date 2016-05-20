@@ -122,10 +122,10 @@ class InFill(LG):
                          
     def trimField(self):
 #        startTime = time.time()
-        trimStarts = self.trimShape.getStarts()
-        trimVectors = self.trimShape.getVectors()
-        fieldStarts = self.design.getStarts()
-        fieldVectors = self.design.getVectors()
+        trimStarts = self.trimShape.starts
+        trimVectors = self.trimShape.vectors
+        fieldStarts = self.design.starts
+        fieldVectors = self.design.vectors
         trimLen = len(self.trimShape)
         fieldLen = len(self.design)
         Q_Less_P = fieldStarts - trimStarts.reshape(trimLen,1,2)
@@ -150,41 +150,7 @@ class InFill(LG):
                     tempLine = l.Line(pointList[i], pointList[i+1])
                     if(self.trimShape.isInside(tempLine.getMidPoint())):
                         self.lines.append(tempLine)
-#        print 'Time for loop: {:0.3f}'.format(time.time()-midTime)    
-#        for line in self.design:
-##            if not self.trimShape.lineOutsideBoundingBox(line):
-#            pointSet = set([line.start])
-#            
-#            Q_Less_P = line.start.get2DPoint() - starts
-#            denom = 1.0*np.cross(vectors, line.vector)
-##                print 'denom'
-##                print denom
-#            all_t = np.cross(Q_Less_P, vectors)/denom
-##            print 'all_t'
-##            print np.round(np.cross(Q_Less_P, vectors),4)
-##            print np.round(all_t,2)
-#            all_u = np.cross(Q_Less_P, line.vector)/denom
-##            print 'all_u'
-##            print np.round(np.cross(Q_Less_P, line.vector),2)
-##            print np.round(all_u,2)
-#            
-#            all_t = all_t[(0 <= all_u) & (all_u <= 1) &
-#                            (0 <= all_t) & (all_t <= 1)]
-##            print 'Filtered all_t'
-##            print all_t
-#            pointSet |= set(p.Point(line.start.x + line.vector[c.X]*t,
-#                                    line.start.y+line.vector[c.Y]*t)
-#                                    for t in all_t)
-#
-#            pointSet.add(line.end)
-#            pointList = sorted(list(pointSet))
-#            for i in xrange(len(pointList)-1):                
-#                tempLines.append(l.Line(pointList[i], pointList[i+1]))
-#        for line in tempLines:            
-#            if(self.trimShape.isInside(line.getMidPoint())):
-#                self.lines.append(line)
-                
-                
+
                 
                 
                 
