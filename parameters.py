@@ -26,7 +26,10 @@ shiftY = [10, 35, 60] # amount to shift part from printer origin in Y
 firstLayerShiftZ = 0 #correct for bed leveling
 numLayers = [8] #number of layers to make
 trimAdjust = c.EPSILON
-
+pattern = None
+# pattern = lg.LineGroup()
+# pattern.addLinesFromCoordinateList([[0,0],[2,2],[4,0]])
+designType = 0
 
 """
 Layer Parameters
@@ -35,7 +38,7 @@ infillAngleDegrees = [0, -45, 90, 45, 45, 90, -45] #degrees infill angle 90 is i
 pathWidth = [0.5] #mm distance between centerline of paths
 layerHeight = [0.4] #mm height per layer
 infillShiftX = [0]
-infillShiftY = [0.25,0,0,0,0,0, 0]
+infillShiftY = [0]
 #flipLayer = [0] No longer implimented
 numShells = [13,1,1,0,0,1,1] # the number of shells max is 13 if 0.4999 path width is used
 

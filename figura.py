@@ -33,6 +33,7 @@ import InFill as InF
 import LineGroup as lg
 import constants as c
 from Shape import Shape
+import doneShapes as ds
 
 class Figura:  
     
@@ -108,6 +109,9 @@ class Figura:
             
             currHeight += layerParam.layerHeight
             
+
+            
+            
             if layerKey not in self.layers:
                 currOutline = self.shape
                 filledList = []
@@ -115,9 +119,10 @@ class Figura:
                     """ If the layer needs shells create them here. """
                     filledList.append(currOutline)
                     currOutline = currOutline.offset(layerParam.pathWidth-pr.trimAdjust, c.INSIDE)
-                    
+                
                 infill = InF.InFill(currOutline, layerParam.pathWidth, layerParam.infillAngle,
-                                    shiftX=layerParam.infillShiftX, shiftY=layerParam.infillShiftY)
+                                    shiftX=layerParam.infillShiftX, shiftY=layerParam.infillShiftY,
+                                    design=pr.pattern, designType=pr.designType)
                 self.layers[layerKey] = self.organizedLayer(filledList + [infill])
             
             """ a tuple of the organized LineGroup and the layer parameters. """

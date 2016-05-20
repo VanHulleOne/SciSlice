@@ -32,18 +32,40 @@ class Line(object):
             print ('SNAFU detected, a line was created with no length at: ' + 
                     str(self.start))
         """ The Point which is the upper left corner of the line's bounding box """
-        self.upperLeft = None
+        self.__upperLeft = None
         """ The Point of the lower right corner of the bounding box. """
-        self.lowerRight = None
+        self.__lowerRight = None
         self.__extrusionRate = 0
         self.freezeExRate = False
         if not(oldLine is None):
             self.__extrusionRate = oldLine.extrusionRate
             self.freezeExRate = oldLine.freezeExRate
-        self.setBoundingBox()
+#        self.setBoundingBox()
         self.vector = np.array([self.end.x-self.start.x,
                                 self.end.y-self.start.y])
 
+    @property
+    def upperLeft(self):
+        if self.__upperLeft is None:            
+            tempList = [[self.start.x, self.end.x],
+                         [self.start.y, self.end.y]]
+            for row in tempList:
+                row.sort()
+            self.__upperLeft = p.Point(tempList[0][0], tempList[1][1])
+            self.__lowerRight = p.Point(tempList[0][1], tempList[1][0])
+        return self.__upperLeft
+        
+    @property
+    def lowerRight(self):
+        if self.__lowerRight is None:
+            tempList = [[self.start.x, self.end.x],
+                     [self.start.y, self.end.y]]
+            for row in tempList:
+                row.sort()
+            self.upperLeft = p.Point(tempList[0][0], tempList[1][1])
+            self.lowerRight = p.Point(tempList[0][1], tempList[1][0])
+        return self.__lowerRight
+    
     @property
     def start(self):
         return self.__start

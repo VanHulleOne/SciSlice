@@ -26,6 +26,8 @@ class LineGroup(object):
         self.minY = None
         self.maxX = None
         self.maxY = None
+        self.__starts = None
+        self.__vectors = None
         
         try:
             self.lines = list(inGroup)
@@ -52,12 +54,18 @@ class LineGroup(object):
         corners.append(p.Point(self.maxX, self.maxY))
         corners.append(p.Point(self.minX, self.maxY))
         return corners
-            
-    def getVectors(self):
-        return np.array([line.vector for line in self])
-        
-    def getStarts(self):
-        return np.array([line.start.get2DPoint() for line in self])
+    
+    @property       
+    def vectors(self):
+        if self.__vectors is None:
+            self.__vectors = np.array([line.vector for line in self])
+        return self.__vectors
+    
+    @property    
+    def starts(self):
+        if self.__starts is None:
+            self.__starts = np.array([line.start.get2DPoint() for line in self])
+        return self.__starts
     
     def addLinesFromCoordinateList(self, coordList):
         pointList = []        
@@ -83,10 +91,12 @@ class LineGroup(object):
         numpyArray = np.array([point.normalVector for point in self.iterPoints()])        
         result = np.inner(numpyArray, transMatrix)
         lines = []        
-        for i in range(0,len(result),2):
+        for i in xrange(0,len(result),2):
             start = p.Point(result[i])
             end = p.Point(result[i+1])
             lines.append(l.Line(start, end, self[i%2]))
+        # TODO: put in a numpy check for min and max here and then assign
+            # to the new lineGroup.
         return cls(lines)
     
     def getMidPoint(self):

@@ -52,20 +52,10 @@ from collections import Counter
 #
 #ll = [l.Line(l1[i], l1[i+1]) for i in xrange(len(l1)-1)]
 #
-#nv = [pi.normalVector for pi in l1]
-#
-#s1 = ds.rect(0,0,10,10)#squareWithHole()
-#
-#l6 = ll[6]
-#r1 = l.Line(p.Point(0,2), p.Point(1,2))
-#r1f = r1.fliped()
-#print 'Good: ' + str(l6.rayIntersects(r1))
-#print 'Bad: ' + str(l6.rayIntersects(r1f))
 
-s1 = ds.rect(0,0,10,12)
-in1 = InF.InFill(s1, 0.5, 45)
+in1 = InF.InFill(ds.regularDogBone(), 0.5, 45)
+#in1 = ds.lineField(0.5, 185, 185)
 
-    
 """ An example of how to do other infills. """  
 #currOutline = ds.rect(0,0,15,250)
 #filledList = []

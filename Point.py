@@ -56,8 +56,10 @@ class Point(object):
         in the normal vector, multiply by COMPARE_PRECISION, then round it,
         then convert it to an int.
         """
-        self.__key = tuple(int(round(i*self.COMPARE_PRECISION))
-                            for i in self.normalVector[:3])
+        self.__key = tuple((self.__normalVector[:3]*self.COMPARE_PRECISION).astype(int))        
+        
+#        self.__key = tuple(int(round(i*self.COMPARE_PRECISION))
+#                            for i in self.normalVector[:3])
         self.__hash = hash(self.__key)                        
                     
         
@@ -80,6 +82,9 @@ class Point(object):
     def __iter__(self):
         """ iterate through the coordinates. I don't think this is used anywhere. """
         return(i for i in self.__normalVector[:3])
+        
+    def __getitem__(self, index):
+        return self.__normalVector[index]
     
     def get2DPoint(self):
         """ Sometimes we just want the X and Y of a point """
