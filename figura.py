@@ -108,6 +108,10 @@ class Figura:
             
             currHeight += layerParam.layerHeight
             
+#            pattern = lg.LineGroup()
+#            pattern.addLinesFromCoordinateList([[0,0],[2,2],[4,0]])
+            pattern = None
+            
             if layerKey not in self.layers:
                 currOutline = self.shape
                 filledList = []
@@ -117,7 +121,7 @@ class Figura:
                     currOutline = currOutline.offset(layerParam.pathWidth-pr.trimAdjust, c.INSIDE)
                     
                 infill = InF.InFill(currOutline, layerParam.pathWidth, layerParam.infillAngle,
-                                    shiftX=layerParam.infillShiftX, shiftY=layerParam.infillShiftY)
+                                    shiftX=layerParam.infillShiftX, shiftY=layerParam.infillShiftY, design=pattern)
                 self.layers[layerKey] = self.organizedLayer(filledList + [infill])
             
             """ a tuple of the organized LineGroup and the layer parameters. """

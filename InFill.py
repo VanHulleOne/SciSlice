@@ -121,29 +121,28 @@ class InFill(LG):
                          mt.rotateMatrix(self.angleRad, trimShapeCP)]))
                          
     def trimField(self):
-#        tempLines = []
+        startTime = time.time()
         trimStarts = self.trimShape.getStarts()
         trimVectors = self.trimShape.getVectors()
         fieldStarts = self.design.getStarts()
         fieldVectors = self.design.getVectors()
         trimLen = len(self.trimShape)
         fieldLen = len(self.design)
-        
         Q_Less_P = fieldStarts - trimStarts.reshape(trimLen,1,2)
         denom = np.cross(trimVectors, fieldVectors.reshape(fieldLen,1,2))
         all_t = np.cross(Q_Less_P, trimVectors.reshape(trimLen,1,2)).transpose()/denom
         all_u = np.cross(Q_Less_P, fieldVectors).transpose()/denom
         
+        print 'Time for all t,u: {:0.3f}'.format(time.time()-startTime)
+        midTime = time.time()
         for t, u, line in zip(all_t, all_u, self.design):
             if not self.trimShape.lineOutsideBoundingBox(line):
                 pointSet = set([line.start])
                 t = t[(0 <= u) & (u <= 1) & (0 <= t) & (t <= 1)]
-#                print t
-#                print len(t)
-#                print line
-                pointSet |= set(p.Point(line.start.x + line.vector[c.X]*i,
-                                    line.start.y+line.vector[c.Y]*i)
-                                    for i in t)
+
+                pointSet |= set(p.Point(line.start.x + line.vector[c.X]*value,
+                                    line.start.y+line.vector[c.Y]*value)
+                                    for value in t)
 
                 pointSet.add(line.end)
                 pointList = sorted(list(pointSet))
@@ -151,7 +150,7 @@ class InFill(LG):
                     tempLine = l.Line(pointList[i], pointList[i+1])
                     if(self.trimShape.isInside(tempLine.getMidPoint())):
                         self.lines.append(tempLine)
-            
+        print 'Time for loop: {:0.3f}'.format(time.time()-midTime)    
 #        for line in self.design:
 ##            if not self.trimShape.lineOutsideBoundingBox(line):
 #            pointSet = set([line.start])

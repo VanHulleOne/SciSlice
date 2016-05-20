@@ -52,35 +52,9 @@ from collections import Counter
 #
 #ll = [l.Line(l1[i], l1[i+1]) for i in xrange(len(l1)-1)]
 #
-#nv = [pi.normalVector for pi in l1]
-#
-#s1 = ds.rect(0,0,10,10)#squareWithHole()
-#
-#l6 = ll[6]
-#r1 = l.Line(p.Point(0,2), p.Point(1,2))
-#r1f = r1.fliped()
-#print 'Good: ' + str(l6.rayIntersects(r1))
-#print 'Bad: ' + str(l6.rayIntersects(r1f))
 
-s1 = ds.rect(0,0,10,12)
-in1 = InF.InFill(s1, 2, 90)
+in1 = InF.InFill(ds.regularDogBone(), 0.5, 45)
 
-s2 = ds.rect(2,2,6,8)
-print 'second shape'
-in2 = InF.InFill(s2, 0.5, 0, design=in1, designType=3)
-
-fieldStarts = in1.getStarts()
-trimStarts = s2.getStarts()
-Q_P = fieldStarts - trimStarts.reshape(4,1,2)
-
-fieldVectors = in1.getVectors()
-trimVectors = s2.getVectors()
-denom = np.cross(trimVectors, fieldVectors.reshape(5,1,2))
-all_t = np.cross(Q_P, trimVectors.reshape(4,1,2)).transpose()/denom#.reshape(4,5)
-all_u = np.cross(Q_P, fieldVectors).transpose()/denom#.reshape(4,5)
-
-all_t_f = all_t[(0 <= all_u) & (all_u <= 1) &
-                            (0 <= all_t) & (all_t <= 1)]
     
 """ An example of how to do other infills. """  
 #currOutline = ds.rect(0,0,15,250)
