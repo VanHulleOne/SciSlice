@@ -207,7 +207,7 @@ class Shape(LG):
         yield offsetLines
     
 #    @finishedOutline    
-    def isInside(self, point, ray=np.array([0.99996, 0.00856]), angle=np.pi/367.0):
+    def isInside(self, point, ray=np.array([0.998, 0.067])):
         # TODO: Fix comment
         """
         This method determines if the point is inside
@@ -218,10 +218,10 @@ class Shape(LG):
         or outside. If the number of intersections is even then the point was outside
         of the shape. If the number of intersections is odd then the point is inside.
         """
-        if(point.x > self.maxX or point.x < self.minX): return c.OUTSIDE
-        if(point.y > self.maxY or point.y < self.minY): return c.OUTSIDE
+        if(point[c.X] > self.maxX or point[c.X] < self.minX): return c.OUTSIDE
+        if(point[c.Y] > self.maxY or point[c.Y] < self.minY): return c.OUTSIDE
 
-        Q_Less_P = point.get2DPoint() - self.starts
+        Q_Less_P = point[:2] - self.starts
         denom = 1.0*np.cross(self.vectors, ray)
         all_u = np.cross(Q_Less_P, self.vectors)/denom
         all_t = np.cross(Q_Less_P, ray)/denom
@@ -230,10 +230,10 @@ class Shape(LG):
 
         endPoints = (np.abs(all_t) < c.EPSILON) | (np.abs(1-all_t) < c.EPSILON)
         if np.any(endPoints):
-            print 'Recurse'
-            angle += np.pi/367.0
-            ray=np.array([np.cos(angle), np.sin(angle)])
-            return  self.isInside(point, ray, angle)
+            angle = np.arctan2(*ray[::-1])+np.pi/2.0+np.pi/367.0
+            print 'Recursion made in Shape.isInside() new angle is {:0.1f}'.format(angle*360/2.0/np.pi)
+            newRay=np.array([np.cos(angle), np.sin(angle)])
+            return  self.isInside(point, newRay)
             
         intersections = (0 < all_t) & (all_t < 1)
         return (c.INSIDE if np.sum(intersections) % 2 else c.OUTSIDE)

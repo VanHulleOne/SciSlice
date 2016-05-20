@@ -52,17 +52,14 @@ import time
 import matrixTrans as mt
 import numpy as np
 import constants as c
+import doneShapes as ds
 
 class InFill(LG):
     
-    PARTIAL_ROW = 0
-    FULL_ROW = 1
-    FULL_FIELD = 2
-    CENTERED_FIELD = 3
-    TRIMMED_FIELD = 4    
+   
     
     def __init__(self, trimShape, pathWidth, angleDegrees, shiftX=0, shiftY=0,
-                 design=None, designType=PARTIAL_ROW):
+                 design=None, designType=c.PARTIAL_ROW):
         LG.__init__(self, None)
         self.shiftX = shiftX
         self.shiftY = shiftY
@@ -78,16 +75,16 @@ class InFill(LG):
                            self.centerAndRotateField, self.trimField)
         
         if(design is None):
-            point1 = p.Point(-self.trimDiagonal-10, 0)
-            point2 = p.Point(self.trimDiagonal+10, 0)
-            self.design = lg.LineGroup([l.Line(point1, point2)])
-            self.designType = self.PARTIAL_ROW
+#            point1 = p.Point(-self.trimDiagonal-10, 0)
+#            point2 = p.Point(self.trimDiagonal+10, 0)
+            self.design = ds.lineField(self.pathWidth, self.trimDiagonal, self.trimDiagonal)#lg.LineGroup([l.Line(point1, point2)])
+            self.designType = c.FULL_FIELD
         else:
             self.design = lg.LineGroup(design)
         
         print '\nInFill times:'
         maxLength = max(len(f.__name__) for f in self.operations) + 2 
-        for i in range(self.designType, self.TRIMMED_FIELD):
+        for i in range(self.designType, c.TRIMMED_FIELD):
             startTime = time.time()
             self.operations[i]();
             print (self.operations[i].__name__ +
@@ -146,10 +143,15 @@ class InFill(LG):
 
                 pointSet.add(line.end)
                 pointList = sorted(list(pointSet))
-                for i in xrange(len(pointList)-1):                
-                    tempLine = l.Line(pointList[i], pointList[i+1])
-                    if(self.trimShape.isInside(tempLine.getMidPoint())):
-                        self.lines.append(tempLine)
+                pointVectors = np.array([point.normalVector for point in pointList])
+                
+                """ Calculation for midPoints from here:
+                http://stackoverflow.com/questions/23855976/middle-point-of-each-pair-of-an-numpy-array
+                """
+                midPoints = (pointVectors[1:] + pointVectors[:-1])/2.0
+                for i in xrange(len(midPoints)):
+                    if self.trimShape.isInside(midPoints[i]):
+                        self.lines.append(l.Line(pointList[i], pointList[i+1]))
 
                 
                 
