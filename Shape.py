@@ -206,7 +206,7 @@ class Shape(LG):
         offsetLines[0] = l.Line(point, offsetLines[0].end, offsetLines[0])
         yield offsetLines
     
-    @finishedOutline    
+#    @finishedOutline    
     def isInside(self, point, angle=np.pi/367.0):
         # TODO: Fix comment
         """

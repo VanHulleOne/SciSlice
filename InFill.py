@@ -121,7 +121,7 @@ class InFill(LG):
                          mt.rotateMatrix(self.angleRad, trimShapeCP)]))
                          
     def trimField(self):
-        startTime = time.time()
+#        startTime = time.time()
         trimStarts = self.trimShape.getStarts()
         trimVectors = self.trimShape.getVectors()
         fieldStarts = self.design.getStarts()
@@ -133,8 +133,8 @@ class InFill(LG):
         all_t = np.cross(Q_Less_P, trimVectors.reshape(trimLen,1,2)).transpose()/denom
         all_u = np.cross(Q_Less_P, fieldVectors).transpose()/denom
         
-        print 'Time for all t,u: {:0.3f}'.format(time.time()-startTime)
-        midTime = time.time()
+#        print 'Time for all t,u: {:0.3f}'.format(time.time()-startTime)
+#        midTime = time.time()
         for t, u, line in zip(all_t, all_u, self.design):
             if not self.trimShape.lineOutsideBoundingBox(line):
                 pointSet = set([line.start])
@@ -150,7 +150,7 @@ class InFill(LG):
                     tempLine = l.Line(pointList[i], pointList[i+1])
                     if(self.trimShape.isInside(tempLine.getMidPoint())):
                         self.lines.append(tempLine)
-        print 'Time for loop: {:0.3f}'.format(time.time()-midTime)    
+#        print 'Time for loop: {:0.3f}'.format(time.time()-midTime)    
 #        for line in self.design:
 ##            if not self.trimShape.lineOutsideBoundingBox(line):
 #            pointSet = set([line.start])
