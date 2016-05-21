@@ -90,14 +90,19 @@ class LineGroup(object):
         cls = type(self)
         numpyArray = np.array([point.normalVector for point in self.iterPoints()])        
         result = np.inner(numpyArray, transMatrix)
+#        print result
         lines = []        
         for i in xrange(0,len(result),2):
             start = p.Point(result[i])
             end = p.Point(result[i+1])
             lines.append(l.Line(start, end, self[i%2]))
+        transShape = cls()
+        transShape.lines = lines
+        transShape.minX, transShape.minY = np.amin(result[:,:2], axis=0)
+        transShape.maxX, transShape.maxY = np.amax(result[:,:2], axis=0)
         # TODO: put in a numpy check for min and max here and then assign
             # to the new lineGroup.
-        return cls(lines)
+        return transShape
     
     def getMidPoint(self):
         x = (self.maxX - self.minX)/2.0 + self.minX
