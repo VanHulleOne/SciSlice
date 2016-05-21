@@ -53,7 +53,9 @@ from collections import Counter
 #ll = [l.Line(l1[i], l1[i+1]) for i in xrange(len(l1)-1)]
 #
 
-in1 = InF.InFill(ds.regularDogBone(), 0.5, 45)
+s1 = ds.rect(0,0,6,9)
+
+
 #in1 = ds.lineField(0.5, 185, 185)
 
 """ An example of how to do other infills. """  
