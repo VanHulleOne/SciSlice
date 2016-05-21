@@ -39,7 +39,7 @@ def finishedOutline(func):
     return checker
 
 class Shape(LG):    
-    def __init__(self, shape):
+    def __init__(self, shape=None):
         LG.__init__(self, shape)
         self.outlineFinished = False
     
