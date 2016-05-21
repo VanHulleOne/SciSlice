@@ -98,14 +98,14 @@ class Shape(LG):
         self.lines = self.__finishOutline()
             
          #to run subShape_gen this must be set to True since it uses the @finishedOutline decorator
-        for subShape in self.subShape_gen():
-            if subShape[0].start != subShape[-1].end:
-                dist = subShape[0].start - subShape[-1].end
-                raise Exception('Shape not closed. End gap of ' + str(dist))            
-            for i in xrange(len(subShape)-1):                     
-                if subShape[i].end != subShape[i+1].start:
-                    dist = subShape[i].end - subShape[i+1].start
-                    raise Exception('Outline has a gap of ' + str(dist))
+#        for subShape in self.subShape_gen():
+#            if subShape[0].start != subShape[-1].end:
+#                dist = subShape[0].start - subShape[-1].end
+#                raise Exception('Shape not closed. End gap of ' + str(dist))            
+#            for i in xrange(len(subShape)-1):                     
+#                if subShape[i].end != subShape[i+1].start:
+#                    dist = subShape[i].end - subShape[i+1].start
+#                    raise Exception('Outline has a gap of ' + str(dist))
 
     
     def closeShape(self):
@@ -161,7 +161,7 @@ class Shape(LG):
                 self.__finishOutline(oldList, newList)
                 return newList
         dist = firstLine.start - newList[-1].end
-        raise Exception('Shape now closed. There is a gap of {:0.5f} at point {}'.format(dist, testPoint))
+        raise Exception('Shape not closed. There is a gap of {:0.5f} at point {}'.format(dist, testPoint))
 
     @finishedOutline                                
     def offset(self, distance, desiredSide):
