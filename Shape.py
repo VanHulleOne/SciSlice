@@ -114,7 +114,7 @@ class Shape(LG):
             
     def __finishOutline(self, oldList=None, newList=None):
         if oldList is None:
-            oldList = copy.deepcopy(self.lines)
+            oldList = self.lines[:]#copy.deepcopy(self.lines)
         elif len(oldList) == 0:
             return
         if newList is None:

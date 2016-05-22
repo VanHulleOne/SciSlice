@@ -118,7 +118,7 @@ class LineGroup(object):
         return False
     
     def nearestLine_Coro(self, name=None):
-        lineList = copy.deepcopy(self.lines)
+        lineList = self.lines[:]#copy.deepcopy(self.lines)
         used, testPoint = yield
         normList = np.array([point.normalVector for point in self.iterPoints()])
         while len(lineList) > 0:
