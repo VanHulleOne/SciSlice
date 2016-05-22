@@ -16,6 +16,7 @@ import matrixTrans as mt
 import constants as c
 from collections import namedtuple
 import copy
+import numpy.ma as ma
 
 class LineGroup(object):
     
@@ -116,12 +117,13 @@ class LineGroup(object):
         if(startY < self.minY > endY): return True # Both ends are less than minY
         if(startY > self.maxY < endY): return True # Both ends are greater than maxY
         return False
-    
+
+    @profile
     def nearestLine_Coro(self, name=None):
         lineList = self.lines[:]#copy.deepcopy(self.lines)
         used, testPoint = yield
         normList = np.array([point.normalVector for point in self.iterPoints()])
-        while len(lineList) > 0:
+        while len(normList[(normList < np.inf)]) > 0:# len(lineList) > 0:
             """
             This got a little complicated but sped up this section by about 10X
             This next line from inside to out does as follows:
@@ -137,19 +139,20 @@ class LineGroup(object):
                 to look at dist when comparing the tuples
             5) min returns the lowest tuple, which we split into index and dist
             """
-            index, dist = min(enumerate(np.linalg.norm(normList-testPoint.normalVector, None, 1)), key=itemgetter(1))
+            distances = np.linalg.norm(normList-testPoint.normalVector, None, 1)#, key=itemgetter(1))
+            index = np.argmin(dist)            
             if index%2: #If index is odd we are at the end of a line so the line needs to be flipped
                 lineList[index/2] = lineList[index/2].fliped()
     
-            used, testPoint = yield self.Result(lineList[index/2], name, dist)
+            used, testPoint = yield self.Result(lineList[index/2], name, distances[index])
             if not used and index%2:
                 """ If the line was not used and we had flipped it we need to
                 flip it back so that it still matches the orientation in normList. """
                 lineList[index/2] = lineList[index/2].fliped()
             if used:
                 index /= 2
-                lineList.pop(index)
-                normList = np.delete(normList, [index*2, index*2+1],0)
+#                lineList.pop(index)
+                normList[index*2:index*2+2] = np.inf # = np.delete(normList, [index*2, index*2+1],0)
     
     def append(self, line):
         self.lines.append(line)
