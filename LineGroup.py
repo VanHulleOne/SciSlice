@@ -85,12 +85,11 @@ class LineGroup(object):
         
     def rotate(self, angle, point=p.Point(0,0)):
         return self.transform(mt.rotateMatrix(angle, point))
-        
+  
     def transform(self, transMatrix):
         cls = type(self)
         numpyArray = np.array([point.normalVector for point in self.iterPoints()])        
         result = np.inner(numpyArray, transMatrix)
-#        print result
         lines = []        
         for i in xrange(0,len(result),2):
             start = p.Point(result[i])
@@ -100,8 +99,6 @@ class LineGroup(object):
         transShape.lines = lines
         transShape.minX, transShape.minY = np.amin(result[:,:2], axis=0)
         transShape.maxX, transShape.maxY = np.amax(result[:,:2], axis=0)
-        # TODO: put in a numpy check for min and max here and then assign
-            # to the new lineGroup.
         return transShape
     
     def getMidPoint(self):
