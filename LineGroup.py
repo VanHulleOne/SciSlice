@@ -140,7 +140,7 @@ class LineGroup(object):
             5) min returns the lowest tuple, which we split into index and dist
             """
             distances = np.linalg.norm(normList-testPoint.normalVector, None, 1)#, key=itemgetter(1))
-            index = np.argmin(dist)            
+            index = np.argmin(distances)            
             if index%2: #If index is odd we are at the end of a line so the line needs to be flipped
                 lineList[index/2] = lineList[index/2].fliped()
     
