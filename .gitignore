@@ -6,6 +6,7 @@ PathFile2.txt
 #Ignore extensions
 *.gcode
 *.pyc
+*.lprof
 
 #Keep gcode files that start with SAVE
 !SAVE*.gcode
