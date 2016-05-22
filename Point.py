@@ -112,9 +112,6 @@ class Point(object):
         """   
         nv = numpy.dot(transMatrix, self.normalVector)
         return Point(nv)
-        
-    def __getitem__(self, index):
-        return self.normalVector[index]
     
     def __sub__(self, other):
         """ Subtracting two points gives the Euclidean distance between the points. """
