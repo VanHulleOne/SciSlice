@@ -8,7 +8,7 @@ import Point as p
 #import InFill as infill
 import Shape as s
 import Line as l
-import arc as a
+#import arc as a
 import math
 import numpy as np
 import copy
@@ -53,7 +53,9 @@ from collections import Counter
 #ll = [l.Line(l1[i], l1[i+1]) for i in xrange(len(l1)-1)]
 #
 
-s1 = ds.rect(0,0,6,9)
+def run():
+    pr.run()
+        
 
 
 #in1 = ds.lineField(0.5, 185, 185)
