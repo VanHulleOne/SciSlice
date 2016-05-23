@@ -40,7 +40,6 @@ class Line(object):
         if not(oldLine is None):
             self.__extrusionRate = oldLine.extrusionRate
             self.freezeExRate = oldLine.freezeExRate
-#        self.setBoundingBox()
         self.vector = np.array([self.end.x-self.start.x,
                                 self.end.y-self.start.y])
 
@@ -284,18 +283,6 @@ class Line(object):
     def fliped(self):
         """ returns a line with the start and end points flipped form self. """
         return Line(self.end, self.start, self)
-        
-    def setBoundingBox(self):
-        """
-        Set the upper left and lower right coordinates of the smallest box
-        which containts the line.
-        """
-        tempList = [[self.start.x, self.end.x],
-                     [self.start.y, self.end.y]]
-        for row in tempList:
-            row.sort()
-        self.upperLeft = p.Point(tempList[0][0], tempList[1][1])
-        self.lowerRight = p.Point(tempList[0][1], tempList[1][0])
     
     def getOffsetLine(self, distance, side=c.INSIDE):
         """ Calculates and returns the two lines on either side of self offset distance."""
@@ -310,7 +297,6 @@ class Line(object):
         
         return self.translate(rn[c.X], rn[c.Y]) #the "Plus" side of the line is the right side which is outside.
         
-    
     def sideOfLine(self, point):
         dist = self.pointToLineDist(point)
         if abs(dist) < c.EPSILON:

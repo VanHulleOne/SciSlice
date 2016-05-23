@@ -10,16 +10,11 @@ as they are fully enclosed inside of the boundry.
 @author: lvanhulle
 """
 import Line as l
-import Point as p
 from LineGroup import LineGroup as LG
 import constants as c
-import copy
 from functools import wraps
 import numpy as np
-from operator import itemgetter
-import itertools
-from collections import Counter
-import itertools
+
 
 def finishedOutline(func):
     """
@@ -39,7 +34,7 @@ def finishedOutline(func):
     return checker
 
 class Shape(LG):    
-    def __init__(self, shape):
+    def __init__(self, shape=None):
         LG.__init__(self, shape)
         self.outlineFinished = False
     
@@ -79,89 +74,88 @@ class Shape(LG):
         if len(tempLines) != 0:
             yield tempLines
             
-    
-    def finishOutline(self):
-        """
-        Checks to see if the Shape is valid and can be finished. For a shape to
-        be valid it must be continuous and closed. If a shape has subshapes those
-        must also be continuous and closed. The lines must be in order as well.
-        
-        First this method uses sortNearest_gen() to organize all of its lines.
-        Then it uses subShape_gen() to get the sub-shapes if there are any.
-        If the start of the first point does not equal the end of the last point
-        the shape is not closed.
-        Next each line is tested to see if the end of one line is the same as
-        the start of the next line. If not the gap distance is calculated and
-        sent in the Exception message.
-        """
-        self.outlineFinished = True
-        self.lines = self.__finishOutline()
-            
-         #to run subShape_gen this must be set to True since it uses the @finishedOutline decorator
-        for subShape in self.subShape_gen():
-            if subShape[0].start != subShape[-1].end:
-                dist = subShape[0].start - subShape[-1].end
-                raise Exception('Shape not closed. End gap of ' + str(dist))            
-            for i in xrange(len(subShape)-1):                     
-                if subShape[i].end != subShape[i+1].start:
-                    dist = subShape[i].end - subShape[i+1].start
-                    raise Exception('Outline has a gap of ' + str(dist))
-
-    
     def closeShape(self):
         if(self[0].start != self[-1].end):
             self.append(l.Line(self[-1].end, self[0].start))
             
-    def __finishOutline(self, oldList=None, newList=None):
-        if oldList is None:
-            oldList = copy.deepcopy(self.lines)
-        elif len(oldList) == 0:
-            return
-        if newList is None:
-            newList = []
-        firstLine = oldList.pop(0)
+    
+    def finishOutline(self):
+        """
+        Finishes the outline with a companion methods or throws an exception if it fails.
+        
+        Calls the companion method self.__finishOutline() and if that method
+        does not throw an eror it assigns the returned value to self.lines and
+        sets the outline as finsihed.
+        """  
+        self.lines = self.__finishOutline()
+        self.outlineFinished = True
 
+    def __finishOutline(self, normList=None, finishedShape=None):
+        """ A companion method for finishOutline.
+        
+        The method sorts the lines so the the end of one line is touching
+        the start of the next line and orients the lines so that the left side
+        of the line is inside the shape. The shapes are allowed to have internal
+        features but every feature must be continuous and closed.
+        
+        Parameters
+        ----------
+        normList - A NumPy array containing the normalVectors for every point in self
+        finsihedShape - A list of Lines which will define the new shape
+        
+        Return
+        ------
+        finishedShape
+        """
+        if normList is None:
+            normList = np.array([point.normalVector for point in self.iterPoints()])     
+        elif len(normList[(normList < np.inf)]) == 0:
+            return
+        if finishedShape is None:
+            finishedShape = []
+
+        """ Find the first index in normList that is not infinity. """
+        firstLineIndex = np.where(normList[:,0] < np.inf)[0][0]/2
+        
+        """ firstLine is needed to know if the last line closes the shape. """
+        firstLine = self[firstLineIndex]
+        normList[firstLineIndex*2:firstLineIndex*2+2] = np.inf
+
+        
         if not self.isInside(firstLine.getOffsetLine(c.EPSILON*2, c.INSIDE).getMidPoint()):
+            """ Test if the inside (left) of the line is inside the part. If
+            not flip the line. """
             firstLine = firstLine.fliped()
   
         testPoint = firstLine.end
-
-        newList.append(firstLine)
+        finishedShape.append(firstLine)
         
-        normList = np.array([point.normalVector for point in itertools.chain(*oldList)])
-        while len(oldList) > 0:
-            """
-            This got a little complicated but sped up this section by about 10X
-            This next line from inside to out does as follows:
-            1) take the normList and subtract the normVector from the test point
-                This actually subtracts the testPointNormVector from each individual
-                element in the normList
-            2) Use numpy.linalg.norm to get the length of each element. The first
-                object is our subtracted array, None is for something I don't understand
-                1 is so that it takes the norm of each element and not of the whole
-                array
-            3) enumerate over the array of norms so we can later have the index
-            4) Find the min of the tuples (index, dist) key-itemgetter(1) is telling min
-                to look at dist when comparing the tuples
-            5) min returns the lowest tuple, which we split into index and dist
-            """
+        while len(normList[(normList < np.inf)]) > 0:
+
+            distances = np.linalg.norm(normList-testPoint.normalVector, None, 1)
+            index = np.argmin(distances)
+            nearestLine = self[index/2]
             
-            index, dist = min(enumerate(np.linalg.norm(normList-testPoint.normalVector, None, 1)), key=itemgetter(1))
-            if dist > c.EPSILON:
-                raise Exception('Shape has a gap of ' + str(dist) + 'at point ' + str(testPoint))
-            if index%2: #If index is odd we are at the end of a line so the line needs to be flipped
-                oldList[index/2] = oldList[index/2].fliped()
+            if distances[index] > c.EPSILON:
+                raise Exception('Shape has a gap of ' + str(distances[index]) +
+                                'at point ' + str(testPoint))
+            if index%2:
+                """ If index is odd we are at the end of a line so the line needs to be flipped. """
+                nearestLine = nearestLine.fliped()
+            
+            testPoint = nearestLine.end
+            finishedShape.append(nearestLine)
+            
             index /= 2
-            testPoint = oldList[index].end
-            temp = oldList.pop(index)
-            newList.append(temp)
-            normList = np.delete(normList, [index*2, index*2+1],0)
+            """ Instead of deleting elements from the NumPy array we set the used
+            vectors to infinity so they will not appear in the min. """
+            normList[index*2:index*2+2] = np.inf
             
             if testPoint == firstLine.start:
-                self.__finishOutline(oldList, newList)
-                return newList
-        dist = firstLine.start - newList[-1].end
-        raise Exception('Shape now closed. There is a gap of {:0.5f} at point {}'.format(dist, testPoint))
+                self.__finishOutline(normList, finishedShape)
+                return finishedShape
+        dist = firstLine.start - finishedShape[-1].end
+        raise Exception('Shape not closed. There is a gap of {:0.5f} at point {}'.format(dist, testPoint))
 
     @finishedOutline                                
     def offset(self, distance, desiredSide):
@@ -205,18 +199,28 @@ class Shape(LG):
         offsetLines.append(moveEnd)
         offsetLines[0] = l.Line(point, offsetLines[0].end, offsetLines[0])
         yield offsetLines
-    
-#    @finishedOutline    
+      
     def isInside(self, point, ray=np.array([0.998, 0.067])):
-        # TODO: Fix comment
         """
         This method determines if the point is inside
-        or outside the shape. Returns the side of the shape the point in on.
+        or outside the shape. Returns the side of the shape the point is on.
         
-        If a line is drawn from the point down to the outside of the part, the number
+        If a line is drawn from the point to outside of the shape the number
         of times that line intersects with the shape determines if the point was inside
         or outside. If the number of intersections is even then the point was outside
         of the shape. If the number of intersections is odd then the point is inside.
+        
+        Problems arise if the line passes through the endpoints of two lines so
+        if that happens draw a new line and test again. This redraw is handled
+        through recursion.
+        
+        The default ray is at an angle of about 3.6 degrees. A little testing
+        showed this angle to be fairly unlikely to cause endpoint collisions.
+        When a collision does occur we draw the new ray at the current angle plus
+        90 degrees plus a random value between [0-1). The 90 degrees is to make
+        the new ray perpendicular to the current one and hopefully less likely
+        to hit another point. The random amount is to avoid hitting another endpoint
+        which are usually at a regular interval.
         """
         if(point[c.X] > self.maxX or point[c.X] < self.minX): return c.OUTSIDE
         if(point[c.Y] > self.maxY or point[c.Y] < self.minY): return c.OUTSIDE
@@ -230,7 +234,7 @@ class Shape(LG):
 
         endPoints = (np.abs(all_t) < c.EPSILON) | (np.abs(1-all_t) < c.EPSILON)
         if np.any(endPoints):
-            angle = np.arctan2(*ray[::-1])+np.pi/2.0+np.pi/367.0
+            angle = np.arctan2(*ray[::-1])+(90+np.random.rand())/360.0*2*np.pi
             print 'Recursion made in Shape.isInside() new angle is {:0.1f}'.format(angle*360/2.0/np.pi)
             newRay=np.array([np.cos(angle), np.sin(angle)])
             return  self.isInside(point, newRay)

@@ -14,6 +14,7 @@ import doneShapes as ds
 import figura as fg
 import time
 import itertools
+#from line_profiler import profile
 
 """
 Part Parameters
@@ -68,6 +69,7 @@ MAX_EXTRUDE_SPEED = 100 #mm/min max speed to move filament
 Z_CLEARANCE = 10.0 #mm to move Z up
 APPROACH_FR = 1500 #mm/min aproach feedrate
 
+
 def zipVariables_gen(inputLists, repeat=False):
     if iter(inputLists) is iter(inputLists):
         # Tests if inputLists is a generator
@@ -98,8 +100,8 @@ PartParams = namedtuple('PartParams', 'solidityRatio printSpeed shiftX shiftY nu
 everyPartsParameters = zipVariables_gen(PartParams(
                           solidityRatio, printSpeed, shiftX, shiftY,
                           numLayers))
-                          
-if __name__ == '__main__':
+
+def run():
     startTime = time.time()
     print '\nGenerating code, please wait...'
     
@@ -113,7 +115,10 @@ if __name__ == '__main__':
     
     print '\nCode generated.'
     print 'Done writting: ' + outputFileName + '\n'
-    print '{:.2f} total time'.format(endTime - startTime)
+    print '{:.2f} total time'.format(endTime - startTime) 
+                          
+if __name__ == '__main__':
+    run()
     
-    
+ 
     

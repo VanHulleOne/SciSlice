@@ -11,11 +11,9 @@ so they do not need to be calculated when called.
 import Point as p
 import Line as l
 import numpy as np
-from operator import itemgetter
 import matrixTrans as mt
 import constants as c
 from collections import namedtuple
-import copy
 
 class LineGroup(object):
     
@@ -85,7 +83,7 @@ class LineGroup(object):
         
     def rotate(self, angle, point=p.Point(0,0)):
         return self.transform(mt.rotateMatrix(angle, point))
-        
+  
     def transform(self, transMatrix):
         cls = type(self)
         numpyArray = np.array([point.normalVector for point in self.iterPoints()])        
@@ -95,9 +93,11 @@ class LineGroup(object):
             start = p.Point(result[i])
             end = p.Point(result[i+1])
             lines.append(l.Line(start, end, self[i%2]))
-        # TODO: put in a numpy check for min and max here and then assign
-            # to the new lineGroup.
-        return cls(lines)
+        transShape = cls()
+        transShape.lines = lines
+        transShape.minX, transShape.minY = np.amin(result[:,:2], axis=0)
+        transShape.maxX, transShape.maxY = np.amax(result[:,:2], axis=0)
+        return transShape
     
     def getMidPoint(self):
         x = (self.maxX - self.minX)/2.0 + self.minX
@@ -114,40 +114,27 @@ class LineGroup(object):
         if(startY < self.minY > endY): return True # Both ends are less than minY
         if(startY > self.maxY < endY): return True # Both ends are greater than maxY
         return False
-    
+
     def nearestLine_Coro(self, name=None):
-        lineList = copy.deepcopy(self.lines)
         used, testPoint = yield
         normList = np.array([point.normalVector for point in self.iterPoints()])
-        while len(lineList) > 0:
-            """
-            This got a little complicated but sped up this section by about 10X
-            This next line from inside to out does as follows:
-            1) take the normList and subtract the normVector from the test point
-                This actually subtracts the testPointNormVector from each individual
-                element in the normList
-            2) Use numpy.linalg.norm to get the length of each element. The first
-                object is our subtracted array, None is for something I don't understand
-                1 is so that it takes the norm of each element and not of the whole
-                array
-            3) enumerate over the array of norms so we can later have the index
-            4) Find the min of the tuples (index, dist) key-itemgetter(1) is telling min
-                to look at dist when comparing the tuples
-            5) min returns the lowest tuple, which we split into index and dist
-            """
-            index, dist = min(enumerate(np.linalg.norm(normList-testPoint.normalVector, None, 1)), key=itemgetter(1))
-            if index%2: #If index is odd we are at the end of a line so the line needs to be flipped
-                lineList[index/2] = lineList[index/2].fliped()
+        while len(normList[(normList < np.inf)]) > 0:
+            """ Continue working until all items have been used/are set to infinity. """
+
+            distances = np.linalg.norm(normList-testPoint.normalVector, None, 1)
+            index = np.argmin(distances)
+            nearestLine = self[index/2]
+            if index%2:
+                """ If index is odd we are at the end of a line so the line needs to be flipped. """
+                nearestLine = nearestLine.fliped()
     
-            used, testPoint = yield self.Result(lineList[index/2], name, dist)
-            if not used and index%2:
-                """ If the line was not used and we had flipped it we need to
-                flip it back so that it still matches the orientation in normList. """
-                lineList[index/2] = lineList[index/2].fliped()
+            used, testPoint = yield self.Result(nearestLine, name, distances[index])
             if used:
                 index /= 2
-                lineList.pop(index)
-                normList = np.delete(normList, [index*2, index*2+1],0)
+                """ Instead of deleting the points from the NumPy array, which
+                causes a new array to be made, we instead set the used points to
+                infinity which means they will never be a minimum distance. """
+                normList[index*2:index*2+2] = np.inf
     
     def append(self, line):
         self.lines.append(line)
