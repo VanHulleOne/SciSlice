@@ -33,6 +33,6 @@ CENTERED_FIELD = 3
 TRIMMED_FIELD = 4 
 
 LOG_LEVEL = logging.WARNING
-reload(logging)
+#reload(logging)
 logging.basicConfig(format='\n\nLog Message\n-----------\nModule: %(name)s\n' + 
                     'Log Level: %(levelname)s\nMsg: %(message)s', level=LOG_LEVEL)

@@ -36,10 +36,10 @@ class LineGroup(object):
                 self.updateMinMax(line)
     
     def updateMinMax(self, line):
-        if(line.upperLeft.x < self.minX or self.minX is None): self.minX = line.upperLeft.x
-        if(line.upperLeft.y > self.maxY or self.maxY is None): self.maxY = line.upperLeft.y
-        if(line.lowerRight.x > self.maxX or self.maxX is None): self.maxX = line.lowerRight.x
-        if(line.lowerRight.y < self.minY or self.minY is None): self.minY = line.lowerRight.y
+        if(self.minX is None or line.upperLeft.x < self.minX): self.minX = line.upperLeft.x
+        if(self.maxY is None or line.upperLeft.y > self.maxY): self.maxY = line.upperLeft.y
+        if(self.maxX is None or line.lowerRight.x > self.maxX): self.maxX = line.lowerRight.x
+        if(self.minY is None or line.lowerRight.y < self.minY): self.minY = line.lowerRight.y
 
     def addLineGroup(self, inGroup):
         for line in inGroup:
@@ -123,14 +123,14 @@ class LineGroup(object):
 
             distances = np.linalg.norm(normList-testPoint.normalVector, None, 1)
             index = np.argmin(distances)
-            nearestLine = self[index/2]
+            nearestLine = self[index//2]
             if index%2:
                 """ If index is odd we are at the end of a line so the line needs to be flipped. """
                 nearestLine = nearestLine.fliped()
     
             used, testPoint = yield self.Result(nearestLine, name, distances[index])
             if used:
-                index /= 2
+                index //= 2
                 """ Instead of deleting the points from the NumPy array, which
                 causes a new array to be made, we instead set the used points to
                 infinity which means they will never be a minimum distance. """

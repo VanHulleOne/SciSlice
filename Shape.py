@@ -41,11 +41,11 @@ class Shape(LG):
     @finishedOutline
     def addInternalShape(self, inShape):
         if(not inShape.outlineFinished):
-            print '********** Your internal shape was not a finished outline **********'
+            print('********** Your internal shape was not a finished outline **********')
         if(not self.isInside(inShape.lines[0].start)):
-            print '********** The internal shape is not inside the main shape. **********'
+            print('********** The internal shape is not inside the main shape. **********')
         if(self.doShapesIntersect(inShape)):
-            print '********** Internal shape is not completely inside main shape. **********'
+            print('********** Internal shape is not completely inside main shape. **********')
         
         for line in inShape:
             self.append(line)
@@ -115,7 +115,7 @@ class Shape(LG):
             finishedShape = []
 
         """ Find the first index in normList that is not infinity. """
-        firstLineIndex = np.where(normList[:,0] < np.inf)[0][0]/2
+        firstLineIndex = np.where(normList[:,0] < np.inf)[0][0]//2
         
         """ firstLine is needed to know if the last line closes the shape. """
         firstLine = self[firstLineIndex]
@@ -134,7 +134,7 @@ class Shape(LG):
 
             distances = np.linalg.norm(normList-testPoint.normalVector, None, 1)
             index = np.argmin(distances)
-            nearestLine = self[index/2]
+            nearestLine = self[index//2]
             
             if distances[index] > c.EPSILON:
                 raise Exception('Shape has a gap of ' + str(distances[index]) +
@@ -146,7 +146,7 @@ class Shape(LG):
             testPoint = nearestLine.end
             finishedShape.append(nearestLine)
             
-            index /= 2
+            index //= 2
             """ Instead of deleting elements from the NumPy array we set the used
             vectors to infinity so they will not appear in the min. """
             normList[[index*2,index*2+1]] = np.inf
