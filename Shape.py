@@ -201,15 +201,26 @@ class Shape(LG):
         yield offsetLines
       
     def isInside(self, point, ray=np.array([0.998, 0.067])):
-        # TODO: Fix comment
         """
         This method determines if the point is inside
-        or outside the shape. Returns the side of the shape the point in on.
+        or outside the shape. Returns the side of the shape the point is on.
         
-        If a line is drawn from the point down to the outside of the part, the number
+        If a line is drawn from the point to outside of the shape the number
         of times that line intersects with the shape determines if the point was inside
         or outside. If the number of intersections is even then the point was outside
         of the shape. If the number of intersections is odd then the point is inside.
+        
+        Problems arise if the line passes through the endpoints of two lines so
+        if that happens draw a new line and test again. This redraw is handled
+        through recursion.
+        
+        The default ray is at an angle of about 3.6 degrees. A little testing
+        showed this angle to be fairly unlikely to cause endpoint collisions.
+        When a collision does occur we draw the new ray at the current angle plus
+        90 degrees plus a random value between [0-1). The 90 degrees is to make
+        the new ray perpendicular to the current one and hopefully less likely
+        to hit another point. The random amount is to avoid hitting another endpoint
+        which are usually at a regular interval.
         """
         if(point[c.X] > self.maxX or point[c.X] < self.minX): return c.OUTSIDE
         if(point[c.Y] > self.maxY or point[c.Y] < self.minY): return c.OUTSIDE
@@ -223,7 +234,7 @@ class Shape(LG):
 
         endPoints = (np.abs(all_t) < c.EPSILON) | (np.abs(1-all_t) < c.EPSILON)
         if np.any(endPoints):
-            angle = np.arctan2(*ray[::-1])+np.pi/2.0+np.pi/367.0
+            angle = np.arctan2(*ray[::-1])+(90+np.random.rand())/360.0*2*np.pi
             print 'Recursion made in Shape.isInside() new angle is {:0.1f}'.format(angle*360/2.0/np.pi)
             newRay=np.array([np.cos(angle), np.sin(angle)])
             return  self.isInside(point, newRay)
