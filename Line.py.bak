@@ -347,5 +347,5 @@ class Line(object):
         return self.start.CSVstr() + ',' + self.end.CSVstr()
     
     def printBoudningBox(self):
-        print('Bounding Box for: ' + str(self))
-        print(str(self.upperLeft) + ', ' + str(self.lowerRight))
+        print 'Bounding Box for: ' + str(self)
+        print str(self.upperLeft) + ', ' + str(self.lowerRight)

@@ -81,14 +81,14 @@ class InFill(LG):
         else:
             self.design = lg.LineGroup(design)
         
-        print('\nInFill times:')
+        print '\nInFill times:'
         maxLength = max(len(f.__name__) for f in self.operations) + 2 
         for i in range(self.designType, c.TRIMMED_FIELD):
             startTime = time.time()
             self.operations[i]();
-            print((self.operations[i].__name__ +
+            print (self.operations[i].__name__ +
                     ''.ljust(maxLength - len(self.operations[i].__name__)) +
-                    '%.2f sec' %(time.time()-startTime)))
+                    '%.2f sec' %(time.time()-startTime))
         
     def extendDesign(self):
         tempDesign = lg.LineGroup(self.design.lines)
@@ -145,7 +145,7 @@ class InFill(LG):
                 http://stackoverflow.com/questions/23855976/middle-point-of-each-pair-of-an-numpy-array
                 """
                 midPoints = (pointVectors[1:] + pointVectors[:-1])/2.0
-                for i in range(len(midPoints)):
+                for i in xrange(len(midPoints)):
                     if self.trimShape.isInside(midPoints[i]):
                         self.lines.append(l.Line(pointList[i], pointList[i+1]))
 

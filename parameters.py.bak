@@ -75,15 +75,15 @@ def zipVariables_gen(inputLists, repeat=False):
         iterType = tuple
     else:
         iterType = type(inputLists)
-    variableGenerators = list(map(itertools.cycle, inputLists))
+    variableGenerators = map(itertools.cycle, inputLists)
         
     while 1:
         for _ in max(inputLists, key=len):
             try:
                  # This is the logic for a namedtuple
-                yield iterType(*list(map(next, variableGenerators)))
+                yield iterType(*map(next, variableGenerators))
             except Exception:
-                yield iterType(list(map(next, variableGenerators)))
+                yield iterType(map(next, variableGenerators))
         if not repeat:
             break
 
@@ -102,7 +102,7 @@ everyPartsParameters = zipVariables_gen(PartParams(
 
 def run():
     startTime = time.time()
-    print('\nGenerating code, please wait...')
+    print '\nGenerating code, please wait...'
     
     fig = fg.Figura(outline)
     
@@ -112,9 +112,9 @@ def run():
     
     endTime = time.time()
     
-    print('\nCode generated.')
-    print('Done writting: ' + outputFileName + '\n')
-    print('{:.2f} total time'.format(endTime - startTime)) 
+    print '\nCode generated.'
+    print 'Done writting: ' + outputFileName + '\n'
+    print '{:.2f} total time'.format(endTime - startTime) 
                           
 if __name__ == '__main__':
     run()

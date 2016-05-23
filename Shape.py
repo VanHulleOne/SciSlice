@@ -14,7 +14,7 @@ from LineGroup import LineGroup as LG
 import constants as c
 from functools import wraps
 import numpy as np
-
+logger = c.logging.getLogger(__name__)
 
 def finishedOutline(func):
     """
@@ -234,9 +234,12 @@ class Shape(LG):
 
         endPoints = (np.abs(all_t) < c.EPSILON) | (np.abs(1-all_t) < c.EPSILON)
         if np.any(endPoints):
-            angle = np.arctan2(*ray[::-1])+(90+np.random.rand())/360.0*2*np.pi
-            print 'Recursion made in Shape.isInside() new angle is {:0.1f}'.format(angle*360/2.0/np.pi)
-            newRay=np.array([np.cos(angle), np.sin(angle)])
+            oldAngle = np.arctan2(*ray[::-1])
+            newAngle = oldAngle+(90+np.random.rand())/360.0*2*np.pi
+            logger.info('Recursion made in isInside()\n\tcollision at angle: ' +
+                            '{:0.1f} \n\tnext angle attempt: {:0.1f}'.format(
+                            oldAngle*360/2.0/np.pi, newAngle*360/2/np.pi))
+            newRay=np.array([np.cos(newAngle), np.sin(newAngle)])
             return  self.isInside(point, newRay)
             
         intersections = (0 < all_t) & (all_t < 1)

@@ -34,7 +34,7 @@ class Point(object):
     The normalVector is [X, Y, Z, 1] and is in that form to make matrix
     transformations possible.
     """
-#    @profile
+    
     def __init__(self, x, y=None, z=0):
         """ Test to see if the first argument is iterable. """
         try:

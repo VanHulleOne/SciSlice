@@ -28,6 +28,11 @@ import random
 import bisect
 import collections as col
 from collections import Counter
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+
+logging.debug('Hello World')
 
 #CW = -1
 #CCW = 1
@@ -51,9 +56,6 @@ p11 = p.Point(0,5)
 l1 = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11]
 
 ll = [l.Line(l1[i], l1[i+1]) for i in xrange(len(l1)-1)]
-
-random.random()       
-
 
 #in1 = ds.lineField(0.5, 185, 185)
 

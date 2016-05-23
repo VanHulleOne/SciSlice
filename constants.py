@@ -6,6 +6,7 @@ Constants used across modules.
 
 @author: lvanhulle
 """
+import logging
 
 ARC_NUMPOINTS = 20
 CW = -1 #Circle direction clock wise
@@ -30,3 +31,8 @@ FULL_ROW = 1
 FULL_FIELD = 2
 CENTERED_FIELD = 3
 TRIMMED_FIELD = 4 
+
+LOG_LEVEL = logging.WARNING
+reload(logging)
+logging.basicConfig(format='\n\nLog Message\n-----------\nModule: %(name)s\n' + 
+                    'Log Level: %(levelname)s\nMsg: %(message)s', level=LOG_LEVEL)

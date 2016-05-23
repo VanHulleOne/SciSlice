@@ -61,8 +61,8 @@ class Figura:
             yields each layer of the part. The generator is sent to setGcode()
             along with the partParameters (for printing in the gcode).
             """
-            print('\nPart number: ' + str(self.partCount))            
-            print(partParams)
+            print '\nPart number: ' + str(self.partCount)            
+            print partParams
 #            part = self.layer_gen(partParams)
            
             yield '\n\n;Part number: ' + str(self.partCount) + '\n'
@@ -95,7 +95,7 @@ class Figura:
         layerParam_Gen = pr.layerParameters()
         currHeight = pr.firstLayerShiftZ
         
-        for _ in range(partParams.numLayers):
+        for _ in xrange(partParams.numLayers):
             """ Iterate through for the correct number of layers. """
             layerParam = next(layerParam_Gen)
             
@@ -114,7 +114,7 @@ class Figura:
             if layerKey not in self.layers:
                 currOutline = self.shape
                 filledList = []
-                for shellNumber in range(layerParam.numShells):
+                for shellNumber in xrange(layerParam.numShells):
                     """ If the layer needs shells create them here. """
                     filledList.append(currOutline)
                     currOutline = currOutline.offset(layerParam.pathWidth-pr.trimAdjust, c.INSIDE)
@@ -193,16 +193,16 @@ class Figura:
         """
         layer = lg.LineGroup()
         
-        lineCoros = {i : inShapes[i].nearestLine_Coro(i) for i in range(len(inShapes))}
+        lineCoros = {i : inShapes[i].nearestLine_Coro(i) for i in xrange(len(inShapes))}
         
-        for coro in lineCoros.values():
+        for coro in lineCoros.itervalues():
             next(coro)
         
         lastPoint = p.Point(0,0) # The starting point is the origin of the printer
         indexOfClosest = -1 # A default value for the inital run
         while 1:
             results = []
-            for key in list(lineCoros.keys()):
+            for key in lineCoros.keys():
                 try:
                     results.append(lineCoros[key].send(
                         (c.USED if key == indexOfClosest else c.NOT_USED, lastPoint)))
