@@ -134,7 +134,7 @@ class LineGroup(object):
                 """ Instead of deleting the points from the NumPy array, which
                 causes a new array to be made, we instead set the used points to
                 infinity which means they will never be a minimum distance. """
-                normList[index*2:index*2+2] = np.inf
+                normList[[index*2,index*2+1]] = np.inf
     
     def append(self, line):
         self.lines.append(line)

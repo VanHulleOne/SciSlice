@@ -149,7 +149,7 @@ class Shape(LG):
             index /= 2
             """ Instead of deleting elements from the NumPy array we set the used
             vectors to infinity so they will not appear in the min. """
-            normList[index*2:index*2+2] = np.inf
+            normList[[index*2,index*2+1]] = np.inf
             
             if testPoint == firstLine.start:
                 self.__finishOutline(normList, finishedShape)
