@@ -34,10 +34,11 @@ class Point(object):
     The normalVector is [X, Y, Z, 1] and is in that form to make matrix
     transformations possible.
     """
+#    @profile
     def __init__(self, x, y=None, z=0):
         """ Test to see if the first argument is iterable. """
         try:
-            len(x)
+            self.__normalVector = numpy.array([x[c.X], x[c.Y], x[c.Z], 1])
         except:
             """
             If it was not iterable then check to make sure a Y value was used
@@ -46,20 +47,14 @@ class Point(object):
             if y is None:
                 raise Exception('You did not initialize a Point correctly')            
             self.__normalVector = numpy.array([x, y, z, 1])            
-           
-        else:
-            """ If it was iterable create the array """ 
-            self.__normalVector = numpy.array([x[c.X], x[c.Y], x[c.Z], 1])
        
         """
         This is where the rounding problem is worked around. Take each point
-        in the normal vector, multiply by COMPARE_PRECISION, then round it,
-        then convert it to an int.
+        in the normal vector, multiply by COMPARE_PRECISION, and then convert
+        it to an int.
         """
         self.__key = tuple((self.__normalVector[:3]*self.COMPARE_PRECISION).astype(int))        
         
-#        self.__key = tuple(int(round(i*self.COMPARE_PRECISION))
-#                            for i in self.normalVector[:3])
         self.__hash = hash(self.__key)                        
                     
         
