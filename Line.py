@@ -25,6 +25,7 @@ class Line(object):
         self.__start = start
         self.__end = end
         if(self.__start == self.__end):
+            pass
             """
             If a zero length line is created that most likely means there is a
             logic problem somewhere in the program. This does not throw and error

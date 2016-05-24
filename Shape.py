@@ -14,7 +14,9 @@ from LineGroup import LineGroup as LG
 import constants as c
 from functools import wraps
 import numpy as np
+
 logger = c.logging.getLogger(__name__)
+logger.setLevel(c.LOG_LEVEL)
 
 def finishedOutline(func):
     """

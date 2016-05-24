@@ -111,10 +111,27 @@ def run():
             f.write(string)
     
     endTime = time.time()
-    
     print('\nCode generated.')
     print('Done writting: ' + outputFileName + '\n')
-    print('{:.2f} total time'.format(endTime - startTime)) 
+    print('{:.2f} total time'.format(endTime - startTime))
+    
+    with open(outputSubDirectory+'\\'+outputFileName, 'r') as test,\
+         open(outputSubDirectory+'\\SAVE_master.gcode') as master:
+        testLines = test.readlines()
+        masterLines = master.readlines()
+        i = 0
+        numDiffs = 0
+        for t,m in zip(testLines, masterLines):
+            i += 1
+            if t != m:
+                numDiffs += 1
+                print('Diff at line: ', i)
+                print('Test: ' + t)
+                print('Master: ' + m)
+                print('---------------------------\n')
+    print('\nTotal number of differences: ', numDiffs)
+    
+ 
                           
 if __name__ == '__main__':
     run()
