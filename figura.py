@@ -68,8 +68,7 @@ class Figura:
             yield '\n\n;Part number: ' + str(self.partCount) + '\n'
             yield ';' + str(partParams) + '\n'
             
-            for i in self.partGcode_gen(partParams):            
-                yield i
+            yield from self.partGcode_gen(partParams)
                 
             self.partCount += 1
         yield gc.endGcode()
@@ -146,8 +145,7 @@ class Figura:
             yield gc.firstApproach(totalExtrusion, layer[0].start)
             
             prevLoc = layer[0].start
-            for line in layer:
-                
+            for line in layer:                
                 if prevLoc != line.start:
                     if (prevLoc - line.start) < pr.MAX_FEED_TRAVERSE:
                         yield gc.rapidMove(line.start, c.OMIT_Z)
