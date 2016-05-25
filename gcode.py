@@ -9,8 +9,6 @@ Used creating all of the lines of Gcode.
 
 import parameters as pr
 
-modalGroups = [0]
-
 def feedMove(endPoint, ommitZ, extrudeTo, printSpeed):
     if ommitZ:
         tempString = ('X{:.3f} Y{:.3f} E{:.3f}'.format(endPoint.x,
@@ -18,14 +16,12 @@ def feedMove(endPoint, ommitZ, extrudeTo, printSpeed):
     else:
         tempString = ('X{:.3f} Y{:.3f} Z{:.3f} E{:.3f}\n'.format(endPoint.x,
                       endPoint.y, endPoint.z, extrudeTo))
-    if modalGroups[0] == 0:
-        modalGroups[0] = 1
-        return 'G01 ' + tempString + ' F{:.0f}\n'.format(printSpeed)
-    return tempString + '\n'
+
+    return 'G01 ' + tempString + ' F{:.0f}\n'.format(printSpeed)
+
                 
 
 def rapidMove(endPoint, ommitZ):
-    modalGroups[0] = 0
     if ommitZ:
         return ('G00 X{:.3f} Y{:.3f} F{:.0f}\n'.format(endPoint.x, endPoint.y,
                 pr.RAPID))
