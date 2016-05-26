@@ -95,6 +95,11 @@ class Line(object):
         yield self.start
         yield self.end
     
+    @property
+    def angle(self):
+        angle = np.arctan2(self.end.y-self.start.y, self.end.x-self.start.x)
+        return angle if angle >= 0 else angle + 2*np.pi
+    
     def rayIntersects(self, ray):
         if not self.doBoundingBoxesIntersect(ray):
             return 0

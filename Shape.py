@@ -170,6 +170,47 @@ class Shape(LG):
             tempLines.extend(trimJoin.send(None))
         return Shape(tempLines)
     
+    def newOffset(self, distance, desiredSide):
+        tempLines = []
+        for subshape in self.subShape_gen():
+            subshape.append(subshape[0])
+            points = []
+            shapeIter = iter(subshape)
+            firstLine, prevLine = next(shapeIter).getOffsetLine(distance, desiredSide)
+            for currLine in (line.getOffsetLine(distance, desiredSide) for line in shapeIter):
+                _, point = prevLine.segmentsIntersect(currLine, c.ALLOW_PROJECTION)
+                points.append(point)
+                prevLine = currLine
+            tempLines.extend(l.Line(p1, p2) for p1, p2 in self.pairwise_gen(points))
+        splitLines = []
+        for iLine in tempLines:
+            pointList = [iLine.start]
+            for jLine in tempLines:
+                if jLine != iLine:
+                    interSecType, point = iLine.segmentsIntersect(jLine)
+                    if interSecType == 3:
+                        print('Fix this co-linear overlapping')
+                    if point not in pointList:
+                        pointList.append(point)
+            pointList.append(iLine.end)
+            pointList = sorted(pointList, key=lambda x: x-iLine.start)
+            splitLines.extend(l.Line(pointList[i], pointList[i+1]) for i in range(len(pointList)-1))
+        
+        tempShape = Shape(splitLines)        
+        shapeLines = []
+        for line in splitLines:
+            if(tempShape.isInside(line.getOffsetLine(2*c.EPSILON, c.INSIDE).getMidPoint)):
+                shapeLines.append(line)
+        return Shape(shapeLines)
+                
+    def pairwise_gen(self, l1):
+        l1Iter = iter(l1)
+        first = pre = next(l1Iter)
+        for curr in l1Iter:
+           yield pre, curr
+           pre = curr
+        yield pre, first            
+    
     def trimJoin_Coro(self):
         """ Yields a list of lines that have their ends properly trimmed/joined
         after an offset.
