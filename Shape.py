@@ -176,8 +176,10 @@ class Shape(LG):
             subshape.append(subshape[0])
             points = []
             shapeIter = iter(subshape)
-            firstLine, prevLine = next(shapeIter).getOffsetLine(distance, desiredSide)
+            prevLine = next(shapeIter).getOffsetLine(distance, desiredSide)
             for currLine in (line.getOffsetLine(distance, desiredSide) for line in shapeIter):
+                print('Prev: ', prevLine)
+                print('curr: ', currLine)
                 _, point = prevLine.segmentsIntersect(currLine, c.ALLOW_PROJECTION)
                 points.append(point)
                 prevLine = currLine

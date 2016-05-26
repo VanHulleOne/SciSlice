@@ -57,6 +57,10 @@ l1 = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11]
 
 ll = [l.Line(l1[i], l1[i+1]) for i in range(len(l1)-1)]
 
+#r1 = ds.squareWithHole()
+r1 = ds.rect(0,0,10,20)
+r2 = r1.offset(0.5, c.INSIDE)
+
 #in1 = ds.lineField(0.5, 185, 185)
 
 """ An example of how to do other infills. """  
