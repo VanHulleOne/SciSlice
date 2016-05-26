@@ -57,10 +57,39 @@ l1 = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11]
 
 ll = [l.Line(l1[i], l1[i+1]) for i in range(len(l1)-1)]
 
-#r1 = ds.squareWithHole()
-r1 = ds.rect(0,0,10,20)
-r2 = r1.offset(0.5, c.INSIDE)
+d1 = ds.rect(0,0,10,10)
+sub1 = s.Shape()
+sub1.addLinesFromCoordinateList([[5,1],[4,5],[5,9],[6,5],[5,1]])
+sub1 = sub1.translate(-0.1,0)
+sub1.finishOutline()
+d1.addInternalShape(sub1)
+print('d1:')
+d1.finishOutline()
 
+d3 = d1.newOffset(0.22, c.INSIDE)
+
+lLine = l.Line(p.Point(4,5), p.Point(5,1))
+a1 = lLine.getOffsetLine(c.EPSILON*2, c.INSIDE)
+
+#print('R1')
+#r1 = ds.squareWithHole()
+##r1 = ds.rect(0,0,10,20)
+#print('R2')
+#r2 = r1.offset(0.5, c.INSIDE)
+#print('R3')
+#r3 = r1.newOffset(0.5, c.INSIDE)
+
+def printG(shape):
+    for line in shape:
+        print(*line, sep='\n')
+
+def offsets(shape, num, dist=1):
+    print('G90 G1')
+    for i in range(num+1):
+        print('T',i+1,'\nM6',sep='')
+        printG(shape)
+        shape = shape.newOffset(dist, c.INSIDE)
+    
 #in1 = ds.lineField(0.5, 185, 185)
 
 """ An example of how to do other infills. """  

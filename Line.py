@@ -63,8 +63,8 @@ class Line(object):
                      [self.start.y, self.end.y]]
             for row in tempList:
                 row.sort()
-            self.upperLeft = p.Point(tempList[0][0], tempList[1][1])
-            self.lowerRight = p.Point(tempList[0][1], tempList[1][0])
+            self.__upperLeft = p.Point(tempList[0][0], tempList[1][1])
+            self.__lowerRight = p.Point(tempList[0][1], tempList[1][0])
         return self.__lowerRight
     
     @property
