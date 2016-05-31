@@ -26,12 +26,16 @@ def finishedOutline(func):
     """
     @wraps(func)
     def checker(self, *args):            
-#        if not self.outlineFinished:
-#            try:
-#                self.finishOutline()
-#            except Exception as e:
-#                raise Exception('Shape must have a continuous closed outline to use '
-#                            + func.__name__ + '()\n\t\t' + e.message)
+        if not self.outlineFinished:
+            try:
+                self.finishOutline()
+            except Exception as e:
+                raise e
+#                try:
+#                    raise Exception('Shape must have a continuous closed outline to use '
+#                                + func.__name__ + '()\n\t\t' + e.message)
+#                except Exception as e:
+#                    raise e
         return func(self, *args)
     return checker
 
@@ -140,8 +144,13 @@ class Shape(LG):
             nearestLine = self[index//2]
             
             if distances[index] > c.EPSILON:
+                for norm in normList:
+                    print(norm)
+                for line in self:
+                    print(line)
                 raise Exception('Shape has a gap of ' + str(distances[index]) +
-                                'at point ' + str(testPoint))
+                                ' at point ' + str(testPoint) + ', ' + 
+                                str(normList[index]))
             if index%2:
                 """ If index is odd we are at the end of a line so the line needs to be flipped. """
                 nearestLine = nearestLine.fliped()
@@ -173,6 +182,7 @@ class Shape(LG):
             tempLines.extend(trimJoin.send(None))
         return Shape(tempLines)
     
+    @finishedOutline
     def newOffset(self, distance, desiredSide):
         tempLines = []
         for subshape in self.subShape_gen():
@@ -191,6 +201,7 @@ class Shape(LG):
 #            print(line)
         splitLines = []
         for iLine in iter(tempLines):
+#            print('iLine: ', iLine)
             pointList = [iLine.start, iLine.end]
             for jLine in iter(tempLines):
                 if jLine != iLine:
@@ -201,11 +212,14 @@ class Shape(LG):
 #                    print('jLine: ', jLine)
                     if interSecType == 3:
                         print('Fix this co-linear overlapping')
+                        print('iLine: ', iLine)
+                        print('jLine: ', jLine)
                     if point is not None and interSecType > 0 and point not in pointList:
+#                        print('jLine: ', jLine)
                         pointList.append(point)
             pointList = sorted(pointList, key=lambda x: x-iLine.start)
-            print('PointList: ')
-            print(*pointList)
+#            print('PointList: ')
+#            print(*pointList)
 #            print('NewList: ')
 #            for point in pointList:
 #                print(point)
@@ -213,12 +227,14 @@ class Shape(LG):
 #        for line in splitLines:
 #            print(line)
         tempShape = Shape(splitLines)
-        print(*splitLines, sep='\n')
+#        print(*splitLines, sep='\n')
         shapeLines = []
         for line in splitLines:
             if(tempShape.isInside(line.getOffsetLine(2*c.EPSILON, c.INSIDE).getMidPoint())):
                 shapeLines.append(line)
-        return Shape(shapeLines)
+        offShape = Shape(shapeLines)
+        offShape.finishOutline()
+        return offShape
                 
     def pairwise_gen(self, l1):
         l1Iter = iter(l1)

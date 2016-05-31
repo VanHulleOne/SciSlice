@@ -57,19 +57,16 @@ l1 = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11]
 
 ll = [l.Line(l1[i], l1[i+1]) for i in range(len(l1)-1)]
 
-d1 = ds.rect(0,0,10,10)
-sub1 = s.Shape()
-sub1.addLinesFromCoordinateList([[5,1],[4,5],[5,9],[6,5],[5,1]])
-sub1 = sub1.translate(-0.1,0)
-sub1.finishOutline()
-d1.addInternalShape(sub1)
-print('d1:')
-d1.finishOutline()
+#d1 = ds.rect(0,0,10,10)
+#sub1 = s.Shape()
+#sub1.addLinesFromCoordinateList([[5,1],[4,5],[5,9],[6,5],[5,1]])
+#sub1 = sub1.translate(-0.1,0)
+#sub1.finishOutline()
+#d1.addInternalShape(sub1)
+#print('d1:')
+#d1.finishOutline()
 
-d3 = d1.newOffset(0.22, c.INSIDE)
-
-lLine = l.Line(p.Point(4,5), p.Point(5,1))
-a1 = lLine.getOffsetLine(c.EPSILON*2, c.INSIDE)
+d1 = ds.simpleDogBone()
 
 #print('R1')
 #r1 = ds.squareWithHole()
