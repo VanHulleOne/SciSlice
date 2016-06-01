@@ -191,16 +191,16 @@ class Shape(LG):
             prevLine = currLine
         tempLines.extend(l.Line(p1, p2) for p1, p2 in self.pairwise_gen(points))
         splitLines = []
-        extraLines = []
+#        extraLines = []
         for iLine in iter(tempLines):
             pointList = [iLine.start, iLine.end]
             for jLine in iter(tempLines):
                 if jLine != iLine:
                     interSecType, point = iLine.segmentsIntersect(jLine)
                     
-                    if interSecType == 2.5 and jLine not in extraLines:
-                        print('Overlap Lines - shape line 202')
-                        extraLines.append(iLine)
+#                    if interSecType == 2.5 and jLine not in extraLines:
+#                        print('Overlap Lines - shape line 202')
+#                        extraLines.append(iLine)
 #                    if interSecType > 2:
 #                        colinearPoints = list(sorted(set([iLine.start, iLine.end,
 #                                                     jLine.start, jLine.end])))
@@ -221,11 +221,11 @@ class Shape(LG):
 
         offShape = Shape(shapeLines)
 #        map(offShape.append, extraLines)
-        if len(extraLines):
-            for line in extraLines:
-#                print('Line')
-#                print(line)
-                offShape.append(line)
+#        if len(extraLines):
+#            for line in extraLines:
+##                print('Line')
+##                print(line)
+#                offShape.append(line)
 #                print('shape Again')
 #                for line2 in offShape:
 #                    print(line2)

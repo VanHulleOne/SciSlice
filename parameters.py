@@ -40,7 +40,7 @@ layerHeight = [0.4] #mm height per layer
 infillShiftX = [0]
 infillShiftY = [0.25]
 #flipLayer = [0] No longer implimented
-numShells = [17]#,1,1,0,0,1,1] # the number of shells max is 13 if 0.4999 path width is used
+numShells = [18]#,1,1,0,0,1,1] # the number of shells max is 13 if 0.4999 path width is used
 
 """
 File Parameters

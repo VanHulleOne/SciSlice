@@ -115,10 +115,10 @@ class Figura:
                 filledList = []
                 for shellNumber in range(layerParam.numShells):
                     """ If the layer needs shells create them here. """
-                    filledList.append(currOutline.offset(layerParam.pathWidth*(shellNumber+1), c.INSIDE))
-#                    currOutline = currOutline.offset(layerParam.pathWidth, c.INSIDE)
+                    filledList.append(currOutline)
+                    currOutline = currOutline.offset(layerParam.pathWidth, c.INSIDE)
                 
-                infill = InF.InFill(currOutline.offset((layerParam.numShells+1)*layerParam.pathWidth-pr.trimAdjust, c.INSIDE),
+                infill = InF.InFill(currOutline.offset(pr.trimAdjust, c.OUTSIDE),
                                     layerParam.pathWidth, layerParam.infillAngle,
                                     shiftX=layerParam.infillShiftX, shiftY=layerParam.infillShiftY,
                                     design=pr.pattern, designType=pr.designType)
