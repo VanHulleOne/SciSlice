@@ -193,8 +193,12 @@ class Shape(LG):
 #                print('Prev: ', prevLine)
 #                print('curr: ', currLine)
                 _, point = prevLine.segmentsIntersect(currLine, c.ALLOW_PROJECTION)
-#                print('Trim Point: ', point)                
-                points.append(point)
+#                print('Trim Point: ', point) 
+                if prevLine.calcT(point) > 0:
+                    points.append(point)
+                else:
+                    points.append(prevLine.end)
+                    points.append(currLine.start)
                 prevLine = currLine
             tempLines.extend(l.Line(p1, p2) for p1, p2 in self.pairwise_gen(points))
 #        for line in tempLines:
@@ -210,10 +214,10 @@ class Shape(LG):
 #                    print('Type: ', interSecType)
 #                    print('iLine: ', iLine)
 #                    print('jLine: ', jLine)
-                    if interSecType == 3:
-                        print('Fix this co-linear overlapping')
-                        print('iLine: ', iLine)
-                        print('jLine: ', jLine)
+#                    if interSecType == 3:
+#                        print('Fix this co-linear overlapping')
+#                        print('iLine: ', iLine)
+#                        print('jLine: ', jLine)
                     if point is not None and interSecType > 0 and point not in pointList:
 #                        print('jLine: ', jLine)
                         pointList.append(point)
@@ -232,6 +236,10 @@ class Shape(LG):
         for line in splitLines:
             if(tempShape.isInside(line.getOffsetLine(2*c.EPSILON, c.INSIDE).getMidPoint())):
                 shapeLines.append(line)
+#                if line.length < 0.2:
+#                    shapeLines[-1] = l.Line(shapeLines[-1].start, line.end)
+#                else:
+#                    shapeLines.append(line)
         offShape = Shape(shapeLines)
         offShape.finishOutline()
         return offShape
