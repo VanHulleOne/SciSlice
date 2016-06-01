@@ -115,13 +115,14 @@ class Figura:
                 filledList = []
                 for shellNumber in range(layerParam.numShells):
                     """ If the layer needs shells create them here. """
-                    filledList.append(currOutline)
-                    currOutline = currOutline.offset(layerParam.pathWidth-pr.trimAdjust, c.INSIDE)
+                    filledList.append(currOutline.offset(layerParam.pathWidth*(shellNumber+1), c.INSIDE))
+#                    currOutline = currOutline.offset(layerParam.pathWidth, c.INSIDE)
                 
-                infill = InF.InFill(currOutline, layerParam.pathWidth, layerParam.infillAngle,
+                infill = InF.InFill(currOutline.offset((layerParam.numShells+1)*layerParam.pathWidth-pr.trimAdjust, c.INSIDE),
+                                    layerParam.pathWidth, layerParam.infillAngle,
                                     shiftX=layerParam.infillShiftX, shiftY=layerParam.infillShiftY,
                                     design=pr.pattern, designType=pr.designType)
-                self.layers[layerKey] = self.organizedLayer(filledList)# + [infill])
+                self.layers[layerKey] = self.organizedLayer(filledList + [infill])
             
             """ a tuple of the organized LineGroup and the layer parameters. """
             yield (self.layers[layerKey].translate(partParams.shiftX,

@@ -25,7 +25,7 @@ shiftX = [0]#, 50] # amount to shift part from printer origin in X
 shiftY = [0]#, 35, 60] # amount to shift part from printer origin in Y
 firstLayerShiftZ = 0 #correct for bed leveling
 numLayers = [1] #number of layers to make
-trimAdjust = 0#c.EPSILON
+trimAdjust = c.EPSILON
 pattern = None
 # pattern = lg.LineGroup()
 # pattern.addLinesFromCoordinateList([[0,0],[2,2],[4,0]])
@@ -34,13 +34,13 @@ designType = 0
 """
 Layer Parameters
 """
-infillAngleDegrees = [45]#, -45, 90, 45, 45, 90, -45] #degrees infill angle 90 is in Y direction 0 is in X direction
-pathWidth = [0.499] #mm distance between centerline of paths
+infillAngleDegrees = [0]#, -45, 90, 45, 45, 90, -45] #degrees infill angle 90 is in Y direction 0 is in X direction
+pathWidth = [0.5] #mm distance between centerline of paths
 layerHeight = [0.4] #mm height per layer
 infillShiftX = [0]
-infillShiftY = [0]
+infillShiftY = [0.25]
 #flipLayer = [0] No longer implimented
-numShells = [20]#,1,1,0,0,1,1] # the number of shells max is 13 if 0.4999 path width is used
+numShells = [17]#,1,1,0,0,1,1] # the number of shells max is 13 if 0.4999 path width is used
 
 """
 File Parameters

@@ -31,12 +31,11 @@ def finishedOutline(func):
             try:
                 self.finishOutline()
             except Exception as e:
-                raise e
-#                try:
-#                    raise Exception('Shape must have a continuous closed outline to use '
-#                                + func.__name__ + '()\n\t\t' + e.message)
-#                except Exception as e:
-#                    raise e
+                try:
+                    raise Exception('Shape must have a continuous closed outline to use '
+                                + func.__name__ + '()\n\t\t' + e.message)
+                except Exception as _:
+                    raise e
         return func(self, *args)
     return checker
 
@@ -128,8 +127,6 @@ class Shape(LG):
         firstLine = self[firstLineIndex]
         normList[firstLineIndex*2:firstLineIndex*2+2] = np.inf
 
-#        print('First line')
-#        print(firstLine)
         if not self.isInside(firstLine.getOffsetLine(c.EPSILON*2, c.INSIDE).getMidPoint()):
             """ Test if the inside (left) of the line is inside the part. If
             not flip the line. """
@@ -145,10 +142,6 @@ class Shape(LG):
             nearestLine = self[index//2]
             
             if distances[index] > c.EPSILON:
-#                for norm in normList:
-#                    print(norm)
-#                for line in self:
-#                    print(line)
                 raise Exception('Shape has a gap of ' + str(distances[index]) +
                                 ' at point ' + str(testPoint) + ', ' + 
                                 str(p.Point(normList[index])))
@@ -179,8 +172,8 @@ class Shape(LG):
             try:
                 newShape.addLineGroup(self._offset(subShape, distance, desiredSide))
             except Exception as e:
-                print('One or more subshapes could not be offset', e)
-        newShape.finishOutline()
+                logger.info('One or more sub-shapes could not be offset. ' + str(e))
+#        newShape.finishOutline()
         return newShape
     
     def _offset(self, subShape, distance, desiredSide):
@@ -198,11 +191,21 @@ class Shape(LG):
             prevLine = currLine
         tempLines.extend(l.Line(p1, p2) for p1, p2 in self.pairwise_gen(points))
         splitLines = []
+        extraLines = []
         for iLine in iter(tempLines):
             pointList = [iLine.start, iLine.end]
             for jLine in iter(tempLines):
                 if jLine != iLine:
                     interSecType, point = iLine.segmentsIntersect(jLine)
+                    
+                    if interSecType == 2.5 and jLine not in extraLines:
+                        print('Overlap Lines - shape line 202')
+                        extraLines.append(iLine)
+#                    if interSecType > 2:
+#                        colinearPoints = list(sorted(set([iLine.start, iLine.end,
+#                                                     jLine.start, jLine.end])))
+#                        extraLines = [l.Line(colinearPoints[i], colinearPoints[i+1]) for i in range(len(colinearPoints)-1)]                             
+                                                     
 
                     if point is not None and interSecType > 0 and point not in pointList:
                         pointList.append(point)
@@ -217,7 +220,17 @@ class Shape(LG):
                 shapeLines.append(line)
 
         offShape = Shape(shapeLines)
-        offShape.finishOutline()
+#        map(offShape.append, extraLines)
+        if len(extraLines):
+            for line in extraLines:
+#                print('Line')
+#                print(line)
+                offShape.append(line)
+#                print('shape Again')
+#                for line2 in offShape:
+#                    print(line2)
+#        offShape.finishOutline()
+#        map(offShape.append, extraLines)
         return offShape
               
     def pairwise_gen(self, l1):
