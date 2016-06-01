@@ -116,7 +116,7 @@ class Figura:
                 for shellNumber in range(layerParam.numShells):
                     """ If the layer needs shells create them here. """
                     filledList.append(currOutline)
-                    currOutline = currOutline.newOffset(layerParam.pathWidth-pr.trimAdjust, c.INSIDE)
+                    currOutline = currOutline.offset(layerParam.pathWidth-pr.trimAdjust, c.INSIDE)
                 
                 infill = InF.InFill(currOutline, layerParam.pathWidth, layerParam.infillAngle,
                                     shiftX=layerParam.infillShiftX, shiftY=layerParam.infillShiftY,

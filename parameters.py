@@ -35,12 +35,12 @@ designType = 0
 Layer Parameters
 """
 infillAngleDegrees = [45]#, -45, 90, 45, 45, 90, -45] #degrees infill angle 90 is in Y direction 0 is in X direction
-pathWidth = [0.501] #mm distance between centerline of paths
+pathWidth = [0.499] #mm distance between centerline of paths
 layerHeight = [0.4] #mm height per layer
 infillShiftX = [0]
 infillShiftY = [0]
 #flipLayer = [0] No longer implimented
-numShells = [18]#,1,1,0,0,1,1] # the number of shells max is 13 if 0.4999 path width is used
+numShells = [20]#,1,1,0,0,1,1] # the number of shells max is 13 if 0.4999 path width is used
 
 """
 File Parameters

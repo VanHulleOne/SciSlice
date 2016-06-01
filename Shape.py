@@ -15,6 +15,7 @@ import constants as c
 from functools import wraps
 import numpy as np
 import time
+import Point as p
 logger = c.logging.getLogger(__name__)
 logger.setLevel(c.LOG_LEVEL)
 
@@ -144,13 +145,13 @@ class Shape(LG):
             nearestLine = self[index//2]
             
             if distances[index] > c.EPSILON:
-                for norm in normList:
-                    print(norm)
-                for line in self:
-                    print(line)
+#                for norm in normList:
+#                    print(norm)
+#                for line in self:
+#                    print(line)
                 raise Exception('Shape has a gap of ' + str(distances[index]) +
                                 ' at point ' + str(testPoint) + ', ' + 
-                                str(normList[index]))
+                                str(p.Point(normList[index])))
             if index%2:
                 """ If index is odd we are at the end of a line so the line needs to be flipped. """
                 nearestLine = nearestLine.fliped()
@@ -173,77 +174,52 @@ class Shape(LG):
 
     @finishedOutline                                
     def offset(self, distance, desiredSide):
-        tempLines = []
+        newShape = Shape()
         for subShape in self.subShape_gen():
-            trimJoin = self.trimJoin_Coro()
-            next(trimJoin)
-            for line in subShape:
-                trimJoin.send(line.getOffsetLine(distance, desiredSide))
-            tempLines.extend(trimJoin.send(None))
-        return Shape(tempLines)
+            try:
+                newShape.addLineGroup(self._offset(subShape, distance, desiredSide))
+            except Exception as e:
+                print('One or more subshapes could not be offset', e)
+        newShape.finishOutline()
+        return newShape
     
-    @finishedOutline
-    def newOffset(self, distance, desiredSide):
+    def _offset(self, subShape, distance, desiredSide):
         tempLines = []
-        for subshape in self.subShape_gen():
-            points = []
-            prevLine = subshape[-1].getOffsetLine(distance, desiredSide)
-            for currLine in (line.getOffsetLine(distance, desiredSide)
-                                for line in subshape):
-#                print('Prev: ', prevLine)
-#                print('curr: ', currLine)
-                _, point = prevLine.segmentsIntersect(currLine, c.ALLOW_PROJECTION)
-#                print('Trim Point: ', point) 
-                if prevLine.calcT(point) > 0:
-                    points.append(point)
-                else:
-                    points.append(prevLine.end)
-                    points.append(currLine.start)
-                prevLine = currLine
-            tempLines.extend(l.Line(p1, p2) for p1, p2 in self.pairwise_gen(points))
-#        for line in tempLines:
-#            print(line)
+        points = []
+        prevLine = subShape[-1].getOffsetLine(distance, desiredSide)
+        for currLine in (line.getOffsetLine(distance, desiredSide)
+                                for line in subShape):
+            _, point = prevLine.segmentsIntersect(currLine, c.ALLOW_PROJECTION)
+            if prevLine.calcT(point) > 0:
+                points.append(point)
+            else:
+                points.append(prevLine.end)
+                points.append(currLine.start)
+            prevLine = currLine
+        tempLines.extend(l.Line(p1, p2) for p1, p2 in self.pairwise_gen(points))
         splitLines = []
         for iLine in iter(tempLines):
-#            print('iLine: ', iLine)
             pointList = [iLine.start, iLine.end]
             for jLine in iter(tempLines):
                 if jLine != iLine:
                     interSecType, point = iLine.segmentsIntersect(jLine)
-#                    print('Intersect: ' , point)
-#                    print('Type: ', interSecType)
-#                    print('iLine: ', iLine)
-#                    print('jLine: ', jLine)
-#                    if interSecType == 3:
-#                        print('Fix this co-linear overlapping')
-#                        print('iLine: ', iLine)
-#                        print('jLine: ', jLine)
+
                     if point is not None and interSecType > 0 and point not in pointList:
-#                        print('jLine: ', jLine)
                         pointList.append(point)
             pointList = sorted(pointList, key=lambda x: x-iLine.start)
-#            print('PointList: ')
-#            print(*pointList)
-#            print('NewList: ')
-#            for point in pointList:
-#                print(point)
+
             splitLines.extend(l.Line(pointList[i], pointList[i+1]) for i in range(len(pointList)-1))
-#        for line in splitLines:
-#            print(line)
+
         tempShape = Shape(splitLines)
-#        print(*splitLines, sep='\n')
         shapeLines = []
         for line in splitLines:
             if(tempShape.isInside(line.getOffsetLine(2*c.EPSILON, c.INSIDE).getMidPoint())):
                 shapeLines.append(line)
-#                if line.length < 0.2:
-#                    shapeLines[-1] = l.Line(shapeLines[-1].start, line.end)
-#                else:
-#                    shapeLines.append(line)
+
         offShape = Shape(shapeLines)
         offShape.finishOutline()
         return offShape
-                
+              
     def pairwise_gen(self, l1):
         l1Iter = iter(l1)
         first = pre = next(l1Iter)
@@ -283,7 +259,7 @@ class Shape(LG):
         offsetLines.append(moveEnd)
         offsetLines[0] = l.Line(point, offsetLines[0].end, offsetLines[0])
         yield offsetLines
-      
+    
     def isInside(self, point, ray=np.array([0.998, 0.067])):
         """
         This method determines if the point is inside
