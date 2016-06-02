@@ -250,7 +250,7 @@ class Shape(LG):
 
                     if point is not None and interSecType > 0 and point not in pointList:
                         pointList.append(point)
-            pointList = sorted(pointList, key=lambda x: x-iLine.start)
+            pointList = sorted(pointList, key=iLine.calcT)
 
             splitLines.extend(l.Line(pointList[i], pointList[i+1]) for i in range(len(pointList)-1))
 
