@@ -63,8 +63,8 @@ class Line(object):
                      [self.start.y, self.end.y]]
             for row in tempList:
                 row.sort()
-            self.upperLeft = p.Point(tempList[0][0], tempList[1][1])
-            self.lowerRight = p.Point(tempList[0][1], tempList[1][0])
+            self.__upperLeft = p.Point(tempList[0][0], tempList[1][1])
+            self.__lowerRight = p.Point(tempList[0][1], tempList[1][0])
         return self.__lowerRight
     
     @property
@@ -117,8 +117,11 @@ class Line(object):
         if t < 0 or t > 1:
             return 0 # No intersection
         return 1 # and intersection
+
+    def calcT(self, point):
+        index = np.argmax(np.abs(self.start.normalVector[:2]-self.end.normalVector[:2]))
+        return (point[index] - self.start[index])/(self.end[index]-self.start[index])
         
-    
     def areParallel(self, line):
         """
         returns True if the two lines are parallel
@@ -179,7 +182,7 @@ class Line(object):
             end points. Next, convert the set back into a list so it can
             finally be sorted.
             """
-            pointList = sorted(list(set([self.start, self.end, other.start, other.end])))            
+            pointList = sorted(list(set([self.start, self.end, other.start, other.end])), key=self.calcT)            
             if len(pointList) == 3:
                 """
                 if there are only three points in the list then return 2, the
@@ -187,6 +190,8 @@ class Line(object):
                 two lines.
                 """
                 return 2, pointList[1] #if they are colinear and two ends have the same point return that point
+            elif len(pointList) == 2:
+                return 2.5, self.getMidPoint()
             else:
                 """
                 If the length was not three then we know it is length 4 in which case

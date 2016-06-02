@@ -55,15 +55,17 @@ class LineGroup(object):
     
     @property       
     def vectors(self):
-        if self.__vectors is None:
-            self.__vectors = np.array([line.vector for line in self])
-        return self.__vectors
+        return np.array([line.vector for line in self])
+#        if self.__vectors is None:
+#            self.__vectors = np.array([line.vector for line in self])
+#        return self.__vectors
     
     @property    
     def starts(self):
-        if self.__starts is None:
-            self.__starts = np.array([line.start.get2DPoint() for line in self])
-        return self.__starts
+        return np.array([line.start.get2DPoint() for line in self])
+#        if self.__starts is None:
+#            self.__starts = np.array([line.start.get2DPoint() for line in self])
+#        return self.__starts
     
     def addLinesFromCoordinateList(self, coordList):
         pointList = []        
