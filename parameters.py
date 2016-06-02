@@ -25,7 +25,6 @@ shiftX = [10, 50] # amount to shift part from printer origin in X
 shiftY = [10, 35, 60] # amount to shift part from printer origin in Y
 firstLayerShiftZ = 0 #correct for bed leveling
 numLayers = [8] #number of layers to make
-trimAdjust = 2*c.EPSILON
 pattern = None
 # pattern = lg.LineGroup()
 # pattern.addLinesFromCoordinateList([[0,0],[2,2],[4,0]])
@@ -41,6 +40,7 @@ infillShiftX = [0]
 infillShiftY = [0]
 #flipLayer = [0] No longer implimented
 numShells = [13,1,1,0,0,1,1] # the number of shells max is 13 if 0.4999 path width is used
+trimAdjust = [2*c.EPSILON]
 
 """
 File Parameters
@@ -88,9 +88,9 @@ def zipVariables_gen(inputLists, repeat=False):
             break
 
 LayerParams = namedtuple('LayerParams', 'infillShiftX infillShiftY infillAngle \
-                                        numShells layerHeight pathWidth')            
+                                        numShells layerHeight pathWidth trimAdjust')            
 _layerParameters = LayerParams(infillShiftX, infillShiftY, infillAngleDegrees, numShells,
-                   layerHeight, pathWidth)
+                   layerHeight, pathWidth, trimAdjust)
 
 def layerParameters():
     return zipVariables_gen(_layerParameters, repeat=True)
