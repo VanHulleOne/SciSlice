@@ -5,6 +5,9 @@ Created on Thu Nov 19 19:52:29 2015
 Contains all of the print parameters and the if __name__ == '__main__': logic
 so the whole program can be run from here after making parameter changes.
 
+Below is the command for NotePad++ to run this file.
+C:\Anaconda3\python.exe -i "$(FULL_CURRENT_PATH)"
+
 @author: lvanhulle
 """
 import math
@@ -14,6 +17,7 @@ import doneShapes as ds
 import figura as fg
 import time
 import itertools
+import os
 
 """
 Part Parameters
@@ -24,7 +28,7 @@ printSpeed = [2000] #mm/min head travel speed
 shiftX = [10, 50] # amount to shift part from printer origin in X
 shiftY = [10, 35, 60] # amount to shift part from printer origin in Y
 firstLayerShiftZ = 0 #correct for bed leveling
-numLayers = [8] #number of layers to make
+numLayers = [2] #number of layers to make
 pattern = None
 # pattern = lg.LineGroup()
 # pattern.addLinesFromCoordinateList([[0,0],[2,2],[4,0]])
@@ -48,8 +52,9 @@ File Parameters
 outputFileName = 'ZigZag.gcode' #the name of the file you want output. git will ignore all .gcode unless they start with SAVE
 start_Gcode_FileName = 'Start_Gcode_Taz5.txt' #the file name for the starting gcode
 end_Gcode_FileName = 'End_Gcode_Taz5.txt' #The file name for the end gcode
-outputSubDirectory = 'Gcode'
-startEndSubDirectory = 'Start_End_Gcode'
+currPath = os.path.dirname(os.path.realpath(__file__))
+outputSubDirectory = currPath + '\\Gcode'
+startEndSubDirectory = currPath + '\\Start_End_Gcode'
 
 """
 Misc Parameters
