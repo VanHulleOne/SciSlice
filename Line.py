@@ -99,26 +99,22 @@ class Line(object):
     def angle(self):
         angle = np.arctan2(self.end.y-self.start.y, self.end.x-self.start.x)
         return angle if angle >= 0 else angle + 2*np.pi
-    
-    def rayIntersects(self, ray):
-        if not self.doBoundingBoxesIntersect(ray):
-            return 0
-        Q_Less_P = ray.start.get2DPoint() - self.start.get2DPoint()
-        denom = 1.0*np.cross(self.vector, ray.vector)
-        if abs(denom) < c.EPSILON:
-            return 0 # Parallel
-        u = np.cross(Q_Less_P, self.vector)/denom
-        if u < 0:
-            return 0 # behind ray
-        t = np.cross(Q_Less_P, ray.vector)/denom
-
-        if abs(t) < c.EPSILON > abs(1-t):# < c.EPSILON:
-            return -1 # intersected at endpoint
-        if t < 0 or t > 1:
-            return 0 # No intersection
-        return 1 # and intersection
 
     def calcT(self, point):
+        """ Returns a constant representing point's location along self.
+        
+        The point is assumed to be on self. T is the constant along self
+        where point is located with start being 0, end being 1, <0 is behind
+        the line and >0 is past the line segment
+        
+        Parameters
+        ----------
+        point - The test point.
+        
+        Return
+        ------
+        A constant representing point's location along self.
+        """
         index = np.argmax(np.abs(self.start.normalVector[:2]-self.end.normalVector[:2]))
         return (point[index] - self.start[index])/(self.end[index]-self.start[index])
         
@@ -191,6 +187,7 @@ class Line(object):
                 """
                 return 2, pointList[1] #if they are colinear and two ends have the same point return that point
             elif len(pointList) == 2:
+                """ If the two lines have the same endpoints. """
                 return 2.5, self.getMidPoint()
             else:
                 """
