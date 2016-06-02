@@ -93,10 +93,10 @@ class Shape(LG):
         does not throw an eror it assigns the returned value to self.lines and
         sets the outline as finsihed.
         """  
-        self.lines = self.__finishOutline()
+        self.lines = self._finishOutline()
         self.outlineFinished = True
 
-    def __finishOutline(self, normList=None, finishedShape=None):
+    def _finishOutline(self, normList=None, finishedShape=None):
         """ A companion method for finishOutline.
         
         The method sorts the lines so the the end of one line is touching
@@ -167,6 +167,22 @@ class Shape(LG):
 
     @finishedOutline                                
     def offset(self, distance, desiredSide):
+        """ Offsets a shape be distance to the desired side.
+        
+        The main offset method which calls _offset on each sub-shape of itself.
+        If an error occurs while trying to offset a sub-shape the error is logged
+        and the next shape is tried.
+        
+        Parameters
+        ----------
+        distance - The amount to offset
+        desiredSide - either inside or outside
+        
+        Return
+        ------
+        newShape - The newly offset shape.
+        
+        """
         newShape = Shape()
         for subShape in self.subShape_gen():
             try:
@@ -176,6 +192,42 @@ class Shape(LG):
         return newShape
     
     def _offset(self, subShape, distance, desiredSide):
+        """ A companion method for offset which actually does the offsetting.
+        
+        Each sub-shape of self is sent to this method. This method needs to
+        optimized. It currently works as follows:
+        
+        1) O(N)
+        Runs through every line in the sub-shape, creating its offset, and
+        trimming/joining the new lines as necessary.
+        
+        2) O(N^2)
+        Tests every line against every other line to find intersections. If there
+        are any intersections then the line is split at those points.
+        
+        3) O(N)
+        Turns all of the split lines into a new Shape
+        
+        4) O(N^2)
+        Checks all of the lines to see if their left side is still inside of the
+        shape. If they are inside they are appended to a new list
+        
+        5) O(N)
+        Turn the new list of lines into another Shape
+        
+        6) O(N^2)
+        Finishes the new shape.
+        
+        Parameters
+        ----------
+        subShape - The sub-shape to be offset
+        distance - The distance to offset
+        desiredSide - The side (inside/outside) to offset
+        
+        Return
+        ------
+        offShape - The offset sub-shape.
+        """
         tempLines = []
         points = []
         prevLine = subShape[-1].getOffsetLine(distance, desiredSide)
@@ -213,6 +265,20 @@ class Shape(LG):
         return offShape
               
     def pairwise_gen(self, l1):
+        """ A generator to turn a list into pairs so it can be made into lines.
+        
+        This is used to take a list of points and pair them so they can be made
+        into lines. It pairs each item with its neighbors and even creates a pair
+        of the last and first item.
+        
+        Parameter
+        ---------
+        l1 - an iterable
+        
+        Yields
+        ------
+        tuple of points
+        """
         l1Iter = iter(l1)
         first = pre = next(l1Iter)
         for curr in l1Iter:
@@ -233,8 +299,7 @@ class Shape(LG):
         Yields
         ------
         in - Lines
-        out - one big List of lines at the end since in Python 2.7 a coroutine
-        can't return a value.
+        out - one big List of lines at the end.
         """
         offsetLines = []
         moveEnd = yield
