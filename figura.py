@@ -111,14 +111,17 @@ class Figura:
             
             
             if layerKey not in self.layers:
-                currOutline = self.shape
+                currOutline = self.shape#.offset(pr.trimAdjust, c.OUTSIDE)
                 filledList = []
                 for shellNumber in range(layerParam.numShells):
                     """ If the layer needs shells create them here. """
                     filledList.append(currOutline)
                     currOutline = currOutline.offset(layerParam.pathWidth, c.INSIDE)
-                
-                infill = InF.InFill(currOutline.offset(pr.trimAdjust, c.OUTSIDE),
+                if layerParam.numShells == 0:
+                    trimShape = currOutline.offset(pr.trimAdjust, c.OUTSIDE)
+                else:
+                    trimShape = filledList[-1].offset(layerParam.pathWidth-pr.trimAdjust, c.INSIDE)
+                infill = InF.InFill(trimShape,
                                     layerParam.pathWidth, layerParam.infillAngle,
                                     shiftX=layerParam.infillShiftX, shiftY=layerParam.infillShiftY,
                                     design=pr.pattern, designType=pr.designType)
