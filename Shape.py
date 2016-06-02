@@ -158,7 +158,7 @@ class Shape(LG):
             normList[[index*2,index*2+1]] = np.inf
             
             if testPoint == firstLine.start:
-                self.__finishOutline(normList, finishedShape)
+                self._finishOutline(normList, finishedShape)
                 return finishedShape
         dist = firstLine.start - finishedShape[-1].end
         if dist < c.EPSILON:
