@@ -16,11 +16,9 @@ Different organizedLayer() methods could be written calling different
 organizing coroutines in the LineGroups to create an ideal print order.
 
 The longest computation time is in creating the infill for the layers. As such
-the parameters which make a layer unique are used as a key for the self.layers{}
+the namedtuple layerParam which is used as a key for the self.layers{}
 dictionary. After the layer has been calculated it is stored in layers so that
 if another layer with the same parameters is used it does not need to be recalculated.
-I will not list the key parameters here since they are still fluid and I am trying
-to avoid having inaccurate comments.
 
 
 @author: lvanhulle
@@ -98,37 +96,33 @@ class Figura:
             """ Iterate through for the correct number of layers. """
             layerParam = next(layerParam_Gen)
             
-            """ This is the key for the layer dict. Only these parameters are
-            taken into consideration when deciding if a new layer needs to be created.
-            The whole layerParam namedtuple is not used because layerHeight
-            is not needed for calculating the layer's shells and infill. """
-            layerKey = (layerParam.infillAngle, layerParam.numShells,
-                         layerParam.infillShiftX, layerParam.infillShiftY)
-            
             currHeight += layerParam.layerHeight
-            
 
-            
-            
-            if layerKey not in self.layers:
-                currOutline = self.shape#.offset(pr.trimAdjust, c.OUTSIDE)
+            if layerParam not in self.layers:
+                currOutline = self.shape
                 filledList = []
                 for shellNumber in range(layerParam.numShells):
                     """ If the layer needs shells create them here. """
                     filledList.append(currOutline)
                     currOutline = currOutline.offset(layerParam.pathWidth, c.INSIDE)
+                """
+                To help with problems that occur when an offset shape has its sides
+                collide or if the infill liens are colinear with the trim lines we
+                want to fudge the trimShape outward just a little so that we end
+                up with the correct lines.
+                """
                 if layerParam.numShells == 0:
-                    trimShape = currOutline.offset(pr.trimAdjust, c.OUTSIDE)
+                    trimShape = currOutline.offset(layerParam.trimAdjust, c.OUTSIDE)
                 else:
-                    trimShape = filledList[-1].offset(layerParam.pathWidth-pr.trimAdjust, c.INSIDE)
+                    trimShape = filledList[-1].offset(layerParam.pathWidth-layerParam.trimAdjust, c.INSIDE)
                 infill = InF.InFill(trimShape,
                                     layerParam.pathWidth, layerParam.infillAngle,
                                     shiftX=layerParam.infillShiftX, shiftY=layerParam.infillShiftY,
                                     design=pr.pattern, designType=pr.designType)
-                self.layers[layerKey] = self.organizedLayer(filledList + [infill])
+                self.layers[layerParam] = self.organizedLayer(filledList + [infill])
             
             """ a tuple of the organized LineGroup and the layer parameters. """
-            yield (self.layers[layerKey].translate(partParams.shiftX,
+            yield (self.layers[layerParam].translate(partParams.shiftX,
                                             partParams.shiftY, currHeight), layerParam)
     
     def partGcode_gen(self, partParams):        
