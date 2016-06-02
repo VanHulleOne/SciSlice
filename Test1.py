@@ -27,7 +27,14 @@ import matrixTrans as mt
 import random
 import bisect
 import collections as col
-from collections import Counter
+from collections import namedtuple
+
+NT = namedtuple('NT', 'x y z')
+
+t1 = NT(1,2,3)
+t2 = NT(1,2,3)
+t3 = NT(1,2,4)
+t4 = NT(1.1,2,4)
 #import logging
 #
 #logging.basicConfig(level=logging.DEBUG)
@@ -66,7 +73,7 @@ ll = [l.Line(l1[i], l1[i+1]) for i in range(len(l1)-1)]
 #print('d1:')
 #d1.finishOutline()
 
-d1 = ds.simpleDogBone()
+#d1 = ds.simpleDogBone()
 
 #print('R1')
 #r1 = ds.squareWithHole()
@@ -76,17 +83,17 @@ d1 = ds.simpleDogBone()
 #print('R3')
 #r3 = r1.newOffset(0.5, c.INSIDE)
 
-def printG(shape):
-    for line in shape:
-        print(*line, sep='\n')
-
-def offsets(shape, num, dist=1):
-    print('G90 G1')
-    for i in range(num+1):
-        print('T',i+1,'\nM6',sep='')
-        printG(shape)
-        shape = shape.newOffset(dist, c.INSIDE)
-    
+#def printG(shape):
+#    for line in shape:
+#        print(*line, sep='\n')
+#
+#def offsets(shape, num, dist=1):
+#    print('G90 G1')
+#    for i in range(num+1):
+#        print('T',i+1,'\nM6',sep='')
+#        printG(shape)
+#        shape = shape.newOffset(dist, c.INSIDE)
+#    
 #in1 = ds.lineField(0.5, 185, 185)
 
 """ An example of how to do other infills. """  
