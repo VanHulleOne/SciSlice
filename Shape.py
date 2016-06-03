@@ -199,7 +199,7 @@ class Shape(LG):
         Runs through every line in the sub-shape, creating its offset, and
         trimming/joining the new lines as necessary.
         
-        2) O(N^2)
+        2) O(N)
         Tests every line against every other line to find intersections. If there
         are any intersections then the line is split at those points.
         
@@ -242,6 +242,7 @@ class Shape(LG):
         splitLines = []
         starts = np.array([line.start.get2DPoint() for line in tempLines])
         vectors = np.array([line.vector for line in tempLines])
+        
         for iLine in iter(tempLines):
             pointSet = {iLine.start, iLine.end}
             Q_Less_P = iLine.start[:2] - starts
