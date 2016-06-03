@@ -61,7 +61,6 @@ class Figura:
             """
             print('\nPart number: ' + str(self.partCount))            
             print(partParams)
-#            part = self.layer_gen(partParams)
            
             yield '\n\n;Part number: ' + str(self.partCount) + '\n'
             yield ';' + str(partParams) + '\n'
@@ -115,11 +114,11 @@ class Figura:
                     trimShape = currOutline.offset(layerParam.trimAdjust, c.OUTSIDE)
                 else:
                     trimShape = filledList[-1].offset(layerParam.pathWidth-layerParam.trimAdjust, c.INSIDE)
-#                infill = InF.InFill(trimShape,
-#                                    layerParam.pathWidth, layerParam.infillAngle,
-#                                    shiftX=layerParam.infillShiftX, shiftY=layerParam.infillShiftY,
-#                                    design=pr.pattern, designType=pr.designType)
-                self.layers[layerParam] = self.organizedLayer(filledList)# + [infill])
+                infill = InF.InFill(trimShape,
+                                    layerParam.pathWidth, layerParam.infillAngle,
+                                    shiftX=layerParam.infillShiftX, shiftY=layerParam.infillShiftY,
+                                    design=pr.pattern, designType=pr.designType)
+                self.layers[layerParam] = self.organizedLayer(filledList + [infill])
             
             """ a tuple of the organized LineGroup and the layer parameters. """
             yield (self.layers[layerParam].translate(partParams.shiftX,

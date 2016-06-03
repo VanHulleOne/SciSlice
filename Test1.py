@@ -46,13 +46,21 @@ p13 = p.Point(0,-1)
 p14 = p.Point(0.0, 0,0)
 p15 = p.Point(8.0, 0.0)
 p16 = p.Point(10.0, 0.0)
+p17 = p.Point(60.326, 19.517)
+p18 = p.Point(61.100, 19.488)
+p19 = p.Point(61.100, 19.512)
+p20 = p.Point(60.326, 19.483)
+p21 = p.Point(50.326152, 9.483299)
+p22 = p.Point(51.550318, 9.528728)
+p23 = p.Point(51.550318, 9.471272)
+p24 = p.Point(50.326152, 9.516701)
 
 points = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11]
 
 lines = [l.Line(points[i], points[i+1]) for i in range(len(points)-1)]
 
-l1 = l.Line(p11, p12)
-l2 = l.Line(p7, p16)
+l1 = l.Line(p21, p22)
+l2 = l.Line(p23, p24)
 
 def inter(line1, line2):
     r = np.subtract(line1.end.get2DPoint(), line1.start.get2DPoint())
@@ -63,8 +71,15 @@ def inter(line1, line2):
     u = np.cross(Q_Less_P, r)/denom 
     print('t: ', t)
     print('u: ', u)
+    
+    point = p.Point(line1.start.x + line1.vector[c.X]*t, line1.start.y + line1.vector[c.Y]*t)
+    print('p: ', point)
+    return t,u, point
 
-inter(l1, l2)
+def tLine(t, line):
+    return p.Point(line.start.x + line.vector[c.X]*t, line.start.y + line.vector[c.Y]*t)
+    
+t,u, point = inter(l1, l2)
 
 #d1 = ds.rect(0,0,10,10)
 #sub1 = s.Shape()
