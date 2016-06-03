@@ -14,9 +14,7 @@ from LineGroup import LineGroup as LG
 import constants as c
 from functools import wraps
 import numpy as np
-import time
 import Point as p
-import traceback
 logger = c.logging.getLogger(__name__)
 logger.setLevel(c.LOG_LEVEL)
 
@@ -72,7 +70,6 @@ class Shape(LG):
     
     @finishedOutline    
     def subShape_gen(self):
-        print('In subShape_gen')
         tempLines = []
         for line in self:
             tempLines.append(line)
@@ -115,24 +112,14 @@ class Shape(LG):
         ------
         finishedShape
         """
-        print('Entered _finishOutline')
         if normList is None:
             normList = np.array([point.normalVector for point in self.iterPoints()], dtype=np.float)
         elif len(normList[(normList < np.inf)]) == 0:
-            print('Return no items < inf')
             return
         if finishedShape is None:
             finishedShape = []
 
         """ Find the first index in normList that is not infinity. """
-#        traceback.print_stack(limit = 7)
-        print('type')
-        print(type(finishedShape))
-        print('Norms a')
-        print(normList)        
-        print('Where')
-        print(np.where(normList[:,0] < np.inf))
-        
         firstLineIndex = np.where(normList[:,0] < np.inf)[0][0]//2
         
         """ firstLine is needed to know if the last line closes the shape. """
@@ -146,18 +133,13 @@ class Shape(LG):
   
         testPoint = firstLine.end
         finishedShape.append(firstLine)
-        print('Entering While')
         while len(normList[(normList < np.inf)]) > 0:
 
             distances = np.linalg.norm(normList-testPoint.normalVector, None, 1)
             index = np.argmin(distances)
             nearestLine = self[index//2]
             
-            if distances[index] > 10000*c.EPSILON:
-                print('Raise Exception')
-                print('Shape has a gap of ' + str(distances[index]) +
-                                ' at point ' + str(testPoint) + ', ' + 
-                                str(p.Point(normList[index])))
+            if distances[index] > c.EPSILON:
                 raise Exception('Shape has a gap of ' + str(distances[index]) +
                                 ' at point ' + str(testPoint) + ', ' + 
                                 str(p.Point(normList[index])))
@@ -174,16 +156,11 @@ class Shape(LG):
             normList[[index*2,index*2+1]] = np.inf
             
             if testPoint == firstLine.start:
-                print('recursion')
                 self._finishOutline(normList, finishedShape)
-                print('Return finished shape after recursion')
                 return finishedShape
         dist = firstLine.start - finishedShape[-1].end
-        if dist < 10000*c.EPSILON:
-            print('Return finished shape')
+        if dist < c.EPSILON:
             return finishedShape
-        print('Other exception')
-        print('Shape not closed. There is a gap of {:0.5f} at point {}'.format(dist, testPoint))
         raise Exception('Shape not closed. There is a gap of {:0.5f} at point {}'.format(dist, testPoint))
 
     @finishedOutline                                
@@ -249,7 +226,6 @@ class Shape(LG):
         ------
         offShape - The offset sub-shape.
         """
-        print('\n\nNext offset')
         tempLines = []
         points = []
         prevLine = subShape[-1].getOffsetLine(distance, desiredSide)
@@ -267,42 +243,23 @@ class Shape(LG):
         starts = np.array([line.start.get2DPoint() for line in tempLines])
         vectors = np.array([line.vector for line in tempLines])
         for iLine in iter(tempLines):
-#            pointList = [iLine.start, iLine.end]
             pointSet = {iLine.start, iLine.end}
             Q_Less_P = iLine.start[:2] - starts
             denom = 1.0*np.cross(vectors, iLine.vector)
-            all_u = np.cross(Q_Less_P, vectors)/denom
-            all_t = np.cross(Q_Less_P, iLine.vector)/denom
+            all_t = np.cross(Q_Less_P, vectors)/denom
+            all_u = np.cross(Q_Less_P, iLine.vector)/denom
             t = all_t[(0 <= all_u) & (all_u <= 1) & (0 <= all_t) & (all_t <= 1)]
-            print(len(t))            
-            print('t: ', t)
-            print()
-            
+
             if len(t):
                 pointSet |= set(p.Point(iLine.start.x + iLine.vector[c.X]*value,
                                         iLine.start.y+iLine.vector[c.Y]*value)
                                         for value in t)
-#            for jLine in iter(tempLines):
-#                if jLine != iLine:
-#                    interSecType, point = iLine.segmentsIntersect(jLine)
-#
-#                    if interSecType > 0 and point not in pointList:
-#                        pointList.append(point)
-#            where = np.where(all_t==np.nan)                          
-#            for i in range(len(where)):
-#                jLine = tempLines[where[i]]
-#                if jLine != iLine:
-#                    interSecType, point = iLine.segmentsIntersect(jLine)
-#
-#                    if interSecType > 0:
-#                        pointSet.add(point)
+
             pointList = sorted(pointSet, key=iLine.calcT)
-            print('Pointlist')            
-            print(pointList)
 
             splitLines.extend(l.Line(pointList[i], pointList[i+1])
                                 for i in range(len(pointList)-1))
-        print('Create tempshape')
+
         tempShape = Shape(splitLines)
         shapeLines = []
         for line in splitLines:
@@ -310,8 +267,6 @@ class Shape(LG):
                 shapeLines.append(line)
 
         offShape = Shape(shapeLines)
-        print('Shape')
-        print(offShape)
         offShape.finishOutline()
         return offShape
               
