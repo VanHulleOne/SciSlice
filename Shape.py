@@ -248,11 +248,12 @@ class Shape(LG):
                 if jLine != iLine:
                     interSecType, point = iLine.segmentsIntersect(jLine)
 
-                    if point is not None and interSecType > 0 and point not in pointList:
+                    if interSecType > 0 and point not in pointList:
                         pointList.append(point)
             pointList = sorted(pointList, key=iLine.calcT)
 
-            splitLines.extend(l.Line(pointList[i], pointList[i+1]) for i in range(len(pointList)-1))
+            splitLines.extend(l.Line(pointList[i], pointList[i+1])
+                                for i in range(len(pointList)-1))
 
         tempShape = Shape(splitLines)
         shapeLines = []
@@ -357,7 +358,7 @@ class Shape(LG):
 
         endPoints = (np.abs(all_t) < c.EPSILON) | (np.abs(1-all_t) < c.EPSILON)
         if np.any(endPoints):
-            time.sleep(0.5)
+#            time.sleep(0.5)
             oldAngle = np.arctan2(*ray[::-1])
             newAngle = oldAngle+(90+np.random.rand())/360.0*2*np.pi
             logger.info('Recursion made in isInside()\n\tcollision at angle: ' +
