@@ -16,7 +16,7 @@ import Point as p
 import constants as c
 import math
 import Line as l
-    
+
 def regularDogBone():    
     dogBone = s.Shape(None)
     dogBone.addLinesFromCoordinateList([[82.5, 0], [82.5, 9.5], [49.642, 9.5]])

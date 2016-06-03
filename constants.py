@@ -33,10 +33,7 @@ FULL_FIELD = 2
 CENTERED_FIELD = 3
 TRIMMED_FIELD = 4 
 
-LOG_LEVEL = logging.DEBUG
-#logging.disable(logging.CRITICAL)
-#formatter = logging.Formatter('\n\nLog Message\n-----------\nModule: %(name)s\n' + 
-#                    'Log Level: %(levelname)s\nMsg: %(message)s')
+LOG_LEVEL = logging.WARN
 importlib.reload(logging)
 logging.basicConfig(format='\n\nLog Message\n-----------\nModule: %(name)s\n' + 
                     'Log Level: %(levelname)s\nMsg: %(message)s', level=LOG_LEVEL)

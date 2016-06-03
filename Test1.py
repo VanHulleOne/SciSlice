@@ -59,27 +59,6 @@ points = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11]
 
 lines = [l.Line(points[i], points[i+1]) for i in range(len(points)-1)]
 
-l1 = l.Line(p21, p22)
-l2 = l.Line(p23, p24)
-
-def inter(line1, line2):
-    r = np.subtract(line1.end.get2DPoint(), line1.start.get2DPoint())
-    s = np.subtract(line2.end.get2DPoint(), line2.start.get2DPoint())
-    Q_Less_P = np.subtract(line2.start.get2DPoint(), line1.start.get2DPoint())
-    denom = np.cross(r, s)*1.0
-    t = np.cross(Q_Less_P, s)/denom
-    u = np.cross(Q_Less_P, r)/denom 
-    print('t: ', t)
-    print('u: ', u)
-    
-    point = p.Point(line1.start.x + line1.vector[c.X]*t, line1.start.y + line1.vector[c.Y]*t)
-    print('p: ', point)
-    return t,u, point
-
-def tLine(t, line):
-    return p.Point(line.start.x + line.vector[c.X]*t, line.start.y + line.vector[c.Y]*t)
-    
-t,u, point = inter(l1, l2)
 
 #d1 = ds.rect(0,0,10,10)
 #sub1 = s.Shape()

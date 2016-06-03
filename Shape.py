@@ -91,7 +91,7 @@ class Shape(LG):
         Calls the companion method self.__finishOutline() and if that method
         does not throw an eror it assigns the returned value to self.lines and
         sets the outline as finsihed.
-        """  
+        """
         self.lines = self._finishOutline()
         self.outlineFinished = True
 
@@ -192,29 +192,22 @@ class Shape(LG):
     def _offset(self, subShape, distance, desiredSide):
         """ A companion method for offset which actually does the offsetting.
         
-        Each sub-shape of self is sent to this method. This method needs to
-        optimized. It currently works as follows:
+        Each sub-shape of self is sent to this method. It currently works as follows:
         
-        1) O(N)
-        Runs through every line in the sub-shape, creating its offset, and
+        1) Runs through every line in the sub-shape, creating its offset, and
         trimming/joining the new lines as necessary.
         
-        2) O(N)
-        Tests every line against every other line to find intersections. If there
+        2) Tests every line against every other line to find intersections. If there
         are any intersections then the line is split at those points.
         
-        3) O(N)
-        Turns all of the split lines into a new Shape
+        3) Turns all of the split lines into a new Shape
         
-        4) O(N^2)
-        Checks all of the lines to see if their left side is still inside of the
+        4) Checks all of the lines to see if their left side is still inside of the
         shape. If they are inside they are appended to a new list
         
-        5) O(N)
-        Turn the new list of lines into another Shape
+        5) Turn the new list of lines into another Shape
         
-        6) O(N^2)
-        Finishes the new shape.
+        6) Finishes the new shape.
         
         Parameters
         ----------
@@ -226,24 +219,31 @@ class Shape(LG):
         ------
         offShape - The offset sub-shape.
         """
-        tempLines = []
         points = []
         prevLine = subShape[-1].getOffsetLine(distance, desiredSide)
         for currLine in (line.getOffsetLine(distance, desiredSide)
                                 for line in subShape):
+            """ Offset all of the lines and trim/join their ends. """
             _, point = prevLine.segmentsIntersect(currLine, c.ALLOW_PROJECTION)
             if prevLine.calcT(point) > 0:
+                """ Make sure the new point is ahead of the start of the prev line.
+                If it is not we probably have two lines which have crossed the shape's
+                medial axis and therefore their projected intersection is in a
+                non-useful location.
+                """
                 points.append(point)
             else:
                 points.append(prevLine.end)
                 points.append(currLine.start)
             prevLine = currLine
-        tempLines.extend(l.Line(p1, p2) for p1, p2 in self.pairwise_gen(points))
+            
+        tempLines = [l.Line(p1, p2) for p1, p2 in self.pairwise_gen(points)]
         splitLines = []
         starts = np.array([line.start.get2DPoint() for line in tempLines])
         vectors = np.array([line.vector for line in tempLines])
         
-        for iLine in iter(tempLines):
+        for iLine in tempLines:
+            """ Find if the new lines cross eachother anywhere and if so split them. """
             pointSet = {iLine.start, iLine.end}
             Q_Less_P = iLine.start[:2] - starts
             denom = 1.0*np.cross(vectors, iLine.vector)
@@ -264,6 +264,7 @@ class Shape(LG):
         tempShape = Shape(splitLines)
         shapeLines = []
         for line in splitLines:
+            """ Check each line to see if its left side is inside the new offset shape. """
             if(tempShape.isInside(line.getOffsetLine(2*c.EPSILON, c.INSIDE).getMidPoint())):
                 shapeLines.append(line)
 
