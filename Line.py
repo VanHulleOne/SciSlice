@@ -12,6 +12,7 @@ can be changed.
 import Point as p
 import numpy as np
 import constants as c
+import time
 logger = c.logging.getLogger(__name__)
 
 class Line(object):
@@ -147,7 +148,7 @@ class Line(object):
                     (np.linalg.norm(perpVect)*np.linalg.norm(line.vector)))
         # if cosTheda is < c.EPSILON then the lines are parallel and we return True
         return abs(cosTheda) < c.EPSILON   
-    
+
     def segmentsIntersect(self, other, allowProjInt = False):
         """
         Probably the most important method in the Line module. This tests to
@@ -247,17 +248,29 @@ class Line(object):
         matrix = [p1.normalVector, p2.normalVector, p3.normalVector, [1,1,1,1]]
         matrix = np.rot90(matrix)
         return abs(np.linalg.det(matrix))/2.0
-    
+
     def areColinear(self, other):
+        """returns True if the two lines are colinear
+        
+        This method tests if two lines are colinear by finding the angle
+        between the perpendicular vector of self and lines created from self to
+        both ends of other.
+        If the dot product between perpVect and both of the new vectors is zero then
+        they are colinear. Farin and Hansford recommend checking within
+        a physically meaningful tolerance so equation 3.14 from pg 50 of
+        Farin-Hansford Geometry Toolbox is used to compute the cosine of the angle
+        and compare that to our ANGLE_EPS. If cosTheda < ANGLE_EPS then the lines
         """
-        If the area of the two created triangles is less than the tolerance
-        than the two lines are assumed to be co-linear.
-        """
-        tolerance = 0.0001        
-        area = self.getArea(self.start, self.end, other.start)
-        area += self.getArea(self.start, self.end, other.end)
-        if(area < tolerance): return True
-        return False        
+        perpVect = np.array([-self.vector[c.Y], self.vector[c.X]])
+        vect1 = other.end[:2]-self.start[:2]
+        vect2 = other.start[:2]-self.start[:2]
+        cosTheda1 = (np.dot(perpVect, vect1)/
+                    (np.linalg.norm(perpVect)*np.linalg.norm(vect1)))
+        if abs(cosTheda1) > 0.0001:
+            return False
+        cosTheda2 = (np.dot(perpVect, vect2)/
+                    (np.linalg.norm(perpVect)*np.linalg.norm(vect2)))
+        return not(abs(cosTheda2) > 0.0001)            
     
     def doBoundingBoxesIntersect(self, other):
         """
