@@ -61,7 +61,6 @@ class Figura:
             """
             print('\nPart number: ' + str(self.partCount))            
             print(partParams)
-#            part = self.layer_gen(partParams)
            
             yield '\n\n;Part number: ' + str(self.partCount) + '\n'
             yield ';' + str(partParams) + '\n'

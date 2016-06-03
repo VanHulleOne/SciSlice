@@ -14,7 +14,6 @@ from LineGroup import LineGroup as LG
 import constants as c
 from functools import wraps
 import numpy as np
-import time
 import Point as p
 logger = c.logging.getLogger(__name__)
 logger.setLevel(c.LOG_LEVEL)
@@ -114,7 +113,7 @@ class Shape(LG):
         finishedShape
         """
         if normList is None:
-            normList = np.array([point.normalVector for point in self.iterPoints()], dtype=np.float)     
+            normList = np.array([point.normalVector for point in self.iterPoints()], dtype=np.float)
         elif len(normList[(normList < np.inf)]) == 0:
             return
         if finishedShape is None:
@@ -134,7 +133,6 @@ class Shape(LG):
   
         testPoint = firstLine.end
         finishedShape.append(firstLine)
-        
         while len(normList[(normList < np.inf)]) > 0:
 
             distances = np.linalg.norm(normList-testPoint.normalVector, None, 1)
@@ -201,7 +199,7 @@ class Shape(LG):
         Runs through every line in the sub-shape, creating its offset, and
         trimming/joining the new lines as necessary.
         
-        2) O(N^2)
+        2) O(N)
         Tests every line against every other line to find intersections. If there
         are any intersections then the line is split at those points.
         
@@ -242,15 +240,23 @@ class Shape(LG):
             prevLine = currLine
         tempLines.extend(l.Line(p1, p2) for p1, p2 in self.pairwise_gen(points))
         splitLines = []
+        starts = np.array([line.start.get2DPoint() for line in tempLines])
+        vectors = np.array([line.vector for line in tempLines])
+        
         for iLine in iter(tempLines):
-            pointList = [iLine.start, iLine.end]
-            for jLine in iter(tempLines):
-                if jLine != iLine:
-                    interSecType, point = iLine.segmentsIntersect(jLine)
+            pointSet = {iLine.start, iLine.end}
+            Q_Less_P = iLine.start[:2] - starts
+            denom = 1.0*np.cross(vectors, iLine.vector)
+            all_t = np.cross(Q_Less_P, vectors)/denom
+            all_u = np.cross(Q_Less_P, iLine.vector)/denom
+            t = all_t[(0 <= all_u) & (all_u <= 1) & (0 <= all_t) & (all_t <= 1)]
 
-                    if interSecType > 0 and point not in pointList:
-                        pointList.append(point)
-            pointList = sorted(pointList, key=iLine.calcT)
+            if len(t):
+                pointSet |= set(p.Point(iLine.start.x + iLine.vector[c.X]*value,
+                                        iLine.start.y+iLine.vector[c.Y]*value)
+                                        for value in t)
+
+            pointList = sorted(pointSet, key=iLine.calcT)
 
             splitLines.extend(l.Line(pointList[i], pointList[i+1])
                                 for i in range(len(pointList)-1))
