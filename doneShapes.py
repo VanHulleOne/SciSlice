@@ -28,7 +28,8 @@ def regularDogBone():
     dogBone = dogBone.translate(82.5, 9.5)
     dogBone.finishOutline()
     return dogBone
-def simpleDogBone():
+    
+def testSimpleDogBone():
     temp = s.Shape(None)
     temp.addLinesFromCoordinateList([[82.5,0],[82.5,9.5],[49.642, 9.5], [28.5,6.5],[0,6.5]])
     temp.addLineGroup(temp.mirror(c.Y))
