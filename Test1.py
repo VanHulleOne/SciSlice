@@ -28,6 +28,9 @@ import random
 import bisect
 import collections as col
 from collections import namedtuple
+import sys
+import trimesh
+from stl import mesh
 
 
 p1 = p.Point(2.073, 0.0806)
@@ -58,6 +61,12 @@ p24 = p.Point(50.326152, 9.516701)
 points = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11]
 
 lines = [l.Line(points[i], points[i+1]) for i in range(len(points)-1)]
+
+mesh1 = trimesh.load_mesh('TB.stl')
+print(mesh1.area)
+sec = mesh1.section(plane_origin=[0,0,0],plane_normal=[0,0,1])
+sec_2D, T_matrix = sec.to_planar()
+sec_2D.plot_discrete()
 
 
 #d1 = ds.rect(0,0,10,10)

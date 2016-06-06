@@ -19,11 +19,19 @@ import time
 import itertools
 import os
 import numpy as np
+import trimesh
+import Shape as s
+import Point as p
+
+mesh = trimesh.load_mesh('TB.stl')
+sec = mesh.section(plane_origin=[0,0,0],plane_normal=[0,0,1])
+shape = s.Shape()
+shape.addLinesFromPoints([p.Point(vec) for vec in sec.discrete[0]])
 
 """
 Part Parameters
 """
-outline = ds.regularDogBone() # The shape we will be printing
+outline = shape#ds.regularDogBone() # The shape we will be printing
 solidityRatio = [1.09]#12]#, 0.1, 0.05] solidityRatio = PathArea/beadArea
 printSpeed = [2000] #mm/min head travel speed
 shiftX = [10, 50] # amount to shift part from printer origin in X
