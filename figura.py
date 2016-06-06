@@ -31,6 +31,7 @@ import InFill as InF
 import LineGroup as lg
 import constants as c
 from Shape import Shape
+import trimesh
 
 class Figura:  
     
@@ -97,32 +98,42 @@ class Figura:
             
             currHeight += layerParam.layerHeight
 
-            if layerParam not in self.layers:
-                currOutline = self.shape
-                filledList = []
-                for shellNumber in range(layerParam.numShells):
-                    """ If the layer needs shells create them here. """
-                    filledList.append(currOutline)
-                    currOutline = currOutline.offset(layerParam.pathWidth, c.INSIDE)
-                """
-                To help with problems that occur when an offset shape has its sides
-                collide or if the infill liens are colinear with the trim lines we
-                want to fudge the trimShape outward just a little so that we end
-                up with the correct lines.
-                """
-                if layerParam.numShells == 0:
-                    trimShape = currOutline.offset(layerParam.trimAdjust, c.OUTSIDE)
-                else:
-                    trimShape = filledList[-1].offset(layerParam.pathWidth-layerParam.trimAdjust, c.INSIDE)
-                infill = InF.InFill(trimShape,
-                                    layerParam.pathWidth, layerParam.infillAngle,
-                                    shiftX=layerParam.infillShiftX, shiftY=layerParam.infillShiftY,
-                                    design=pr.pattern, designType=pr.designType)
-                self.layers[layerParam] = self.organizedLayer(filledList + [infill])
+#            if layerParam not in self.layers:
+            sec = pr.mesh.section(plane_origin=[0,0,currHeight],plane_normal=[0,0,1])#self.shape
+            currOutline = Shape()
+            for outline in sec.discrete:
+                currOutline.addLinesFromPoints([p.Point(*vec[:2]) for vec in outline])
+#            currOutline = currOutline.translate(0,0,-currHeight)
+#            for line in currOutline:
+#                print(line)
             
+            filledList = []
+            for shellNumber in range(layerParam.numShells):
+                """ If the layer needs shells create them here. """
+                filledList.append(currOutline)
+                currOutline = currOutline.offset(layerParam.pathWidth, c.INSIDE)
+            """
+            To help with problems that occur when an offset shape has its sides
+            collide or if the infill liens are colinear with the trim lines we
+            want to fudge the trimShape outward just a little so that we end
+            up with the correct lines.
+            """
+            trimShape = currOutline
+#            if layerParam.numShells == 0:
+#                trimShape = currOutline.offset(layerParam.trimAdjust, c.OUTSIDE)
+#            else:
+#                trimShape = filledList[-1].offset(layerParam.pathWidth-layerParam.trimAdjust, c.INSIDE)
+            infill = InF.InFill(trimShape,
+                                layerParam.pathWidth, layerParam.infillAngle,
+                                shiftX=layerParam.infillShiftX, shiftY=layerParam.infillShiftY,
+                                design=pr.pattern, designType=pr.designType)
+#                self.layers[layerParam] = self.organizedLayer(filledList + [infill])
+            ol = self.organizedLayer(filledList + [infill])
             """ a tuple of the organized LineGroup and the layer parameters. """
-            yield (self.layers[layerParam].translate(partParams.shiftX,
+            yield (ol.translate(partParams.shiftX,
                                             partParams.shiftY, currHeight), layerParam)
+#            yield (self.layers[layerParam].translate(partParams.shiftX,
+#                                            partParams.shiftY, currHeight), layerParam)
     
     def partGcode_gen(self, partParams):        
         layerNumber = 1

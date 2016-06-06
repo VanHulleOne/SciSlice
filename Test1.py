@@ -5,8 +5,8 @@ Created on Wed Oct 28 10:16:22 2015
 @author: lvanhulle
 """
 import Point as p
-#import InFill as infill
-#import Shape as s
+import InFill as infill
+import Shape as s
 import Line as l
 #import arc as a
 import math
@@ -62,11 +62,13 @@ points = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11]
 
 lines = [l.Line(points[i], points[i+1]) for i in range(len(points)-1)]
 
-mesh1 = trimesh.load_mesh('TB.stl')
+mesh1 = trimesh.load_mesh('Arch.stl')
 print(mesh1.area)
-sec = mesh1.section(plane_origin=[0,0,0],plane_normal=[0,0,1])
-sec_2D, T_matrix = sec.to_planar()
-sec_2D.plot_discrete()
+sec = mesh1.section(plane_origin=[0,0,0.4],plane_normal=[0,0,1])
+
+shape = s.Shape()
+for loop in sec.discrete:
+    shape.addLinesFromPoints([p.Point(vec) for vec in loop])
 
 
 #d1 = ds.rect(0,0,10,10)

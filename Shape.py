@@ -241,7 +241,6 @@ class Shape(LG):
         splitLines = []
         starts = np.array([line.start.get2DPoint() for line in tempLines])
         vectors = np.array([line.vector for line in tempLines])
-        
         for iLine in tempLines:
             """ Find if the new lines cross eachother anywhere and if so split them. """
             pointSet = {iLine.start, iLine.end}
@@ -263,7 +262,9 @@ class Shape(LG):
 
         tempShape = Shape(splitLines)
         shapeLines = []
+#        print('split Lines shape line 265')
         for line in splitLines:
+#            print(line)
             """ Check each line to see if its left side is inside the new offset shape. """
             if(tempShape.isInside(line.getOffsetLine(2*c.EPSILON, c.INSIDE).getMidPoint())):
                 shapeLines.append(line)

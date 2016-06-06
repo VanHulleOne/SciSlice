@@ -23,21 +23,21 @@ import trimesh
 import Shape as s
 import Point as p
 
-mesh = trimesh.load_mesh('TB.stl')
-sec = mesh.section(plane_origin=[0,0,0],plane_normal=[0,0,1])
-shape = s.Shape()
-shape.addLinesFromPoints([p.Point(vec) for vec in sec.discrete[0]])
+mesh = trimesh.load_mesh('Arch.stl')
+#sec = mesh.section(plane_origin=[0,0,0],plane_normal=[0,0,1])
+#shape = s.Shape()
+#shape.addLinesFromPoints([p.Point(vec) for vec in sec.discrete[0]])
 
 """
 Part Parameters
 """
-outline = shape#ds.regularDogBone() # The shape we will be printing
+#outline = shape#ds.regularDogBone() # The shape we will be printing
 solidityRatio = [1.09]#12]#, 0.1, 0.05] solidityRatio = PathArea/beadArea
 printSpeed = [2000] #mm/min head travel speed
-shiftX = [10, 50] # amount to shift part from printer origin in X
-shiftY = [10, 35, 60] # amount to shift part from printer origin in Y
+shiftX = [10]#, 50] # amount to shift part from printer origin in X
+shiftY = [10]#, 35, 60] # amount to shift part from printer origin in Y
 firstLayerShiftZ = 0 #correct for bed leveling
-numLayers = [8] #number of layers to make
+#numLayers = [8] #number of layers to make
 pattern = None
 # pattern = lg.LineGroup()
 # pattern.addLinesFromCoordinateList([[0,0],[2,2],[4,0]])
@@ -49,10 +49,13 @@ Layer Parameters
 infillAngleDegrees = [0, -45, 90, 45, 45, 90, -45] #degrees infill angle 90 is in Y direction 0 is in X direction
 pathWidth = [0.5] #mm distance between centerline of paths
 layerHeight = [0.4] #mm height per layer
+bounds = mesh.bounds[:,2:]
+numLayers = [int((bounds[1]//layerHeight[0])[0])]
+print('NumLayers: ', numLayers)
 infillShiftX = [0]
 infillShiftY = [0]
 #flipLayer = [0] No longer implimented
-numShells = [13,1,1,0,0,1,1] # the number of shells max is 13 if 0.4999 path width is used
+numShells = [0]#,1,1,0,0,1,1] # the number of shells max is 13 if 0.4999 path width is used
 trimAdjust = [2*c.EPSILON]
 
 """
