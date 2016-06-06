@@ -50,12 +50,12 @@ infillAngleDegrees = [0, -45, 90, 45, 45, 90, -45] #degrees infill angle 90 is i
 pathWidth = [0.5] #mm distance between centerline of paths
 layerHeight = [0.4] #mm height per layer
 bounds = mesh.bounds[:,2:]
-numLayers = [int((bounds[1]//layerHeight[0])[0])]
+numLayers = [10]#[int((bounds[1]//layerHeight[0])[0])]
 print('NumLayers: ', numLayers)
 infillShiftX = [0]
 infillShiftY = [0]
 #flipLayer = [0] No longer implimented
-numShells = [0]#,1,1,0,0,1,1] # the number of shells max is 13 if 0.4999 path width is used
+numShells = [1]#3,1,1,0,0,1,1] # the number of shells max is 13 if 0.4999 path width is used
 trimAdjust = [2*c.EPSILON]
 
 """
@@ -121,7 +121,7 @@ def run():
     startTime = time.time()
     print('\nGenerating code, please wait...')
     
-    fig = fg.Figura(outline)
+    fig = fg.Figura()
     
     with open(outputSubDirectory+'\\'+outputFileName, 'w') as f:      
         for string in fig.masterGcode_gen():
@@ -132,23 +132,23 @@ def run():
     print('Done writting: ' + outputFileName + '\n')
     print('{:.2f} total time'.format(endTime - startTime))
     
-    if c.LOG_LEVEL < c.logging.WARN:
-        with open(outputSubDirectory+'\\'+outputFileName, 'r') as test,\
-             open(outputSubDirectory+'\\SAVE_master.gcode') as master:
-            testLines = test.readlines()
-            masterLines = master.readlines()
-            i = 0
-            numDiffs = 0
-            for t,m in zip(testLines, masterLines):
-                i += 1
-                if t != m:
-                    numDiffs += 1
-                    if i%10**round(np.log10(i*2)-1)<1:
-                        print('Diff at line: ', i)
-                        print('Test: ' + t)
-                        print('Master: ' + m)
-                        print('---------------------------\n')
-        print('\nTotal number of differences: ', numDiffs)
+#    if c.LOG_LEVEL < c.logging.WARN:
+#        with open(outputSubDirectory+'\\'+outputFileName, 'r') as test,\
+#             open(outputSubDirectory+'\\SAVE_master.gcode') as master:
+#            testLines = test.readlines()
+#            masterLines = master.readlines()
+#            i = 0
+#            numDiffs = 0
+#            for t,m in zip(testLines, masterLines):
+#                i += 1
+#                if t != m:
+#                    numDiffs += 1
+#                    if i%10**round(np.log10(i*2)-1)<1:
+#                        print('Diff at line: ', i)
+#                        print('Test: ' + t)
+#                        print('Master: ' + m)
+#                        print('---------------------------\n')
+#        print('\nTotal number of differences: ', numDiffs)
     
  
                           

@@ -31,6 +31,7 @@ from collections import namedtuple
 import sys
 import trimesh
 from stl import mesh
+from shapely.geometry.polygon import LinearRing
 
 
 p1 = p.Point(2.073, 0.0806)
@@ -64,7 +65,9 @@ lines = [l.Line(points[i], points[i+1]) for i in range(len(points)-1)]
 
 mesh1 = trimesh.load_mesh('Arch.stl')
 print(mesh1.area)
-sec = mesh1.section(plane_origin=[0,0,0.4],plane_normal=[0,0,1])
+sec = mesh1.section(plane_origin=[0,0,0.4*4],plane_normal=[0,0,1])
+
+db = ds.regularDogBone()
 
 shape = s.Shape()
 for loop in sec.discrete:

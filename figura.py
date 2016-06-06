@@ -31,12 +31,11 @@ import InFill as InF
 import LineGroup as lg
 import constants as c
 from Shape import Shape
-import trimesh
+from shapely.geometry.polygon import LinearRing
 
 class Figura:  
     
-    def __init__(self, shape):
-        self.shape = shape
+    def __init__(self):
 #        startTime = time.time()
 #        layer = self.organizedLayer(inShapes)
 #        layer = layer.translate(0,0, pr.firstLayerShiftZ)
@@ -92,7 +91,8 @@ class Figura:
         layerParam_Gen = pr.layerParameters()
         currHeight = pr.firstLayerShiftZ
         
-        for _ in range(partParams.numLayers):
+        for lay in range(partParams.numLayers):
+            print('\nLayer: ', lay)
             """ Iterate through for the correct number of layers. """
             layerParam = next(layerParam_Gen)
             
@@ -100,8 +100,10 @@ class Figura:
 
 #            if layerParam not in self.layers:
             sec = pr.mesh.section(plane_origin=[0,0,currHeight],plane_normal=[0,0,1])#self.shape
-            currOutline = Shape()
+#            currOutline = Shape()
             for outline in sec.discrete:
+                lr = LinearRing(outline)
+                
                 currOutline.addLinesFromPoints([p.Point(*vec[:2]) for vec in outline])
 #            currOutline = currOutline.translate(0,0,-currHeight)
 #            for line in currOutline:
@@ -118,11 +120,11 @@ class Figura:
             want to fudge the trimShape outward just a little so that we end
             up with the correct lines.
             """
-            trimShape = currOutline
-#            if layerParam.numShells == 0:
-#                trimShape = currOutline.offset(layerParam.trimAdjust, c.OUTSIDE)
-#            else:
-#                trimShape = filledList[-1].offset(layerParam.pathWidth-layerParam.trimAdjust, c.INSIDE)
+#            trimShape = currOutline
+            if layerParam.numShells == 0:
+                trimShape = currOutline.offset(layerParam.trimAdjust, c.OUTSIDE)
+            else:
+                trimShape = filledList[-1].offset(layerParam.pathWidth-layerParam.trimAdjust, c.INSIDE)
             infill = InF.InFill(trimShape,
                                 layerParam.pathWidth, layerParam.infillAngle,
                                 shiftX=layerParam.infillShiftX, shiftY=layerParam.infillShiftY,

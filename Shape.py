@@ -15,6 +15,7 @@ import constants as c
 from functools import wraps
 import numpy as np
 import Point as p
+from shapely.geometry.polygon import LinearRing
 logger = c.logging.getLogger(__name__)
 logger.setLevel(c.LOG_LEVEL)
 
@@ -184,6 +185,9 @@ class Shape(LG):
         newShape = Shape()
         for subShape in self.subShape_gen():
             try:
+#            lr = LinearRing([line.start.normalVector[:3] for line in subShape])
+#            lo = lr.parallel_offset(0.4, 'left')
+#            newShape.addLinesFromCoordinateList(lo.coords)
                 newShape.addLineGroup(self._offset(subShape, distance, desiredSide))
             except Exception as e:
                 logger.info('One or more sub-shapes could not be offset. ' + str(e))
@@ -219,6 +223,9 @@ class Shape(LG):
         ------
         offShape - The offset sub-shape.
         """
+        print('\nsubshape:')
+#        for line in subShape:
+#            print(line)
         points = []
         prevLine = subShape[-1].getOffsetLine(distance, desiredSide)
         for currLine in (line.getOffsetLine(distance, desiredSide)
@@ -262,12 +269,14 @@ class Shape(LG):
 
         tempShape = Shape(splitLines)
         shapeLines = []
-#        print('split Lines shape line 265')
+        print('split Lines shape line 265')
         for line in splitLines:
-#            print(line)
+            print(line)
             """ Check each line to see if its left side is inside the new offset shape. """
-            if(tempShape.isInside(line.getOffsetLine(2*c.EPSILON, c.INSIDE).getMidPoint())):
+            if(tempShape.isInside(line.getOffsetLine(4*c.EPSILON, c.INSIDE).getMidPoint())):
                 shapeLines.append(line)
+#            else:
+#                print('not added\n')
 
         offShape = Shape(shapeLines)
         offShape.finishOutline()
