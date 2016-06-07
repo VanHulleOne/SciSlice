@@ -65,13 +65,14 @@ lines = [l.Line(points[i], points[i+1]) for i in range(len(points)-1)]
 
 mesh1 = trimesh.load_mesh('Arch.stl')
 print(mesh1.area)
-sec = mesh1.section(plane_origin=[0,0,0.4*4],plane_normal=[0,0,1])
-
+sec = mesh1.section(plane_origin=[0,0,2.0],plane_normal=[0,0,1])
+lr0 = LinearRing(sec.discrete[0])
 db = ds.regularDogBone()
 
 shape = s.Shape()
 for loop in sec.discrete:
     shape.addLinesFromPoints([p.Point(vec) for vec in loop])
+
 
 
 #d1 = ds.rect(0,0,10,10)

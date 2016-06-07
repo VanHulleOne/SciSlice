@@ -42,6 +42,7 @@ pattern = None
 # pattern = lg.LineGroup()
 # pattern.addLinesFromCoordinateList([[0,0],[2,2],[4,0]])
 designType = 0
+testSec = None
 
 """
 Layer Parameters
@@ -55,7 +56,7 @@ print('NumLayers: ', numLayers)
 infillShiftX = [0]
 infillShiftY = [0]
 #flipLayer = [0] No longer implimented
-numShells = [1]#3,1,1,0,0,1,1] # the number of shells max is 13 if 0.4999 path width is used
+numShells = [3]#3,1,1,0,0,1,1] # the number of shells max is 13 if 0.4999 path width is used
 trimAdjust = [2*c.EPSILON]
 
 """

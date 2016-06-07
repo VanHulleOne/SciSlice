@@ -100,37 +100,45 @@ class Figura:
 
 #            if layerParam not in self.layers:
             sec = pr.mesh.section(plane_origin=[0,0,currHeight],plane_normal=[0,0,1])#self.shape
+#            if lay == 4:
+#                print('currHeight: ', currHeight)
 #            currOutline = Shape()
+            groupList = []
+            outlineNumber = 0
             for outline in sec.discrete:
-                lr = LinearRing(outline)
-                
-                currOutline.addLinesFromPoints([p.Point(*vec[:2]) for vec in outline])
-#            currOutline = currOutline.translate(0,0,-currHeight)
-#            for line in currOutline:
-#                print(line)
-            
-            filledList = []
-            for shellNumber in range(layerParam.numShells):
-                """ If the layer needs shells create them here. """
-                filledList.append(currOutline)
-                currOutline = currOutline.offset(layerParam.pathWidth, c.INSIDE)
-            """
-            To help with problems that occur when an offset shape has its sides
-            collide or if the infill liens are colinear with the trim lines we
-            want to fudge the trimShape outward just a little so that we end
-            up with the correct lines.
-            """
-#            trimShape = currOutline
-            if layerParam.numShells == 0:
-                trimShape = currOutline.offset(layerParam.trimAdjust, c.OUTSIDE)
-            else:
-                trimShape = filledList[-1].offset(layerParam.pathWidth-layerParam.trimAdjust, c.INSIDE)
-            infill = InF.InFill(trimShape,
-                                layerParam.pathWidth, layerParam.infillAngle,
-                                shiftX=layerParam.infillShiftX, shiftY=layerParam.infillShiftY,
-                                design=pr.pattern, designType=pr.designType)
+#                print('Outline Number: ', outlineNumber)
+                outlineNumber += 1
+                currRing = LinearRing(outline)
+                rings = [currRing]
+
+                for shellNumber in range(layerParam.numShells):
+#                    print('Shell Number', shellNumber)
+#                    print('type: ', type(currRing))
+                    """ If the layer needs shells create them here. """
+                    currOutline = Shape()
+                    currOutline.addLinesFromPoints([p.Point(*vec[:2]) for vec in currRing.coords])
+                    groupList.append(currOutline)
+                    currRing = currRing.parallel_offset(layerParam.pathWidth, 'left', join_style=2)
+                    rings.append(currRing)
+                """
+                To help with problems that occur when an offset shape has its sides
+                collide or if the infill liens are colinear with the trim lines we
+                want to fudge the trimShape outward just a little so that we end
+                up with the correct lines.
+                """
+                if layerParam.numShells == 0:
+                    trimRing = currRing.parallel_offset(layerParam.trimAdjust, 'right', join_style=2)
+                else:
+                    trimRing = rings[-1].parallel_offset(layerParam.pathWidth-layerParam.trimAdjust, 'left', join_style=2)
+                trimShape = Shape()
+                trimShape.addLinesFromPoints([p.Point(*vec[:2]) for vec in trimRing.coords])
+                infill = InF.InFill(trimShape,
+                                    layerParam.pathWidth, layerParam.infillAngle,
+                                    shiftX=layerParam.infillShiftX, shiftY=layerParam.infillShiftY,
+                                    design=pr.pattern, designType=pr.designType)
 #                self.layers[layerParam] = self.organizedLayer(filledList + [infill])
-            ol = self.organizedLayer(filledList + [infill])
+                groupList.append(infill)
+            ol = self.organizedLayer(groupList)
             """ a tuple of the organized LineGroup and the layer parameters. """
             yield (ol.translate(partParams.shiftX,
                                             partParams.shiftY, currHeight), layerParam)
