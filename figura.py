@@ -101,25 +101,26 @@ class Figura:
 #            if layerParam not in self.layers:
             sec = pr.mesh.section(plane_origin=[0,0,currHeight],plane_normal=[0,0,1])#self.shape
 #            if lay == 4:
-#                print('currHeight: ', currHeight)
-#            currOutline = Shape()
+            print('currHeight: ', currHeight)
+            currOutline = Shape()
             groupList = []
             outlineNumber = 0
             for outline in sec.discrete:
-#                print('Outline Number: ', outlineNumber)
+                print('Outline Number: ', outlineNumber)
                 outlineNumber += 1
                 currRing = LinearRing(outline)
-                rings = [currRing]
+                rings = []
 
                 for shellNumber in range(layerParam.numShells):
-#                    print('Shell Number', shellNumber)
-#                    print('type: ', type(currRing))
+                    print('Shell Number', shellNumber)
+                    print('type: ', type(currRing))
                     """ If the layer needs shells create them here. """
+                    rings.append(currRing)
                     currOutline = Shape()
                     currOutline.addLinesFromPoints([p.Point(*vec[:2]) for vec in currRing.coords])
                     groupList.append(currOutline)
                     currRing = currRing.parallel_offset(layerParam.pathWidth, 'left', join_style=2)
-                    rings.append(currRing)
+                    
                 """
                 To help with problems that occur when an offset shape has its sides
                 collide or if the infill liens are colinear with the trim lines we

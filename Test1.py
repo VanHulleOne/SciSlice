@@ -31,7 +31,8 @@ from collections import namedtuple
 import sys
 import trimesh
 from stl import mesh
-from shapely.geometry.polygon import LinearRing
+from shapely.geometry.polygon import LinearRing, Polygon
+from shapely.geometry import MultiPolygon
 
 
 p1 = p.Point(2.073, 0.0806)
@@ -63,9 +64,9 @@ points = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11]
 
 lines = [l.Line(points[i], points[i+1]) for i in range(len(points)-1)]
 
-mesh1 = trimesh.load_mesh('Arch.stl')
+mesh1 = trimesh.load_mesh('Arch2.stl')
 print(mesh1.area)
-sec = mesh1.section(plane_origin=[0,0,2.0],plane_normal=[0,0,1])
+sec = mesh1.section(plane_origin=[0,0,4.0],plane_normal=[0,0,1])
 lr0 = LinearRing(sec.discrete[0])
 db = ds.regularDogBone()
 

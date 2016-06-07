@@ -81,14 +81,14 @@ class InFill(LG):
         else:
             self.design = lg.LineGroup(design)
         
-        print('\nInFill times:')
-        maxLength = max(len(f.__name__) for f in self.operations) + 2 
+#        print('\nInFill times:')
+#        maxLength = max(len(f.__name__) for f in self.operations) + 2 
         for i in range(self.designType, c.TRIMMED_FIELD):
             startTime = time.time()
             self.operations[i]();
-            print((self.operations[i].__name__ +
-                    ''.ljust(maxLength - len(self.operations[i].__name__)) +
-                    '%.2f sec' %(time.time()-startTime)))
+#            print((self.operations[i].__name__ +
+#                    ''.ljust(maxLength - len(self.operations[i].__name__)) +
+#                    '%.2f sec' %(time.time()-startTime)))
         
     def extendDesign(self):
         tempDesign = lg.LineGroup(self.design.lines)
