@@ -32,7 +32,8 @@ import sys
 import trimesh
 from stl import mesh
 from shapely.geometry.polygon import LinearRing, Polygon
-from shapely.geometry import MultiPolygon
+from shapely.geometry import *#MultiPolygon
+import matplotlib.pyplot as plt
 
 
 p1 = p.Point(2.073, 0.0806)
@@ -68,14 +69,76 @@ mesh1 = trimesh.load_mesh('Arch2.stl')
 print(mesh1.area)
 sec = mesh1.section(plane_origin=[0,0,4.0],plane_normal=[0,0,1])
 lr0 = LinearRing(sec.discrete[0])
-db = ds.regularDogBone()
-
-shape = s.Shape()
-for loop in sec.discrete:
-    shape.addLinesFromPoints([p.Point(vec) for vec in loop])
 
 
+pl = [Polygon(i) for i in sec.discrete]
 
+def plotPoly(poly, style='r-'):
+    n = np.array(poly.exterior.coords)
+    plt.plot(n[:,0], n[:,1], style)
+    for inter in poly.interiors:
+        n = np.array(inter.coords)
+        plt.plot(n[:,0], n[:,1])
+
+def multiPlot(mlt):
+    for poly in mlt:
+        plotPoly(poly)
+        
+class PolySide:
+    def __init__(self, poly, isFeature):
+        self.poly = poly
+        self.isFeature = isFeature
+    def contains(self, other):
+        return self.poly.contains(other)
+    def plot(self):
+        n = np.array(self.poly.exterior.coords)
+        plt.plot(n[:,0], n[:,1], 'r-' if self.isFeature else 'b-')
+        
+def IO(polys, index=0, thisPoly=None, polySides=None):
+    if not polys:
+        return polySides
+    if polySides is None:
+        polySides=[]
+    if thisPoly is None:
+        thisPoly = PolySide(polys.pop(0), True)
+        polySides.append(thisPoly)
+    while index < len(polys):
+        if thisPoly.poly.contains(polys[index]):
+            new = PolySide(polys[index], not(thisPoly.isFeature))
+            polySides.append(new)
+            polys.pop(index)
+            IO(polys, index, new, polySides)
+        else:
+            index += 1
+    while polys:
+        IO(polys, polySides=polySides)
+    return polySides
+
+def IO2(polies):
+    polySides = []
+    
+    def io(thisPoly, index=0):
+        while index < len(polies):
+            if thisPoly.contains(polies[index]):
+                new = PolySide(polies[index], not(thisPoly.isFeature))
+                polySides.append(new)
+                polies.pop(index)
+                io(new, index)
+            else:
+                index += 1
+    while polies:
+        first = PolySide(polies.pop(0), True)
+        polySides.append(first)
+        io(first)
+    return polySides
+
+def offSetIn(poly, dist):
+    larger = poly.buffer(1)
+    diff = larger.difference(poly)
+    buff = diff.buffer(dist)
+    return Polygon(buff.interiors[0])
+
+      
 #d1 = ds.rect(0,0,10,10)
 #sub1 = s.Shape()
 #sub1.addLinesFromCoordinateList([[5,1],[4,5],[5,9],[6,5],[5,1]])
