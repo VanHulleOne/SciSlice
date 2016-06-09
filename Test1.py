@@ -34,6 +34,7 @@ from stl import mesh
 from shapely.geometry.polygon import LinearRing, Polygon
 from shapely.geometry import *#MultiPolygon
 import matplotlib.pyplot as plt
+from shapely.ops import cascaded_union
 
 
 p1 = p.Point(2.073, 0.0806)
@@ -65,12 +66,13 @@ points = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11]
 
 lines = [l.Line(points[i], points[i+1]) for i in range(len(points)-1)]
 
-mesh1 = trimesh.load_mesh('Arch2.stl')
+mesh1 = trimesh.load_mesh('Arch3.stl')
 print(mesh1.area)
 sec = mesh1.section(plane_origin=[0,0,4.0],plane_normal=[0,0,1])
 lr0 = LinearRing(sec.discrete[0])
 
-
+colors = [i + '-' for i in 'bgrcmyk']
+colorCycle = itertools.cycle(colors)
 pl = [Polygon(i) for i in sec.discrete]
 
 def plotPoly(poly, style='r-'):
@@ -78,67 +80,82 @@ def plotPoly(poly, style='r-'):
     plt.plot(n[:,0], n[:,1], style)
     for inter in poly.interiors:
         n = np.array(inter.coords)
-        plt.plot(n[:,0], n[:,1])
+        plt.plot(n[:,0], n[:,1], style)
 
 def multiPlot(mlt):
+    style = next(colorCycle)
     for poly in mlt:
-        plotPoly(poly)
+        try:
+            plotPoly(poly, style)
+        except Exception:
+            for pol in poly:
+                plotPoly(pol, style)
         
 class PolySide:
-    def __init__(self, poly, isFeature):
+    def __init__(self, poly, level):
         self.poly = poly
-        self.isFeature = isFeature
+        self.level = level
+        self.isFeature = not level%2
     def contains(self, other):
         return self.poly.contains(other)
     def plot(self):
         n = np.array(self.poly.exterior.coords)
         plt.plot(n[:,0], n[:,1], 'r-' if self.isFeature else 'b-')
+
+    def shell(self, dist):
+        if not self.isFeature:
+            offPoly = self.poly.buffer(dist)
+            return PolySide(offPoly, self.level)
+        try:
+            return self.offsetIn(self, dist)
+        except Exception:
+            return None
         
-def IO(polys, index=0, thisPoly=None, polySides=None):
-    if not polys:
-        return polySides
-    if polySides is None:
-        polySides=[]
-    if thisPoly is None:
-        thisPoly = PolySide(polys.pop(0), True)
-        polySides.append(thisPoly)
-    while index < len(polys):
-        if thisPoly.poly.contains(polys[index]):
-            new = PolySide(polys[index], not(thisPoly.isFeature))
-            polySides.append(new)
-            polys.pop(index)
-            IO(polys, index, new, polySides)
+    def offsetIn(self, polySide, dist):
+        buffPoly = polySide.poly.exterior.buffer(dist)
+        if len(buffPoly.interiors) > 1:
+            inPoly = cascaded_union([Polygon(i) for i in buffPoly.interiors])            
         else:
-            index += 1
-    while polys:
-        IO(polys, polySides=polySides)
-    return polySides
+            inPoly = Polygon(buffPoly.interiors[0])
+        return PolySide(inPoly, self.level)
 
 def IO2(polies):
     polySides = []
-    
+    polies = sorted(polies, key = lambda x: x.area, reverse=True)
     def io(thisPoly, index=0):
         while index < len(polies):
             if thisPoly.contains(polies[index]):
-                new = PolySide(polies[index], not(thisPoly.isFeature))
+                new = PolySide(polies[index], thisPoly.level+1)
                 polySides.append(new)
                 polies.pop(index)
                 io(new, index)
             else:
                 index += 1
     while polies:
-        first = PolySide(polies.pop(0), True)
+        first = PolySide(polies.pop(0), 0)
         polySides.append(first)
         io(first)
     return polySides
 
-def offSetIn(poly, dist):
-    larger = poly.buffer(1)
-    diff = larger.difference(poly)
-    buff = diff.buffer(dist)
-    return Polygon(buff.interiors[0])
+def re_union(polies):
+    final = polies[0].poly
+    for ps in polies[1:]:
+        if ps is not None:
+            if ps.isFeature:
+                final = final.union(ps.poly)
+            else:
+                final = final.difference(ps.poly)
+    return final
 
-      
+def shellRun():
+    io = IO2(pl)
+    step = 0.25
+    for i in range(1, 20):
+        print(i*step)
+        yield re_union([j.shell(step*i) for j in io])
+
+sr = shellRun()
+   
 #d1 = ds.rect(0,0,10,10)
 #sub1 = s.Shape()
 #sub1.addLinesFromCoordinateList([[5,1],[4,5],[5,9],[6,5],[5,1]])
