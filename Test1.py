@@ -35,6 +35,7 @@ from shapely.geometry.polygon import LinearRing, Polygon
 from shapely.geometry import *#MultiPolygon
 import matplotlib.pyplot as plt
 from shapely.ops import cascaded_union
+from matplotlib import animation
 
 
 p1 = p.Point(2.073, 0.0806)
@@ -68,12 +69,12 @@ lines = [l.Line(points[i], points[i+1]) for i in range(len(points)-1)]
 
 mesh1 = trimesh.load_mesh('Arch3.stl')
 print(mesh1.area)
-sec = mesh1.section(plane_origin=[0,0,4.0],plane_normal=[0,0,1])
+sec = mesh1.section(plane_origin=[0,0,0],plane_normal=[0,0,1])
 lr0 = LinearRing(sec.discrete[0])
 
 colors = [i + '-' for i in 'bgrcmyk']
 colorCycle = itertools.cycle(colors)
-pl = [Polygon(i) for i in sec.discrete]
+po = [Polygon(i) for i in sec.discrete]
 
 def plotPoly(poly, style='r-'):
     n = np.array(poly.exterior.coords)
@@ -84,12 +85,15 @@ def plotPoly(poly, style='r-'):
 
 def multiPlot(mlt):
     style = next(colorCycle)
-    for poly in mlt:
-        try:
-            plotPoly(poly, style)
-        except Exception:
-            for pol in poly:
-                plotPoly(pol, style)
+    try:
+        for poly in mlt:
+            try:
+                plotPoly(poly, style)
+            except Exception:
+                for pol in poly: 
+                    plotPoly(pol, style)
+    except Exception:
+        plotPoly(mlt, style)
         
 class PolySide:
     def __init__(self, poly, level):
@@ -138,24 +142,64 @@ def IO2(polies):
     return polySides
 
 def re_union(polies):
-    final = polies[0].poly
-    for ps in polies[1:]:
-        if ps is not None:
-            if ps.isFeature:
-                final = final.union(ps.poly)
-            else:
-                final = final.difference(ps.poly)
+    final = None#polies[0].poly
+    for ps in polies:
+        if final is None:
+            final = ps.poly
+        elif ps.isFeature:
+            final = final.union(ps.poly)
+        else:
+            final = final.difference(ps.poly)
     return final
 
-def shellRun():
-    io = IO2(pl)
+def shellRun(outerShell):
+    io = IO2(outerShell)
     step = 0.25
-    for i in range(1, 20):
-        print(i*step)
-        yield re_union([j.shell(step*i) for j in io])
+    for i in range(1, 25):
+#        print(i*step)
+        yield re_union(filter(None, (j.shell(step*i) for j in io)))
 
-sr = shellRun()
-   
+fig = plt.figure()
+ax = plt.axes(xlim=(-1,100), ylim=(-1,25))
+lines = [ax.plot([], [], lw=1)[0] for _ in range(100)]
+
+def layer(zHeight):
+    step = 0.2
+    print('Z height++: ', zHeight*step)
+    sec = mesh1.section(plane_origin=[0,0,zHeight*step],plane_normal=[0,0,1])
+    pl = [Polygon(i) for i in sec.discrete]
+    xy = []
+    for sr in shellRun(pl):        
+        try:
+            for poly in sr:
+                xy.append(np.array(poly.exterior.coords))
+        except Exception:
+            print('No Exterior') 
+        try:
+            for inner in poly.interiors:
+                xy.append(np.array(inner.coords))
+        except Exception:
+            print('No interior')
+           
+    print('length: ', len(xy))
+    for i in range(100):
+        if i < len(xy):
+            lines[i].set_data(xy[i][:,0], xy[i][:,1])
+        else:
+            lines[i].set_data([],[])
+    return lines
+
+
+
+def init():
+    for line in lines:
+        line.set_data([],[])
+    return lines
+    
+    
+
+ani = animation.FuncAnimation(fig, layer, init_func=init, frames = 1, blit=True)
+plt.show()
 #d1 = ds.rect(0,0,10,10)
 #sub1 = s.Shape()
 #sub1.addLinesFromCoordinateList([[5,1],[4,5],[5,9],[6,5],[5,1]])
