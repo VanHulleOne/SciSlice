@@ -69,7 +69,7 @@ lines = [l.Line(points[i], points[i+1]) for i in range(len(points)-1)]
 
 mesh1 = trimesh.load_mesh('Arch3.stl')
 print(mesh1.area)
-sec = mesh1.section(plane_origin=[0,0,0],plane_normal=[0,0,1])
+sec = mesh1.section(plane_origin=[0,0,9],plane_normal=[0,0,1])
 lr0 = LinearRing(sec.discrete[0])
 
 colors = [i + '-' for i in 'bgrcmyk']
@@ -83,8 +83,9 @@ def plotPoly(poly, style='r-'):
         n = np.array(inter.coords)
         plt.plot(n[:,0], n[:,1], style)
 
-def multiPlot(mlt):
-    style = next(colorCycle)
+def multiPlot(mlt, style=None):
+    if style is None:
+        style = next(colorCycle)
     try:
         for poly in mlt:
             try:
@@ -155,33 +156,45 @@ def re_union(polies):
 def shellRun(outerShell):
     io = IO2(outerShell)
     step = 0.25
-    for i in range(1, 25):
-#        print(i*step)
-        yield re_union(filter(None, (j.shell(step*i) for j in io)))
+    run = True
+    i = 0
+    while run:
+        run = re_union(filter(None, (j.shell(step*i) for j in io)))
+        yield run
+        i += 1
 
 fig = plt.figure()
 ax = plt.axes(xlim=(-1,100), ylim=(-1,25))
 lines = [ax.plot([], [], lw=1)[0] for _ in range(100)]
 
 def layer(zHeight):
+#    zHeight = 9/0.2
     step = 0.2
     print('Z height++: ', zHeight*step)
     sec = mesh1.section(plane_origin=[0,0,zHeight*step],plane_normal=[0,0,1])
     pl = [Polygon(i) for i in sec.discrete]
     xy = []
-    for sr in shellRun(pl):        
+    for multi in shellRun(pl):        
         try:
-            for poly in sr:
+            for poly in multi:
                 xy.append(np.array(poly.exterior.coords))
+                try:
+                    for inner in poly.interiors:
+                        xy.append(np.array(inner.coords))
+                except Exception:
+                    print('No interiors')
         except Exception:
-            print('No Exterior') 
-        try:
-            for inner in poly.interiors:
-                xy.append(np.array(inner.coords))
-        except Exception:
-            print('No interior')
+            print('Not a multi')
+            try:
+                xy.append(np.array(multi.exterior.coords))
+                for inner in multi.interiors:
+                    xy.append(np.array(inner.coords))
+                print('Just a polygon')
+            except Exception:
+                print('double fail')
+            
            
-    print('length: ', len(xy))
+#    print('length: ', len(xy))
     for i in range(100):
         if i < len(xy):
             lines[i].set_data(xy[i][:,0], xy[i][:,1])
@@ -198,7 +211,7 @@ def init():
     
     
 
-ani = animation.FuncAnimation(fig, layer, init_func=init, frames = 1, blit=True)
+ani = animation.FuncAnimation(fig, layer, init_func=init, frames = 350, blit=True, interval=0)
 plt.show()
 #d1 = ds.rect(0,0,10,10)
 #sub1 = s.Shape()
