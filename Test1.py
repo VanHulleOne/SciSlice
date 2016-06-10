@@ -69,7 +69,7 @@ lines = [l.Line(points[i], points[i+1]) for i in range(len(points)-1)]
 
 mesh1 = trimesh.load_mesh('Arch3.stl')
 print(mesh1.area)
-sec = mesh1.section(plane_origin=[0,0,9],plane_normal=[0,0,1])
+sec = mesh1.section(plane_origin=[0,0,37],plane_normal=[0,0,1])
 lr0 = LinearRing(sec.discrete[0])
 
 colors = [i + '-' for i in 'bgrcmyk']
@@ -149,18 +149,16 @@ hs = []
 fs = []
 #features = []
 def re_union(polies):
-    features = []
-    holes = []
+    final = None
     for ps in polies:
-        if ps.isFeature:
-            features.append(ps.poly)
+        if final is None:
+            if ps.isFeature:
+                final = ps.poly
+        elif ps.isFeature:
+            final = final.union(ps.poly)
         else:
-            holes.append(ps.poly)
-    feature = cascaded_union(features)
-    hole = cascaded_union(holes)
-    hs.append(hole)
-    fs.append(feature)
-    return feature.difference(hole)
+            final = final.difference(ps.poly)
+    return final # feature.difference(hole)
 
 def shellRun(outerShell):
     io = IO2(outerShell)
@@ -174,10 +172,10 @@ def shellRun(outerShell):
 
 fig = plt.figure()
 ax = plt.axes(xlim=(-1,100), ylim=(-1,25))
-lines = [ax.plot([], [], lw=1)[0] for _ in range(100)]
+lines = [ax.plot([], [], lw=1)[0] for _ in range(150)]
 
 def layer(zHeight):
-#    zHeight = 9/0.2
+#    zHeight = 37/0.2
     step = 0.2
     print('Z height++: ', zHeight*step)
     sec = mesh1.section(plane_origin=[0,0,zHeight*step],plane_normal=[0,0,1])
@@ -201,10 +199,8 @@ def layer(zHeight):
                 print('Just a polygon')
             except Exception:
                 print('double fail')
-            
-           
-#    print('length: ', len(xy))
-    for i in range(100):
+
+    for i in range(150):
         if i < len(xy):
             lines[i].set_data(xy[i][:,0], xy[i][:,1])
         else:
@@ -220,8 +216,8 @@ def init():
     
     
 
-#ani = animation.FuncAnimation(fig, layer, init_func=init, frames = 350, blit=True, interval=0)
-#plt.show()
+ani = animation.FuncAnimation(fig, layer, init_func=init, frames = 350, blit=True, interval=0)
+plt.show()
 #d1 = ds.rect(0,0,10,10)
 #sub1 = s.Shape()
 #sub1.addLinesFromCoordinateList([[5,1],[4,5],[5,9],[6,5],[5,1]])
