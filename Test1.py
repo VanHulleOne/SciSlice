@@ -108,6 +108,10 @@ class PolySide:
         plt.plot(n[:,0], n[:,1], 'r-' if self.isFeature else 'b-')
 
     def shell(self, dist):
+        if dist == 0:
+            return PolySide(self.poly, self.level)
+        if dist < 0:
+            raise Exception('Use Brim')
         if not self.isFeature:
             offPoly = self.poly.buffer(dist)
             return PolySide(offPoly, self.level)
@@ -141,23 +145,28 @@ def IO2(polies):
         polySides.append(first)
         io(first)
     return polySides
-
+hs = []
+fs = []
+#features = []
 def re_union(polies):
-    final = None#polies[0].poly
+    features = []
+    holes = []
     for ps in polies:
-        if final is None:
-            final = ps.poly
-        elif ps.isFeature:
-            final = final.union(ps.poly)
+        if ps.isFeature:
+            features.append(ps.poly)
         else:
-            final = final.difference(ps.poly)
-    return final
+            holes.append(ps.poly)
+    feature = cascaded_union(features)
+    hole = cascaded_union(holes)
+    hs.append(hole)
+    fs.append(feature)
+    return feature.difference(hole)
 
 def shellRun(outerShell):
     io = IO2(outerShell)
     step = 0.25
     run = True
-    i = 0
+    i = 1
     while run:
         run = re_union(filter(None, (j.shell(step*i) for j in io)))
         yield run
@@ -211,8 +220,8 @@ def init():
     
     
 
-ani = animation.FuncAnimation(fig, layer, init_func=init, frames = 350, blit=True, interval=0)
-plt.show()
+#ani = animation.FuncAnimation(fig, layer, init_func=init, frames = 350, blit=True, interval=0)
+#plt.show()
 #d1 = ds.rect(0,0,10,10)
 #sub1 = s.Shape()
 #sub1.addLinesFromCoordinateList([[5,1],[4,5],[5,9],[6,5],[5,1]])
