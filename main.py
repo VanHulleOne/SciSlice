@@ -5,6 +5,7 @@ Created on Thu Jun  9 13:12:35 2016
 """
 
 import figura as fg
+from gcode import Gcode
 import time
 from parameters import Parameters
 import json
@@ -33,7 +34,7 @@ class Main:
             break
         print("step 1")
         self.pr = Parameters(self.main_data)
-        self.gc = gcode.Gcode(self.pr)
+        self.gc = Gcode(self.pr)
     
     def run(self):
         print("step 3")
