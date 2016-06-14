@@ -37,7 +37,7 @@ class Gcode:
         tempString += 'G00 Z{:.3f} F{:.0f}\n'.format(currentPoint.z+self.pr.Z_CLEARANCE, self.pr.RAPID)
         return tempString
         
-    def approachLayer(lastE, startPoint):
+    def approachLayer(self, lastE, startPoint):
         tempString = 'G1 Z{:.3f} F{:.0f} E{:.3f}\n'.format(startPoint.z+self.pr.Z_CLEARANCE/2.0,
                         self.pr.RAPID, lastE-self.pr.TRAVERSE_RETRACT*0.75)
         tempString += 'G1 Z{:.3f} F{:.0f} E{:.3f}\n'.format(startPoint.z,
