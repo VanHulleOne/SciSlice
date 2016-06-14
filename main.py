@@ -32,12 +32,10 @@ class Main:
                     option *= number
                 self.main_data["trimAdjust"][0] = option
             break
-        print("step 1")
         self.pr = Parameters(self.main_data)
         self.gc = Gcode(self.pr)
     
     def run(self):
-        print("step 3")
         startTime = time.time()
         print('\nGenerating code, please wait...')
         

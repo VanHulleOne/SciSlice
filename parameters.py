@@ -77,7 +77,6 @@ class Parameters:
     _layerParameters = None
     
     def __init__(self, main_data): 
-        print("step 2")
         for key in main_data:
             self.param_data[key] = main_data[key]          
         for key in self.param_data:
@@ -103,8 +102,6 @@ class Parameters:
         self.everyPartsParameters = self.zipVariables_gen(self.PartParams(
                               self.solidityRatio, self.printSpeed, self.shiftX, self.shiftY,
                               self.numLayers))                        
-        for key in main_data:
-            print(key + "  &&&  " + str(main_data[key]))
         
     def zipVariables_gen(self, inputLists, repeat=False):
         if iter(inputLists) is iter(inputLists):

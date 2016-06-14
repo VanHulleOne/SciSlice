@@ -155,9 +155,7 @@ def save():
     global text_variable    #dictionary of StringVar with current values from user
     global filename         #string of the name to save the file as
     data = {}               #dictionary to put String value of StringVar values in
-    print("GUI step 0.2")
     filename = filedialog.asksaveasfilename()   #creates window to get filename
-    print("GUI step 0.3")
     filename = filename + ".json"               #adds .json to name
     to_string = ["outline", "start_Gcode_FileName", "end_Gcode_FileName"]      #variables with type String                
     to_int = ["designType", "firstLayerShiftZ"]           #variables with type int
@@ -168,7 +166,6 @@ def save():
     to_float_array = ["solidityRatio", "pathWidth",      #variables with type double that go in an array
                        "layerHeight"]
     to_none = ["pattern"]                                 #variables with type None
-    print("GUI step 0.5")
     for key in text_variable:
         if key in to_string:
             data[key] = text_variable[key].get()
@@ -327,13 +324,10 @@ def dogbone():
         
 def convert():
     global filename    #string of name to save file as
-    print("GUI step 0")
     #save file
     save()
     
-    print("GUI step 1")
     conversion = Main(filename)
-    print("GUI step 2")
     conversion.run()
     
     
