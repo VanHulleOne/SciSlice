@@ -4,6 +4,11 @@ Created on Sat May 28 16:39:58 2016
 @author: Alex Diebold
 """
 
+import matplotlib                   #for 3D model
+matplotlib.use("TkAgg")             #backend of matplotlib, used for putting in GUI
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
+from matplotlib.figure import Figure
+
 from tkinter import *               #GUI module
 from tkinter import ttk             #for styling purposing
 from tkinter import filedialog      #window for saving and uploading files
@@ -15,15 +20,16 @@ class GUI(Tk):
     def __init__(self, *args, **kwargs):
         Tk.__init__(self, *args, **kwargs)
         
+        #set icon
+        Tk.iconbitmap(self, "UW_Madison_icon.ico")
+        #set window title
+        Tk.title(self, "3D Printer Parameter Setter")
+        #format window size -- width=500, height=475, 100px from left of screen, 100px from top of screen
+        #Tk.geometry(self, "500x475+100+100")
         
         container = Frame(self)
         container.pack(side="top", fill="both", expand=True)
         container.grid(row=0,column=0)
-        
-        #set window title
-        self.title("3D Printer Parameter Setter")
-        #format window size -- width=500, height=475, 100px from left of screen, 100px from top of screen
-        #self.geometry("500x475+100+100")
         
         #dictionary of Frames
         self.frames = {}
@@ -363,9 +369,19 @@ class Page_Model(Frame):
         labelExample = Label(self, text="HELLO")
         labelExample.pack()
         
-        self.to_variable()
+        self.to_variables()
         
-    def to_variable(self):
+        f = Figure(figsize=(5,5), dpi=100)
+        a = f.add_subplot(111)
+        a.plot([1,2,3,4,5,6,7,8],[5,6,1,3,8,9,3,5])
+        
+        canvas = FigureCanvasTkAgg(f, self)
+        canvas.show()
+        canvas.get_tk_widget().pack(side=TOP, fill=BOTH, expand=True)
+        
+        
+        
+    def to_variables(self):
         
         buttonVariable = ttk.Button(self, text="Variables", 
                                 command=lambda: self.controller.show_frame(Page_Variables))
