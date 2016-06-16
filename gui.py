@@ -5,7 +5,14 @@ Created on Sat May 28 16:39:58 2016
 """
 
 import matplotlib                   #for 3D model
-matplotlib.use("TkAgg")             #backend of matplotlib, used for putting in GUI
+
+#if using the Spyder console, matplotlib is already imported and the backend cannot be changed with .use() as is needed
+#to change the backend to TkAgg, go to Tools > Preferences > Console > External modules > Matplotlib GUI backend
+#be sure to mind the caps in TkAgg
+
+backend = matplotlib.get_backend()
+if backend != "TkAgg" and backend != "module://ipykernel.pylab.backend_inline":
+    matplotlib.use("TkAgg")             #backend of matplotlib, used for putting in GUI
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
 from matplotlib.figure import Figure
 
@@ -315,7 +322,7 @@ class Page_Variables(Frame):
             self.labels[self.texts[x]].grid(row=x-8,column=0)     #show labels
             self.entries[self.texts[x]].grid(row=x-8,column=1)    #show entries
             
-        for x in range(16, len(labels)):
+        for x in range(16, len(self.labels)):
             self.labels[self.texts[x]].grid_forget()      #hide labels
             self.entries[self.texts[x]].grid_forget()     #hide entries
             
@@ -337,13 +344,12 @@ class Page_Variables(Frame):
     #change values to dogbone preset    
     def dogbone(self):
         
-        dogbone_data = ["regularDogBone", "1.09", "2000", "10, 50",                #part parameters
+        dogbone_data = ["regularDogBone", "1.09", "2000", "10, 50",                     #part parameters
                 "10, 35, 60", "0", "8",                                                 #part parameters
                 "None", "0",                                                            #part parameters
                 "0, -45, 90, 45, 45, 90, -45", "0.5", "0.4",                            #layer parameters
                 "0", "0", "13,1,1,0,0,1,1",  "2*c.EPSILON",                             #layer parameters
-                "'ZigZag.gcode'", "'Start_Gcodee_Taz5.txt'", "'End_Gcode_Taz5.txt'",    #file parameters
-                "currPath + '\\Gcode'", "currPath + '\\Start_End_Gcode'"]               #file parameters
+                "Start_Gcode_Taz5.txt", "End_Gcode_Taz5.txt"]                      #file parameters
                 
         for x in range(0,len(self.texts)):
             self.text_variable[self.texts[x]].set(dogbone_data[x])        #change values to dogbone values
@@ -376,8 +382,12 @@ class Page_Model(Frame):
         a.plot([1,2,3,4,5,6,7,8],[5,6,1,3,8,9,3,5])
         
         canvas = FigureCanvasTkAgg(f, self)
-        canvas.show()
-        canvas.get_tk_widget().pack(side=TOP, fill=BOTH, expand=True)
+        #canvas.show()
+        #canvas.get_tk_widget().pack(side=TOP, fill=BOTH, expand=True)
+        
+        toolbar = NavigationToolbar2TkAgg(canvas, self)
+        toolbar.update()
+        #canvas._tkcanvas.pack()
         
         
         
