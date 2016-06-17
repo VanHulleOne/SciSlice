@@ -383,11 +383,11 @@ class Page_Model(Frame):
         canvasExample.create_rectangle(50, 20, 150, 80, fill="#476042")
         canvasExample.create_line(0, 0, 50, 20, width=3)
         
-        
+        """
         f = Figure(figsize=(5,5), dpi=100)
         a = f.add_subplot(111)
         a.plot([1,2,3,4,5,6,7,8],[5,6,1,3,8,9,3,5])
-        """
+        
         canvas = FigureCanvasTkAgg(f, self)
         canvas.show()
         canvas.get_tk_widget().pack(side=TOP, fill=BOTH, expand=True)

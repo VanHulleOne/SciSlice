@@ -49,6 +49,7 @@ class Figura:
         self.layers = {}
         """ The dictionary which stores the computed layers. The key is created in
         layer_gen(). """
+        self.data_points =  open("data_points.txt", 'a')
         
     def masterGcode_gen(self):
         yield self.gc.startGcode()
@@ -231,6 +232,15 @@ class Figura:
                         """ A reminder than an else is run if there is no exception. """
                         lastPoint = line.end
                         layer.append(line)
+        #creats text file of all data points
+        data = []
+        for line in layer:
+            temp = []
+            temp.append(str(line.start).replace("X", "").replace("Y", "").replace("Z", "").split(" "))
+            temp.append(str(line.end).replace("X", "").replace("Y", "").replace("Z", "").split(" "))
+            data.append(temp)
+        for entry in data:
+            self.data_points.write(str(entry) + "\n")
         return layer
     
     def __str__(self):
@@ -242,4 +252,7 @@ class Figura:
             tempString += str(layer)
             layerNumber += 1
         return tempString
+        
+    def close_file(self):
+        self.data_points.close()
     

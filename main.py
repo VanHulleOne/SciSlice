@@ -39,12 +39,17 @@ class Main:
         startTime = time.time()
         print('\nGenerating code, please wait...')
         
+        #creates new, blank file for use
+        temp = open("data_points.txt", 'w')
+        temp.close()
+        
         fig = fg.Figura(self.outline_options[self.pr.outline], self.pr, self.gc)
         
         with open(self.pr.outputSubDirectory+'\\'+self.pr.outputFileName, 'w') as f:      
             for string in fig.masterGcode_gen():
                 f.write(string)
         
+        fig.close_file()
         endTime = time.time()
         print('\nCode generated.')
         print('Done writting: ' + self.pr.outputFileName + '\n')
