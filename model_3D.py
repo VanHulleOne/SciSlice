@@ -71,14 +71,17 @@ class Three_D:
         plt.show()
         
 def error_box():
-    top = Toplevel()
-    top.title("Error")
+        
+    popup = Tk()
+    popup.title("Error")
     
-    msg = Message(top, text="Error: End value cannot be less than Start value")
-    msg.pack()
+    msg = Label(popup, text="Error: End value cannot be less than Start value")
+    msg.pack(side="top", fill="x", pady=10)
     
-    buttonDismiss = Button(top, text="Dismiss", command=top.destroy())
-    button.pack()
+    buttonDismiss = Button(popup, text="Dismiss", command = popup.destroy)
+    buttonDismiss.pack()
+    
+    popup.mainloop()
         
 def create_plot(start, end, x, y, z):
     if(end >= start):
@@ -109,8 +112,6 @@ scaleEnd.pack(side=LEFT)
 buttonSubmit = Button(text="Create Graph", command=lambda: create_plot(scaleStart.get(), scaleEnd.get(), x, y, z))
 buttonSubmit.pack()
 
-buttonError = Button(root, text="error", command=lambda: error_box())
-buttonError.pack()
 
 
 
