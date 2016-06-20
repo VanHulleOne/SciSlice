@@ -26,11 +26,30 @@ for x in range(0,len(data)):
     for y in range(0,len(data[x])):
         data[x][y] = float(data[x][y])
 
+x = []
+y = []
+z = []
 for entry in data:
-    x = []
-    y = []
-    z = []
-    print(entry)
+    tempx = []
+    tempy = []
+    tempz = []
+    tempx.append(entry[0])
+    tempx.append(entry[3])
+    tempy.append(entry[1])
+    tempy.append(entry[4])
+    tempz.append(entry[2])
+    tempz.append(entry[5])
+    x.append(tempx)
+    x.append(tempx)
+    y.append(tempy)
+    y.append(tempy)
+    z.append(tempz)
+    z.append(tempz)
+    
+for num in range(0,len(x)):
+    ax.plot_wireframe(x[num], y[num], z[num])
+    
+plt.show()
     #for coord in entry:
         #print(coord)
         #x.append(float(coord[0].replace("[","")))
