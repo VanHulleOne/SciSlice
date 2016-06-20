@@ -45,9 +45,21 @@ for entry in data:
     y.append(tempy)
     z.append(tempz)
     z.append(tempz)
-    
+
+colors = []
+color_num = ['0','2','4','6','8','A','C','E']
+for one in color_num:
+    for two in color_num:
+        for three in color_num:
+            for four in color_num:
+                for five in color_num:
+                    for six in color_num:
+                        curr_color = '#' + one + two + three + four + five + six
+                        colors.append(curr_color)
+                        
 for num in range(0,len(x)):
-    ax.plot_wireframe(x[num], y[num], z[num])
+    num_color = num%len(colors)
+    ax.plot_wireframe(x[num], y[num], z[num], color=colors[num_color])
     
 plt.show()
     #for coord in entry:
