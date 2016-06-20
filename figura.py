@@ -32,6 +32,8 @@ from Shape import Shape
 
 class Figura:  
     
+    data_points =  open("data_points.txt", 'a')
+    
     def __init__(self, shape, param, g_code):
         self.gc = g_code
         self.pr = param
@@ -49,7 +51,6 @@ class Figura:
         self.layers = {}
         """ The dictionary which stores the computed layers. The key is created in
         layer_gen(). """
-        self.data_points =  open("data_points.txt", 'a')
         
     def masterGcode_gen(self):
         yield self.gc.startGcode()

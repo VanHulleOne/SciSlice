@@ -5,17 +5,17 @@ Created on Thu Jun 16 17:57:12 2016
 @author: adiebold
 """
 
+from tkinter import *
+
 from mpl_toolkits.mplot3d import axes3d
 import matplotlib.pyplot as plt
 
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d'
-)
 data = []
+
 with open("data_points.txt", 'r') as f:
     for line in f:
         data.append(line)   
-    
+   
 for x in range(0,len(data)):   
     data[x] = data[x].replace("[", "")
     data[x] = data[x].replace("]", "")
@@ -45,37 +45,82 @@ for entry in data:
     y.append(tempy)
     z.append(tempz)
     z.append(tempz)
+    
+class Three_D:
+    
+    def __init__(self, start, end, x, y, z):
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        
+        
+        colors = []
+        color_num = ['0','2','4','6','8','A','C','E']
+        for one in color_num:
+            for two in color_num:
+                for three in color_num:
+                    for four in color_num:
+                        for five in color_num:
+                            for six in color_num:
+                                curr_color = '#' + one + two + three + four + five + six
+                                colors.append(curr_color)
+            
+        for num in range(start, end):
+            num_color = num%len(colors)
+            ax.plot_wireframe(x[num], y[num], z[num], color=colors[num_color])
+            
+        plt.show()
+        
+def error_box():
+    top = Toplevel()
+    top.title("Error")
+    
+    msg = Message(top, text="Error: End value cannot be less than Start value")
+    msg.pack()
+    
+    buttonDismiss = Button(top, text="Dismiss", command=top.destroy())
+    button.pack()
+        
+def create_plot(start, end, x, y, z):
+    if(end >= start):
+        model = Three_D(start, end, x, y, z)
+    else:
+        error_box()
+        
+    
+root = Tk()
 
-colors = []
-color_num = ['0','2','4','6','8','A','C','E']
-for one in color_num:
-    for two in color_num:
-        for three in color_num:
-            for four in color_num:
-                for five in color_num:
-                    for six in color_num:
-                        curr_color = '#' + one + two + three + four + five + six
-                        colors.append(curr_color)
-                        
-for num in range(0,len(x)):
-    num_color = num%len(colors)
-    ax.plot_wireframe(x[num], y[num], z[num], color=colors[num_color])
-    
-plt.show()
-    #for coord in entry:
-        #print(coord)
-        #x.append(float(coord[0].replace("[","")))
-        #y.append(float(coord[1].replace("[","")))
-        #z.append(float(coord[2].replace("[","")))
-    #for thing in x: 
-        #print(thing)
-    #print(type(entry))
-    
-    #ax.plot_wireframe(x,y,z)
-    
-#plt.show()
+root.title("3D Model")
 
-    
-#plt.plot([1,2,3],[5,7,4])
+labelPoints = Label(root, text="Choose the start and end numbers of the graph")
+labelPoints.pack()
 
-#plt.show()
+labelStart = Label(root, text="Start")
+labelStart.pack(side=LEFT)
+
+scaleStart = Scale(root, from_=0, to=len(x))
+scaleStart.pack(side=LEFT)
+
+labelEnd = Label(root, text="End")
+labelEnd.pack(side=LEFT)
+
+scaleEnd = Scale(root, from_=0, to=len(x))
+scaleEnd.pack(side=LEFT)
+
+buttonSubmit = Button(text="Create Graph", command=lambda: create_plot(scaleStart.get(), scaleEnd.get(), x, y, z))
+buttonSubmit.pack()
+
+buttonError = Button(root, text="error", command=lambda: error_box())
+buttonError.pack()
+
+
+
+
+
+
+
+
+
+
+
+
+root.mainloop()
