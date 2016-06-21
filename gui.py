@@ -142,12 +142,12 @@ class Page_Variables(Frame):
     def set_labels(self):
         
         #create all labels
-        for x in range(0, len(self.texts)):
+        for x in range(len(self.texts)):
             #create label
             self.labels[self.texts[x]] = Label(self, text=self.texts[x])
             
         #show commonly used variables
-        for x in range(0,len(self.common_texts)):
+        for x in range(len(self.common_texts)):
             #use grid() after creating label or dictionary value will be 'NoneType'
             self.labels[self.common_texts[x]].grid(row=x+1,column=0)   
             
@@ -155,17 +155,17 @@ class Page_Variables(Frame):
     def set_entries(self):
         
         #create all StringVars
-        for x in range(0, len(self.texts)):
+        for x in range(len(self.texts)):
             #set textvariable to StringVar with default text as value
             self.text_variable[self.texts[x]] = StringVar(self, value=self.defaults[x])
             
         #create all entries
-        for x in range(0, len(self.texts)):
+        for x in range(len(self.texts)):
             #create entry 
             self.entries[self.texts[x]] = ttk.Entry(self, textvariable=self.text_variable[self.texts[x]])
             
         #show commonly used variables
-        for x in range(0, len(self.common_texts)):
+        for x in range(len(self.common_texts)):
             #use grid() after creating entry or dictionary value will be 'NoneType'
             self.entries[self.common_texts[x]].grid(row=x+1,column=1)
         
@@ -373,7 +373,7 @@ class Page_Variables(Frame):
                 '0', '0', '13,1,1,0,0,1,1',  '2*c.EPSILON',                             #layer parameters
                 'Start_Gcode_Taz5.txt', 'End_Gcode_Taz5.txt']                      #file parameters
                 
-        for x in range(0,len(self.texts)):
+        for x in range(len(self.texts)):
             self.text_variable[self.texts[x]].set(dogbone_data[x])        #change values to dogbone values
     
     #create Gcode file        
