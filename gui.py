@@ -16,6 +16,10 @@ if backend != 'TkAgg' and backend != 'module://ipykernel.pylab.backend_inline':
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
 from matplotlib.figure import Figure
 '''
+from mpl_toolkits.mplot3d import axes3d
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+
 from tkinter import *               #GUI module
 from tkinter import ttk             #for styling purposing
 from tkinter import filedialog      #window for saving and uploading files
@@ -27,16 +31,24 @@ class GUI(Tk):
     def __init__(self, *args, **kwargs):
         Tk.__init__(self, *args, **kwargs)
         
-        #set icon
         Tk.iconbitmap(self, 'UW_Madison_icon.ico')
-        #set window title
         Tk.title(self, '3D Printer Parameter Setter')
         #format window size -- width=500, height=475, 100px from left of screen, 100px from top of screen
-        Tk.geometry(self, '450x475+100+100')
+        #Tk.geometry(self, '450x475+100+100')
         
+        #set up frame
         container = Frame(self)
         container.pack(side='top', fill='both', expand=True)
         container.grid(row=0,column=0)
+        
+        #create menubar
+        menubar = Menu(container)
+        filemenu = Menu(menubar, tearoff=0)
+        filemenu.add_command(label='Save', command=lambda: save())
+        filemenu.add_command(label='Upload', command=lambda: upload())
+        menubar.add_cascade(label='File', menu=filemenu)
+        
+        Tk.config(self, menu=menubar)
         
         #dictionary of Frames
         self.frames = {}
@@ -83,7 +95,7 @@ class Page_Variables(Frame):
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
         self.controller = controller
-
+        
         ########################
         #   class variables    #
         ########################
@@ -141,6 +153,9 @@ class Page_Variables(Frame):
     #initial creation of labels
     def set_labels(self):
         
+        self.labelVariable = Label(self, text='Variable Name', font='-weight bold')
+        self.labelVariable.grid(row=0,column=0)
+        
         #create all labels
         for x in range(len(self.texts)):
             #create label
@@ -154,6 +169,8 @@ class Page_Variables(Frame):
     #initial creation of entries
     def set_entries(self):
         
+        self.labelValue = Label(self, text='Value', font='-weight bold')
+        self.labelValue.grid(row=0,column=1)
         #create all StringVars
         for x in range(len(self.texts)):
             #set textvariable to StringVar with default text as value
@@ -185,7 +202,7 @@ class Page_Variables(Frame):
     def tab_buttons(self):
         
         #label for parameters
-        labelParameters = Label(self,text='Parameters')
+        labelParameters = Label(self,text='Parameters',font='-weight bold')
         labelParameters.grid(row=0,column=2)
         
         #button to display all variables
@@ -207,7 +224,8 @@ class Page_Variables(Frame):
     def presets(self):
         
         #label for presets
-        labelPresets = Label(self,text='Presets').grid(row=0,column=3)
+        labelPresets = Label(self,text='Presets',font='-weight bold')
+        labelPresets.grid(row=0,column=3)
         #button for dogbone
         buttonDogbone = ttk.Button(self,text='Dogbone',command=lambda: self.dogbone())
         buttonDogbone.grid(row=1,column=3)
@@ -223,8 +241,8 @@ class Page_Variables(Frame):
         
         self.set_labels()
         self.set_entries()
-        self.save_option()
-        self.upload_option()
+#        self.save_option()
+#        self.upload_option()
         self.tab_buttons()
         self.presets()
         self.gcode()
@@ -305,8 +323,8 @@ class Page_Variables(Frame):
     def use_all(self):
         
         for x in range(len(self.labels)):
-            self.labels[self.texts[x]].grid(row=x+1,column=0)    
-            self.entries[self.texts[x]].grid(row=x+1,column=1)   
+            self.labels[self.texts[x]].grid(row=x,column=0)    
+            self.entries[self.texts[x]].grid(row=x,column=1)   
         
     def use_common(self):
         
@@ -315,8 +333,8 @@ class Page_Variables(Frame):
             self.entries[text].grid_forget()     
             
         for x in range(len(self.common_texts)):
-            self.labels[self.common_texts[x]].grid(row=x+1,column=0)     
-            self.entries[self.common_texts[x]].grid(row=x+1,column=1)  
+            self.labels[self.common_texts[x]].grid(row=x,column=0)     
+            self.entries[self.common_texts[x]].grid(row=x,column=1)  
         
     #switch to tab with only part parameters
     def use_parts(self):
@@ -387,44 +405,137 @@ class Page_Variables(Frame):
             #convert to Gcode
             conversion = Main(self.filename)
             conversion.run()
-    
-class Page_Model(Frame):
+
+class Page_Model(Frame):    
     
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
         self.controller = controller
         
-        labelExample = Label(self, text='HELLO')
-        labelExample.pack()
+        data = []
+    
+        with open("data_points.txt", 'r') as f:
+            for line in f:
+                data.append(line)   
+           
+        for x in range(0,len(data)):   
+            data[x] = data[x].replace("[", "")
+            data[x] = data[x].replace("]", "")
+            data[x] = data[x].replace("'", "")
+            data[x] = data[x].replace(" ", "")
+            data[x] = data[x].replace("\n", "")
+            data[x] = data[x].split(",")
+            for y in range(0,len(data[x])):
+                data[x][y] = float(data[x][y])
         
-        self.to_variables()
+        self.x = []
+        self.y = []
+        self.z = []
+        for entry in data:
+            tempx = []
+            tempy = []
+            tempz = []
+            tempx.append(entry[0])
+            tempx.append(entry[3])
+            tempy.append(entry[1])
+            tempy.append(entry[4])
+            tempz.append(entry[2])
+            tempz.append(entry[5])
+            self.x.append(tempx)
+            self.x.append(tempx)
+            self.y.append(tempy)
+            self.y.append(tempy)
+            self.z.append(tempz)
+            self.z.append(tempz)        
         
-        canvasExample = Canvas(self, width=200, height=100)
-        canvasExample.pack()      \
+        buttonModel = ttk.Button(self, text='3D Model', 
+                             command=lambda: self.controller.show_frame(Page_Variables))
+        buttonModel.pack()
         
-        canvasExample.create_rectangle(50, 20, 150, 80, fill='#476042')
-        canvasExample.create_line(0, 0, 50, 20, width=3)
+        labelPoints = Label(self, text="Choose the start and end numbers of the graph")
+        labelPoints.pack()
         
-        '''
-        f = Figure(figsize=(5,5), dpi=100)
-        a = f.add_subplot(111)
-        a.plot([1,2,3,4,5,6,7,8],[5,6,1,3,8,9,3,5])
+        labelStart = Label(self, text="Start")
+        labelStart.pack(side=LEFT)
         
-        canvas = FigureCanvasTkAgg(f, self)
-        canvas.show()
-        canvas.get_tk_widget().pack(side=TOP, fill=BOTH, expand=True)
+        scaleStart = Scale(self, from_=0, to=len(self.x), length=500, tickinterval=100)
+        scaleStart.pack(side=LEFT)
         
-        toolbar = NavigationToolbar2TkAgg(canvas, self)
-        toolbar.update()
-        canvas._tkcanvas.pack()
-        '''
+        labelEnd = Label(self, text="End")
+        labelEnd.pack(side=LEFT)
         
+        scaleEnd = Scale(self, from_=0, to=len(self.x), length=500, tickinterval=100)
+        scaleEnd.pack(side=LEFT)
         
-    def to_variables(self):
+        buttonSubmit = Button(self, text="Create Graph", command=lambda: create_plot(scaleStart.get(), scaleEnd.get(), self.x, self.y, self.z))
+        buttonSubmit.pack()
+    
+        #buttonUpdate = Button(text="Update Graph", command=lambda: )
+    
+    def make_graph(start, end, x, y, z):
+        self.fig = plt.figure()
+        self.ax = self.fig.add_subplot(111, projection='3d')
         
-        buttonVariable = ttk.Button(self, text='Variables', 
-                                command=lambda: self.controller.show_frame(Page_Variables))
-        buttonVariable.pack()
+        self.xar = x
+        self.yar = y
+        self.zar = z
+        
+        self.colors = []
+        
+        color_num = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F']
+        color_num2 = ['0','8']
+        for one in color_num:
+            for two in color_num2:
+                for three in color_num2:
+                    for four in color_num2:
+                        for five in color_num2:
+                            for six in color_num:
+                                curr_color = '#' + one + two + three + four + five + six
+                                self.colors.append(curr_color)
+            
+        for num in range(start, end):
+            num_color = num%len(self.colors)
+            self.ax.plot_wireframe(self.xar[num], self.yar[num], self.zar[num], color=self.colors[num_color])
+            
+        plt.show()
+    
+#class Page_Model(Frame):
+#    
+#    def __init__(self, parent, controller):
+#        Frame.__init__(self, parent)
+#        self.controller = controller
+#        
+#        labelExample = Label(self, text='HELLO')
+#        labelExample.pack()
+#        
+#        self.to_variables()
+#        
+#        canvasExample = Canvas(self, width=200, height=100)
+#        canvasExample.pack()      \
+#        
+#        canvasExample.create_rectangle(50, 20, 150, 80, fill='#476042')
+#        canvasExample.create_line(0, 0, 50, 20, width=3)
+#        
+#        '''
+#        f = Figure(figsize=(5,5), dpi=100)
+#        a = f.add_subplot(111)
+#        a.plot([1,2,3,4,5,6,7,8],[5,6,1,3,8,9,3,5])
+#        
+#        canvas = FigureCanvasTkAgg(f, self)
+#        canvas.show()
+#        canvas.get_tk_widget().pack(side=TOP, fill=BOTH, expand=True)
+#        
+#        toolbar = NavigationToolbar2TkAgg(canvas, self)
+#        toolbar.update()
+#        canvas._tkcanvas.pack()
+#        '''
+#        
+#        
+#    def to_variables(self):
+#        
+#        buttonVariable = ttk.Button(self, text='Variables', 
+#                                command=lambda: self.controller.show_frame(Page_Variables))
+#        buttonVariable.pack()
     
 #only works if program is used as the main program, not as a module    
 #if __name__ == '__main__':

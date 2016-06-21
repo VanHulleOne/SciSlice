@@ -6,10 +6,12 @@ Created on Thu Jun 16 17:57:12 2016
 """
 
 from tkinter import *
+from tkinter import ttk
 
 from mpl_toolkits.mplot3d import axes3d
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+
 
 data = []
 
@@ -41,10 +43,7 @@ for entry in data:
     tempz.append(entry[2])
     tempz.append(entry[5])
     x.append(tempx)
-    x.append(tempx)
     y.append(tempy)
-    y.append(tempy)
-    z.append(tempz)
     z.append(tempz)
     
 class Three_D:
@@ -102,11 +101,10 @@ def create_plot(start, end, x, y, z):
         model = Three_D(start, end, x, y, z)
     else:
         error_box()
-        
-    
+
 root = Tk()
 
-root.title("3D Model")
+root.title('3D Model')
 
 labelPoints = Label(root, text="Choose the start and end numbers of the graph")
 labelPoints.pack()
@@ -123,21 +121,9 @@ labelEnd.pack(side=LEFT)
 scaleEnd = Scale(root, from_=0, to=len(x), length=500, tickinterval=100)
 scaleEnd.pack(side=LEFT)
 
-buttonSubmit = Button(text="Create Graph", command=lambda: create_plot(scaleStart.get(), scaleEnd.get(), x, y, z))
+buttonSubmit = Button(root, text="Create Graph", command=lambda: create_plot(scaleStart.get(), scaleEnd.get(), x, y, z))
 buttonSubmit.pack()
 
 #buttonUpdate = Button(text="Update Graph", command=lambda: )
-
-
-
-
-
-
-
-
-
-
-
-
 
 root.mainloop()
