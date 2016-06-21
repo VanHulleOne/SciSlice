@@ -108,6 +108,18 @@ class Page_Variables(Frame):
                  self.INFILLSHIFTX, self.INFILLSHIFTY, self.NUMSHELLS, self.TRIMADJUST,         #layer parameters
                  self.START_GCODE_FILENAME, self.END_GCODE_FILENAME]                      #file parameters
                  
+        #array of part parameters
+        self.part_param = [self.OUTLINE, self.SOLIDITYRATIO, self.PRINTSPEED, self.SHIFTX,           
+                         self.SHIFTY, self.FIRSTLAYERSHIFTZ, self.NUMLAYERS,                      
+                         self.PATTERN, self.DESIGNTYPE]
+                         
+        #array of layer parameters
+        self.layer_param = [self.INFILLANGLEDEGREES, self.PATHWIDTH, self.LAYERHEIGHT,            
+                            self.INFILLSHIFTX, self.INFILLSHIFTY, self.NUMSHELLS, self.TRIMADJUST]
+                            
+        #array of file parameters
+        self.file_param = [self.START_GCODE_FILENAME, self.END_GCODE_FILENAME]
+                 
         #array of Strings of the commonly used variables
         self.common_texts = [self.OUTLINE, self.SOLIDITYRATIO, self.PRINTSPEED, 
                         self.SHIFTX, self.SHIFTY, self.PATTERN, self.NUMSHELLS]
@@ -292,56 +304,64 @@ class Page_Variables(Frame):
     #switch to tab with all parameters    
     def use_all(self):
         
-        for x in range(0, len(self.labels)):
-            self.labels[self.texts[x]].grid(row=x+1,column=0)    #show labels
-            self.entries[self.texts[x]].grid(row=x+1,column=1)   #show entries
+        for x in range(len(self.labels)):
+            self.labels[self.texts[x]].grid(row=x+1,column=0)    
+            self.entries[self.texts[x]].grid(row=x+1,column=1)   
         
     def use_common(self):
         
-        for x in range(0,len(self.texts)):
-            self.labels[self.texts[x]].grid_forget()      #hide labels
-            self.entries[self.texts[x]].grid_forget()     #hide entries
+        for text in self.texts:
+            self.labels[text].grid_forget()      
+            self.entries[text].grid_forget()     
             
-        for x in range(0,len(self.common_texts)):
-            self.labels[self.common_texts[x]].grid(row=x+1,column=0)      #show labels
-            self.entries[self.common_texts[x]].grid(row=x+1,column=1)     #show entries
+        for x in range(len(self.common_texts)):
+            self.labels[self.common_texts[x]].grid(row=x+1,column=0)     
+            self.entries[self.common_texts[x]].grid(row=x+1,column=1)  
         
     #switch to tab with only part parameters
     def use_parts(self):
         
-        for x in range(0,9):
-            self.labels[self.texts[x]].grid(row=x+1,column=0)   #show labels
-            self.entries[self.texts[x]].grid(row=x+1,column=1)  #show entries
+        for x in range(len(self.part_param)):
+            self.labels[self.part_param[x]].grid(row=x+1,column=0)  
+            self.entries[self.part_param[x]].grid(row=x+1,column=1)
             
-        for x in range(9, len(self.texts)):
-            self.labels[self.texts[x]].grid_forget()    #hide labels
-            self.entries[self.texts[x]].grid_forget()   #hide entries
+        for layer_p in self.layer_param:
+            self.labels[layer_p].grid_forget()    
+            self.entries[layer_p].grid_forget()
+            
+        for file_p in self.file_param:
+            self.labels[file_p].grid_forget()    
+            self.entries[file_p].grid_forget()    
       
     #switch to tab with only layer parameters  
     def use_layers(self):
         
-        for x in range(9,16):
-            self.labels[self.texts[x]].grid(row=x-8,column=0)     #show labels
-            self.entries[self.texts[x]].grid(row=x-8,column=1)    #show entries
+        for x in range(len(self.layer_param)):
+            self.labels[self.layer_param[x]].grid(row=x+1,column=0)     #show labels
+            self.entries[self.layer_param[x]].grid(row=x+1,column=1)    #show entries
             
-        for x in range(16, len(self.labels)):
-            self.labels[self.texts[x]].grid_forget()      #hide labels
-            self.entries[self.texts[x]].grid_forget()     #hide entries
+        for file_p in self.file_param:
+            self.labels[file_p].grid_forget()    
+            self.entries[file_p].grid_forget()    
             
-        for x in range(0,9):
-            self.labels[self.texts[x]].grid_forget()      #hide labels
-            self.entries[self.texts[x]].grid_forget()     #hide entries
+        for part_p in self.part_param:
+            self.labels[part_p].grid_forget()    
+            self.entries[part_p].grid_forget()    
       
     #switch to tabe with only file parameters  
     def use_files(self):
             
-        for x in range(16,len(self.labels)):
-            self.labels[self.texts[x]].grid(row=x-15,column=0)     #show labels
-            self.entries[self.texts[x]].grid(row=x-15,column=1)    #show entries
+        for x in range(len(self.file_param)):
+            self.labels[self.file_param[x]].grid(row=x+1,column=0)     #show labels
+            self.entries[self.file_param[x]].grid(row=x+1,column=1)    #show entries
             
-        for x in range(0,16):
-            self.labels[self.texts[x]].grid_forget()      #hide labels
-            self.entries[self.texts[x]].grid_forget()     #hide entries
+        for part_p in self.part_param:
+            self.labels[part_p].grid_forget()    
+            self.entries[part_p].grid_forget()    
+            
+        for layer_p in self.layer_param:
+            self.labels[layer_p].grid_forget()    
+            self.entries[layer_p].grid_forget()
         
     #change values to dogbone preset    
     def dogbone(self):
