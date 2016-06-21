@@ -237,24 +237,25 @@ class Page_Variables(Frame):
                 elif key in to_none:
                     data[key] = None                            #converts value to None
                 elif key in to_string_array:
-                    temp = []                                   #creates empty array
+#                    temp = []                                   #creates empty array
                     value = self.text_variable[key].get()            #sets the value to a variable
                     if " " in value:
                         value = value.replace(" ", ",")                 #replaces spaces with commas
                     if ",," in value:
                         value = value.replace(",,", ",")                #replaces double commas with single commas
-                    temp = value.split(",")                     #creates list split by commas
-                    data[key] = temp                            #saves list
+#                    temp = value.split(",")                     #creates list split by commas
+#                    data[key] = temp                            #saves list
+                    data[key] = value.split(",")
                 elif key in to_int_array:
-                    temp = []
+#                    temp = []
                     value = self.text_variable[key].get()
                     if " " in value:
                         value = value.replace(" ", ",")
                     if ",," in value:
                         value = value.replace(",,", ",")
-                    temp = value.split(",")
-                    temp = [int(i) for i in temp]               #converts values in list to int before saving
-                    data[key] = temp
+#                    temp = value.split(",")
+#                    temp = [int(i) for i in temp]               #converts values in list to int before saving
+                    data[key] = [int(i) for i in value.split(",")]
                 elif key in to_float_array:
                     temp = []
                     value = self.text_variable[key].get()

@@ -9,6 +9,7 @@ from tkinter import *
 
 from mpl_toolkits.mplot3d import axes3d
 import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 
 data = []
 
@@ -49,26 +50,39 @@ for entry in data:
 class Three_D:
     
     def __init__(self, start, end, x, y, z):
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
+        self.fig = plt.figure()
+        self.ax = self.fig.add_subplot(111, projection='3d')
         
+        self.xar = x
+        self.yar = y
+        self.zar = z
         
-        colors = []
-        color_num = ['0','2','4','6','8','A','C','E']
+        self.colors = []
+        
+        color_num = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F']
+        color_num2 = ['0','8']
         for one in color_num:
-            for two in color_num:
-                for three in color_num:
-                    for four in color_num:
-                        for five in color_num:
+            for two in color_num2:
+                for three in color_num2:
+                    for four in color_num2:
+                        for five in color_num2:
                             for six in color_num:
                                 curr_color = '#' + one + two + three + four + five + six
-                                colors.append(curr_color)
+                                self.colors.append(curr_color)
             
         for num in range(start, end):
-            num_color = num%len(colors)
-            ax.plot_wireframe(x[num], y[num], z[num], color=colors[num_color])
+            num_color = num%len(self.colors)
+            self.ax.plot_wireframe(self.xar[num], self.yar[num], self.zar[num], color=self.colors[num_color])
             
         plt.show()
+        
+    def update(self, start, end):
+        
+        ax.clear()
+        
+        for num in range(start, end):
+            num_color = num%len(colors)
+            self.ax.plot_wireframe(self.xar[num], self.yar[num], self.zar[num], color=self.colors[num_color])
         
 def error_box():
         
@@ -100,17 +114,19 @@ labelPoints.pack()
 labelStart = Label(root, text="Start")
 labelStart.pack(side=LEFT)
 
-scaleStart = Scale(root, from_=0, to=len(x))
+scaleStart = Scale(root, from_=0, to=len(x), length=500, tickinterval=100)
 scaleStart.pack(side=LEFT)
 
 labelEnd = Label(root, text="End")
 labelEnd.pack(side=LEFT)
 
-scaleEnd = Scale(root, from_=0, to=len(x))
+scaleEnd = Scale(root, from_=0, to=len(x), length=500, tickinterval=100)
 scaleEnd.pack(side=LEFT)
 
 buttonSubmit = Button(text="Create Graph", command=lambda: create_plot(scaleStart.get(), scaleEnd.get(), x, y, z))
 buttonSubmit.pack()
+
+#buttonUpdate = Button(text="Update Graph", command=lambda: )
 
 
 
