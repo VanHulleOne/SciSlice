@@ -1,21 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
+'''
 Created on Sat May 28 16:39:58 2016
 @author: Alex Diebold
-"""
+'''
 
 import matplotlib                   #for 3D model
 
 #if using the Spyder console, matplotlib is already imported and the backend cannot be changed with .use() as is needed
 #to change the backend to TkAgg, go to Tools > Preferences > Console > External modules > Matplotlib GUI backend
 #be sure to mind the caps in TkAgg
-"""
+'''
 backend = matplotlib.get_backend()
-if backend != "TkAgg" and backend != "module://ipykernel.pylab.backend_inline":
-    matplotlib.use("TkAgg")             #backend of matplotlib, used for putting in GUI
+if backend != 'TkAgg' and backend != 'module://ipykernel.pylab.backend_inline':
+    matplotlib.use('TkAgg')             #backend of matplotlib, used for putting in GUI
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
 from matplotlib.figure import Figure
-"""
+'''
 from tkinter import *               #GUI module
 from tkinter import ttk             #for styling purposing
 from tkinter import filedialog      #window for saving and uploading files
@@ -28,14 +28,14 @@ class GUI(Tk):
         Tk.__init__(self, *args, **kwargs)
         
         #set icon
-        Tk.iconbitmap(self, "UW_Madison_icon.ico")
+        Tk.iconbitmap(self, 'UW_Madison_icon.ico')
         #set window title
-        Tk.title(self, "3D Printer Parameter Setter")
+        Tk.title(self, '3D Printer Parameter Setter')
         #format window size -- width=500, height=475, 100px from left of screen, 100px from top of screen
-        #Tk.geometry(self, "500x475+100+100")
+        Tk.geometry(self, '450x475+100+100')
         
         container = Frame(self)
-        container.pack(side="top", fill="both", expand=True)
+        container.pack(side='top', fill='both', expand=True)
         container.grid(row=0,column=0)
         
         #dictionary of Frames
@@ -48,7 +48,7 @@ class GUI(Tk):
             
             self.frames[F] = frame
             
-            frame.grid(row=0, column=0, sticky="nsew")
+            frame.grid(row=0, column=0, sticky='nsew')
         
         #show initial Frame
         self.show_frame(Page_Variables)
@@ -61,6 +61,25 @@ class GUI(Tk):
         
 class Page_Variables(Frame):
     
+    OUTLINE = 'outline'
+    SOLIDITYRATIO = 'solidityRatio'
+    PRINTSPEED = 'printSpeed'
+    SHIFTX = 'shiftX'
+    SHIFTY = 'shiftY'
+    FIRSTLAYERSHIFTZ = 'firstLayerShiftZ'
+    NUMLAYERS = 'numLayers'
+    PATTERN = 'pattern'
+    DESIGNTYPE = 'designType'
+    INFILLANGLEDEGREES = 'inFillAngleDegrees'
+    PATHWIDTH = 'pathWidth'
+    LAYERHEIGHT = 'layerHeight'
+    INFILLSHIFTX = 'inFillShiftX'
+    INFILLSHIFTY = 'inFillShiftY'
+    NUMSHELLS = 'numShells'
+    TRIMADJUST = 'trimAdjust'
+    START_GCODE_FILENAME = 'start_Gcode_FileName'
+    END_GCODE_FILENAME = 'end_Gcode_FileName'
+    
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
         self.controller = controller
@@ -70,7 +89,7 @@ class Page_Variables(Frame):
         ########################
         
         #string that is the filename of the current file
-        self.filename = ""
+        self.filename = ''
         
         #dictionary with variable name as key and StringVar as value
         self.text_variable = {} 
@@ -82,24 +101,24 @@ class Page_Variables(Frame):
         self.entries = {}
         
         #array of Strings of the variables
-        self.texts = ["outline", "solidityRatio", "printSpeed", "shiftX",            #part parameters
-                 "shiftY", "firstLayerShiftZ", "numLayers",                         #part parameters
-                 "pattern", "designType",                                           #part parameters
-                 "inFillAngleDegrees", "pathWidth", "layerHeight",                  #layer parameters
-                 "inFillShiftX", "inFillShiftY", "numShells", "trimAdjust",         #layer parameters
-                 "start_Gcode_FileName", "end_Gcode_FileName"]                      #file parameters
+        self.texts = [self.OUTLINE, self.SOLIDITYRATIO, self.PRINTSPEED, self.SHIFTX,            #part parameters
+                 self.SHIFTY, self.FIRSTLAYERSHIFTZ, self.NUMLAYERS,                         #part parameters
+                 self.PATTERN, self.DESIGNTYPE,                                           #part parameters
+                 self.INFILLANGLEDEGREES, self.PATHWIDTH, self.LAYERHEIGHT,                  #layer parameters
+                 self.INFILLSHIFTX, self.INFILLSHIFTY, self.NUMSHELLS, self.TRIMADJUST,         #layer parameters
+                 self.START_GCODE_FILENAME, self.END_GCODE_FILENAME]                      #file parameters
                  
         #array of Strings of the commonly used variables
-        self.common_texts = ["outline", "solidityRatio", "printSpeed", 
-                        "shiftX", "shiftY", "pattern", "numShells"]
+        self.common_texts = [self.OUTLINE, self.SOLIDITYRATIO, self.PRINTSPEED, 
+                        self.SHIFTX, self.SHIFTY, self.PATTERN, self.NUMSHELLS]
                       
         #array of Strings of the default values
-        self.defaults = ["regularDogBone", "1.09", "2000", "10, 50",                #part parameters
-                    "10, 35, 60", "0", "8",                                         #part parameters
-                    "None", "0",                                                    #part parameters
-                    "0, -45, 90, 45, 45, 90, -45", "0.5", "0.4",                    #layer parameters
-                    "0", "0", "13,1,1,0,0,1,1", "2*c.EPSILON",                      #layer parameters
-                    "Start_Gcode_Taz5.txt", "End_Gcode_Taz5.txt"]                   #file parameters   
+        self.defaults = ['regularDogBone', '1.09', '2000', '10, 50',                #part parameters
+                    '10, 35, 60', '0', '8',                                         #part parameters
+                    'None', '0',                                                    #part parameters
+                    '0, -45, 90, 45, 45, 90, -45', '0.5', '0.4',                    #layer parameters
+                    '0', '0', '13,1,1,0,0,1,1', '2*c.EPSILON',                      #layer parameters
+                    'Start_Gcode_Taz5.txt', 'End_Gcode_Taz5.txt']                   #file parameters   
                     
         self.create_var_page()
               
@@ -117,7 +136,7 @@ class Page_Variables(Frame):
             
         #show commonly used variables
         for x in range(0,len(self.common_texts)):
-            #use grid() after creating label or dictionary value will be "NoneType"
+            #use grid() after creating label or dictionary value will be 'NoneType'
             self.labels[self.common_texts[x]].grid(row=x+1,column=0)   
             
     #initial creation of entries
@@ -135,56 +154,56 @@ class Page_Variables(Frame):
             
         #show commonly used variables
         for x in range(0, len(self.common_texts)):
-            #use grid() after creating entry or dictionary value will be "NoneType"
+            #use grid() after creating entry or dictionary value will be 'NoneType'
             self.entries[self.common_texts[x]].grid(row=x+1,column=1)
         
     #creates button for saving all values
     def save_option(self): 
         
         #create button
-        buttonSave = ttk.Button(self,text="Save (exclude .json)",command=lambda: self.save()).grid(row=0,column=1)
+        buttonSave = ttk.Button(self,text='Save (exclude .json)',command=lambda: self.save()).grid(row=0,column=1)
     
     #creates label, entry, and button for uploading all values    
     def upload_option(self):   
         
         #create button
-        buttonUpload = ttk.Button(self,text="Upload",command=lambda: self.upload()).grid(row=0,column=0)
+        buttonUpload = ttk.Button(self,text='Upload',command=lambda: self.upload()).grid(row=0,column=0)
         
     #create menu of label and buttons to switch between tabs
     def tab_buttons(self):
         
         #label for parameters
-        labelParameters = Label(self,text="Parameters")
+        labelParameters = Label(self,text='Parameters')
         labelParameters.grid(row=0,column=2)
         
         #button to display all variables
-        buttonAll = ttk.Button(self,text="All",command=lambda: self.use_all())
+        buttonAll = ttk.Button(self,text='All',command=lambda: self.use_all())
         buttonAll.grid(row=1,column=2)
         #button to display commonly used variables
-        buttonCommon = ttk.Button(self,text="Common",command=lambda: self.use_common())
+        buttonCommon = ttk.Button(self,text='Common',command=lambda: self.use_common())
         buttonCommon.grid(row=2,column=2)
         #button to display part parameters
-        buttonParts = ttk.Button(self,text="Parts",command=lambda: self.use_parts())
+        buttonParts = ttk.Button(self,text='Parts',command=lambda: self.use_parts())
         buttonParts.grid(row=3,column=2)
         #button to display layer parameters
-        buttonLayers = ttk.Button(self,text="Layers",command=lambda: self.use_layers())
+        buttonLayers = ttk.Button(self,text='Layers',command=lambda: self.use_layers())
         buttonLayers.grid(row=4,column=2)
         #button to display file parameters
-        buttonFiles = ttk.Button(self,text="Files",command=lambda: self.use_files()).grid(row=5,column=2)
+        buttonFiles = ttk.Button(self,text='Files',command=lambda: self.use_files()).grid(row=5,column=2)
         
     #create label and buttons for different preset values of parameters
     def presets(self):
         
         #label for presets
-        labelPresets = Label(self,text="Presets").grid(row=0,column=3)
+        labelPresets = Label(self,text='Presets').grid(row=0,column=3)
         #button for dogbone
-        buttonDogbone = ttk.Button(self,text="Dogbone",command=lambda: self.dogbone())
+        buttonDogbone = ttk.Button(self,text='Dogbone',command=lambda: self.dogbone())
         buttonDogbone.grid(row=1,column=3)
     
     #create button to convert to Gcode
     def gcode(self):
         
-        buttonGcode = ttk.Button(self,text="Convert to Gcode",command=lambda: self.convert())
+        buttonGcode = ttk.Button(self,text='Convert to Gcode',command=lambda: self.convert())
         buttonGcode.grid(row=len(self.texts)+1,column=1)
         
     #all set up functions together
@@ -203,7 +222,7 @@ class Page_Variables(Frame):
     def to_model(self):  
         
         #button to switch to 3D model page
-        buttonModel = ttk.Button(self, text="3D Model", 
+        buttonModel = ttk.Button(self, text='3D Model', 
                              command=lambda: self.controller.show_frame(Page_Model))
         buttonModel.grid(row=len(self.texts)+1,column=0)
         
@@ -216,56 +235,38 @@ class Page_Variables(Frame):
 
         data = {}               #dictionary to put String value of StringVar values in
         self.filename = filedialog.asksaveasfilename()   #creates window to get filename
-        self.filename = self.filename + ".json"               #adds .json to name
+        self.filename = self.filename + '.json'               
         
         #check if the user cancelled saving the file
-        if self.filename != "":
-            to_string = ["outline", "start_Gcode_FileName", "end_Gcode_FileName"]      #variables with type String                
-            to_int = ["designType", "firstLayerShiftZ"]           #variables with type int
-            to_string_array = ["trimAdjust"]                      #variables with type String that go in an array
-            to_int_array = ["printSpeed", "shiftX", "shiftY",     #variables with type int that go in an array
-                            "numLayers", "inFillAngleDegrees"
-                            "inFillShiftX", "inFillShiftY", "numShells"]
-            to_float_array = ["solidityRatio", "pathWidth",      #variables with type double that go in an array
-                               "layerHeight"]
-            to_none = ["pattern"]                                 #variables with type None
+        if self.filename != '':
+            to_string = [self.OUTLINE, self.START_GCODE_FILENAME, self.END_GCODE_FILENAME]      #variables with type String                
+            to_int = [self.DESIGNTYPE, self.FIRSTLAYERSHIFTZ]                                   #variables with type int
+            to_string_array = [self.TRIMADJUST]                                                 #variables with type String that go in an array
+            to_int_array = [self.PRINTSPEED, self.SHIFTX, self.SHIFTY,                          #variables with type int that go in an array
+                            self.NUMLAYERS, self.INFILLANGLEDEGREES,
+                            self.INFILLSHIFTX, self.INFILLSHIFTY, self.NUMSHELLS]
+            to_float_array = [self.SOLIDITYRATIO, self.PATHWIDTH,                               #variables with type double that go in an array
+                               self.LAYERHEIGHT]
+            to_none = [self.PATTERN]                                                            #variables with type None
             for key in self.text_variable:
                 if key in to_string:
                     data[key] = self.text_variable[key].get()
                 elif key in to_int:
-                    data[key] = int(self.text_variable[key].get())   #converts value to int
+                    data[key] = int(self.text_variable[key].get())   
                 elif key in to_none:
-                    data[key] = None                            #converts value to None
-                elif key in to_string_array:
-#                    temp = []                                   #creates empty array
-                    value = self.text_variable[key].get()            #sets the value to a variable
-                    if " " in value:
-                        value = value.replace(" ", ",")                 #replaces spaces with commas
-                    if ",," in value:
-                        value = value.replace(",,", ",")                #replaces double commas with single commas
-#                    temp = value.split(",")                     #creates list split by commas
-#                    data[key] = temp                            #saves list
-                    data[key] = value.split(",")
-                elif key in to_int_array:
-#                    temp = []
-                    value = self.text_variable[key].get()
-                    if " " in value:
-                        value = value.replace(" ", ",")
-                    if ",," in value:
-                        value = value.replace(",,", ",")
-#                    temp = value.split(",")
-#                    temp = [int(i) for i in temp]               #converts values in list to int before saving
-                    data[key] = [int(i) for i in value.split(",")]
-                elif key in to_float_array:
-                    temp = []
-                    value = self.text_variable[key].get()
-                    if " " in value:
-                        value = value.replace(" ", ",")
-                    if ",," in value:
-                        value = value.replace(",,", ",")
-                    temp = value.split(",")
-                    temp = [float(i) for i in temp]             #converts values in list to float before saving
-                    data[key] = temp
+                    data[key] = None                           
+                else:
+                    value = self.text_variable[key].get()            
+                    if ' ' in value:
+                        value = value.replace(' ', ',')                
+                    if ',,' in value:
+                        value = value.replace(',,', ',')               
+                    if key in to_string_array:                        
+                        data[key] = value.split(',')            
+                    elif key in to_int_array:
+                        data[key] = [int(i) for i in value.split(',')]     
+                    elif key in to_float_array:
+                        data[key] = [float(i) for i in value.split(',')]      
                     
             with open(self.filename, 'w') as fp:
                 json.dump(data, fp)    #save JSON file
@@ -281,11 +282,11 @@ class Page_Variables(Frame):
             
         for key in data:
             if data[key] == None:
-                self.text_variable[key].set("None") #replace current StringVar with String "None"
+                self.text_variable[key].set('None') #replace current StringVar with String 'None'
             else:
                 value = str(data[key])
-                value = value.replace("[","")
-                value = value.replace("]","")
+                value = value.replace('[','')
+                value = value.replace(']','')
                 self.text_variable[key].set(value)   #replace current StringVar values with data from JSON file
         
     #switch to tab with all parameters    
@@ -345,12 +346,12 @@ class Page_Variables(Frame):
     #change values to dogbone preset    
     def dogbone(self):
         
-        dogbone_data = ["regularDogBone", "1.09", "2000", "10, 50",                     #part parameters
-                "10, 35, 60", "0", "8",                                                 #part parameters
-                "None", "0",                                                            #part parameters
-                "0, -45, 90, 45, 45, 90, -45", "0.5", "0.4",                            #layer parameters
-                "0", "0", "13,1,1,0,0,1,1",  "2*c.EPSILON",                             #layer parameters
-                "Start_Gcode_Taz5.txt", "End_Gcode_Taz5.txt"]                      #file parameters
+        dogbone_data = ['regularDogBone', '1.09', '2000', '10, 50',                     #part parameters
+                '10, 35, 60', '0', '8',                                                 #part parameters
+                'None', '0',                                                            #part parameters
+                '0, -45, 90, 45, 45, 90, -45', '0.5', '0.4',                            #layer parameters
+                '0', '0', '13,1,1,0,0,1,1',  '2*c.EPSILON',                             #layer parameters
+                'Start_Gcode_Taz5.txt', 'End_Gcode_Taz5.txt']                      #file parameters
                 
         for x in range(0,len(self.texts)):
             self.text_variable[self.texts[x]].set(dogbone_data[x])        #change values to dogbone values
@@ -362,7 +363,7 @@ class Page_Variables(Frame):
         self.save()
         
         #check if the user cancelled converting to Gcode
-        if self.filename != "":
+        if self.filename != '':
             #convert to Gcode
             conversion = Main(self.filename)
             conversion.run()
@@ -373,7 +374,7 @@ class Page_Model(Frame):
         Frame.__init__(self, parent)
         self.controller = controller
         
-        labelExample = Label(self, text="HELLO")
+        labelExample = Label(self, text='HELLO')
         labelExample.pack()
         
         self.to_variables()
@@ -381,10 +382,10 @@ class Page_Model(Frame):
         canvasExample = Canvas(self, width=200, height=100)
         canvasExample.pack()      \
         
-        canvasExample.create_rectangle(50, 20, 150, 80, fill="#476042")
+        canvasExample.create_rectangle(50, 20, 150, 80, fill='#476042')
         canvasExample.create_line(0, 0, 50, 20, width=3)
         
-        """
+        '''
         f = Figure(figsize=(5,5), dpi=100)
         a = f.add_subplot(111)
         a.plot([1,2,3,4,5,6,7,8],[5,6,1,3,8,9,3,5])
@@ -396,12 +397,12 @@ class Page_Model(Frame):
         toolbar = NavigationToolbar2TkAgg(canvas, self)
         toolbar.update()
         canvas._tkcanvas.pack()
-        """
+        '''
         
         
     def to_variables(self):
         
-        buttonVariable = ttk.Button(self, text="Variables", 
+        buttonVariable = ttk.Button(self, text='Variables', 
                                 command=lambda: self.controller.show_frame(Page_Variables))
         buttonVariable.pack()
     

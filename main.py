@@ -19,19 +19,22 @@ class Main:
     outline_options = {}
     trimAdjust_options = {}
     
+    TRIMADJUST = 'trimAdjust'
+    REGULARDOGBONE = 'regularDogBone'
+    EPSILON = 'EPSILON'
+    
     def __init__(self, name):
         with open(name, 'r') as fp:
             self.main_data = json.load(fp)
-        self.outline_options["regularDogBone"] = ds.regularDogBone()
-        self.trimAdjust_options["EPSILON"] = c.EPSILON
+        self.outline_options[self.REGULARDOGBONE] = ds.regularDogBone()
+        self.trimAdjust_options[self.EPSILON] = c.EPSILON
         for key in self.trimAdjust_options:              
-            if key in self.main_data["trimAdjust"][0]:
+            if key in self.main_data[self.TRIMADJUST][0]:
                 option = self.trimAdjust_options[key]
-                if any(char.isdigit() for char in self.main_data["trimAdjust"][0]):
-                    number = int(''.join(t for t in self.main_data["trimAdjust"][0] if t.isdigit()))
+                if any(char.isdigit() for char in self.main_data[self.TRIMADJUST][0]):
+                    number = int(''.join(t for t in self.main_data[self.TRIMADJUST][0] if t.isdigit()))
                     option *= number
-                self.main_data["trimAdjust"][0] = option
-            break
+                self.main_data[self.TRIMADJUST][0] = option
         self.pr = Parameters(self.main_data)
         self.gc = Gcode(self.pr)
     
