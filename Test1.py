@@ -168,7 +168,7 @@ def shellRun(outerShell):
     run = True
     i = 1
     while i <20:
-        run = re_union(filter(None, (j.brim(step*i) for j in io)))
+        run = re_union(filter(None, (j.offset(step*i, c.OUTSIDE) for j in io)))
         yield run
         i += 1
 
