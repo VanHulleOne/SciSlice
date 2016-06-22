@@ -107,26 +107,28 @@ class PolySide:
         n = np.array(self.poly.exterior.coords)
         plt.plot(n[:,0], n[:,1], 'r-' if self.isFeature else 'b-')
 
-    def shell(self, dist):
+    def offset(self, dist, side):
         if dist == 0:
             return PolySide(self.poly, self.level)
         if dist < 0:
-            raise Exception('Use Brim')
-        if not self.isFeature:
-            offPoly = self.poly.buffer(dist)
-            return PolySide(offPoly, self.level)
+            raise Exception('Offset distance must be >=0')
+        if (side == c.OUTSIDE and self.isFeature) or (side == c.INSIDE and not self.isFeature):
+            return PolySide(self.poly.buffer(dist), self.level)
         try:
-            return self.offsetIn(self, dist)
+            buffPoly = self.poly.exterior.buffer(dist)
+            if len(buffPoly.interiors) > 1:
+                inPoly = cascaded_union([Polygon(i) for i in buffPoly.interiors])            
+            else:
+                inPoly = Polygon(buffPoly.interiors[0])
+            return PolySide(inPoly, self.level)
         except Exception:
             return None
-        
-    def offsetIn(self, polySide, dist):
-        buffPoly = polySide.poly.exterior.buffer(dist)
-        if len(buffPoly.interiors) > 1:
-            inPoly = cascaded_union([Polygon(i) for i in buffPoly.interiors])            
-        else:
-            inPoly = Polygon(buffPoly.interiors[0])
-        return PolySide(inPoly, self.level)
+    
+    def brim(self, dist):
+        return self.offset(dist, c.OUTSIDE)
+    
+    def shell(self, dist):
+        return self.offset(dist, c.INSIDE)        
 
 def IO2(polies):
     polySides = []
@@ -158,15 +160,15 @@ def re_union(polies):
             final = final.union(ps.poly)
         else:
             final = final.difference(ps.poly)
-    return final # feature.difference(hole)
+    return final
 
 def shellRun(outerShell):
     io = IO2(outerShell)
     step = 0.25
     run = True
     i = 1
-    while run:
-        run = re_union(filter(None, (j.shell(step*i) for j in io)))
+    while i <20:
+        run = re_union(filter(None, (j.brim(step*i) for j in io)))
         yield run
         i += 1
 
