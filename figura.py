@@ -30,7 +30,7 @@ import Point as p
 import InFill as InF
 import LineGroup as lg
 import constants as c
-from Shape import Shape
+from Shape import Shape, Section
 from shapely.geometry.polygon import LinearRing
 
 class Figura:  
@@ -99,27 +99,14 @@ class Figura:
             currHeight += layerParam.layerHeight
 
 #            if layerParam not in self.layers:
-            sec = pr.mesh.section(plane_origin=[0,0,currHeight],plane_normal=[0,0,1])#self.shape
+            sec = Section(pr.mesh.section(plane_origin=[0,0,currHeight],plane_normal=[0,0,1]))#self.shape
 #            if lay == 4:
-            print('currHeight: ', currHeight)
-            currOutline = Shape()
-            groupList = []
-            outlineNumber = 0
-            for outline in sec.discrete:
-                print('Outline Number: ', outlineNumber)
-                outlineNumber += 1
-                currRing = LinearRing(outline)
-                rings = []
+#            print('currHeight: ', currHeight)
 
-                for shellNumber in range(layerParam.numShells):
-                    print('Shell Number', shellNumber)
-                    print('type: ', type(currRing))
-                    """ If the layer needs shells create them here. """
-                    rings.append(currRing)
-                    currOutline = Shape()
-                    currOutline.addLinesFromPoints([p.Point(*vec[:2]) for vec in currRing.coords])
-                    groupList.append(currOutline)
-                    currRing = currRing.parallel_offset(layerParam.pathWidth, 'left', join_style=2)
+            filledList = []
+
+            for shellNumber in range(layerParam.numShells):
+                filledList.append(sec.offset(layerParam.pathWidth*(shellNumber), c.INSIDE))
                     
                 """
                 To help with problems that occur when an offset shape has its sides
@@ -127,19 +114,15 @@ class Figura:
                 want to fudge the trimShape outward just a little so that we end
                 up with the correct lines.
                 """
-                if layerParam.numShells == 0:
-                    trimRing = currRing.parallel_offset(layerParam.trimAdjust, 'right', join_style=2)
-                else:
-                    trimRing = rings[-1].parallel_offset(layerParam.pathWidth-layerParam.trimAdjust, 'left', join_style=2)
-                trimShape = Shape()
-                trimShape.addLinesFromPoints([p.Point(*vec[:2]) for vec in trimRing.coords])
-                infill = InF.InFill(trimShape,
-                                    layerParam.pathWidth, layerParam.infillAngle,
-                                    shiftX=layerParam.infillShiftX, shiftY=layerParam.infillShiftY,
-                                    design=pr.pattern, designType=pr.designType)
+            trimShape = filledList.append(sec.offset(layerParam.pathWidth*
+                        layerParam.numShells-layerParam.trimAdjust))
+            infill = InF.InFill(trimShape,
+                                layerParam.pathWidth, layerParam.infillAngle,
+                                shiftX=layerParam.infillShiftX, shiftY=layerParam.infillShiftY,
+                                design=pr.pattern, designType=pr.designType)
 #                self.layers[layerParam] = self.organizedLayer(filledList + [infill])
-                groupList.append(infill)
-            ol = self.organizedLayer(groupList)
+            filledList.append(infill)
+            ol = self.organizedLayer(filledList)
             """ a tuple of the organized LineGroup and the layer parameters. """
             yield (ol.translate(partParams.shiftX,
                                             partParams.shiftY, currHeight), layerParam)
