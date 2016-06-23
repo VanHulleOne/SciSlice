@@ -42,10 +42,6 @@ pattern = None
 # pattern = lg.LineGroup()
 # pattern.addLinesFromCoordinateList([[0,0],[2,2],[4,0]])
 designType = 0
-testSec = None
-
-trimShape = None
-
 """
 Layer Parameters
 """

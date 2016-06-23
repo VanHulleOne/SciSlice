@@ -118,15 +118,7 @@ class Figura:
                 """
             trimShape = sec.offset(layerParam.pathWidth * layerParam.numShells - 
                             layerParam.trimAdjust, c.INSIDE)
-            if lay == 134:
-                print('Layer 134 trim shape')
-                print('type: ', type(trimShape))
-                pr.trimShape = trimShape
-                if trimShape is None:
-                    print('Trim shape is None')
-                else:
-                    for line in trimShape:
-                        print(line)
+                            
             if trimShape is not None:
                 infill = InF.InFill(trimShape,
                                     layerParam.pathWidth, layerParam.infillAngle,
