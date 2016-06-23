@@ -42,13 +42,13 @@ class GUI(Tk):
         container.grid(row=0,column=0)
         
         #create menubar
-        menubar = Menu(container)
-        filemenu = Menu(menubar, tearoff=0)
-        filemenu.add_command(label='Save', command=lambda: save())
-        filemenu.add_command(label='Upload', command=lambda: upload())
-        menubar.add_cascade(label='File', menu=filemenu)
-        
-        Tk.config(self, menu=menubar)
+#        menubar = Menu(container)
+#        filemenu = Menu(menubar, tearoff=0)
+#        filemenu.add_command(label='Save', command=lambda: Page_Variables.save(Page_Variables))
+#        filemenu.add_command(label='Upload', command=lambda: Page_Variables.upload(Page_Variables))
+#        menubar.add_cascade(label='File', menu=filemenu)
+#        
+#        Tk.config(self, menu=menubar)
         
         #dictionary of Frames
         self.frames = {}
@@ -153,8 +153,8 @@ class Page_Variables(Frame):
     #initial creation of labels
     def set_labels(self):
         
-        self.labelVariable = Label(self, text='Variable Name', font='-weight bold')
-        self.labelVariable.grid(row=0,column=0)
+#        self.labelVariable = Label(self, text='Variable Name', font='-weight bold')
+#        self.labelVariable.grid(row=0,column=0)
         
         #create all labels
         for x in range(len(self.texts)):
@@ -169,8 +169,8 @@ class Page_Variables(Frame):
     #initial creation of entries
     def set_entries(self):
         
-        self.labelValue = Label(self, text='Value', font='-weight bold')
-        self.labelValue.grid(row=0,column=1)
+#        self.labelValue = Label(self, text='Value', font='-weight bold')
+#        self.labelValue.grid(row=0,column=1)
         #create all StringVars
         for x in range(len(self.texts)):
             #set textvariable to StringVar with default text as value
@@ -241,8 +241,8 @@ class Page_Variables(Frame):
         
         self.set_labels()
         self.set_entries()
-#        self.save_option()
-#        self.upload_option()
+        self.save_option()
+        self.upload_option()
         self.tab_buttons()
         self.presets()
         self.gcode()
@@ -323,8 +323,8 @@ class Page_Variables(Frame):
     def use_all(self):
         
         for x in range(len(self.labels)):
-            self.labels[self.texts[x]].grid(row=x,column=0)    
-            self.entries[self.texts[x]].grid(row=x,column=1)   
+            self.labels[self.texts[x]].grid(row=x+1,column=0)    
+            self.entries[self.texts[x]].grid(row=x+1,column=1)   
         
     def use_common(self):
         
@@ -333,8 +333,8 @@ class Page_Variables(Frame):
             self.entries[text].grid_forget()     
             
         for x in range(len(self.common_texts)):
-            self.labels[self.common_texts[x]].grid(row=x,column=0)     
-            self.entries[self.common_texts[x]].grid(row=x,column=1)  
+            self.labels[self.common_texts[x]].grid(row=x+1,column=0)     
+            self.entries[self.common_texts[x]].grid(row=x+1,column=1)  
         
     #switch to tab with only part parameters
     def use_parts(self):
@@ -467,12 +467,12 @@ class Page_Model(Frame):
         scaleEnd = Scale(self, from_=0, to=len(self.x), length=500, tickinterval=100)
         scaleEnd.pack(side=LEFT)
         
-        buttonSubmit = Button(self, text="Create Graph", command=lambda: create_plot(scaleStart.get(), scaleEnd.get(), self.x, self.y, self.z))
+        buttonSubmit = Button(self, text="Create Graph", command=lambda: self.make_graph(scaleStart.get(), scaleEnd.get(), self.x, self.y, self.z))
         buttonSubmit.pack()
     
         #buttonUpdate = Button(text="Update Graph", command=lambda: )
     
-    def make_graph(start, end, x, y, z):
+    def make_graph(self, start, end, x, y, z):
         self.fig = plt.figure()
         self.ax = self.fig.add_subplot(111, projection='3d')
         
