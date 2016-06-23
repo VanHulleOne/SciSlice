@@ -47,11 +47,12 @@ class Shape(LG):
         
     def addCoordLoop(self, loop):
         loop_iter = iter(loop)
-        pp = next(loop_iter)
-        print('PP: ', pp)
-        prev = p.Point(pp)#next(loop_iter))
-        for curr in map(p.Point, loop_iter):
-            self.append(l.Line(prev,curr))
+        pp = list(next(loop_iter))
+        prev = p.Point(pp[:2]+[0])
+        for curr in (p.Point(list(i[:2])+[0]) for i in loop_iter):
+            if prev != curr:
+                self.append(l.Line(prev,curr))
+                prev = curr
         self.outlineFinished = False
     
     @finishedOutline
@@ -195,9 +196,6 @@ class Shape(LG):
         newShape = Shape()
         for subShape in self.subShape_gen():
             try:
-#            lr = LinearRing([line.start.normalVector[:3] for line in subShape])
-#            lo = lr.parallel_offset(0.4, 'left')
-#            newShape.addLinesFromCoordinateList(lo.coords)
                 newShape.addLineGroup(self._offset(subShape, distance, desiredSide))
             except Exception as e:
                 logger.info('One or more sub-shapes could not be offset. ' + str(e))

@@ -26,12 +26,12 @@ class Line(object):
         self.__start = start
         self.__end = end
         if(self.__start == self.__end):
-            pass
             """
             If a zero length line is created that most likely means there is a
             logic problem somewhere in the program. This does not throw and error
             so that the output can still be examined to help diagnose the problem.
             """
+#            raise Exception('Zero length line')
             logger.warning('A line was created with no length at: ' + 
                             str(self.start))
         """ The Point which is the upper left corner of the line's bounding box """

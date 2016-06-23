@@ -92,21 +92,23 @@ class Figura:
         currHeight = pr.firstLayerShiftZ
         
         for lay in range(partParams.numLayers):
+#            lay += 132
             print('\nLayer: ', lay)
             """ Iterate through for the correct number of layers. """
             layerParam = next(layerParam_Gen)
             
             currHeight += layerParam.layerHeight
 
-#            if layerParam not in self.layers:
             sec = Section(pr.mesh.section(plane_origin=[0,0,currHeight],plane_normal=[0,0,1]))#self.shape
-#            if lay == 4:
-#            print('currHeight: ', currHeight)
 
             filledList = []
 
             for shellNumber in range(layerParam.numShells):
-                filledList.append(sec.offset(layerParam.pathWidth*(shellNumber), c.INSIDE))
+                offsetShape = sec.offset(layerParam.pathWidth*(shellNumber), c.INSIDE)
+                if offsetShape is not None:
+                    filledList.append(offsetShape)
+                else:
+                    break
                     
                 """
                 To help with problems that occur when an offset shape has its sides
@@ -114,14 +116,24 @@ class Figura:
                 want to fudge the trimShape outward just a little so that we end
                 up with the correct lines.
                 """
-            trimShape = filledList.append(sec.offset(layerParam.pathWidth*
-                        layerParam.numShells-layerParam.trimAdjust))
-            infill = InF.InFill(trimShape,
-                                layerParam.pathWidth, layerParam.infillAngle,
-                                shiftX=layerParam.infillShiftX, shiftY=layerParam.infillShiftY,
-                                design=pr.pattern, designType=pr.designType)
-#                self.layers[layerParam] = self.organizedLayer(filledList + [infill])
-            filledList.append(infill)
+            trimShape = sec.offset(layerParam.pathWidth * layerParam.numShells - 
+                            layerParam.trimAdjust, c.INSIDE)
+            if lay == 134:
+                print('Layer 134 trim shape')
+                print('type: ', type(trimShape))
+                pr.trimShape = trimShape
+                if trimShape is None:
+                    print('Trim shape is None')
+                else:
+                    for line in trimShape:
+                        print(line)
+            if trimShape is not None:
+                infill = InF.InFill(trimShape,
+                                    layerParam.pathWidth, layerParam.infillAngle,
+                                    shiftX=layerParam.infillShiftX, shiftY=layerParam.infillShiftY,
+                                    design=pr.pattern, designType=pr.designType)
+    #                self.layers[layerParam] = self.organizedLayer(filledList + [infill])
+                filledList.append(infill)
             ol = self.organizedLayer(filledList)
             """ a tuple of the organized LineGroup and the layer parameters. """
             yield (ol.translate(partParams.shiftX,

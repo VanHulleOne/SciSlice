@@ -67,9 +67,9 @@ points = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11]
 
 lines = [l.Line(points[i], points[i+1]) for i in range(len(points)-1)]
 
-mesh1 = trimesh.load_mesh('Arch3.stl')
+mesh1 = trimesh.load_mesh('Arch.stl')
 print(mesh1.area)
-sec = mesh1.section(plane_origin=[0,0,37],plane_normal=[0,0,1])
+sec = mesh1.section(plane_origin=[0,0,0.4*47],plane_normal=[0,0,1])
 lr0 = LinearRing(sec.discrete[0])
 
 colors = [i + '-' for i in 'bgrcmyk']
@@ -218,8 +218,8 @@ def init():
     
     
 
-ani = animation.FuncAnimation(fig, layer, init_func=init, frames = 350, blit=True, interval=0)
-plt.show()
+#ani = animation.FuncAnimation(fig, layer, init_func=init, frames = 350, blit=True, interval=0)
+#plt.show()
 #d1 = ds.rect(0,0,10,10)
 #sub1 = s.Shape()
 #sub1.addLinesFromCoordinateList([[5,1],[4,5],[5,9],[6,5],[5,1]])
