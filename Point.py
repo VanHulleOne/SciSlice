@@ -45,7 +45,8 @@ class Point(object):
             and initialize the NumPy Array.
             """
             if y is None:
-                raise Exception('You did not initialize a Point correctly')            
+                raise Exception('You did not initialize a Point correctly\n'+
+                                'x: ' + str(x) + '\ny: ' + str(y) + '\nz: ' + str(z))            
             self.__normalVector = numpy.array([x, y, z, 1])            
        
         """
