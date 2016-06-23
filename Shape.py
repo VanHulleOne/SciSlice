@@ -231,9 +231,6 @@ class Shape(LG):
         ------
         offShape - The offset sub-shape.
         """
-        print('\nsubshape:')
-#        for line in subShape:
-#            print(line)
         points = []
         prevLine = subShape[-1].getOffsetLine(distance, desiredSide)
         for currLine in (line.getOffsetLine(distance, desiredSide)
@@ -411,7 +408,6 @@ class _SidedPolygon:
         if dist < 0:
             side = not side
             dist = abs(dist)
-#            raise Exception('Offset distance must be >=0')
         if (side == c.OUTSIDE and self.isFeature) or (side == c.INSIDE and not self.isFeature):
             return _SidedPolygon(self.poly.buffer(dist), self.level)
         try:
@@ -456,6 +452,8 @@ class Section:
     
     def offset(self, dist, side):
         union = self.re_union(filter(None, (j.offset(dist, side) for j in self.sidedPolygons)))
+        if not union:
+            return None
         shape = Shape()
         try:
             for coords in self.polygonCoords(union):
