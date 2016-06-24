@@ -22,11 +22,12 @@ class Main:
     TRIMADJUST = 'trimAdjust'
     REGULARDOGBONE = 'regularDogBone'
     EPSILON = 'EPSILON'
+    STL_FILE = 'stl_file'
     
     def __init__(self, name):
         with open(name, 'r') as fp:
             self.main_data = json.load(fp)
-        self.outline_options[self.REGULARDOGBONE] = ds.regularDogBone()
+#        self.outline_options[self.REGULARDOGBONE] = ds.regularDogBone()
         self.trimAdjust_options[self.EPSILON] = c.EPSILON
         for key in self.trimAdjust_options:              
             if key in self.main_data[self.TRIMADJUST][0]:
@@ -46,7 +47,7 @@ class Main:
         temp = open("data_points.txt", 'w')
         temp.close()
         
-        fig = fg.Figura(self.outline_options[self.pr.outline], self.pr, self.gc)
+        fig = fg.Figura(self.main_data[self.STL_FILE], self.pr, self.gc)
         
         with open(self.pr.outputSubDirectory+'\\'+self.pr.outputFileName, 'w') as f:      
             for string in fig.masterGcode_gen():
