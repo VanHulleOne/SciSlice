@@ -73,7 +73,7 @@ class GUI(Tk):
         
 class Page_Variables(Frame):
     
-    OUTLINE = 'outline'
+    STL_FILE = 'stl_file'
     SOLIDITYRATIO = 'solidityRatio'
     PRINTSPEED = 'printSpeed'
     SHIFTX = 'shiftX'
@@ -113,7 +113,7 @@ class Page_Variables(Frame):
         self.entries = {}
         
         #array of Strings of the variables
-        self.texts = [self.OUTLINE, self.SOLIDITYRATIO, self.PRINTSPEED, self.SHIFTX,            #part parameters
+        self.texts = [self.STL_FILE, self.SOLIDITYRATIO, self.PRINTSPEED, self.SHIFTX,            #part parameters
                  self.SHIFTY, self.FIRSTLAYERSHIFTZ, self.NUMLAYERS,                         #part parameters
                  self.PATTERN, self.DESIGNTYPE,                                           #part parameters
                  self.INFILLANGLEDEGREES, self.PATHWIDTH, self.LAYERHEIGHT,                  #layer parameters
@@ -121,7 +121,7 @@ class Page_Variables(Frame):
                  self.START_GCODE_FILENAME, self.END_GCODE_FILENAME]                      #file parameters
                  
         #array of part parameters
-        self.part_param = [self.OUTLINE, self.SOLIDITYRATIO, self.PRINTSPEED, self.SHIFTX,           
+        self.part_param = [self.STL_FILE, self.SOLIDITYRATIO, self.PRINTSPEED, self.SHIFTX,           
                          self.SHIFTY, self.FIRSTLAYERSHIFTZ, self.NUMLAYERS,                      
                          self.PATTERN, self.DESIGNTYPE]
                          
@@ -133,11 +133,11 @@ class Page_Variables(Frame):
         self.file_param = [self.START_GCODE_FILENAME, self.END_GCODE_FILENAME]
                  
         #array of Strings of the commonly used variables
-        self.common_texts = [self.OUTLINE, self.SOLIDITYRATIO, self.PRINTSPEED, 
+        self.common_texts = [self.STL_FILE, self.SOLIDITYRATIO, self.PRINTSPEED, 
                         self.SHIFTX, self.SHIFTY, self.PATTERN, self.NUMSHELLS]
                       
         #array of Strings of the default values
-        self.defaults = ['regularDogBone', '1.09', '2000', '10, 50',                #part parameters
+        self.defaults = ['Arch3.stl', '1.09', '2000', '10, 50',                #part parameters
                     '10, 35, 60', '0', '8',                                         #part parameters
                     'None', '0',                                                    #part parameters
                     '0, -45, 90, 45, 45, 90, -45', '0.5', '0.4',                    #layer parameters
@@ -269,7 +269,7 @@ class Page_Variables(Frame):
         
         #check if the user cancelled saving the file
         if self.filename != '':
-            to_string = [self.OUTLINE, self.START_GCODE_FILENAME, self.END_GCODE_FILENAME]      #variables with type String                
+            to_string = [self.STL_FILE, self.START_GCODE_FILENAME, self.END_GCODE_FILENAME]      #variables with type String                
             to_int = [self.DESIGNTYPE, self.FIRSTLAYERSHIFTZ]                                   #variables with type int
             to_string_array = [self.TRIMADJUST]                                                 #variables with type String that go in an array
             to_int_array = [self.PRINTSPEED, self.SHIFTX, self.SHIFTY,                          #variables with type int that go in an array
@@ -384,7 +384,7 @@ class Page_Variables(Frame):
     #change values to dogbone preset    
     def dogbone(self):
         
-        dogbone_data = ['regularDogBone', '1.09', '2000', '10, 50',                     #part parameters
+        dogbone_data = ['Arch3.stl', '1.09', '2000', '10, 50',                     #part parameters
                 '10, 35, 60', '0', '8',                                                 #part parameters
                 'None', '0',                                                            #part parameters
                 '0, -45, 90, 45, 45, 90, -45', '0.5', '0.4',                            #layer parameters
