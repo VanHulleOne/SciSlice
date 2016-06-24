@@ -49,7 +49,7 @@ infillAngleDegrees = [0, -45, 90, 45, 45, 90, -45] #degrees infill angle 90 is i
 pathWidth = [0.5] #mm distance between centerline of paths
 layerHeight = [0.4] #mm height per layer
 bounds = mesh.bounds[:,2:]
-numLayers = [int((bounds[1]//layerHeight[0])[0])]
+numLayers = [4]#int((bounds[1]//layerHeight[0])[0])]
 print('NumLayers: ', numLayers)
 infillShiftX = [0]
 infillShiftY = [0]
