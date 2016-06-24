@@ -24,8 +24,6 @@ if another layer with the same parameters is used it does not need to be recalcu
 @author: lvanhulle
 """
 
-import gcode as gc
-import parameters as pr
 import Point as p
 import InFill as InF
 import LineGroup as lg
@@ -34,7 +32,16 @@ from Shape import Shape, Section
 
 class Figura:  
     
+<<<<<<< HEAD
     def __init__(self):
+=======
+    data_points =  open("data_points.txt", 'a')
+    
+    def __init__(self, shape, param, g_code):
+        self.gc = g_code
+        self.pr = param
+        self.shape = shape
+>>>>>>> alex_3
 #        startTime = time.time()
 #        layer = self.organizedLayer(inShapes)
 #        layer = layer.translate(0,0, pr.firstLayerShiftZ)
@@ -50,8 +57,8 @@ class Figura:
         layer_gen(). """
         
     def masterGcode_gen(self):
-        yield gc.startGcode()
-        for partParams in pr.everyPartsParameters:
+        yield self.gc.startGcode()
+        for partParams in self.pr.everyPartsParameters:
             """ pr.everyPartsParameters is a generator of the parameters for the parts.
             The generator stops yielding additional parameters when there are no
             more parts left to print. The parameters are sent to layer_gen() which
@@ -67,7 +74,7 @@ class Figura:
             yield from self.partGcode_gen(partParams)
                 
             self.partCount += 1
-        yield gc.endGcode()
+        yield self.gc.endGcode()
 
     def layer_gen(self, partParams):
         """ Creates and yields each organized layer for the part.
@@ -87,8 +94,8 @@ class Figura:
         the layer parameters so they can be printed in the gcode.)
         """        
         
-        layerParam_Gen = pr.layerParameters()
-        currHeight = pr.firstLayerShiftZ
+        layerParam_Gen = self.pr.layerParameters()
+        currHeight = self.pr.firstLayerShiftZ
         
         for lay in range(partParams.numLayers):
 #            lay += 132
@@ -122,10 +129,16 @@ class Figura:
                 infill = InF.InFill(trimShape,
                                     layerParam.pathWidth, layerParam.infillAngle,
                                     shiftX=layerParam.infillShiftX, shiftY=layerParam.infillShiftY,
+<<<<<<< HEAD
                                     design=pr.pattern, designType=pr.designType)
     #                self.layers[layerParam] = self.organizedLayer(filledList + [infill])
                 filledList.append(infill)
             ol = self.organizedLayer(filledList)
+=======
+                                    design=self.pr.pattern, designType=self.pr.designType)
+                self.layers[layerParam] = self.organizedLayer(filledList + [infill])
+            
+>>>>>>> alex_3
             """ a tuple of the organized LineGroup and the layer parameters. """
             yield (ol.translate(partParams.shiftX,
                                             partParams.shiftY, currHeight), layerParam)
@@ -134,38 +147,47 @@ class Figura:
     
     def partGcode_gen(self, partParams):        
         layerNumber = 1
-        yield gc.newPart()
+        yield self.gc.newPart()
         totalExtrusion = 0
         
         for layer, layerParam in self.layer_gen(partParams):
+            #creats text file of all data points
+            data = []
+            for line in layer:
+                temp = []
+                temp.append(str(line.start).replace("X", "").replace("Y", "").replace("Z", "").split(" "))
+                temp.append(str(line.end).replace("X", "").replace("Y", "").replace("Z", "").split(" "))
+                data.append(temp)
+            for entry in data:
+                self.data_points.write(str(entry) + "\n")
             extrusionRate = (partParams.solidityRatio*layerParam.layerHeight*
-                            layerParam.pathWidth/pr.filamentArea)
+                            layerParam.pathWidth/self.pr.filamentArea)
             yield ';Layer: ' + str(layerNumber) + '\n'
             yield ';' + str(layerParam) + '\n'
             yield ';T' + str(self.partCount) + str(layerNumber) + '\n'
             yield ';M6\n'
             yield ('M117 Layer ' + str(layerNumber) + ' of ' +
                             str(partParams.numLayers) + '..\n')
-            yield gc.rapidMove(layer[0].start, c.OMIT_Z)
-            yield gc.firstApproach(totalExtrusion, layer[0].start)
+            yield self.gc.rapidMove(layer[0].start, c.OMIT_Z)
+            yield self.gc.firstApproach(totalExtrusion, layer[0].start)
             
             prevLoc = layer[0].start
             for line in layer:                
                 if prevLoc != line.start:
-                    if (prevLoc - line.start) < pr.MAX_FEED_TRAVERSE:
-                        yield gc.rapidMove(line.start, c.OMIT_Z)
+                    if (prevLoc - line.start) < self.pr.MAX_FEED_TRAVERSE:
+                        yield self.gc.rapidMove(line.start, c.OMIT_Z)
                     else:
-                        yield gc.retractLayer(totalExtrusion, prevLoc)
-                        yield gc.rapidMove(line.start, c.OMIT_Z)
-                        yield gc.approachLayer(totalExtrusion, line.start)
+                        yield self.gc.retractLayer(totalExtrusion, prevLoc)
+                        yield self.gc.rapidMove(line.start, c.OMIT_Z)
+                        yield self.gc.approachLayer(totalExtrusion, line.start)
                         
                 line.extrusionRate = extrusionRate
                 totalExtrusion += line.length*line.extrusionRate
-                yield gc.feedMove(line.end, c.OMIT_Z, totalExtrusion,
+                yield self.gc.feedMove(line.end, c.OMIT_Z, totalExtrusion,
                                           partParams.printSpeed)
                 prevLoc = line.end
             
-            yield gc.retractLayer(totalExtrusion, layer[-1].end)
+            yield self.gc.retractLayer(totalExtrusion, layer[-1].end)
             yield '\n'
             layerNumber += 1
         yield ';Extrusion amount for part is ({:.1f} mm)\n\n'.format(totalExtrusion)
@@ -239,6 +261,17 @@ class Figura:
                         """ A reminder than an else is run if there is no exception. """
                         lastPoint = line.end
                         layer.append(line)
+        """
+        #creats text file of all data points
+        data = []
+        for line in layer:
+            temp = []
+            temp.append(str(line.start).replace("X", "").replace("Y", "").replace("Z", "").split(" "))
+            temp.append(str(line.end).replace("X", "").replace("Y", "").replace("Z", "").split(" "))
+            data.append(temp)
+        for entry in data:
+            self.data_points.write(str(entry) + "\n")
+        """
         return layer
     
     def __str__(self):
@@ -250,4 +283,7 @@ class Figura:
             tempString += str(layer)
             layerNumber += 1
         return tempString
+        
+    def close_file(self):
+        self.data_points.close()
     
