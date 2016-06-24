@@ -29,15 +29,25 @@ import InFill as InF
 import LineGroup as lg
 import constants as c
 from Shape import Shape, Section
+import trimesh
 
 class Figura:  
     
     data_points =  open("data_points.txt", 'a')
     
-    def __init__(self, shape, param, g_code):
+    def __init__(self, stl, param, g_code):
+        
+        self.mesh = trimesh.load_mesh(stl)        
+        
         self.gc = g_code
         self.pr = param
-        self.shape = shape
+        
+        self.maxZ = self.mesh.bounds[:,2:][1]
+        
+        self.numLayers = []
+        
+        for layerH in self.pr.layerHeight:
+            self.numLayers.append(int((self.maxZ//layerH)[0]))       
         
         self.partCount = 1 # The current part number
 
@@ -86,15 +96,14 @@ class Figura:
         layerParam_Gen = self.pr.layerParameters()
         currHeight = self.pr.firstLayerShiftZ
         
-        for lay in range(partParams.numLayers):
+        while currHeight <= self.maxZ:
 #            lay += 132
-            print('\nLayer: ', lay)
             """ Iterate through for the correct number of layers. """
             layerParam = next(layerParam_Gen)
             
             currHeight += layerParam.layerHeight
 
-            sec = Section(pr.mesh.section(plane_origin=[0,0,currHeight],plane_normal=[0,0,1]))#self.shape
+            sec = Section(self.mesh.section(plane_origin=[0,0,currHeight],plane_normal=[0,0,1]))#self.shape
 
             filledList = []
 
@@ -118,7 +127,7 @@ class Figura:
                 infill = InF.InFill(trimShape,
                                     layerParam.pathWidth, layerParam.infillAngle,
                                     shiftX=layerParam.infillShiftX, shiftY=layerParam.infillShiftY,
-                                    design=pr.pattern, designType=pr.designType)
+                                    design=self.pr.pattern, designType=self.pr.designType)
     #                self.layers[layerParam] = self.organizedLayer(filledList + [infill])
                 filledList.append(infill)
             ol = self.organizedLayer(filledList)
@@ -150,7 +159,7 @@ class Figura:
             yield ';T' + str(self.partCount) + str(layerNumber) + '\n'
             yield ';M6\n'
             yield ('M117 Layer ' + str(layerNumber) + ' of ' +
-                            str(partParams.numLayers) + '..\n')
+                            str(self.numLayers) + '..\n')
             yield self.gc.rapidMove(layer[0].start, c.OMIT_Z)
             yield self.gc.firstApproach(totalExtrusion, layer[0].start)
             
