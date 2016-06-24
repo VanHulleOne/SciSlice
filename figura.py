@@ -32,23 +32,12 @@ from Shape import Shape, Section
 
 class Figura:  
     
-<<<<<<< HEAD
-    def __init__(self):
-=======
     data_points =  open("data_points.txt", 'a')
     
     def __init__(self, shape, param, g_code):
         self.gc = g_code
         self.pr = param
         self.shape = shape
->>>>>>> alex_3
-#        startTime = time.time()
-#        layer = self.organizedLayer(inShapes)
-#        layer = layer.translate(0,0, pr.firstLayerShiftZ)
-#        print '\nLayer organized in: %.2f sec\n' %(time.time() - startTime)
-#        with open('I:\RedBench\static\data\LineList.txt', 'w') as f:
-#            f.write('test\n')
-#            f.write(layer.CSVstr())
         
         self.partCount = 1 # The current part number
 
@@ -129,16 +118,10 @@ class Figura:
                 infill = InF.InFill(trimShape,
                                     layerParam.pathWidth, layerParam.infillAngle,
                                     shiftX=layerParam.infillShiftX, shiftY=layerParam.infillShiftY,
-<<<<<<< HEAD
                                     design=pr.pattern, designType=pr.designType)
     #                self.layers[layerParam] = self.organizedLayer(filledList + [infill])
                 filledList.append(infill)
             ol = self.organizedLayer(filledList)
-=======
-                                    design=self.pr.pattern, designType=self.pr.designType)
-                self.layers[layerParam] = self.organizedLayer(filledList + [infill])
-            
->>>>>>> alex_3
             """ a tuple of the organized LineGroup and the layer parameters. """
             yield (ol.translate(partParams.shiftX,
                                             partParams.shiftY, currHeight), layerParam)
