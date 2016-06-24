@@ -31,7 +31,6 @@ import InFill as InF
 import LineGroup as lg
 import constants as c
 from Shape import Shape, Section
-from shapely.geometry.polygon import LinearRing
 
 class Figura:  
     
