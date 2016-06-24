@@ -46,7 +46,11 @@ class Parameters:
     pathWidth = [0.5] #mm distance between centerline of paths
     layerHeight = [0.4] #mm height per layer
     bounds = mesh.bounds[:,2:]
-    numLayers = [int((bounds[1]//layerH)[0]) for layerH in layerHeight]
+    print(bounds[1])
+    numLayers = []
+    for layerH in layerHeight:
+        numLayers.append(int((bounds[1]//layerH)[0]))
+    #numLayers = [int((bounds[1]//layerH)[0]) for layerH in layerHeight]
     infillShiftX = [0]
     infillShiftY = [0]
     #flipLayer = [0] No longer implimented
