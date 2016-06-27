@@ -22,9 +22,6 @@ import Point as p
 
 class Parameters:
 
-
-    mesh = trimesh.load_mesh('Arch3.stl')
-
     """
     Part Parameters
     """
@@ -45,12 +42,7 @@ class Parameters:
     infillAngleDegrees = [0, -45, 90, 45, 45, 90, -45] #degrees infill angle 90 is in Y direction 0 is in X direction
     pathWidth = [0.5] #mm distance between centerline of paths
     layerHeight = [0.4] #mm height per layer
-    bounds = mesh.bounds[:,2:]
-    print(bounds[1])
     numLayers = []
-    for layerH in layerHeight:
-        numLayers.append(int((bounds[1]//layerH)[0]))
-    #numLayers = [int((bounds[1]//layerH)[0]) for layerH in layerHeight]
     infillShiftX = [0]
     infillShiftY = [0]
     #flipLayer = [0] No longer implimented
