@@ -95,15 +95,20 @@ class Figura:
         
         layerParam_Gen = self.pr.layerParameters()
         currHeight = self.pr.firstLayerShiftZ
+        layerParam = next(layerParam_Gen)
+            
+        currHeight += layerParam.layerHeight
         
         while currHeight <= self.maxZ:
 #            lay += 132
             """ Iterate through for the correct number of layers. """
-            layerParam = next(layerParam_Gen)
             
-            currHeight += layerParam.layerHeight
 
-            sec = Section(self.mesh.section(plane_origin=[0,0,currHeight],plane_normal=[0,0,1]))#self.shape
+#            try:
+            sec = Section(self.mesh.section(plane_origin=[0,0,currHeight],plane_normal=[0,0,1]))
+#            except Exception:
+#                print('Mesh section failed')
+#                print('CurrHeight)
 
             filledList = []
 
@@ -134,6 +139,9 @@ class Figura:
             """ a tuple of the organized LineGroup and the layer parameters. """
             yield (ol.translate(partParams.shiftX,
                                             partParams.shiftY, currHeight), layerParam)
+            layerParam = next(layerParam_Gen)
+            
+            currHeight += layerParam.layerHeight
 #            yield (self.layers[layerParam].translate(partParams.shiftX,
 #                                            partParams.shiftY, currHeight), layerParam)
     
