@@ -81,7 +81,7 @@ class Main:
         """
             
 if __name__ == '__main__':
-    main = Main('Gcode\\ZigZag.gcode.json')
+    main = Main('Gcode\\Robot1.json')
     main.run()
 
 
