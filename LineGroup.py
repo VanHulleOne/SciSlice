@@ -34,7 +34,7 @@ class LineGroup(object):
         else:
             for line in self:
                 self.updateMinMax(line)
-    
+
     def updateMinMax(self, line):
         if(self.minX is None or line.upperLeft.x < self.minX): self.minX = line.upperLeft.x
         if(self.maxY is None or line.upperLeft.y > self.maxY): self.maxY = line.upperLeft.y
@@ -55,17 +55,17 @@ class LineGroup(object):
     
     @property       
     def vectors(self):
-        return np.array([line.vector for line in self])
-#        if self.__vectors is None:
-#            self.__vectors = np.array([line.vector for line in self])
-#        return self.__vectors
+#        return np.array([line.vector for line in self])
+        if self.__vectors is None:
+            self.__vectors = np.array([line.vector for line in self])
+        return self.__vectors
     
     @property    
     def starts(self):
-        return np.array([line.start.get2DPoint() for line in self])
-#        if self.__starts is None:
-#            self.__starts = np.array([line.start.get2DPoint() for line in self])
-#        return self.__starts
+#        return np.array([line.start.get2DPoint() for line in self])
+        if self.__starts is None:
+            self.__starts = np.array([line.start.get2DPoint() for line in self])
+        return self.__starts
     
     def addLinesFromCoordinateList(self, coordList):
         pointList = []        
@@ -116,7 +116,7 @@ class LineGroup(object):
         if(startY < self.minY > endY): return True # Both ends are less than minY
         if(startY > self.maxY < endY): return True # Both ends are greater than maxY
         return False
-
+    
     def nearestLine_Coro(self, name=None):
         used, testPoint = yield
         normList = np.array([point.normalVector for point in self.iterPoints()])
@@ -137,7 +137,7 @@ class LineGroup(object):
                 causes a new array to be made, we instead set the used points to
                 infinity which means they will never be a minimum distance. """
                 normList[[index*2,index*2+1]] = np.inf
-    
+
     def append(self, line):
         self.lines.append(line)
         self.updateMinMax(line)
