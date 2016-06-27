@@ -37,7 +37,7 @@ class Figura:
     
     def __init__(self, stl, param, g_code):
         
-        self.mesh = trimesh.load_mesh(stl)        
+        self.mesh = trimesh.load_mesh(stl)#        
         
         self.gc = g_code
         self.pr = param
