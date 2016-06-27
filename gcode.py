@@ -12,8 +12,8 @@ class Gcode:
     def __init__(self, param):
         self.pr = param
 
-    def feedMove(self, endPoint, ommitZ, extrudeTo, printSpeed):
-        if ommitZ:
+    def feedMove(self, endPoint, omitZ, extrudeTo, printSpeed):
+        if omitZ:
             tempString = ('X{:.3f} Y{:.3f} E{:.3f}'.format(endPoint.x,
                           endPoint.y, extrudeTo))
         else:
@@ -24,8 +24,8 @@ class Gcode:
     
                     
     
-    def rapidMove(self, endPoint, ommitZ):
-        if ommitZ:
+    def rapidMove(self, endPoint, omitZ):
+        if omitZ:
             return ('G00 X{:.3f} Y{:.3f} F{:.0f}\n'.format(endPoint.x, endPoint.y,
                     self.pr.RAPID))
         else:
@@ -65,3 +65,4 @@ class Gcode:
         for line in lines:
             tempString += str(line)
         return tempString
+        
