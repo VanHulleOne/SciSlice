@@ -45,7 +45,8 @@ class Line(object):
             self.freezeExRate = oldLine.freezeExRate
         self.vector = np.array([self.end.x-self.start.x,
                                 self.end.y-self.start.y])
-
+                                
+    
     @property
     def upperLeft(self):
         if self.__upperLeft is None:            

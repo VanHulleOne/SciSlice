@@ -44,7 +44,7 @@ class Shape(LG):
     def __init__(self, shape=None):
         LG.__init__(self, shape)
         self.outlineFinished = False
-        
+
     def addCoordLoop(self, loop):
         loop_iter = iter(loop)
         pp = list(next(loop_iter))
@@ -339,7 +339,7 @@ class Shape(LG):
         offsetLines.append(moveEnd)
         offsetLines[0] = l.Line(point, offsetLines[0].end, offsetLines[0])
         yield offsetLines
-    
+
     def isInside(self, point, ray=np.array([0.998, 0.067])):
         """
         This method determines if the point is inside
@@ -449,7 +449,7 @@ class Section:
             else:
                 final = final.difference(ps.poly)
         return final    
-    
+
     def offset(self, dist, side):
         union = self.re_union(filter(None, (j.offset(dist, side) for j in self.sidedPolygons)))
         if not union:
