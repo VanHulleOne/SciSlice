@@ -94,21 +94,13 @@ class Figura:
         """        
         
         layerParam_Gen = self.pr.layerParameters()
-        currHeight = self.pr.firstLayerShiftZ
+#        currHeight = self.pr.firstLayerShiftZ
         layerParam = next(layerParam_Gen)
             
-        currHeight += layerParam.layerHeight
+        currHeight = layerParam.layerHeight
         
-        while currHeight <= self.maxZ:
-#            lay += 132
-            """ Iterate through for the correct number of layers. """
-            
-
-#            try:
+        while currHeight <= self.maxZ-60:
             sec = Section(self.mesh.section(plane_origin=[0,0,currHeight],plane_normal=[0,0,1]))
-#            except Exception:
-#                print('Mesh section failed')
-#                print('CurrHeight)
 
             filledList = []
 
@@ -137,8 +129,8 @@ class Figura:
                 filledList.append(infill)
             ol = self.organizedLayer(filledList)
             """ a tuple of the organized LineGroup and the layer parameters. """
-            yield (ol.translate(partParams.shiftX,
-                                            partParams.shiftY, currHeight), layerParam)
+            yield (ol.translate(partParams.shiftX, partParams.shiftY,
+                                currHeight+self.pr.firstLayerShiftZ), layerParam)
             layerParam = next(layerParam_Gen)
             
             currHeight += layerParam.layerHeight
@@ -151,15 +143,6 @@ class Figura:
         totalExtrusion = 0
         
         for layer, layerParam in self.layer_gen(partParams):
-            #creats text file of all data points
-            data = []
-            for line in layer:
-                temp = []
-                temp.append(str(line.start).replace("X", "").replace("Y", "").replace("Z", "").split(" "))
-                temp.append(str(line.end).replace("X", "").replace("Y", "").replace("Z", "").split(" "))
-                data.append(temp)
-            for entry in data:
-                self.data_points.write(str(entry) + "\n")
             extrusionRate = (partParams.solidityRatio*layerParam.layerHeight*
                             layerParam.pathWidth/self.pr.filamentArea)
             yield ';Layer: ' + str(layerNumber) + '\n'
@@ -172,7 +155,10 @@ class Figura:
             yield self.gc.firstApproach(totalExtrusion, layer[0].start)
             
             prevLoc = layer[0].start
-            for line in layer:                
+            for line in layer:
+                self.data_points.write(','.join(str(i) for i in line.start.normalVector[:3])+',')
+                self.data_points.write(','.join(str(i) for i in line.end.normalVector[:3]))
+                self.data_points.write('\n')
                 if prevLoc != line.start:
                     if (prevLoc - line.start) < self.pr.MAX_FEED_TRAVERSE:
                         yield self.gc.rapidMove(line.start, c.OMIT_Z)
