@@ -30,14 +30,15 @@ import LineGroup as lg
 import constants as c
 from Shape import Shape, Section
 import trimesh
+import os
 
 class Figura:  
     
     data_points =  open("data_points.txt", 'a')
     
     def __init__(self, stl, param, g_code):
-        
-        self.mesh = trimesh.load_mesh(stl)#        
+        currPath = os.path.dirname(os.path.realpath(__file__))
+        self.mesh = trimesh.load_mesh(currPath+'\\'+stl)        
         
         self.gc = g_code
         self.pr = param
@@ -177,7 +178,8 @@ class Figura:
             yield '\n'
             layerNumber += 1
         yield ';Extrusion amount for part is ({:.1f} mm)\n\n'.format(totalExtrusion)
-                
+
+            
     def organizedLayer(self, inShapes):
         """ Takes in a list of LineGroup objects and returns them as an organized layer.
         
@@ -235,7 +237,7 @@ class Figura:
                 to be continuous contours (except if the have internal holes) so
                 there is no need to check any other LineGroup for a closer line.
                 Plus if the shape was being used as a brim to help start a print
-                we would not want to stop party way through the brim.
+                we would not want to stop partialy way through the brim.
                 """
                 while 1:
                     try:

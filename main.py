@@ -25,7 +25,8 @@ class Main:
     STL_FILE = 'stl_file'
     
     def __init__(self, name):
-        with open(name, 'r') as fp:
+        currPath = os.path.dirname(os.path.realpath(__file__))
+        with open(currPath +'\\'+ name, 'r') as fp:
             self.main_data = json.load(fp)
 #        self.outline_options[self.REGULARDOGBONE] = ds.regularDogBone()
         self.trimAdjust_options[self.EPSILON] = c.EPSILON
