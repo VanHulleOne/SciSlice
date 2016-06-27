@@ -85,10 +85,10 @@ class RobotCode:
                     
     def _linearMove(self, endPoint, omitZ, speed):
         if omitZ:
-            tempString = ','.split(endPoint[:2]) + ', ' + str(self.currZ)
+            tempString = ','.join(str(i) for i in endPoint[:2]) + ', ' + str(self.currZ)
         else:
-            tempString = ','.split(endPoint[:3])
-            self.currZ = endPoint.z
+            tempString = ','.join(str(i) for i in endPoint[:3])
+            self.currZ = endPoint[c.Z]
     
         return ('\t\tMoveL Offs(' + self.pZero + ', ' + tempString +
                 ') v{:.0f}, z0 '.format(speed) + self.tool + ' Wobj := ' + self.work + ';\n')        
