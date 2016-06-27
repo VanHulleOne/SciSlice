@@ -38,7 +38,7 @@ class Figura:
     
     def __init__(self, stl, param, g_code):
         currPath = os.path.dirname(os.path.realpath(__file__))
-        self.mesh = trimesh.load_mesh(currPath+'\\'+stl)        
+        self.mesh = trimesh.load_mesh(stl)#currPath+'\\'+stl)        
         
         self.gc = g_code
         self.pr = param
@@ -100,7 +100,7 @@ class Figura:
             
         currHeight = layerParam.layerHeight
         
-        while currHeight <= self.maxZ:
+        while currHeight <= self.maxZ-61:
             sec = Section(self.mesh.section(plane_origin=[0,0,currHeight],plane_normal=[0,0,1]))
 
             filledList = []
