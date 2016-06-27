@@ -78,4 +78,9 @@ class Main:
             print('\nTotal number of differences: ', numDiffs)
         """
             
-            
+if __name__ == '__main__':
+    main = Main('Gcode\\ZigZag.gcode.json')
+    main.run()
+
+
+           
