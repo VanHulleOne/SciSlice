@@ -84,7 +84,6 @@ class Parameters:
             self.param_data[key] = main_data[key]          
         for key in self.param_data:
             setattr(self, key, self.param_data[key])
-        print(self.outputFileName)
         self.param_data["outputFileName"] = self.outputFileName
         self.param_data["currPath"] = os.path.dirname(os.path.realpath(__file__))
         self.param_data["outputSubDirectory"] = self.currPath + '\\Gcode'

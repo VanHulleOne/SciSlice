@@ -262,6 +262,7 @@ class Page_Variables(Frame):
     def g_robot(self):
         
         self.g_robot_var = IntVar()
+        self.g_robot_var.set(1)
         
         ttk.Radiobutton(self, text='Gcode', variable=self.g_robot_var, value=1).grid(row=len(self.texts)+2,column=0)
         ttk.Radiobutton(self, text='RobotCode', variable=self.g_robot_var, value=2).grid(row=len(self.texts)+2,column=1)
@@ -426,40 +427,33 @@ class Page_Model(Frame):
         self.controller = controller
         
         data = []
-    
-        with open("data_points.txt", 'r') as f:
-            for line in f:
-                data.append(line)   
-           
-        for x in range(0,len(data)):   
-            data[x] = data[x].replace("[", "")
-            data[x] = data[x].replace("]", "")
-            data[x] = data[x].replace("'", "")
-            data[x] = data[x].replace(" ", "")
-            data[x] = data[x].replace("\n", "")
-            data[x] = data[x].split(",")
-            for y in range(0,len(data[x])):
-                data[x][y] = float(data[x][y])
-        
+        counter = 0
         self.x = []
         self.y = []
         self.z = []
-        for entry in data:
-            tempx = []
-            tempy = []
-            tempz = []
-            tempx.append(entry[0])
-            tempx.append(entry[3])
-            tempy.append(entry[1])
-            tempy.append(entry[4])
-            tempz.append(entry[2])
-            tempz.append(entry[5])
-            self.x.append(tempx)
-            self.x.append(tempx)
-            self.y.append(tempy)
-            self.y.append(tempy)
-            self.z.append(tempz)
-            self.z.append(tempz)        
+        
+        with open("data_points.txt", 'r') as f:
+            for line in f:
+                data.append(line)      
+                data[counter] = data[counter].split(",")
+                for y in range(0,len(data[counter])):
+                    data[counter][y] = float(data[counter][y])
+                tempx = []
+                tempy = []
+                tempz = []
+                tempx.append(data[counter][0])
+                tempx.append(data[counter][3])
+                tempy.append(data[counter][1])
+                tempy.append(data[counter][4])
+                tempz.append(data[counter][2])
+                tempz.append(data[counter][5])
+                self.x.append(tempx)
+                self.x.append(tempx)
+                self.y.append(tempy)
+                self.y.append(tempy)
+                self.z.append(tempz)
+                self.z.append(tempz)        
+                counter += 1
         
         buttonModel = ttk.Button(self, text='3D Model', 
                              command=lambda: self.controller.show_frame(Page_Variables))
