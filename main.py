@@ -39,7 +39,7 @@ class Main:
                     option *= number
                 self.main_data[self.TRIMADJUST][0] = option
         self.pr = Parameters(self.main_data)
-        self.gc = RobotCode(self.pr)#Gcode(self.pr)
+        self.gc = Gcode(self.pr)#RobotCode(self.pr)
     
     def run(self):
         startTime = time.time()
