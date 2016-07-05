@@ -24,7 +24,7 @@ class Main:
     EPSILON = 'EPSILON'
     STL_FILE = 'stl_file'
     
-    def __init__(self, name):
+    def __init__(self, name, gRobot):
         currPath = os.path.dirname(os.path.realpath(__file__))
 #        with open(currPath +'\\'+ name, 'r') as fp:
         with open(name, 'r') as fp:
@@ -39,7 +39,10 @@ class Main:
                     option *= number
                 self.main_data[self.TRIMADJUST][0] = option
         self.pr = Parameters(self.main_data)
-        self.gc = RobotCode(self.pr)#Gcode(self.pr)
+        if gRobot == 1:
+            self.gc = Gcode(self.pr)
+        elif gRobot == 2:
+            self.gc = RobotCode(self.pr)
     
     def run(self):
         startTime = time.time()

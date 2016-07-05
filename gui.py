@@ -91,6 +91,7 @@ class Page_Variables(Frame):
     TRIMADJUST = 'trimAdjust'
     START_GCODE_FILENAME = 'start_Gcode_FileName'
     END_GCODE_FILENAME = 'end_Gcode_FileName'
+    OUTPUTFILENAME = 'outputFileName'
     
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
@@ -247,6 +248,7 @@ class Page_Variables(Frame):
         self.presets()
         self.gcode()
         self.to_model()
+        self.g_robot()
     
     #create button to switch to 3D model page
     def to_model(self):  
@@ -255,6 +257,14 @@ class Page_Variables(Frame):
         buttonModel = ttk.Button(self, text='3D Model', 
                              command=lambda: self.controller.show_frame(Page_Model))
         buttonModel.grid(row=len(self.texts)+1,column=0)
+        
+    #create radiobutton to switch between gcode and robotcode
+    def g_robot(self):
+        
+        self.g_robot_var = IntVar()
+        
+        ttk.Radiobutton(self, text='Gcode', variable=self.g_robot_var, value=1).grid(row=len(self.texts)+2,column=0)
+        ttk.Radiobutton(self, text='RobotCode', variable=self.g_robot_var, value=2).grid(row=len(self.texts)+2,column=1)
         
     #############################################
     #   methods that are called from buttons    #
@@ -265,6 +275,7 @@ class Page_Variables(Frame):
 
         data = {}               #dictionary to put String value of StringVar values in
         self.filename = filedialog.asksaveasfilename()   #creates window to get filename
+        gcodeName = self.filename.split('/')[len(self.filename.split('/'))-1] + '.gcode'
         self.filename = self.filename + '.json'               
         
         #check if the user cancelled saving the file
@@ -278,6 +289,7 @@ class Page_Variables(Frame):
             to_float_array = [self.SOLIDITYRATIO, self.PATHWIDTH,                               #variables with type double that go in an array
                                self.LAYERHEIGHT]
             to_none = [self.PATTERN]                                                            #variables with type None
+            data[self.OUTPUTFILENAME] = gcodeName
             for key in self.text_variable:
                 if key in to_string:
                     data[key] = self.text_variable[key].get()
@@ -403,8 +415,9 @@ class Page_Variables(Frame):
         #check if the user cancelled converting to Gcode
         if self.filename != '':
             #convert to Gcode
-            conversion = Main(self.filename)
+            conversion = Main(self.filename, self.g_robot_var.get())
             conversion.run()
+            
 
 class Page_Model(Frame):    
     

@@ -52,7 +52,7 @@ class Parameters:
     """
     File Parameters
     """
-    outputFileName = 'ZigZag.gcode' #the name of the file you want output. git will ignore all .gcode unless they start with SAVE
+    outputFileName = 'Testing.gcode' #the name of the file you want output. git will ignore all .gcode unless they start with SAVE
     currPath = os.path.dirname(os.path.realpath(__file__))
     outputSubDirectory = currPath + '\\Gcode'
     startEndSubDirectory = currPath + '\\Start_End_Gcode'
@@ -84,7 +84,8 @@ class Parameters:
             self.param_data[key] = main_data[key]          
         for key in self.param_data:
             setattr(self, key, self.param_data[key])
-        self.param_data["outputFileName"] = 'ZigZag.gcode'
+        print(self.outputFileName)
+        self.param_data["outputFileName"] = self.outputFileName
         self.param_data["currPath"] = os.path.dirname(os.path.realpath(__file__))
         self.param_data["outputSubDirectory"] = self.currPath + '\\Gcode'
         self.param_data["startEndSubDirectory"] = self.currPath + '\\Start_End_Gcode'
