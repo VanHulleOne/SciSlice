@@ -72,7 +72,7 @@ class RobotCode:
         self.tool = 'tNozzle'
         self.work = 'wobjPlatform'
         self.pZero = 'pZero'
-        self.currZ = None
+        self.currZ = 50
         
     def feedMove(self, endPoint, omitZ, extrudeTo, printSpeed):
         #TODO: something for starting the extruder
@@ -85,13 +85,13 @@ class RobotCode:
                     
     def _linearMove(self, endPoint, omitZ, speed):
         if omitZ:
-            tempString = ','.split(endPoint[:2]) + ', ' + str(self.currZ)
+            tempString = ','.join(str(round(i,3)) for i in endPoint[:2]) + ', ' + str(self.currZ)
         else:
-            tempString = ','.split(endPoint[:3])
-            self.currZ = endPoint.z
+            tempString = ','.join(str(round(i,3)) for i in endPoint[:3])
+            self.currZ = endPoint[c.Z]
     
         return ('\t\tMoveL Offs(' + self.pZero + ', ' + tempString +
-                ') v{:.0f}, z0 '.format(speed) + self.tool + ' Wobj := ' + self.work + ';\n')        
+                '), v{:.0f}, z0, '.format(speed) + self.tool + ', \\Wobj := ' + self.work + ';\n')        
                     
     def retractLayer(self, currentE, currentPoint):
         #TODO: something to retract extruder
