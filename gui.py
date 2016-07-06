@@ -92,6 +92,9 @@ class Page_Variables(Frame):
     START_GCODE_FILENAME = 'start_Gcode_FileName'
     END_GCODE_FILENAME = 'end_Gcode_FileName'
     OUTPUTFILENAME = 'outputFileName'
+    BEDTEMP = 'bed_temp'
+    EXTRUDERTEMP = 'extruder_temp'
+#    CURRPATH = os.path.dirname(os.path.realpath(__file__))
     
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
@@ -119,7 +122,8 @@ class Page_Variables(Frame):
                  self.PATTERN, self.DESIGNTYPE,                                           #part parameters
                  self.INFILLANGLEDEGREES, self.PATHWIDTH, self.LAYERHEIGHT,                  #layer parameters
                  self.INFILLSHIFTX, self.INFILLSHIFTY, self.NUMSHELLS, self.TRIMADJUST,         #layer parameters
-                 self.START_GCODE_FILENAME, self.END_GCODE_FILENAME]                      #file parameters
+                 self.START_GCODE_FILENAME, self.END_GCODE_FILENAME,                      #file parameters
+                 self.BEDTEMP, self.EXTRUDERTEMP]                                           #print parameters
                  
         #array of part parameters
         self.part_param = [self.STL_FILE, self.SOLIDITYRATIO, self.PRINTSPEED, self.SHIFTX,           
@@ -132,6 +136,9 @@ class Page_Variables(Frame):
                             
         #array of file parameters
         self.file_param = [self.START_GCODE_FILENAME, self.END_GCODE_FILENAME]
+        
+        #array of print parameters
+        self.print_param = [self.BEDTEMP, self.EXTRUDERTEMP]
                  
         #array of Strings of the commonly used variables
         self.common_texts = [self.STL_FILE, self.SOLIDITYRATIO, self.PRINTSPEED, 
@@ -143,7 +150,8 @@ class Page_Variables(Frame):
                     'None', '0',                                                    #part parameters
                     '0, -45, 90, 45, 45, 90, -45', '0.5', '0.4',                    #layer parameters
                     '0', '0', '13,1,1,0,0,1,1', '2*c.EPSILON',                      #layer parameters
-                    'Start_Gcode_Taz5.txt', 'End_Gcode_Taz5.txt']                   #file parameters   
+                    'Start_Gcode_Taz5.txt', 'End_Gcode_Taz5.txt',                   #file parameters   
+                    '999', '999']                                               #print parameters
                     
         self.create_var_page()
               
@@ -219,7 +227,11 @@ class Page_Variables(Frame):
         buttonLayers = ttk.Button(self,text='Layers',command=lambda: self.use_layers())
         buttonLayers.grid(row=4,column=2)
         #button to display file parameters
-        buttonFiles = ttk.Button(self,text='Files',command=lambda: self.use_files()).grid(row=5,column=2)
+        buttonFiles = ttk.Button(self,text='Files',command=lambda: self.use_files())
+        buttonFiles.grid(row=5,column=2)
+        #button to display print parameters
+        buttonPrints = ttk.Button(self,text='Prints',command=lambda: self.use_prints())
+        buttonPrints.grid(row=6,column=2)
         
     #create label and buttons for different preset values of parameters
     def presets(self):
@@ -270,60 +282,23 @@ class Page_Variables(Frame):
     #############################################
     #   methods that are called from buttons    #
     #############################################
-        
-    #saves the dictionary of the StringVars to a JSON file    
-    def save(self):
-
-        data = {}               #dictionary to put String value of StringVar values in
-        self.filename = filedialog.asksaveasfilename()   #creates window to get filename
-        gcodeName = self.filename.split('/')[len(self.filename.split('/'))-1] + '.gcode'
-        self.filename = self.filename + '.json'               
-        
-        #check if the user cancelled saving the file
-        if self.filename != '':
-            to_string = [self.STL_FILE, self.START_GCODE_FILENAME, self.END_GCODE_FILENAME]      #variables with type String                
-            to_int = [self.DESIGNTYPE, self.FIRSTLAYERSHIFTZ]                                   #variables with type int
-            to_string_array = [self.TRIMADJUST]                                                 #variables with type String that go in an array
-            to_int_array = [self.PRINTSPEED, self.SHIFTX, self.SHIFTY,                          #variables with type int that go in an array
-                            self.NUMLAYERS, self.INFILLANGLEDEGREES,
-                            self.INFILLSHIFTX, self.INFILLSHIFTY, self.NUMSHELLS]
-            to_float_array = [self.SOLIDITYRATIO, self.PATHWIDTH,                               #variables with type double that go in an array
-                               self.LAYERHEIGHT]
-            to_none = [self.PATTERN]                                                            #variables with type None
-            data[self.OUTPUTFILENAME] = gcodeName
-            for key in self.text_variable:
-                if key in to_string:
-                    data[key] = self.text_variable[key].get()
-                elif key in to_int:
-                    data[key] = int(self.text_variable[key].get())   
-                elif key in to_none:
-                    data[key] = None                           
-                else:
-                    value = self.text_variable[key].get()            
-                    if ' ' in value:
-                        value = value.replace(' ', ',')                
-                    if ',,' in value:
-                        value = value.replace(',,', ',')               
-                    if key in to_string_array:                        
-                        data[key] = value.split(',')            
-                    elif key in to_int_array:
-                        data[key] = [int(i) for i in value.split(',')]     
-                    elif key in to_float_array:
-                        data[key] = [float(i) for i in value.split(',')]      
-                    
-            with open(self.filename, 'w') as fp:
-                json.dump(data, fp)    #save JSON file
                 
-    def save(self, name):
+    def save(self, name = None):
         
-        data = {}               #dictionary to put String value of StringVar values in
-        gcodeName = name + '.gcode'
-        self.filename = name + '.json'               
+        if name == None:
+            data = {}               #dictionary to put String value of StringVar values in
+            self.filename = filedialog.asksaveasfilename()   #creates window to get filename
+            gcodeName = self.filename.split('/')[len(self.filename.split('/'))-1] + '.gcode'
+            self.filename = self.filename + '.json'  
+        else:
+            data = {}               #dictionary to put String value of StringVar values in
+            gcodeName = name + '.gcode'
+            self.filename = name + '.json'               
         
         #check if the user cancelled saving the file
         if self.filename != '':
             to_string = [self.STL_FILE, self.START_GCODE_FILENAME, self.END_GCODE_FILENAME]      #variables with type String                
-            to_int = [self.DESIGNTYPE, self.FIRSTLAYERSHIFTZ]                                   #variables with type int
+            to_int = [self.DESIGNTYPE, self.FIRSTLAYERSHIFTZ, self.BEDTEMP, self.EXTRUDERTEMP]  #variables with type int
             to_string_array = [self.TRIMADJUST]                                                 #variables with type String that go in an array
             to_int_array = [self.PRINTSPEED, self.SHIFTX, self.SHIFTY,                          #variables with type int that go in an array
                             self.NUMLAYERS, self.INFILLANGLEDEGREES,
@@ -404,6 +379,10 @@ class Page_Variables(Frame):
         for file_p in self.file_param:
             self.labels[file_p].grid_forget()    
             self.entries[file_p].grid_forget()    
+            
+        for print_p in self.print_param:
+            self.labels[print_p].grid_forget()
+            self.entries[print_p].grid_forget()
       
     #switch to tab with only layer parameters  
     def use_layers(self):
@@ -419,6 +398,10 @@ class Page_Variables(Frame):
         for part_p in self.part_param:
             self.labels[part_p].grid_forget()    
             self.entries[part_p].grid_forget()    
+            
+        for print_p in self.print_param:
+            self.labels[print_p].grid_forget()
+            self.entries[print_p].grid_forget()
       
     #switch to tabe with only file parameters  
     def use_files(self):
@@ -434,6 +417,28 @@ class Page_Variables(Frame):
         for layer_p in self.layer_param:
             self.labels[layer_p].grid_forget()    
             self.entries[layer_p].grid_forget()
+            
+        for print_p in self.print_param:
+            self.labels[print_p].grid_forget()
+            self.entries[print_p].grid_forget()
+            
+    def use_prints(self):
+        
+        for x in range(len(self.print_param)):
+            self.labels[self.print_param[x]].grid(row=x+1,column=0)
+            self.entries[self.print_param[x]].grid(row=x+1,column=1)
+            
+        for part_p in self.part_param:
+            self.labels[part_p].grid_forget()    
+            self.entries[part_p].grid_forget()    
+            
+        for layer_p in self.layer_param:
+            self.labels[layer_p].grid_forget()    
+            self.entries[layer_p].grid_forget()
+            
+        for file_p in self.file_param:
+            self.labels[file_p].grid_forget()    
+            self.entries[file_p].grid_forget()
         
     #change values to dogbone preset    
     def dogbone(self):
@@ -443,16 +448,19 @@ class Page_Variables(Frame):
                 'None', '0',                                                            #part parameters
                 '0, -45, 90, 45, 45, 90, -45', '0.5', '0.4',                            #layer parameters
                 '0', '0', '13,1,1,0,0,1,1',  '2*c.EPSILON',                             #layer parameters
-                'Start_Gcode_Taz5.txt', 'End_Gcode_Taz5.txt']                      #file parameters
+                'Start_Gcode_Taz5.txt', 'End_Gcode_Taz5.txt',                      #file parameters
+                '999', '999']                                                       #print parameters
                 
         for x in range(len(self.texts)):
             self.text_variable[self.texts[x]].set(dogbone_data[x])        #change values to dogbone values
     
-    #create Gcode file        
-    def convert(self):
-
-        #save file
-        self.save()
+    #create Gcode file                    
+    def convert(self, name = None):
+        
+        if name == None:
+            self.save()
+        else:
+            self.save(name)
         
         #check if the user cancelled converting to Gcode
         if self.filename != '':
@@ -460,16 +468,6 @@ class Page_Variables(Frame):
             conversion = Main(self.filename, self.g_robot_var.get())
             conversion.run()
             
-    def convert(self, name):
-        
-        #save file
-        self.save(name)
-        
-        #check if the user cancelled converting to Gcode
-        if self.filename != '':
-            #convert to Gcode
-            conversion = Main(self.filename, self.g_robot_var.get())
-            conversion.run()
     
     #convert to gcode, switch to Page_Model        
     def to_model(self):
@@ -477,6 +475,7 @@ class Page_Variables(Frame):
         self.convert('temp')
         
         self.controller.show_frame(Page_Model)
+        
 
 
 class Page_Model(Frame):    

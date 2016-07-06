@@ -34,9 +34,10 @@ import os
 
 class Figura:  
     
-    data_points =  open("data_points.txt", 'a')
-    
     def __init__(self, stl, param, g_code):
+        
+        self.data_points =  open("data_points.txt", 'a')
+        
         currPath = os.path.dirname(os.path.realpath(__file__))
         self.mesh = trimesh.load_mesh(stl)#currPath+'\\'+stl)        
         
