@@ -28,7 +28,7 @@ five section:<br/>
 
 Parameters which are in Python lists [enclosed in square brackets] can very varied
 between either parts or layers depending on which parameter set they are located.
-For _ **part parameters** the longest list determines **how many** parts are printed_
+For **_part parameters_** _the longest list determines_ **_how many_** _parts are printed_
 all other parameters a cycled until the longest list is exhausted. For layer parameters
 the parameters are cycled until the specified number of layers have been printed.
 
