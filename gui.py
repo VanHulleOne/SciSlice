@@ -4,6 +4,7 @@ Created on Sat May 28 16:39:58 2016
 @author: Alex Diebold
 '''
 
+import os
 import matplotlib                   #for 3D model
 
 #if using the Spyder console, matplotlib is already imported and the backend cannot be changed with .use() as is needed
@@ -33,7 +34,7 @@ class GUI(Tk):
         
         Tk.iconbitmap(self, 'UW_Madison_icon.ico')
         Tk.title(self, '3D Printer Parameter Setter')
-        #format window size -- width=500, height=475, 100px from left of screen, 100px from top of screen
+        #format window size -- width=450, height=475, 100px from left of screen, 100px from top of screen
         #Tk.geometry(self, '450x475+100+100')
         
         #set up frame
@@ -53,6 +54,9 @@ class GUI(Tk):
         #dictionary of Frames
         self.frames = {}
         
+        self.shapes = {Page_Variables : '425x525+150+100',       
+                       Page_Model : '600x200+150+100'}
+        
         #add Frames to dictionary
         for F in (Page_Variables, Page_Model):
         
@@ -61,13 +65,16 @@ class GUI(Tk):
             self.frames[F] = frame
             
             frame.grid(row=0, column=0, sticky='nsew')
+            
         
         #show initial Frame
+        Tk.geometry(self, self.shapes[Page_Variables])
         self.show_frame(Page_Variables)
        
     #show frame
     def show_frame(self, cont):
         
+        Tk.geometry(self, self.shapes[cont])        
         frame = self.frames[cont]
         frame.tkraise() 
         
@@ -94,7 +101,9 @@ class Page_Variables(Frame):
     OUTPUTFILENAME = 'outputFileName'
     BEDTEMP = 'bed_temp'
     EXTRUDERTEMP = 'extruder_temp'
-#    CURRPATH = os.path.dirname(os.path.realpath(__file__))
+    CURRPATH = os.path.dirname(os.path.realpath(__file__))
+    GCODEPATH = CURRPATH + '\\Gcode\\'
+    JSONPATH = CURRPATH + '\\JSON\\'
     
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
@@ -293,7 +302,7 @@ class Page_Variables(Frame):
         else:
             data = {}               #dictionary to put String value of StringVar values in
             gcodeName = name + '.gcode'
-            self.filename = name + '.json'               
+            self.filename = self.JSONPATH + name + '.json'               
         
         #check if the user cancelled saving the file
         if self.filename != '':
@@ -476,6 +485,9 @@ class Page_Variables(Frame):
         
         self.controller.show_frame(Page_Model)
         
+        os.remove(self.JSONPATH + 'temp.json')
+        os.remove(self.GCODEPATH + 'temp.gcode')
+        
 
 
 class Page_Model(Frame):    
@@ -490,10 +502,10 @@ class Page_Model(Frame):
         self.y = []
         self.z = []
         
-        with open("data_points.txt", 'r') as f:
+        with open('data_points.txt', 'r') as f:
             for line in f:
                 data.append(line)      
-                data[counter] = data[counter].split(",")
+                data[counter] = data[counter].split(',')
                 for y in range(0,len(data[counter])):
                     data[counter][y] = float(data[counter][y])
                 tempx = []
@@ -513,30 +525,44 @@ class Page_Model(Frame):
                 self.z.append(tempz)        
                 counter += 1
         
-        buttonModel = ttk.Button(self, text='3D Model', 
-                             command=lambda: self.controller.show_frame(Page_Variables))
-        buttonModel.pack()
-        
-        labelPoints = Label(self, text="Choose the start and end numbers of the graph")
-        labelPoints.pack()
-        
-        labelStart = Label(self, text="Start")
-        labelStart.pack(side=LEFT)
-        
-        scaleStart = Scale(self, from_=0, to=len(self.x), length=500, tickinterval=100)
-        scaleStart.pack(side=LEFT)
-        
-        labelEnd = Label(self, text="End")
-        labelEnd.pack(side=LEFT)
-        
-        scaleEnd = Scale(self, from_=0, to=len(self.x), length=500, tickinterval=100)
-        scaleEnd.pack(side=LEFT)
-        
-        buttonSubmit = Button(self, text="Create Graph", command=lambda: self.make_graph(scaleStart.get(), scaleEnd.get(), self.x, self.y, self.z))
-        buttonSubmit.pack()
+        self.setup()
     
-        #buttonUpdate = Button(text="Update Graph", command=lambda: )
+    def show_labels(self):
+        
+        labelIntro = Label(self, text='Choose the start and end layers of the model:')
+        labelIntro.grid(row=0,column=1)
+        
+        labelStart = Label(self, text='Start')
+        labelStart.grid(row=1,column=0)
+        
+        labelEnd = Label(self, text='End')
+        labelEnd.grid(row=2,column=0)
+        
+    def show_scales(self):
+        
+        scaleStart = Scale(self, from_=0, to=len(self.x), length=500, orient=HORIZONTAL)
+        scaleStart.grid(row=1,column=1)
+        
+        scaleEnd = Scale(self, from_=0, to=len(self.x), length=500, tickinterval=5000, orient=HORIZONTAL)
+        scaleEnd.grid(row=2,column=1)
+        
+    def show_buttons(self):
+        
+        buttonSubmit = ttk.Button(self, text='Create Graph', command=lambda: self.make_graph(scaleStart.get(), scaleEnd.get(), self.x, self.y, self.z))
+        buttonSubmit.grid(row=3,column=1)
+        
+        buttonVariables = ttk.Button(self, text='Variables', 
+                     command=lambda: self.controller.show_frame(Page_Variables))
+        buttonVariables.grid(row=4,column=0)
     
+        #buttonUpdate = Button(text='Update Graph', command=lambda: )
+
+    def setup(self):
+
+        self.show_labels()
+        self.show_scales()
+        self.show_buttons()                
+        
     def make_graph(self, start, end, x, y, z):
                 
         self.fig = plt.figure()
