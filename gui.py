@@ -247,15 +247,15 @@ class Page_Variables(Frame):
         self.tab_buttons()
         self.presets()
         self.gcode()
-        self.to_model()
+        self.model_page()
         self.g_robot()
     
     #create button to switch to 3D model page
-    def to_model(self):  
+    def model_page(self):  
         
         #button to switch to 3D model page
         buttonModel = ttk.Button(self, text='3D Model', 
-                             command=lambda: self.controller.show_frame(Page_Model))
+                             command=lambda: self.to_model())
         buttonModel.grid(row=len(self.texts)+1,column=0)
         
     #create radiobutton to switch between gcode and robotcode
@@ -278,6 +278,47 @@ class Page_Variables(Frame):
         self.filename = filedialog.asksaveasfilename()   #creates window to get filename
         gcodeName = self.filename.split('/')[len(self.filename.split('/'))-1] + '.gcode'
         self.filename = self.filename + '.json'               
+        
+        #check if the user cancelled saving the file
+        if self.filename != '':
+            to_string = [self.STL_FILE, self.START_GCODE_FILENAME, self.END_GCODE_FILENAME]      #variables with type String                
+            to_int = [self.DESIGNTYPE, self.FIRSTLAYERSHIFTZ]                                   #variables with type int
+            to_string_array = [self.TRIMADJUST]                                                 #variables with type String that go in an array
+            to_int_array = [self.PRINTSPEED, self.SHIFTX, self.SHIFTY,                          #variables with type int that go in an array
+                            self.NUMLAYERS, self.INFILLANGLEDEGREES,
+                            self.INFILLSHIFTX, self.INFILLSHIFTY, self.NUMSHELLS]
+            to_float_array = [self.SOLIDITYRATIO, self.PATHWIDTH,                               #variables with type double that go in an array
+                               self.LAYERHEIGHT]
+            to_none = [self.PATTERN]                                                            #variables with type None
+            data[self.OUTPUTFILENAME] = gcodeName
+            for key in self.text_variable:
+                if key in to_string:
+                    data[key] = self.text_variable[key].get()
+                elif key in to_int:
+                    data[key] = int(self.text_variable[key].get())   
+                elif key in to_none:
+                    data[key] = None                           
+                else:
+                    value = self.text_variable[key].get()            
+                    if ' ' in value:
+                        value = value.replace(' ', ',')                
+                    if ',,' in value:
+                        value = value.replace(',,', ',')               
+                    if key in to_string_array:                        
+                        data[key] = value.split(',')            
+                    elif key in to_int_array:
+                        data[key] = [int(i) for i in value.split(',')]     
+                    elif key in to_float_array:
+                        data[key] = [float(i) for i in value.split(',')]      
+                    
+            with open(self.filename, 'w') as fp:
+                json.dump(data, fp)    #save JSON file
+                
+    def save(self, name):
+        
+        data = {}               #dictionary to put String value of StringVar values in
+        gcodeName = name + '.gcode'
+        self.filename = name + '.json'               
         
         #check if the user cancelled saving the file
         if self.filename != '':
@@ -419,6 +460,24 @@ class Page_Variables(Frame):
             conversion = Main(self.filename, self.g_robot_var.get())
             conversion.run()
             
+    def convert(self, name):
+        
+        #save file
+        self.save(name)
+        
+        #check if the user cancelled converting to Gcode
+        if self.filename != '':
+            #convert to Gcode
+            conversion = Main(self.filename, self.g_robot_var.get())
+            conversion.run()
+    
+    #convert to gcode, switch to Page_Model        
+    def to_model(self):
+        
+        self.convert('temp')
+        
+        self.controller.show_frame(Page_Model)
+
 
 class Page_Model(Frame):    
     
@@ -480,6 +539,7 @@ class Page_Model(Frame):
         #buttonUpdate = Button(text="Update Graph", command=lambda: )
     
     def make_graph(self, start, end, x, y, z):
+                
         self.fig = plt.figure()
         self.ax = self.fig.add_subplot(111, projection='3d')
         
