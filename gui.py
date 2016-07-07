@@ -488,6 +488,8 @@ class Page_Variables(Frame):
         os.remove(self.JSONPATH + 'temp.json')
         os.remove(self.GCODEPATH + 'temp.gcode')
         
+        Page_Model.get_data(Page_Model)
+        
 
 
 class Page_Model(Frame):    
@@ -496,6 +498,9 @@ class Page_Model(Frame):
         Frame.__init__(self, parent)
         self.controller = controller
         
+    def get_data(self):
+        
+        print('hello')
         data = []
         counter = 0
         self.x = []
@@ -504,56 +509,60 @@ class Page_Model(Frame):
         
         with open('data_points.txt', 'r') as f:
             for line in f:
-                data.append(line)      
-                data[counter] = data[counter].split(',')
-                for y in range(0,len(data[counter])):
-                    data[counter][y] = float(data[counter][y])
-                tempx = []
-                tempy = []
-                tempz = []
-                tempx.append(data[counter][0])
-                tempx.append(data[counter][3])
-                tempy.append(data[counter][1])
-                tempy.append(data[counter][4])
-                tempz.append(data[counter][2])
-                tempz.append(data[counter][5])
-                self.x.append(tempx)
-                self.x.append(tempx)
-                self.y.append(tempy)
-                self.y.append(tempy)
-                self.z.append(tempz)
-                self.z.append(tempz)        
-                counter += 1
-        
+                if 'layer_number' in line:
+                    print(line)
+                else:
+                    data.append(line)      
+                    data[counter] = data[counter].split(',')
+                    for y in range(0,len(data[counter])):
+                        data[counter][y] = float(data[counter][y])
+                    tempx = []
+                    tempy = []
+                    tempz = []
+                    tempx.append(data[counter][0])
+                    tempx.append(data[counter][3])
+                    tempy.append(data[counter][1])
+                    tempy.append(data[counter][4])
+                    tempz.append(data[counter][2])
+                    tempz.append(data[counter][5])
+                    self.x.append(tempx)
+                    self.x.append(tempx)
+                    self.y.append(tempy)
+                    self.y.append(tempy)
+                    self.z.append(tempz)
+                    self.z.append(tempz)        
+                    counter += 1
+                    
         self.setup()
     
     def show_labels(self):
         
-        labelIntro = Label(self, text='Choose the start and end layers of the model:')
-        labelIntro.grid(row=0,column=1)
+        self.labelIntro = Label(self, text='Choose the start and end layers of the model:')
+        self.labelIntro.grid(row=0,column=1)
         
-        labelStart = Label(self, text='Start')
-        labelStart.grid(row=1,column=0)
+        self.labelStart = Label(self, text='Start')
+        self.labelStart.grid(row=1,column=0)
         
-        labelEnd = Label(self, text='End')
-        labelEnd.grid(row=2,column=0)
+        self.labelEnd = Label(self, text='End')
+        self.labelEnd.grid(row=2,column=0)
         
     def show_scales(self):
         
-        scaleStart = Scale(self, from_=0, to=len(self.x), length=500, orient=HORIZONTAL)
-        scaleStart.grid(row=1,column=1)
+        self.scaleStart = Scale(self, from_=0, to=len(self.x), length=500, orient=HORIZONTAL)
+        self.scaleStart.grid(row=1,column=1)
         
-        scaleEnd = Scale(self, from_=0, to=len(self.x), length=500, tickinterval=5000, orient=HORIZONTAL)
-        scaleEnd.grid(row=2,column=1)
+        self.scaleEnd = Scale(self, from_=0, to=len(self.x), length=500, tickinterval=5000, orient=HORIZONTAL)
+        self.scaleEnd.grid(row=2,column=1)
         
     def show_buttons(self):
         
-        buttonSubmit = ttk.Button(self, text='Create Graph', command=lambda: self.make_graph(scaleStart.get(), scaleEnd.get(), self.x, self.y, self.z))
-        buttonSubmit.grid(row=3,column=1)
+        self.buttonSubmit = ttk.Button(self, text='Create Graph', command=lambda: 
+            self.make_graph(self.scaleStart.get(), self.scaleEnd.get(), self.x, self.y, self.z))
+        self.buttonSubmit.grid(row=3,column=1)
         
-        buttonVariables = ttk.Button(self, text='Variables', 
+        self.buttonVariables = ttk.Button(self, text='Variables', 
                      command=lambda: self.controller.show_frame(Page_Variables))
-        buttonVariables.grid(row=4,column=0)
+        self.buttonVariables.grid(row=4,column=0)
     
         #buttonUpdate = Button(text='Update Graph', command=lambda: )
 
