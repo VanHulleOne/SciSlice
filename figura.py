@@ -131,7 +131,7 @@ class Figura:
         
         for layer, layerParam in self.layer_gen(partParams):
             extrusionRate = (partParams.solidityRatio*layerParam.layerHeight*
-                            layerParam.pathWidth/pr.filamentArea)
+                            pr.nozzleDiameter/pr.filamentArea)
             yield ';Layer: ' + str(layerNumber) + '\n'
             yield ';' + str(layerParam) + '\n'
             yield ';T' + str(self.partCount) + str(layerNumber) + '\n'
