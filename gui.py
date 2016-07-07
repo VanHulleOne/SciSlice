@@ -491,13 +491,13 @@ class Page_Variables(Frame):
     
     #convert to gcode, switch to Page_Model        
     def to_model(self):
-        
-        self.convert('temp')
+# TODO: uncomment these        
+#        self.convert('temp')
         
         self.controller.show_frame(Page_Model)
         
-        os.remove(self.JSONPATH + 'temp.json')
-        os.remove(self.GCODEPATH + 'temp.gcode')
+#        os.remove(self.JSONPATH + 'temp.json')
+#        os.remove(self.GCODEPATH + 'temp.gcode')
         
 
 
@@ -517,32 +517,23 @@ class Page_Model(Frame):
         self.x = []
         self.y = []
         self.z = []
+        self.id = []
         
         with open('data_points.txt', 'r') as f:
             for line in f:
                 if 'layer_number' in line:
                     print(line)
                     print(counter)
+                    self.id.append([line.split(':')[1], line.split(':')[3]])
                 else:
                     data.append(line)      
                     data[counter] = data[counter].split(',')
                     for y in range(0,len(data[counter])):
                         data[counter][y] = float(data[counter][y])
-                    tempx = []
-                    tempy = []
-                    tempz = []
-                    tempx.append(data[counter][0])
-                    tempx.append(data[counter][3])
-                    tempy.append(data[counter][1])
-                    tempy.append(data[counter][4])
-                    tempz.append(data[counter][2])
-                    tempz.append(data[counter][5])
-                    self.x.append(tempx)
-                    self.y.append(tempy)
-                    self.z.append(tempz)     
+                    self.x.append([data[counter][0], data[counter][3]])
+                    self.y.append([data[counter][1], data[counter][4]])
+                    self.z.append([data[counter][2], data[counter][5]])     
                     counter += 1
-        print(counter)
-        print(len(self.x))
                     
         self.setup()
     
