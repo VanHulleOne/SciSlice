@@ -38,9 +38,9 @@ class GUI(Tk):
         #Tk.geometry(self, '450x475+100+100')
         
         #set up frame
-        container = Frame(self)
-        container.pack(side='top', fill='both', expand=True)
-        container.grid(row=0,column=0)
+        self.container = Frame(self)
+        self.container.pack(side='top', fill='both', expand=True)
+        self.container.grid(row=0,column=0)
         
         #create menubar
 #        menubar = Menu(container)
@@ -58,13 +58,16 @@ class GUI(Tk):
                        Page_Model : '600x200+150+100'}
         
         #add Frames to dictionary
-        for F in (Page_Variables, Page_Model):
-        
-            frame = F(container, self)
-            
-            self.frames[F] = frame
-            
-            frame.grid(row=0, column=0, sticky='nsew')
+#        for F in (Page_Variables):
+#        
+#            frame = F(self.container, self)
+#            
+#            self.frames[F] = frame
+#            
+#            frame.grid(row=0, column=0, sticky='nsew')
+        frame = Page_Variables(self.container, self)
+        self.frames[Page_Variables] = frame
+        frame.grid(row=0, column=0, sticky='nsew')
             
         
         #show initial Frame
@@ -72,11 +75,19 @@ class GUI(Tk):
         self.show_frame(Page_Variables)
        
     #show frame
-    def show_frame(self, cont):
+    def show_frame(self, cont, delete=False, cont_to_del = None):
         
+        if cont not in self.frames:
+            frame = cont(self.container, self)
+            self.frames[cont] = frame
+            frame.grid(row=0, column=0, sticky='nsew')
+            
         Tk.geometry(self, self.shapes[cont])        
         frame = self.frames[cont]
         frame.tkraise() 
+        
+        if delete:
+            del self.frames[cont_to_del]
         
 class Page_Variables(Frame):
     
@@ -488,8 +499,6 @@ class Page_Variables(Frame):
         os.remove(self.JSONPATH + 'temp.json')
         os.remove(self.GCODEPATH + 'temp.gcode')
         
-        Page_Model.get_data(Page_Model)
-        
 
 
 class Page_Model(Frame):    
@@ -497,6 +506,8 @@ class Page_Model(Frame):
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
         self.controller = controller
+        
+        self.get_data()
         
     def get_data(self):
         
@@ -561,10 +572,11 @@ class Page_Model(Frame):
         self.buttonSubmit.grid(row=3,column=1)
         
         self.buttonVariables = ttk.Button(self, text='Variables', 
-                     command=lambda: self.controller.show_frame(Page_Variables))
+                     command=lambda: self.to_variables())
         self.buttonVariables.grid(row=4,column=0)
     
-        #buttonUpdate = Button(text='Update Graph', command=lambda: )
+#        self.buttonUpdate = ttk.Button(self, text='Update from Variables', command=lambda: self.get_data())
+#        self.buttonUpdate.grid(row=4,column=1)
 
     def setup(self):
 
@@ -599,6 +611,11 @@ class Page_Model(Frame):
             self.ax.plot_wireframe(self.xar[num], self.yar[num], self.zar[num], color=self.colors[num_color])
             
         plt.show()
+        
+    def to_variables(self):
+        
+        self.controller.show_frame(Page_Variables, True, Page_Model)
+        
     
 #class Page_Model(Frame):
 #    
