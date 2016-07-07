@@ -558,7 +558,7 @@ class Page_Model(Frame):
         
     def show_buttons(self):
         
-        self.buttonSubmit = ttk.Button(self, text='Create Graph', command=lambda: 
+        self.buttonSubmit = ttk.Button(self, text='Create Model', command=lambda: 
             self.make_graph(self.scaleStart.get(), self.scaleEnd.get(), self.x, self.y, self.z))
         self.buttonSubmit.grid(row=3,column=1)
         
