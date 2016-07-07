@@ -50,7 +50,7 @@ is allowed.
 
 #### Solidity Ratio
 Solidity ratio is used to calculate the extrusion rate for each layer.<br/>
-`extrusion_rate = solidity_ratio*layer_height*padth_width/filament_area`<br/>
+`extrusion_rate = solidity_ratio*layer_height*nozzle_diameter/filament_area`<br/>
 
 #### Print Speed mm/min
 Print speed is how fast in millimeters per minute the print head moves while printing.
