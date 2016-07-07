@@ -356,17 +356,18 @@ class Page_Variables(Frame):
         data = {}               #new dictionary that will be replaced with dictionary from JSON file
         uploadname = filedialog.askopenfilename()     #creates window to find file
         
-        with open(uploadname, 'r') as fp:
-            data = json.load(fp)    #upload JSON file
-            
-        for key in data:
-            if data[key] == None:
-                self.text_variable[key].set('None') #replace current StringVar with String 'None'
-            else:
-                value = str(data[key])
-                value = value.replace('[','')
-                value = value.replace(']','')
-                self.text_variable[key].set(value)   #replace current StringVar values with data from JSON file
+        if uploadname != '':
+            with open(uploadname, 'r') as fp:
+                data = json.load(fp)    #upload JSON file
+                
+            for key in data:
+                if data[key] == None:
+                    self.text_variable[key].set('None') #replace current StringVar with String 'None'
+                elif key in self.text_variable.keys():
+                    value = str(data[key])
+                    value = value.replace('[','')
+                    value = value.replace(']','')
+                    self.text_variable[key].set(value)   #replace current StringVar values with data from JSON file
         
     #switch to tab with all parameters    
     def use_all(self):
@@ -523,7 +524,7 @@ class Page_Model(Frame):
                 if 'layer_number' in line:
                     print(line)
                     print(counter)
-                    self.id.append([line.split(':')[1], line.split(':')[3]])
+                    self.id.append([line.split(':')[1], line.split(':')[3], counter])
                 else:
                     data.append(line)      
                     data[counter] = data[counter].split(',')
