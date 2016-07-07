@@ -569,20 +569,33 @@ class Page_Model(Frame):
 #        self.buttonUpdate = ttk.Button(self, text='Update from Variables', command=lambda: self.get_data())
 #        self.buttonUpdate.grid(row=4,column=1)
 
-        self.radiobuttons = {}
-        x = 0
-        y = 0
-        z = 0
-        selection = IntVar()
+#        self.radiobuttons = {}
+#        x = 0
+#        y = 0
+#        z = 0
+#        selection = IntVar()
+#        
+#        for id_array in self.layer_part:
+#            rb_text = 'Part:' + str(id_array[1] + ' Layer:' + str(id_array[0]))
+#            self.radiobuttons[str(id_array)] = ttk.Radiobutton(self, text=rb_text, variable=selection, value=x)
+#            self.radiobuttons[str(id_array)].grid(row=z+4,column=y)
+#            x+=1
+#            y = x//5
+#            z = x%5 
+
+        self.intvar_layerparts = {}
+        
+        mb = ttk.Menubutton(self, text='testing')
+        mb.grid()
+        mb.menu = Menu (mb, tearoff=1)
+        mb['menu'] = mb.menu
         
         for id_array in self.layer_part:
+            self.intvar_layerparts[str(id_array)] = IntVar()
             rb_text = 'Part:' + str(id_array[1] + ' Layer:' + str(id_array[0]))
-            self.radiobuttons[str(id_array)] = ttk.Radiobutton(self, text=rb_text, variable=selection, value=x)
-            self.radiobuttons[str(id_array)].grid(row=z+4,column=y)
-            x+=1
-            y = x//5
-            z = x%5 
-            print(x)
+            mb.menu.add_checkbutton(label=rb_text, variable=self.intvar_layerparts[str(id_array)])
+        
+        mb.grid(row=5,column=1)
 
     def setup(self):
 
