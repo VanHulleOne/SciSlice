@@ -86,7 +86,37 @@ The angle of the infill for the part. Zero (0) degrees is in the positive X dire
 with the angles moving around in the counter clockwise direction.
 
 #### Path Width mm
-The distance between the centerlines of two adjacent passes. Re
+The distance between the centerlines of two adjacent passes. This is an orthogonal
+distance, not a normal distance. If you had a zig-zag infill pattern
+v^v^v^v when that pattern is turned into a field it would only be shifted
+in the Y direction by path width. If the angle were 90 degrees that would mean
+a path width of 1.0mm would create a normal distance of 0.707mm which will
+then effect your solidity ratio.
+
+#### Infill Shift X and Y mm
+Sometimes when the infill is created it is not centered properly in the shape
+or you may want to do testing that creates beads which sit in the valley of the lower
+bead instead of directly on top of it<br/>
+O O O O O<br/>
+O O O O O<br/>
+O O O O O<br/>
+**vs**<br/>
+O O O O O<br/>
+. O O O O<br/>
+O O O O O<br/>
+Infill shift X and Y are hacks used so you can adjust the infill to fine tune
+your pattern.
+
+#### Number of Shells
+The number of shells you want around the part. Shells are created by a
+normal offset `pathWidth` away from the previous shell/outline. Version 1
+of the program does not handle shells very well. When two non-adjacent lines
+cross it pretty much blows up. Sometimes is gets mad even when that doesn't happen.
+Later versions of the program use Shapely to fix this problem. Keep in mind that
+to prevent the part from being over filled if three shells are prescribed a fourth
+trim shell is created inside the third shell to properly trim the infill. If this
+extra trim shell has problems, Explosion.
+
 
 
 ## *Notepad++
