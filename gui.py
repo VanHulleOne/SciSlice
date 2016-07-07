@@ -55,7 +55,7 @@ class GUI(Tk):
         self.frames = {}
         
         self.shapes = {Page_Variables : '425x525+150+100',       
-                       Page_Model : '600x200+150+100'}
+                       Page_Model : '600x500+150+100'}
         
         #add Frames to dictionary
 #        for F in (Page_Variables):
@@ -517,14 +517,14 @@ class Page_Model(Frame):
         self.x = []
         self.y = []
         self.z = []
-        self.id = []
+        self.layer_part = []
         
         with open('data_points.txt', 'r') as f:
             for line in f:
                 if 'layer_number' in line:
                     print(line)
                     print(counter)
-                    self.id.append([line.split(':')[1], line.split(':')[3], counter])
+                    self.layer_part.append([line.split(':')[1], line.split(':')[3], counter])
                 else:
                     data.append(line)      
                     data[counter] = data[counter].split(',')
@@ -564,10 +564,25 @@ class Page_Model(Frame):
         
         self.buttonVariables = ttk.Button(self, text='Variables', 
                      command=lambda: self.to_variables())
-        self.buttonVariables.grid(row=4,column=0)
+        self.buttonVariables.grid(row=0,column=0)
     
 #        self.buttonUpdate = ttk.Button(self, text='Update from Variables', command=lambda: self.get_data())
 #        self.buttonUpdate.grid(row=4,column=1)
+
+        self.radiobuttons = {}
+        x = 0
+        y = 0
+        z = 0
+        selection = IntVar()
+        
+        for id_array in self.layer_part:
+            rb_text = 'Part:' + str(id_array[1] + ' Layer:' + str(id_array[0]))
+            self.radiobuttons[str(id_array)] = ttk.Radiobutton(self, text=rb_text, variable=selection, value=x)
+            self.radiobuttons[str(id_array)].grid(row=z+4,column=y)
+            x+=1
+            y = x//5
+            z = x%5 
+            print(x)
 
     def setup(self):
 
