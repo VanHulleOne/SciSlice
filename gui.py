@@ -538,12 +538,11 @@ class Page_Model(Frame):
                     tempz.append(data[counter][2])
                     tempz.append(data[counter][5])
                     self.x.append(tempx)
-                    self.x.append(tempx)
                     self.y.append(tempy)
-                    self.y.append(tempy)
-                    self.z.append(tempz)
-                    self.z.append(tempz)        
+                    self.z.append(tempz)     
                     counter += 1
+        print(counter)
+        print(len(self.x))
                     
         self.setup()
     
