@@ -158,7 +158,6 @@ class Figura:
             yield self.gc.firstApproach(totalExtrusion, layer[0].start)
             
             prevLoc = layer[0].start
-            self.data_points.write('layer_number:' + str(layerNumber) + ':  part_number:' + str(self.partCount) + ':\n')
             for line in layer:
                 self.data_points.write(','.join(str(i) for i in line.start.normalVector[:3])+',')
                 self.data_points.write(','.join(str(i) for i in line.end.normalVector[:3]))
@@ -177,6 +176,7 @@ class Figura:
                                           partParams.printSpeed)
                 prevLoc = line.end
             
+            self.data_points.write('layer_number:' + str(layerNumber) + ':  part_number:' + str(self.partCount) + ':\n')
             yield self.gc.retractLayer(totalExtrusion, layer[-1].end)
             yield '\n'
             layerNumber += 1

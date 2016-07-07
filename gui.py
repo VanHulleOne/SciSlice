@@ -492,12 +492,12 @@ class Page_Variables(Frame):
     #convert to gcode, switch to Page_Model        
     def to_model(self):
 # TODO: uncomment these        
-#        self.convert('temp')
+        self.convert('temp')
         
         self.controller.show_frame(Page_Model)
         
-#        os.remove(self.JSONPATH + 'temp.json')
-#        os.remove(self.GCODEPATH + 'temp.gcode')
+        os.remove(self.JSONPATH + 'temp.json')
+        os.remove(self.GCODEPATH + 'temp.gcode')
         
 
 
@@ -511,7 +511,6 @@ class Page_Model(Frame):
         
     def get_data(self):
         
-        print('hello')
         data = []
         counter = 0
         self.x = []
