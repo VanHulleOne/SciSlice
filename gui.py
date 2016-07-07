@@ -522,6 +522,7 @@ class Page_Model(Frame):
             for line in f:
                 if 'layer_number' in line:
                     print(line)
+                    print(counter)
                 else:
                     data.append(line)      
                     data[counter] = data[counter].split(',')
