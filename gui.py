@@ -514,9 +514,9 @@ class Page_Model(Frame):
         
         data = []
         counter = 0
-        self.x = []
-        self.y = []
-        self.z = []
+        self.xar = []
+        self.yar = []
+        self.zar = []
         self.layer_part = []
         
         with open('data_points.txt', 'r') as f:
@@ -533,9 +533,9 @@ class Page_Model(Frame):
                     data[counter] = data[counter].split(',')
                     for y in range(0,len(data[counter])):
                         data[counter][y] = float(data[counter][y])
-                    self.x.append([data[counter][0], data[counter][3]])
-                    self.y.append([data[counter][1], data[counter][4]])
-                    self.z.append([data[counter][2], data[counter][5]])     
+                    self.xar.append([data[counter][0], data[counter][3]])
+                    self.yar.append([data[counter][1], data[counter][4]])
+                    self.zar.append([data[counter][2], data[counter][5]])     
                     counter += 1
                     
         self.setup()
@@ -562,7 +562,7 @@ class Page_Model(Frame):
     def show_buttons(self):
         
         buttonSubmit = ttk.Button(self, text='Create Model', command=lambda: 
-            self.make_graph(self.scaleStart.get(), self.scaleEnd.get(), self.x, self.y, self.z))
+            self.make_graph(self.scaleStart.get(), self.scaleEnd.get()))
         buttonSubmit.grid(row=3,column=1)
         
         buttonVariables = ttk.Button(self, text='Variables', 
@@ -602,6 +602,7 @@ class Page_Model(Frame):
         
         buttonModel = ttk.Button(self, text='Create Model', command=lambda:
             self.make_model())
+        buttonModel.grid(row=6,column=1)
         
 
     def setup(self):
@@ -610,14 +611,10 @@ class Page_Model(Frame):
         self.show_scales()
         self.show_buttons()                
         
-    def make_graph(self, start, end, x, y, z):
+    def make_graph(self, start, end):
                 
         self.fig = plt.figure()
         self.ax = self.fig.add_subplot(111, projection='3d')
-        
-        self.xar = x
-        self.yar = y
-        self.zar = z
         
         self.colors = []
         
@@ -643,10 +640,6 @@ class Page_Model(Frame):
         self.fig = plt.figure()
         self.ax = self.fig.add_subplot(111, projection='3d')
         
-        self.xar = x
-        self.yar = y
-        self.zar = z
-        
         self.colors = []
         
         color_num = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F']
@@ -660,9 +653,18 @@ class Page_Model(Frame):
                                 curr_color = '#' + one + two + three + four + five + six
                                 self.colors.append(curr_color)
          
+#        for id_array in self.layer_part:
+#            print(self.intvar_layerparts[id_array].get())
+         
+         
         counting = 0                       
         for id_array in self.layer_part:
-            break
+            if self.intvar_layerparts[str(id_array)].get() == 1:
+                for c in range(int(id_array[2]), int(id_array[3])):
+                    num_color=c%len(self.colors)
+                    self.ax.plot_wireframe(self.xar[c], self.yar[c], self.zar[c], color=self.colors[num_color])
+                    
+        plt.show()
         
     def to_variables(self):
         
