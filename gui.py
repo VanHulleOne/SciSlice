@@ -521,10 +521,13 @@ class Page_Model(Frame):
         
         with open('data_points.txt', 'r') as f:
             for line in f:
-                if 'layer_number' in line:
+                if 'start' in line:
+                    print('start ', counter)
+                    start = counter
+                elif 'layer_number' in line:
                     print(line)
                     print(counter)
-                    self.layer_part.append([line.split(':')[1], line.split(':')[3], counter])
+                    self.layer_part.append([line.split(':')[1], line.split(':')[3], start, counter])
                 else:
                     data.append(line)      
                     data[counter] = data[counter].split(',')
@@ -539,14 +542,14 @@ class Page_Model(Frame):
     
     def show_labels(self):
         
-        self.labelIntro = Label(self, text='Choose the start and end layers of the model:')
-        self.labelIntro.grid(row=0,column=1)
+        labelIntro = Label(self, text='Choose the start and end layers of the model:')
+        labelIntro.grid(row=0,column=1)
         
-        self.labelStart = Label(self, text='Start')
-        self.labelStart.grid(row=1,column=0)
+        labelStart = Label(self, text='Start')
+        labelStart.grid(row=1,column=0)
         
-        self.labelEnd = Label(self, text='End')
-        self.labelEnd.grid(row=2,column=0)
+        labelEnd = Label(self, text='End')
+        labelEnd.grid(row=2,column=0)
         
     def show_scales(self):
         
@@ -558,13 +561,13 @@ class Page_Model(Frame):
         
     def show_buttons(self):
         
-        self.buttonSubmit = ttk.Button(self, text='Create Model', command=lambda: 
+        buttonSubmit = ttk.Button(self, text='Create Model', command=lambda: 
             self.make_graph(self.scaleStart.get(), self.scaleEnd.get(), self.x, self.y, self.z))
-        self.buttonSubmit.grid(row=3,column=1)
+        buttonSubmit.grid(row=3,column=1)
         
-        self.buttonVariables = ttk.Button(self, text='Variables', 
+        buttonVariables = ttk.Button(self, text='Variables', 
                      command=lambda: self.to_variables())
-        self.buttonVariables.grid(row=0,column=0)
+        buttonVariables.grid(row=0,column=0)
     
 #        self.buttonUpdate = ttk.Button(self, text='Update from Variables', command=lambda: self.get_data())
 #        self.buttonUpdate.grid(row=4,column=1)
@@ -585,17 +588,21 @@ class Page_Model(Frame):
 
         self.intvar_layerparts = {}
         
-        mb = ttk.Menubutton(self, text='testing')
-        mb.grid()
-        mb.menu = Menu (mb, tearoff=1)
-        mb['menu'] = mb.menu
+        self.mb = ttk.Menubutton(self, text='testing')
+        self.mb.grid()
+        self.mb.menu = Menu (self.mb, tearoff=1)
+        self.mb['menu'] = self.mb.menu
         
         for id_array in self.layer_part:
             self.intvar_layerparts[str(id_array)] = IntVar()
-            rb_text = 'Part:' + str(id_array[1] + ' Layer:' + str(id_array[0]))
-            mb.menu.add_checkbutton(label=rb_text, variable=self.intvar_layerparts[str(id_array)])
+            self.rb_text = 'Part:' + str(id_array[1] + ' Layer:' + str(id_array[0]))
+            self.mb.menu.add_checkbutton(label=self.rb_text, onvalue=1, offvalue=0, variable=self.intvar_layerparts[str(id_array)])
         
-        mb.grid(row=5,column=1)
+        self.mb.grid(row=5,column=1)
+        
+        buttonModel = ttk.Button(self, text='Create Model', command=lambda:
+            self.make_model())
+        
 
     def setup(self):
 
@@ -630,6 +637,32 @@ class Page_Model(Frame):
             self.ax.plot_wireframe(self.xar[num], self.yar[num], self.zar[num], color=self.colors[num_color])
             
         plt.show()
+        
+    def make_model(self):
+        
+        self.fig = plt.figure()
+        self.ax = self.fig.add_subplot(111, projection='3d')
+        
+        self.xar = x
+        self.yar = y
+        self.zar = z
+        
+        self.colors = []
+        
+        color_num = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F']
+        color_num2 = ['0','8']
+        for one in color_num:
+            for two in color_num2:
+                for three in color_num2:
+                    for four in color_num2:
+                        for five in color_num2:
+                            for six in color_num:
+                                curr_color = '#' + one + two + three + four + five + six
+                                self.colors.append(curr_color)
+         
+        counting = 0                       
+        for id_array in self.layer_part:
+            break
         
     def to_variables(self):
         

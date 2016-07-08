@@ -158,6 +158,7 @@ class Figura:
             yield self.gc.firstApproach(totalExtrusion, layer[0].start)
             
             prevLoc = layer[0].start
+            self.data_points.write('start\n')
             for line in layer:
                 self.data_points.write(','.join(str(i) for i in line.start.normalVector[:3])+',')
                 self.data_points.write(','.join(str(i) for i in line.end.normalVector[:3]))
