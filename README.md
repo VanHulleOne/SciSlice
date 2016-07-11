@@ -148,8 +148,8 @@ since it's just as efficient as not doing so." I strongly disagree with this sta
 A G01 is a feed command and as such needs an F value to know how fast to move.
 A G00 command should be a rapid command where the printer knows its max velocity
 and therefore does not require an F feed rate. Because of the RepRap design choice G00
-also needs a feed rate command, behaves exactly like G01, and requires the
-programmer/operator to know each individual machine's max speed plus the
+needs a feed rate command requiring the programmer/operator to know each
+individual machine's max speed and creates larger programs by needing the
 additional text on every G00 line. How is that just as efficient?
 * TRAVERSE_RETRACT (mm) - how far to retract the filament to prevent nozzle
 drool when traversing around the part.
