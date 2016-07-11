@@ -79,11 +79,9 @@ class Parameters:
     LayerParams = None
     _layerParameters = None
     
-    def __init__(self, main_data): 
-        for key in main_data:
-            self.param_data[key] = main_data[key]          
-        for key in self.param_data:
-            setattr(self, key, self.param_data[key])
+    def __init__(self, param_data):         
+        for key, value in self.param_data.items():
+            setattr(self, key, value)
         self.param_data["outputFileName"] = self.outputFileName
         self.param_data["currPath"] = os.path.dirname(os.path.realpath(__file__))
         self.param_data["outputSubDirectory"] = self.currPath + '\\Gcode'
