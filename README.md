@@ -69,6 +69,15 @@ How many layers are printed in the part. They layer parameters are continuously
 cycled until this number is reached for the part being printed. They are then reset
 for the next part.
 
+### Pattern and Design Type
+Custom infill patterns can be designed for the part. The pattern must be of
+type LineGroup. The pattern is extended by copying the design and then
+connecting the start of the first line in the copy the end of the last of
+the original and saving that as the new original. This process is repeated
+until the design is sufficiently longer than the outline. This whole new
+line group is then copied and translated in Y by `pathWidth` until a full
+field is created. Please read the comments in the **InFill** module for more details.
+
 ### Layer Parameters
 Layer parameters are unique to each layer of a part. Each list of parameters is
 cycled until the Number of Layers for the part is met. The lists are then started
@@ -113,11 +122,42 @@ normal offset `pathWidth` away from the previous shell/outline. Version 1
 of the program does not handle shells very well. When two non-adjacent lines
 cross it pretty much blows up. Sometimes is gets mad even when that doesn't happen.
 Later versions of the program use Shapely to fix this problem. Keep in mind that
-to prevent the part from being over filled if three shells are prescribed a fourth
-trim shell is created inside the third shell to properly trim the infill. If this
-extra trim shell has problems, Explosion.
+to tool path the infill properly a trim shell is created by the program. For example
+if three shells are prescribed a fourth trim shell is created inside the third 
+shell to properly trim the infill. If this extra trim shell has problems, Explosion.
 
+### File Parameters
+* outputFileName - The name of the output Gcode file
+* start_Gcode_FileName - Name of the file which contains all of the starting
+Gcode commands
+* end_Gcode_FileName - File with end Gcode commands
 
+### Misc Parameters
+* filamentDiamter (mm)- The diameter of the incoming filament.
+* nozzleDiamter (mm) - Nozzle outlet diameter
+
+### Standard printing settings
+These are parameters used by the printer while not actually printing
+
+* RAPID (mm/min) - How fast the printer should move when not printing<br/>
+  * The [RepRap wiki](www.reprap.org/wiki/G-code) says "The RepRap firmware spec treats G0 and G1 as the same command,
+since it's just as efficient as not doing so." I strongly disagree with this statement.
+A G01 is a feed command and as such needs an F value to know how fast to move.
+A G00 command should be a rapid command where the printer knows its max velocity
+and therefore does not require an F feed rate. Because of the RepRap design choice G00
+also needs a feed rate command, behaves exactly like G01, and requires the
+programmer/operator to know each individual machine's max speed. How is that
+just as efficient?
+* TRAVERSE_RETRACT (mm) - how far to retract the filament to prevent nozzle
+drool when traversing around the part.
+* MAX\_FEED\_TRAVERSE (mm) - if the move to the next printing position is less than
+this value the head is not lifted up, no filament retract is performed, and it is moved
+at the print velocity.
+* Z_CLEARANCE (mm) - Relative clearance height to which the head is moved when
+traversing the part.
+* APPROACH_FR (mm/min) - Speed the printer should move when approaching the part.
+A slightly slower speed helps prevent hard crashes and allows the filament more
+time to move forward in the nozzle in preparation for printing.
 
 ## *Notepad++
 If you have Python and the appropriate dependencies installed you can use
