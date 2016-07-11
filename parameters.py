@@ -10,6 +10,9 @@ C:\Anaconda3\python.exe -i "$(FULL_CURRENT_PATH)"
 
 @author: lvanhulle
 """
+
+__version__ = '1.2'
+
 import math
 from collections import namedtuple
 import constants as c
@@ -72,7 +75,7 @@ Standard printing settings
 RAPID = 4000 #mm/min
 TRAVERSE_RETRACT = 0.5 #mm of filament to retract when traversing longer distances
 MAX_FEED_TRAVERSE = 10 # max mm to move without lifting the head
-MAX_EXTRUDE_SPEED = 100 #mm/min max speed to move filament
+MAX_EXTRUDE_SPEED = 100 # NOT IMPLEMENTED #mm/min max speed to move filament
 Z_CLEARANCE = 10.0 #mm to move Z up
 APPROACH_FR = 1500 #mm/min aproach feedrate
 
