@@ -5,6 +5,7 @@ Created on Sat May 28 16:39:58 2016
 '''
 
 import os
+import constants as c
 import matplotlib                   #for 3D model
 
 #if using the Spyder console, matplotlib is already imported and the backend cannot be changed with .use() as is needed
@@ -100,11 +101,11 @@ class Page_Variables(Frame):
     NUMLAYERS = 'numLayers'
     PATTERN = 'pattern'
     DESIGNTYPE = 'designType'
-    INFILLANGLEDEGREES = 'inFillAngleDegrees'
+    INFILLANGLEDEGREES = 'infillAngleDegrees'
     PATHWIDTH = 'pathWidth'
     LAYERHEIGHT = 'layerHeight'
-    INFILLSHIFTX = 'inFillShiftX'
-    INFILLSHIFTY = 'inFillShiftY'
+    INFILLSHIFTX = 'infillShiftX'
+    INFILLSHIFTY = 'infillShiftY'
     NUMSHELLS = 'numShells'
     TRIMADJUST = 'trimAdjust'
     START_GCODE_FILENAME = 'start_Gcode_FileName'
@@ -294,10 +295,10 @@ class Page_Variables(Frame):
     def g_robot(self):
         
         self.g_robot_var = IntVar()
-        self.g_robot_var.set(1)
+        self.g_robot_var.set(0)
         
-        ttk.Radiobutton(self, text='Gcode', variable=self.g_robot_var, value=1).grid(row=len(self.texts)+2,column=0)
-        ttk.Radiobutton(self, text='RobotCode', variable=self.g_robot_var, value=2).grid(row=len(self.texts)+2,column=1)
+        ttk.Radiobutton(self, text='Gcode', variable=self.g_robot_var, value=c.GCODE).grid(row=len(self.texts)+2,column=0)
+        ttk.Radiobutton(self, text='RobotCode', variable=self.g_robot_var, value=c.ROBOTCODE).grid(row=len(self.texts)+2,column=1)
         
     #############################################
     #   methods that are called from buttons    #

@@ -39,9 +39,11 @@ class Main:
                     option *= number
                 self.main_data[self.TRIMADJUST][0] = option
         self.pr = Parameters(self.main_data)
-        if gRobot == 1:
+        if gRobot == c.GCODE:
+            print('test1')
             self.gc = Gcode(self.pr)
-        elif gRobot == 2:
+        elif gRobot == c.ROBOTCODE:
+            print('test2')
             self.gc = RobotCode(self.pr)
     
     def run(self):

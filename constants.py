@@ -32,6 +32,8 @@ FULL_ROW = 1
 FULL_FIELD = 2
 CENTERED_FIELD = 3
 TRIMMED_FIELD = 4 
+GCODE = 0
+ROBOTCODE = 1
 
 LOG_LEVEL = logging.INFO
 importlib.reload(logging)
