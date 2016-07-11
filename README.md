@@ -24,7 +24,7 @@ five section:<br/>
 * [Layer](#Layer-Parameters)<br/>
 * [File](#File-Parameters)<br/>
 * [Misc](#Misc-Parameters)<br/>
-* [Printer](#Printer-Parameters)<br/>
+* [Printer](#printer-parameters)<br/>
 
 Parameters which are in Python lists [enclosed in square brackets] can very varied
 between either parts or layers depending on which parameter set they are located.
