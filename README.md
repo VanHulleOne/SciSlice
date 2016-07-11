@@ -20,7 +20,7 @@ After downloading the zip file and extracting it in an appropriate location eith
 open the parameters.py file in your preferred Python IDE or with a text editor
 (I prefer Notepad++)*. The user adjustable printing parameters are broken into
 five section:<br/>
-* [Part](..Part-Parameters)<br/>
+* [Part](#Part-Parameters)<br/>
 * Layer<br/>
 * File<br/>
 * Misc<br/>
