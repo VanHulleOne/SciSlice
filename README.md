@@ -20,11 +20,11 @@ After downloading the zip file and extracting it in an appropriate location eith
 open the parameters.py file in your preferred Python IDE or with a text editor
 (I prefer Notepad++)*. The user adjustable printing parameters are broken into
 five section:<br/>
-* [Part](../DogBone#Part-Parameters)<br/>
-* Layer<br/>
-* File<br/>
-* Misc<br/>
-* Printer<br/>
+* [Part](#Part-Parameters)<br/>
+* [Layer](#Layer-Parameters)<br/>
+* [File](#File-Parameters)<br/>
+* [Misc](#Misc-Parameters)<br/>
+* [Printer](#Printer-Parameters)<br/>
 
 Parameters which are in Python lists [enclosed in square brackets] can very varied
 between either parts or layers depending on which parameter set they are located.
@@ -138,7 +138,7 @@ Gcode commands
 * filamentDiamter (mm)- The diameter of the incoming filament.
 * nozzleDiamter (mm) - Nozzle outlet diameter
 
-### Standard printing settings
+### Printer Parameters
 These are parameters used by the printer while not actually printing
 
 * RAPID (mm/min) - How fast the printer should move when not printing<br/>
