@@ -76,7 +76,9 @@ connecting the start of the first line in the copy the end of the last of
 the original and saving that as the new original. This process is repeated
 until the design is sufficiently longer than the outline. This whole new
 line group is then copied and translated in Y by `pathWidth` until a full
-field is created. Please read the comments in the **InFill** module for more details.
+field is created. Please read the comments in the
+[InFill](https://github.com/VanHulleOne/DogBone/blob/master/InFill.py)
+module for more details.
 
 ### Layer Parameters
 Layer parameters are unique to each layer of a part. Each list of parameters is
@@ -140,7 +142,7 @@ Gcode commands
 These are parameters used by the printer while not actually printing
 
 * RAPID (mm/min) - How fast the printer should move when not printing<br/>
-  * The [RepRap wiki](www.reprap.org/wiki/G-code) says "The RepRap firmware spec treats G0 and G1 as the same command,
+  * The [RepRap wiki](http://reprap.org/wiki/G-code) says "The RepRap firmware spec treats G0 and G1 as the same command,
 since it's just as efficient as not doing so." I strongly disagree with this statement.
 A G01 is a feed command and as such needs an F value to know how fast to move.
 A G00 command should be a rapid command where the printer knows its max velocity
