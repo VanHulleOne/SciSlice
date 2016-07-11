@@ -20,10 +20,10 @@ After downloading the zip file and extracting it in an appropriate location eith
 open the parameters.py file in your preferred Python IDE or with a text editor
 (I prefer Notepad++)*. The user adjustable printing parameters are broken into
 five section:<br/>
-* [Part](#Part-Parameters)<br/>
-* [Layer](#Layer-Parameters)<br/>
-* [File](#File-Parameters)<br/>
-* [Misc](#Misc-Parameters)<br/>
+* [Part](#part-parameters)<br/>
+* [Layer](#layer-parameters)<br/>
+* [File](#file-parameters)<br/>
+* [Misc](#misc-parameters)<br/>
 * [Printer](#printer-parameters)<br/>
 
 Parameters which are in Python lists [enclosed in square brackets] can very varied
