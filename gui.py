@@ -184,7 +184,7 @@ class Page_Variables(Frame):
                     '10, 35, 60', '0', '8',                                         #part parameters
                     'None', '0',                                                    #part parameters
                     '0, -45, 90, 45, 45, 90, -45', '0.5', '0.4',                    #layer parameters
-                    '0', '0', '13,1,1,0,0,1,1', '0.0002',                      #layer parameters
+                    '0', '0', '13,1,1,0,0,1,1', '0.0002, 0.0002',                      #layer parameters
                     'Start_Gcode_Taz5.txt', 'End_Gcode_Taz5.txt',                   #file parameters   
                     '999', '999', '0', '1', '2', '3']                                               #print parameters
                     
