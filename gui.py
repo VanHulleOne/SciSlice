@@ -99,6 +99,9 @@ class Page_Variables(Frame):
     FILE = 3
     PRINT = 4
     
+    INT_LIST = 0
+    FLOAT_LIST = 1
+    
     Menu = namedtuple('Menu', 'name group')
     menus = [
             Menu('Common', COMMON),
@@ -111,29 +114,35 @@ class Page_Variables(Frame):
     menus.sort(key=lambda x : x.group)             
 
              
-    Par = namedtuple('Parameter', 'label type groups')
+    Par = namedtuple('Parameter', 'label data_type groups')
     parameters = [
                 Par('stl_file', str, (COMMON, PART)),
-                Par('solidityRatio', float, (COMMON, PART)),
-                Par('printSpeed', int, (COMMON, PART)),
-                Par('shiftX', float, (COMMON, PART)),
-                Par('shiftY', float, (COMMON, PART)),
+                Par('solidityRatio', FLOAT_LIST, (COMMON, PART)),
+                Par('printSpeed', INT_LIST, (COMMON, PART)),
+                Par('shiftX', FLOAT_LIST, (COMMON, PART)),
+                Par('shiftY', FLOAT_LIST, (COMMON, PART)),
                 Par('firstLayerShiftZ', float, (PART,)),
-                Par('numLayers', int, (COMMON, PART)),
+                Par('numLayers', INT_LIST, (COMMON, PART)),
                 Par('pattern', None, (PART,)),
                 Par('designType', int, (PART,)),
-                Par('infillAngleDegrees', float, (COMMON, LAYER)),
-                Par('pathWidth', float, (LAYER,)),
-                Par('layerHeight', float, (LAYER,)),
-                Par('infillShiftX', float, (LAYER,)),
-                Par('infillShiftY', float, (LAYER,)),
-                Par('numShells', int, (COMMON, LAYER)),
-                Par('trimAdjust', float, (LAYER,)),
+                Par('infillAngleDegrees', FLOAT_LIST, (COMMON, LAYER)),
+                Par('pathWidth', FLOAT_LIST, (LAYER,)),
+                Par('layerHeight', FLOAT_LIST, (LAYER,)),
+                Par('infillShiftX', FLOAT_LIST, (LAYER,)),
+                Par('infillShiftY', FLOAT_LIST, (LAYER,)),
+                Par('numShells', INT_LIST, (COMMON, LAYER)),
+                Par('trimAdjust', FLOAT_LIST, (LAYER,)),
                 Par('start_Gcode_FileName', str, (FILE,)),
                 Par('end_Gcode_FileName', str, (FILE,)),
                 Par('bed_temp', int, (COMMON, PRINT)),
                 Par('extruder_temp', int, (COMMON, PRINT)),
                 ]
+                
+    OUTPUTFILENAME = 'outputFileName'
+    CURRPATH = os.path.dirname(os.path.realpath(__file__))
+    GCODEPATH = CURRPATH + '\\Gcode\\'
+    JSONPATH = CURRPATH + '\\JSON\\'
+    OUTPUTSUBDIRECTORY = 'outputSubDirectory'
     
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
@@ -169,32 +178,13 @@ class Page_Variables(Frame):
         self.fields = []
         for menu in self.menus:
             self.fields.append([par for par in self.parameters if menu.group in par.groups])
-                
-        #array of part parameters
-        self.part_param = [self.STL_FILE, self.SOLIDITYRATIO, self.PRINTSPEED, self.SHIFTX,           
-                         self.SHIFTY, self.FIRSTLAYERSHIFTZ, self.NUMLAYERS,                      
-                         self.PATTERN, self.DESIGNTYPE]
-                         
-        #array of layer parameters
-        self.layer_param = [self.INFILLANGLEDEGREES, self.PATHWIDTH, self.LAYERHEIGHT,            
-                            self.INFILLSHIFTX, self.INFILLSHIFTY, self.NUMSHELLS, self.TRIMADJUST]
-                            
-        #array of file parameters
-        self.file_param = [self.START_GCODE_FILENAME, self.END_GCODE_FILENAME]
-        
-        #array of print parameters
-        self.print_param = [self.BEDTEMP, self.EXTRUDERTEMP]
-                 
-        #array of Strings of the commonly used variables
-        self.common_texts = [self.STL_FILE, self.SOLIDITYRATIO, self.PRINTSPEED, 
-                        self.SHIFTX, self.SHIFTY, self.PATTERN, self.NUMSHELLS]
                       
         #array of Strings of the default values
         self.defaults = ['Arch3.stl', '1.09', '2000', '10, 50',                #part parameters
                     '10, 35, 60', '0', '8',                                         #part parameters
                     'None', '0',                                                    #part parameters
                     '0, -45, 90, 45, 45, 90, -45', '0.5', '0.4',                    #layer parameters
-                    '0', '0', '13,1,1,0,0,1,1', '2*c.EPSILON',                      #layer parameters
+                    '0', '0', '13,1,1,0,0,1,1', '0.0002',                      #layer parameters
                     'Start_Gcode_Taz5.txt', 'End_Gcode_Taz5.txt',                   #file parameters   
                     '999', '999', '0', '1', '2', '3']                                               #print parameters
                     
@@ -205,22 +195,14 @@ class Page_Variables(Frame):
     ##########################################################
               
     #initial creation of labels
-    def set_labels(self):
-        
-#        self.labelVariable = Label(self, text='Variable Name', font='-weight bold')
-#        self.labelVariable.grid(row=0,column=0)
-        
+    def set_labels(self):        
         #create all labels
         for x in range(len(self.texts)):
             #create label
             self.labels[self.texts[x]] = Label(self, text=self.texts[x])
         
         for x, par in enumerate(self.fields[self.COMMON]):
-            self.labels[par.label].grid(row=x+1,column=0)
-        #show commonly used variables
-#        for x in range(len(self.common_texts)):
-#            #use grid() after creating label or dictionary value will be 'NoneType'
-#            self.labels[self.common_texts[x]].grid(row=x+1,column=0)   
+            self.labels[par.label].grid(row=x+1,column=0)  
             
     #initial creation of entries
     def set_entries(self):
@@ -343,36 +325,27 @@ class Page_Variables(Frame):
         data = {}               #dictionary to put String value of StringVar values in
         #check if the user cancelled saving the file
         if self.filename != '':
-            to_string = [self.STL_FILE, self.START_GCODE_FILENAME, self.END_GCODE_FILENAME]      #variables with type String                
-            to_int = [self.DESIGNTYPE, self.FIRSTLAYERSHIFTZ, self.BEDTEMP, self.EXTRUDERTEMP]  #variables with type int
-            to_string_array = [self.TRIMADJUST]                                                 #variables with type String that go in an array
-            to_int_array = [self.PRINTSPEED, self.SHIFTX, self.SHIFTY,                          #variables with type int that go in an array
-                            self.NUMLAYERS, self.INFILLANGLEDEGREES,
-                            self.INFILLSHIFTX, self.INFILLSHIFTY, self.NUMSHELLS]
-            to_float_array = [self.SOLIDITYRATIO, self.PATHWIDTH,                               #variables with type double that go in an array
-                               self.LAYERHEIGHT]
-            to_none = [self.PATTERN]                                                            #variables with type None
+                                                       #variables with type None
             data[self.OUTPUTFILENAME] = gcodeName
             data[self.OUTPUTSUBDIRECTORY] = gcodePath
-            for key in self.text_variable:
-                if key in to_string:
-                    data[key] = self.text_variable[key].get()
-                elif key in to_int:
-                    data[key] = int(self.text_variable[key].get())   
-                elif key in to_none:
-                    data[key] = None                           
+            
+            for label, data_type, _ in self.parameters:
+                if data_type is str:
+                    data[label] = self.text_variable[label].get()
+                elif data_type is None:
+                    data[label] = None
+                elif data_type is int or data_type is float:
+                    data[label] = data_type(self.text_variable[label].get())
                 else:
-                    value = self.text_variable[key].get()            
+                    value = self.text_variable[label].get()            
                     if ' ' in value:
                         value = value.replace(' ', ',')                
                     if ',,' in value:
-                        value = value.replace(',,', ',')               
-                    if key in to_string_array:                        
-                        data[key] = value.split(',')            
-                    elif key in to_int_array:
-                        data[key] = [int(i) for i in value.split(',')]     
-                    elif key in to_float_array:
-                        data[key] = [float(i) for i in value.split(',')]      
+                        value = value.replace(',,', ',')                         
+                    if data_type == self.INT_LIST:
+                        data[label] = [int(i) for i in value.split(',')]     
+                    elif data_type == self.FLOAT_LIST:
+                        data[label] = [float(i) for i in value.split(',')]    
             
             if not os.path.isdir(self.JSONPATH):
                 os.makedirs(self.JSONPATH)
