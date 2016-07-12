@@ -116,6 +116,7 @@ class Page_Variables(Frame):
     CURRPATH = os.path.dirname(os.path.realpath(__file__))
     GCODEPATH = CURRPATH + '\\Gcode\\'
     JSONPATH = CURRPATH + '\\JSON\\'
+    OUTPUTSUBDIRECTORY = 'outputSubDirectory'
     
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
@@ -307,15 +308,18 @@ class Page_Variables(Frame):
     def save(self, name = None):
         
         if name == None:
-            data = {}               #dictionary to put String value of StringVar values in
             self.filename = filedialog.asksaveasfilename()   #creates window to get filename
             gcodeName = self.filename.split('/')[len(self.filename.split('/'))-1] + '.gcode'
             self.filename = self.filename + '.json'  
+        elif name == 'gcode':
+            gcodePath = filedialog.asksaveasfilename()
+            self.filename = self.JSONPATH + gcodePath.split('/')[len(gcodePath.split('/'))-1] + '.json'
+            gcodeName = gcodePath + '.gcode'
         else:
-            data = {}               #dictionary to put String value of StringVar values in
             gcodeName = name + '.gcode'
             self.filename = self.JSONPATH + name + '.json'               
         
+        data = {}               #dictionary to put String value of StringVar values in
         #check if the user cancelled saving the file
         if self.filename != '':
             to_string = [self.STL_FILE, self.START_GCODE_FILENAME, self.END_GCODE_FILENAME]      #variables with type String                
@@ -328,6 +332,7 @@ class Page_Variables(Frame):
                                self.LAYERHEIGHT]
             to_none = [self.PATTERN]                                                            #variables with type None
             data[self.OUTPUTFILENAME] = gcodeName
+            data[self.OUTPUTSUBDIRECTORY] = gcodePath
             for key in self.text_variable:
                 if key in to_string:
                     data[key] = self.text_variable[key].get()
@@ -347,7 +352,9 @@ class Page_Variables(Frame):
                         data[key] = [int(i) for i in value.split(',')]     
                     elif key in to_float_array:
                         data[key] = [float(i) for i in value.split(',')]      
-                    
+            
+            if not os.path.isdir(self.JSONPATH):
+                os.makedirs(self.JSONPATH)
             with open(self.filename, 'w') as fp:
                 json.dump(data, fp)    #save JSON file
         
@@ -480,7 +487,7 @@ class Page_Variables(Frame):
     def convert(self, name = None):
         
         if name == None:
-            self.save()
+            self.save('gcode')
         else:
             self.save(name)
         
@@ -489,6 +496,7 @@ class Page_Variables(Frame):
             #convert to Gcode
             conversion = Main(self.filename, self.g_robot_var.get())
             conversion.run()
+            os.remove(self.filename)
             
     
     #convert to gcode, switch to Page_Model        

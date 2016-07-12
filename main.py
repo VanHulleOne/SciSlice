@@ -40,10 +40,8 @@ class Main:
                 self.main_data[self.TRIMADJUST][0] = option
         self.pr = Parameters(self.main_data)
         if gRobot == c.GCODE:
-            print('test1')
             self.gc = Gcode(self.pr)
         elif gRobot == c.ROBOTCODE:
-            print('test2')
             self.gc = RobotCode(self.pr)
     
     def run(self):
@@ -56,7 +54,8 @@ class Main:
         
         fig = fg.Figura(self.main_data[self.STL_FILE], self.pr, self.gc)
         
-        with open(self.pr.outputSubDirectory+'\\'+self.pr.outputFileName, 'w') as f:      
+#        with open(self.pr.outputSubDirectory+'\\'+self.pr.outputFileName, 'w') as f:    
+        with open(self.pr.outputFileName, 'w') as f:
             for string in fig.masterGcode_gen():
                 f.write(string)
         
