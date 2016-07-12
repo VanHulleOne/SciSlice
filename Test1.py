@@ -67,191 +67,49 @@ points = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11]
 
 lines = [l.Line(points[i], points[i+1]) for i in range(len(points)-1)]
 
-mesh1 = trimesh.load_mesh('Arch3.stl')
-print(mesh1.area)
-sec = mesh1.section(plane_origin=[0,0,0.4*134],plane_normal=[0,0,1])
-sec1 = s.Section(sec)
+COMMON = 0
+PART = 1
+LAYER = 2
+FILE = 3
+PRINT = 4
 
+Menu = namedtuple('Menu', 'name group')
+menus = [
+        Menu('Common', COMMON),
+        Menu('Part', PART),
+        Menu('Layer', LAYER),
+        Menu('File', FILE),
+        Menu('Print', PRINT)
+        ]
 
-colors = [i + '-' for i in 'bgrcmyk']
-colorCycle = itertools.cycle(colors)
-po = [Polygon(i) for i in sec.discrete]
+Par = namedtuple('Parameter', 'label type groups')
+parameters = [
+            Par('stl_file', str, (COMMON, PART)),
+            Par('solidityRatio', float, (COMMON, PART)),
+            Par('shiftX', float, (COMMON, PART)),
+            Par('shiftY', float, (COMMON, PART)),
+            Par('firstLayerShiftZ', float, (PART,)),
+            Par('numLayers', int, (COMMON, PART)),
+            Par('pattern', None, (PART,)),
+            Par('designType', int, (PART,)),
+            Par('infillAngleDegrees', float, (COMMON, LAYER)),
+            Par('pathWidth', float, (LAYER,)),
+            Par('layerHeight', float, (LAYER,)),
+            Par('infillShiftX', float, (LAYER,)),
+            Par('infillShiftY', float, (LAYER,)),
+            Par('numShells', int, (COMMON, LAYER)),
+            Par('trimAdjust', float, (LAYER,)),
+            Par('start_Gcode_FileName', str, (FILE,)),
+            Par('end_Gcode_FileName', str, (FILE,)),
+            Par('outputFileName', str, (COMMON, FILE)),
+            Par('bed_temp', int, (COMMON, PRINT)),
+            Par('extruder_temp', int, (COMMON, PRINT)),
+            ]
 
-def plotPoly(poly, style='r-'):
-    n = np.array(poly.exterior.coords)
-    plt.plot(n[:,0], n[:,1], style)
-    for inter in poly.interiors:
-        n = np.array(inter.coords)
-        plt.plot(n[:,0], n[:,1], style)
-
-def multiPlot(mlt, style=None):
-    if style is None:
-        style = next(colorCycle)
-    try:
-        for poly in mlt:
-            try:
-                plotPoly(poly, style)
-            except Exception:
-                for pol in poly: 
-                    plotPoly(pol, style)
-    except Exception:
-        plotPoly(mlt, style)
-        
-class PolySide:
-    def __init__(self, poly, level):
-        self.poly = poly
-        self.level = level
-        self.isFeature = not level%2
-    def contains(self, other):
-        return self.poly.contains(other)
-    def plot(self):
-        n = np.array(self.poly.exterior.coords)
-        plt.plot(n[:,0], n[:,1], 'r-' if self.isFeature else 'b-')
-
-    def offset(self, dist, side):
-        if dist == 0:
-            return PolySide(self.poly, self.level)
-        if dist < 0:
-            raise Exception('Offset distance must be >=0')
-        if (side == c.OUTSIDE and self.isFeature) or (side == c.INSIDE and not self.isFeature):
-            return PolySide(self.poly.buffer(dist), self.level)
-        try:
-            buffPoly = self.poly.exterior.buffer(dist)
-            if len(buffPoly.interiors) > 1:
-                inPoly = cascaded_union([Polygon(i) for i in buffPoly.interiors])            
-            else:
-                inPoly = Polygon(buffPoly.interiors[0])
-            return PolySide(inPoly, self.level)
-        except Exception:
-            return None
+fields = []
+for menu in menus:
+    fields.append([par for par in parameters if menu.group in par.groups])
     
-    def brim(self, dist):
-        return self.offset(dist, c.OUTSIDE)
-    
-    def shell(self, dist):
-        return self.offset(dist, c.INSIDE)        
-
-def IO2(polies):
-    polySides = []
-    polies = sorted(polies, key = lambda x: x.area, reverse=True)
-    def io(thisPoly, index=0):
-        while index < len(polies):
-            if thisPoly.contains(polies[index]):
-                new = PolySide(polies[index], thisPoly.level+1)
-                polySides.append(new)
-                polies.pop(index)
-                io(new, index)
-            else:
-                index += 1
-    while polies:
-        first = PolySide(polies.pop(0), 0)
-        polySides.append(first)
-        io(first)
-    return polySides
-hs = []
-fs = []
-#features = []
-def re_union(polies):
-    final = None
-    for ps in polies:
-        if final is None:
-            if ps.isFeature:
-                final = ps.poly
-        elif ps.isFeature:
-            final = final.union(ps.poly)
-        else:
-            final = final.difference(ps.poly)
-    return final
-
-def shellRun(outerShell):
-    io = IO2(outerShell)
-    step = 0.25
-    run = True
-    i = 1
-    while i <20:
-        run = re_union(filter(None, (j.offset(step*i, c.OUTSIDE) for j in io)))
-        yield run
-        i += 1
-
-fig = plt.figure()
-ax = plt.axes(xlim=(-1,100), ylim=(-1,25))
-lines = [ax.plot([], [], lw=1)[0] for _ in range(150)]
-
-def layer(zHeight):
-#    zHeight = 37/0.2
-    step = 0.2
-    print('Z height++: ', zHeight*step)
-    sec = mesh1.section(plane_origin=[0,0,zHeight*step],plane_normal=[0,0,1])
-    pl = [Polygon(i) for i in sec.discrete]
-    xy = []
-    for multi in shellRun(pl):        
-        try:
-            for poly in multi:
-                xy.append(np.array(poly.exterior.coords))
-                try:
-                    for inner in poly.interiors:
-                        xy.append(np.array(inner.coords))
-                except Exception:
-                    print('No interiors')
-        except Exception:
-            print('Not a multi')
-            try:
-                xy.append(np.array(multi.exterior.coords))
-                for inner in multi.interiors:
-                    xy.append(np.array(inner.coords))
-                print('Just a polygon')
-            except Exception:
-                print('double fail')
-
-    for i in range(150):
-        if i < len(xy):
-            lines[i].set_data(xy[i][:,0], xy[i][:,1])
-        else:
-            lines[i].set_data([],[])
-    return lines
-
-
-
-def init():
-    for line in lines:
-        line.set_data([],[])
-    return lines
-    
-    
-
-#ani = animation.FuncAnimation(fig, layer, init_func=init, frames = 350, blit=True, interval=0)
-#plt.show()
-#d1 = ds.rect(0,0,10,10)
-#sub1 = s.Shape()
-#sub1.addLinesFromCoordinateList([[5,1],[4,5],[5,9],[6,5],[5,1]])
-#sub1 = sub1.translate(-0.1,0)
-#sub1.finishOutline()
-#d1.addInternalShape(sub1)
-#print('d1:')
-#d1.finishOutline()
-
-#d1 = ds.simpleDogBone()
-
-#print('R1')
-#r1 = ds.squareWithHole()
-##r1 = ds.rect(0,0,10,20)
-#print('R2')
-#r2 = r1.offset(0.5, c.INSIDE)
-#print('R3')
-#r3 = r1.newOffset(0.5, c.INSIDE)
-
-#def printG(shape):
-#    for line in shape:
-#        print(*line, sep='\n')
-#
-#def offsets(shape, num, dist=1):
-#    print('G90 G1')
-#    for i in range(num+1):
-#        print('T',i+1,'\nM6',sep='')
-#        printG(shape)
-#        shape = shape.newOffset(dist, c.INSIDE)
-#    
-#in1 = ds.lineField(0.5, 185, 185)
 
 """ An example of how to do other infills. """  
 #currOutline = ds.rect(0,0,15,250)
