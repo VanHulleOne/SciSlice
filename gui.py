@@ -100,58 +100,64 @@ class Page_Variables(Frame):
     PRINT = 4
     
     Menu = namedtuple('Menu', 'name group')
-    menus = [Menu('Common', COMMON),
-             Menu('Part', PART),
-             Menu('Layer', LAYER),
-             Menu('File', FILE),
-             Menu('Print', PRINT)]
+    menus = [
+            Menu('Common', COMMON),
+            Menu('Part', PART),
+            Menu('Layer', LAYER),
+            Menu('File', FILE),
+            Menu('Print', PRINT)
+            ]
+
+    menus.sort(key=lambda x : x.group)             
+
              
     Par = namedtuple('Parameter', 'label type groups')
     parameters = [
                 Par('stl_file', str, (COMMON, PART)),
                 Par('solidityRatio', float, (COMMON, PART)),
+                Par('printSpeed', int, (COMMON, PART)),
                 Par('shiftX', float, (COMMON, PART)),
                 Par('shiftY', float, (COMMON, PART)),
-                Par('firstLayerShiftZ', float, (PART)),
+                Par('firstLayerShiftZ', float, (PART,)),
                 Par('numLayers', int, (COMMON, PART)),
-                Par('pattern', None, (PART)),
-                Par('designType', int, (PART)),
+                Par('pattern', None, (PART,)),
+                Par('designType', int, (PART,)),
                 Par('infillAngleDegrees', float, (COMMON, LAYER)),
-                Par('pathWidth', float, (LAYER)),
-                Par('layerHeight', float, (Layer)),
-                Par('infillShiftX', float, (Layer)),
-                Par('infillShiftY', float, (Layer)),
+                Par('pathWidth', float, (LAYER,)),
+                Par('layerHeight', float, (LAYER,)),
+                Par('infillShiftX', float, (LAYER,)),
+                Par('infillShiftY', float, (LAYER,)),
                 Par('numShells', int, (COMMON, LAYER)),
-                Par('trimAdjust', float, (LAYER)),
-                Par('start_Gcode_FileName', str, (FILE)),
-                Par('end_Gcode_FileName', str, (FILE)),
+                Par('trimAdjust', float, (LAYER,)),
+                Par('start_Gcode_FileName', str, (FILE,)),
+                Par('end_Gcode_FileName', str, (FILE,)),
                 Par('outputFileName', str, (COMMON, FILE)),
-                Par('bed_temp', int, (COMMON, PRINT))
+                Par('bed_temp', int, (COMMON, PRINT)),
                 Par('extruder_temp', int, (COMMON, PRINT)),
                 ]
     
     
-#    STL_FILE = 'stl_file'
-#    SOLIDITYRATIO = 'solidityRatio'
-#    PRINTSPEED = 'printSpeed'
-#    SHIFTX = 'shiftX'
-#    SHIFTY = 'shiftY'
-#    FIRSTLAYERSHIFTZ = 'firstLayerShiftZ'
-#    NUMLAYERS = 'numLayers'
-#    PATTERN = 'pattern'
-#    DESIGNTYPE = 'designType'
-#    INFILLANGLEDEGREES = 'infillAngleDegrees'
-#    PATHWIDTH = 'pathWidth'
-#    LAYERHEIGHT = 'layerHeight'
-#    INFILLSHIFTX = 'infillShiftX'
-#    INFILLSHIFTY = 'infillShiftY'
-#    NUMSHELLS = 'numShells'
-#    TRIMADJUST = 'trimAdjust'
-#    START_GCODE_FILENAME = 'start_Gcode_FileName'
-#    END_GCODE_FILENAME = 'end_Gcode_FileName'
-#    OUTPUTFILENAME = 'outputFileName'
-#    BEDTEMP = 'bed_temp'
-#    EXTRUDERTEMP = 'extruder_temp'
+    STL_FILE = 'stl_file'
+    SOLIDITYRATIO = 'solidityRatio'
+    PRINTSPEED = 'printSpeed'
+    SHIFTX = 'shiftX'
+    SHIFTY = 'shiftY'
+    FIRSTLAYERSHIFTZ = 'firstLayerShiftZ'
+    NUMLAYERS = 'numLayers'
+    PATTERN = 'pattern'
+    DESIGNTYPE = 'designType'
+    INFILLANGLEDEGREES = 'infillAngleDegrees'
+    PATHWIDTH = 'pathWidth'
+    LAYERHEIGHT = 'layerHeight'
+    INFILLSHIFTX = 'infillShiftX'
+    INFILLSHIFTY = 'infillShiftY'
+    NUMSHELLS = 'numShells'
+    TRIMADJUST = 'trimAdjust'
+    START_GCODE_FILENAME = 'start_Gcode_FileName'
+    END_GCODE_FILENAME = 'end_Gcode_FileName'
+    OUTPUTFILENAME = 'outputFileName'
+    BEDTEMP = 'bed_temp'
+    EXTRUDERTEMP = 'extruder_temp'
     CURRPATH = os.path.dirname(os.path.realpath(__file__))
     GCODEPATH = CURRPATH + '\\Gcode\\'
     JSONPATH = CURRPATH + '\\JSON\\'
@@ -178,14 +184,20 @@ class Page_Variables(Frame):
         self.entries = {}
         
         #array of Strings of the variables
-        self.texts = [self.STL_FILE, self.SOLIDITYRATIO, self.PRINTSPEED, self.SHIFTX,            #part parameters
-                 self.SHIFTY, self.FIRSTLAYERSHIFTZ, self.NUMLAYERS,                         #part parameters
-                 self.PATTERN, self.DESIGNTYPE,                                           #part parameters
-                 self.INFILLANGLEDEGREES, self.PATHWIDTH, self.LAYERHEIGHT,                  #layer parameters
-                 self.INFILLSHIFTX, self.INFILLSHIFTY, self.NUMSHELLS, self.TRIMADJUST,         #layer parameters
-                 self.START_GCODE_FILENAME, self.END_GCODE_FILENAME,                      #file parameters
-                 self.BEDTEMP, self.EXTRUDERTEMP]                                           #print parameters
-                 
+#        self.texts = [self.STL_FILE, self.SOLIDITYRATIO, self.PRINTSPEED, self.SHIFTX,            #part parameters
+#                 self.SHIFTY, self.FIRSTLAYERSHIFTZ, self.NUMLAYERS,                         #part parameters
+#                 self.PATTERN, self.DESIGNTYPE,                                           #part parameters
+#                 self.INFILLANGLEDEGREES, self.PATHWIDTH, self.LAYERHEIGHT,                  #layer parameters
+#                 self.INFILLSHIFTX, self.INFILLSHIFTY, self.NUMSHELLS, self.TRIMADJUST,         #layer parameters
+#                 self.START_GCODE_FILENAME, self.END_GCODE_FILENAME,                      #file parameters
+#                 self.BEDTEMP, self.EXTRUDERTEMP]                                           #print parameters
+        self.texts = [i.label for i in self.parameters]
+        
+        
+        self.fields = []
+        for menu in self.menus:
+            self.fields.append([par for par in self.parameters if menu.group in par.groups])
+                
         #array of part parameters
         self.part_param = [self.STL_FILE, self.SOLIDITYRATIO, self.PRINTSPEED, self.SHIFTX,           
                          self.SHIFTY, self.FIRSTLAYERSHIFTZ, self.NUMLAYERS,                      
@@ -212,7 +224,7 @@ class Page_Variables(Frame):
                     '0, -45, 90, 45, 45, 90, -45', '0.5', '0.4',                    #layer parameters
                     '0', '0', '13,1,1,0,0,1,1', '2*c.EPSILON',                      #layer parameters
                     'Start_Gcode_Taz5.txt', 'End_Gcode_Taz5.txt',                   #file parameters   
-                    '999', '999']                                               #print parameters
+                    '999', '999', '0', '1', '2', '3']                                               #print parameters
                     
         self.create_var_page()
               
@@ -230,11 +242,13 @@ class Page_Variables(Frame):
         for x in range(len(self.texts)):
             #create label
             self.labels[self.texts[x]] = Label(self, text=self.texts[x])
-            
+        
+        for x, par in enumerate(self.fields[self.COMMON]):
+            self.labels[par.label].grid(row=x+1,column=0)
         #show commonly used variables
-        for x in range(len(self.common_texts)):
-            #use grid() after creating label or dictionary value will be 'NoneType'
-            self.labels[self.common_texts[x]].grid(row=x+1,column=0)   
+#        for x in range(len(self.common_texts)):
+#            #use grid() after creating label or dictionary value will be 'NoneType'
+#            self.labels[self.common_texts[x]].grid(row=x+1,column=0)   
             
     #initial creation of entries
     def set_entries(self):
@@ -242,19 +256,21 @@ class Page_Variables(Frame):
 #        self.labelValue = Label(self, text='Value', font='-weight bold')
 #        self.labelValue.grid(row=0,column=1)
         #create all StringVars
-        for x in range(len(self.texts)):
-            #set textvariable to StringVar with default text as value
-            self.text_variable[self.texts[x]] = StringVar(self, value=self.defaults[x])
+        for x, label in enumerate(self.texts):
+            self.text_variable[label] = StringVar(self, value=self.defaults[x])
+#        for x in range(len(self.texts)):
+#            #set textvariable to StringVar with default text as value
+#            self.text_variable[self.texts[x]] = StringVar(self, value=self.defaults[x])
             
         #create all entries
-        for x in range(len(self.texts)):
+        for x, label in enumerate(self.texts):
             #create entry 
-            self.entries[self.texts[x]] = ttk.Entry(self, textvariable=self.text_variable[self.texts[x]])
+            self.entries[label] = ttk.Entry(self, textvariable=self.text_variable[label])
             
         #show commonly used variables
-        for x in range(len(self.common_texts)):
+        for x, par in enumerate(self.fields[self.COMMON]):
             #use grid() after creating entry or dictionary value will be 'NoneType'
-            self.entries[self.common_texts[x]].grid(row=x+1,column=1)
+            self.entries[par.label].grid(row=x+1,column=1)
         
     #creates button for saving all values
     def save_option(self): 
