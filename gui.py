@@ -131,7 +131,6 @@ class Page_Variables(Frame):
                 Par('trimAdjust', float, (LAYER,)),
                 Par('start_Gcode_FileName', str, (FILE,)),
                 Par('end_Gcode_FileName', str, (FILE,)),
-                Par('outputFileName', str, (COMMON, FILE)),
                 Par('bed_temp', int, (COMMON, PRINT)),
                 Par('extruder_temp', int, (COMMON, PRINT)),
                 ]
@@ -290,25 +289,24 @@ class Page_Variables(Frame):
         #label for parameters
         labelParameters = Label(self,text='Parameters',font='-weight bold')
         labelParameters.grid(row=0,column=2)
-        
+
         #button to display all variables
-        buttonAll = ttk.Button(self,text='All',command=lambda: self.use_all())
+        buttonAll = ttk.Button(self,text='All',command=self.command(self.parameters))
         buttonAll.grid(row=1,column=2)
-        #button to display commonly used variables
-        buttonCommon = ttk.Button(self,text='Common',command=lambda: self.use_common())
-        buttonCommon.grid(row=2,column=2)
-        #button to display part parameters
-        buttonParts = ttk.Button(self,text='Parts',command=lambda: self.use_parts())
-        buttonParts.grid(row=3,column=2)
-        #button to display layer parameters
-        buttonLayers = ttk.Button(self,text='Layers',command=lambda: self.use_layers())
-        buttonLayers.grid(row=4,column=2)
-        #button to display file parameters
-        buttonFiles = ttk.Button(self,text='Files',command=lambda: self.use_files())
-        buttonFiles.grid(row=5,column=2)
-        #button to display print parameters
-        buttonPrints = ttk.Button(self,text='Prints',command=lambda: self.use_prints())
-        buttonPrints.grid(row=6,column=2)
+        
+        for x, menu in enumerate(self.menus):
+            button = ttk.Button(self, text=menu.name, command=self.command(self.fields[menu.group]))
+            button.grid(row=2+x, column=2)
+            
+    def command(self, params):
+        def inner_command():
+            for text in self.texts:
+                self.labels[text].grid_forget()      
+                self.entries[text].grid_forget()
+            for x, param in enumerate(params):
+                self.labels[param.label].grid(row=x+1, column=0)
+                self.entries[param.label].grid(row=x+1, column=1)
+        return inner_command
         
     #create label and buttons for different preset values of parameters
     def presets(self):
@@ -431,98 +429,6 @@ class Page_Variables(Frame):
                     value = value.replace('[','')
                     value = value.replace(']','')
                     self.text_variable[key].set(value)   #replace current StringVar values with data from JSON file
-        
-    #switch to tab with all parameters    
-    def use_all(self):
-        
-        for x in range(len(self.labels)):
-            self.labels[self.texts[x]].grid(row=x+1,column=0)    
-            self.entries[self.texts[x]].grid(row=x+1,column=1)   
-        
-    def use_common(self):
-        
-        for text in self.texts:
-            self.labels[text].grid_forget()      
-            self.entries[text].grid_forget()     
-            
-        for x in range(len(self.common_texts)):
-            self.labels[self.common_texts[x]].grid(row=x+1,column=0)     
-            self.entries[self.common_texts[x]].grid(row=x+1,column=1)  
-        
-    #switch to tab with only part parameters
-    def use_parts(self):
-        
-        for x in range(len(self.part_param)):
-            self.labels[self.part_param[x]].grid(row=x+1,column=0)  
-            self.entries[self.part_param[x]].grid(row=x+1,column=1)
-            
-        for layer_p in self.layer_param:
-            self.labels[layer_p].grid_forget()    
-            self.entries[layer_p].grid_forget()
-            
-        for file_p in self.file_param:
-            self.labels[file_p].grid_forget()    
-            self.entries[file_p].grid_forget()    
-            
-        for print_p in self.print_param:
-            self.labels[print_p].grid_forget()
-            self.entries[print_p].grid_forget()
-      
-    #switch to tab with only layer parameters  
-    def use_layers(self):
-        
-        for x in range(len(self.layer_param)):
-            self.labels[self.layer_param[x]].grid(row=x+1,column=0)     #show labels
-            self.entries[self.layer_param[x]].grid(row=x+1,column=1)    #show entries
-            
-        for file_p in self.file_param:
-            self.labels[file_p].grid_forget()    
-            self.entries[file_p].grid_forget()    
-            
-        for part_p in self.part_param:
-            self.labels[part_p].grid_forget()    
-            self.entries[part_p].grid_forget()    
-            
-        for print_p in self.print_param:
-            self.labels[print_p].grid_forget()
-            self.entries[print_p].grid_forget()
-      
-    #switch to tabe with only file parameters  
-    def use_files(self):
-            
-        for x in range(len(self.file_param)):
-            self.labels[self.file_param[x]].grid(row=x+1,column=0)     #show labels
-            self.entries[self.file_param[x]].grid(row=x+1,column=1)    #show entries
-            
-        for part_p in self.part_param:
-            self.labels[part_p].grid_forget()    
-            self.entries[part_p].grid_forget()    
-            
-        for layer_p in self.layer_param:
-            self.labels[layer_p].grid_forget()    
-            self.entries[layer_p].grid_forget()
-            
-        for print_p in self.print_param:
-            self.labels[print_p].grid_forget()
-            self.entries[print_p].grid_forget()
-            
-    def use_prints(self):
-        
-        for x in range(len(self.print_param)):
-            self.labels[self.print_param[x]].grid(row=x+1,column=0)
-            self.entries[self.print_param[x]].grid(row=x+1,column=1)
-            
-        for part_p in self.part_param:
-            self.labels[part_p].grid_forget()    
-            self.entries[part_p].grid_forget()    
-            
-        for layer_p in self.layer_param:
-            self.labels[layer_p].grid_forget()    
-            self.entries[layer_p].grid_forget()
-            
-        for file_p in self.file_param:
-            self.labels[file_p].grid_forget()    
-            self.entries[file_p].grid_forget()
         
     #change values to dogbone preset    
     def dogbone(self):
