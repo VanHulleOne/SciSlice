@@ -7,6 +7,7 @@ Created on Sat May 28 16:39:58 2016
 import os
 import constants as c
 import matplotlib                   #for 3D model
+from collections import namedtuple
 
 #if using the Spyder console, matplotlib is already imported and the backend cannot be changed with .use() as is needed
 #to change the backend to TkAgg, go to Tools > Preferences > Console > External modules > Matplotlib GUI backend
@@ -92,27 +93,65 @@ class GUI(Tk):
         
 class Page_Variables(Frame):
     
-    STL_FILE = 'stl_file'
-    SOLIDITYRATIO = 'solidityRatio'
-    PRINTSPEED = 'printSpeed'
-    SHIFTX = 'shiftX'
-    SHIFTY = 'shiftY'
-    FIRSTLAYERSHIFTZ = 'firstLayerShiftZ'
-    NUMLAYERS = 'numLayers'
-    PATTERN = 'pattern'
-    DESIGNTYPE = 'designType'
-    INFILLANGLEDEGREES = 'infillAngleDegrees'
-    PATHWIDTH = 'pathWidth'
-    LAYERHEIGHT = 'layerHeight'
-    INFILLSHIFTX = 'infillShiftX'
-    INFILLSHIFTY = 'infillShiftY'
-    NUMSHELLS = 'numShells'
-    TRIMADJUST = 'trimAdjust'
-    START_GCODE_FILENAME = 'start_Gcode_FileName'
-    END_GCODE_FILENAME = 'end_Gcode_FileName'
-    OUTPUTFILENAME = 'outputFileName'
-    BEDTEMP = 'bed_temp'
-    EXTRUDERTEMP = 'extruder_temp'
+    COMMON = 0
+    PART = 1
+    LAYER = 2
+    FILE = 3
+    PRINT = 4
+    
+    Menu = namedtuple('Menu', 'name group')
+    menus = [Menu('Common', COMMON),
+             Menu('Part', PART),
+             Menu('Layer', LAYER),
+             Menu('File', FILE),
+             Menu('Print', PRINT)]
+             
+    Par = namedtuple('Parameter', 'label type groups')
+    parameters = [
+                Par('stl_file', str, (COMMON, PART)),
+                Par('solidityRatio', float, (COMMON, PART)),
+                Par('shiftX', float, (COMMON, PART)),
+                Par('shiftY', float, (COMMON, PART)),
+                Par('firstLayerShiftZ', float, (PART)),
+                Par('numLayers', int, (COMMON, PART)),
+                Par('pattern', None, (PART)),
+                Par('designType', int, (PART)),
+                Par('infillAngleDegrees', float, (COMMON, LAYER)),
+                Par('pathWidth', float, (LAYER)),
+                Par('layerHeight', float, (Layer)),
+                Par('infillShiftX', float, (Layer)),
+                Par('infillShiftY', float, (Layer)),
+                Par('numShells', int, (COMMON, LAYER)),
+                Par('trimAdjust', float, (LAYER)),
+                Par('start_Gcode_FileName', str, (FILE)),
+                Par('end_Gcode_FileName', str, (FILE)),
+                Par('outputFileName', str, (COMMON, FILE)),
+                Par('bed_temp', int, (COMMON, PRINT))
+                Par('extruder_temp', int, (COMMON, PRINT)),
+                ]
+    
+    
+#    STL_FILE = 'stl_file'
+#    SOLIDITYRATIO = 'solidityRatio'
+#    PRINTSPEED = 'printSpeed'
+#    SHIFTX = 'shiftX'
+#    SHIFTY = 'shiftY'
+#    FIRSTLAYERSHIFTZ = 'firstLayerShiftZ'
+#    NUMLAYERS = 'numLayers'
+#    PATTERN = 'pattern'
+#    DESIGNTYPE = 'designType'
+#    INFILLANGLEDEGREES = 'infillAngleDegrees'
+#    PATHWIDTH = 'pathWidth'
+#    LAYERHEIGHT = 'layerHeight'
+#    INFILLSHIFTX = 'infillShiftX'
+#    INFILLSHIFTY = 'infillShiftY'
+#    NUMSHELLS = 'numShells'
+#    TRIMADJUST = 'trimAdjust'
+#    START_GCODE_FILENAME = 'start_Gcode_FileName'
+#    END_GCODE_FILENAME = 'end_Gcode_FileName'
+#    OUTPUTFILENAME = 'outputFileName'
+#    BEDTEMP = 'bed_temp'
+#    EXTRUDERTEMP = 'extruder_temp'
     CURRPATH = os.path.dirname(os.path.realpath(__file__))
     GCODEPATH = CURRPATH + '\\Gcode\\'
     JSONPATH = CURRPATH + '\\JSON\\'
