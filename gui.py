@@ -135,33 +135,6 @@ class Page_Variables(Frame):
                 Par('extruder_temp', int, (COMMON, PRINT)),
                 ]
     
-    
-    STL_FILE = 'stl_file'
-    SOLIDITYRATIO = 'solidityRatio'
-    PRINTSPEED = 'printSpeed'
-    SHIFTX = 'shiftX'
-    SHIFTY = 'shiftY'
-    FIRSTLAYERSHIFTZ = 'firstLayerShiftZ'
-    NUMLAYERS = 'numLayers'
-    PATTERN = 'pattern'
-    DESIGNTYPE = 'designType'
-    INFILLANGLEDEGREES = 'infillAngleDegrees'
-    PATHWIDTH = 'pathWidth'
-    LAYERHEIGHT = 'layerHeight'
-    INFILLSHIFTX = 'infillShiftX'
-    INFILLSHIFTY = 'infillShiftY'
-    NUMSHELLS = 'numShells'
-    TRIMADJUST = 'trimAdjust'
-    START_GCODE_FILENAME = 'start_Gcode_FileName'
-    END_GCODE_FILENAME = 'end_Gcode_FileName'
-    OUTPUTFILENAME = 'outputFileName'
-    BEDTEMP = 'bed_temp'
-    EXTRUDERTEMP = 'extruder_temp'
-    CURRPATH = os.path.dirname(os.path.realpath(__file__))
-    GCODEPATH = CURRPATH + '\\Gcode\\'
-    JSONPATH = CURRPATH + '\\JSON\\'
-    OUTPUTSUBDIRECTORY = 'outputSubDirectory'
-    
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
         self.controller = controller
@@ -251,15 +224,10 @@ class Page_Variables(Frame):
             
     #initial creation of entries
     def set_entries(self):
-        
-#        self.labelValue = Label(self, text='Value', font='-weight bold')
-#        self.labelValue.grid(row=0,column=1)
+
         #create all StringVars
         for x, label in enumerate(self.texts):
             self.text_variable[label] = StringVar(self, value=self.defaults[x])
-#        for x in range(len(self.texts)):
-#            #set textvariable to StringVar with default text as value
-#            self.text_variable[self.texts[x]] = StringVar(self, value=self.defaults[x])
             
         #create all entries
         for x, label in enumerate(self.texts):
