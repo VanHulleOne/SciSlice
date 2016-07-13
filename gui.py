@@ -310,26 +310,32 @@ class Page_Variables(Frame):
                 
     def save(self, name = None):
         
-        gcodePath = ''
-        
+        #only saving JSON
         if name == None:
-            self.filename = filedialog.asksaveasfilename()   #creates window to get filename
-            gcodeName = self.filename.split('/')[len(self.filename.split('/'))-1] + '.gcode'
-            self.filename = self.filename + '.json'  
+            savePath = filedialog.asksaveasfilename()
+            savePath = self.check_end(savePath)
+            gcodeName = savePath.split('/')[len(savePath.split('/'))-1] + '.gcode'
+            self.filename = savePath + '.json'  
+        
+        #converting to gcode -- create temp json file with same name as gcode file
         elif name == 'gcode':
-            gcodePath = filedialog.asksaveasfilename()
-            self.filename = self.JSONPATH + gcodePath.split('/')[len(gcodePath.split('/'))-1] + '.json'
-            gcodeName = gcodePath + '.gcode'
+            savePath = filedialog.asksaveasfilename()
+            savePath = self.check_end(savePath)
+            self.filename = self.JSONPATH + savePath.split('/')[len(savePath.split('/'))-1] + '.json'
+            gcodeName = savePath + '.gcode'
+            
+        #switching to 3D model page -- create temp json file
         else:
-            gcodeName = name + '.gcode'
-            self.filename = self.JSONPATH + name + '.json'               
+            savePath = 'blank'
+            gcodeName = self.GCODEPATH + name + '.gcode'
+            self.filename = self.JSONPATH + name + '.json'          
         
         data = {}               #dictionary to put String value of StringVar values in
         #check if the user cancelled saving the file
         if self.filename:
                                                        #variables with type None
             data[self.OUTPUTFILENAME] = gcodeName
-            data[self.OUTPUTSUBDIRECTORY] = gcodePath
+            data[self.OUTPUTSUBDIRECTORY] = savePath
             
             for label, data_type, _ in self.parameters:
                 if data_type is str:
@@ -353,6 +359,15 @@ class Page_Variables(Frame):
                 os.makedirs(self.JSONPATH)
             with open(self.filename, 'w') as fp:
                 json.dump(data, fp)    #save JSON file
+    
+    def check_end(self, pathName):
+        
+        if pathName.endswith('.json'):
+            pathName = pathName[:-5]
+        elif pathName.endswith('.gcode'):
+            pathName = pathName[:-6]
+    
+        return pathName
         
     #uploads dictionary from JSON file to replace current StringVar values, opens window to find file       
     def upload(self):
@@ -410,7 +425,6 @@ class Page_Variables(Frame):
         
         self.controller.show_frame(Page_Model)
         
-        os.remove(self.JSONPATH + 'temp.json')
         os.remove(self.GCODEPATH + 'temp.gcode')
         
 
@@ -466,10 +480,10 @@ class Page_Model(Frame):
         
     def show_scales(self):
         
-        self.scaleStart = Scale(self, from_=0, to=len(self.x), length=500, orient=HORIZONTAL)
+        self.scaleStart = Scale(self, from_=0, to=len(self.xar), length=500, orient=HORIZONTAL)
         self.scaleStart.grid(row=1,column=1)
         
-        self.scaleEnd = Scale(self, from_=0, to=len(self.x), length=500, tickinterval=5000, orient=HORIZONTAL)
+        self.scaleEnd = Scale(self, from_=0, to=len(self.xar), length=500, tickinterval=5000, orient=HORIZONTAL)
         self.scaleEnd.grid(row=2,column=1)
         
     def show_buttons(self):
