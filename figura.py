@@ -34,15 +34,15 @@ import os
 
 class Figura:  
     
-    def __init__(self, stl, param, g_code):
+    def __init__(self, param, g_code):
         
         self.data_points =  open("data_points.txt", 'a')
         
-        currPath = os.path.dirname(os.path.realpath(__file__))
-        self.mesh = trimesh.load_mesh(stl)#currPath+'\\'+stl)        
-        
         self.gc = g_code
         self.pr = param
+        
+        currPath = os.path.dirname(os.path.realpath(__file__))
+        self.mesh = trimesh.load_mesh(self.pr.stl_file)#currPath+'\\'+stl)        
         
         self.maxZ = self.mesh.bounds[:,2:][1]
         

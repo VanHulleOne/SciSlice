@@ -14,21 +14,12 @@ import doneShapes as ds
 import constants as c
 
 class Main:
-  
-    main_data = {}
-    outline_options = {}
-    trimAdjust_options = {}
-    
-    TRIMADJUST = 'trimAdjust'
-    REGULARDOGBONE = 'regularDogBone'
-    EPSILON = 'EPSILON'
-    STL_FILE = 'stl_file'
     
     def __init__(self, name, gRobot):
         currPath = os.path.dirname(os.path.realpath(__file__))
 #        with open(currPath +'\\'+ name, 'r') as fp:
         with open(name, 'r') as fp:
-            self.main_data = json.load(fp)
+            self.parameters = json.load(fp)
 #        self.outline_options[self.REGULARDOGBONE] = ds.regularDogBone()
 #        self.trimAdjust_options[self.EPSILON] = c.EPSILON
 #        for key in self.trimAdjust_options:              
@@ -38,7 +29,7 @@ class Main:
 #                    number = int(''.join(t for t in self.main_data[self.TRIMADJUST][0] if t.isdigit()))
 #                    option *= number
 #                self.main_data[self.TRIMADJUST][0] = option
-        self.pr = Parameters(self.main_data)
+        self.pr = Parameters(self.parameters)
         if gRobot == c.GCODE:
             self.gc = Gcode(self.pr)
         elif gRobot == c.ROBOTCODE:
@@ -52,7 +43,7 @@ class Main:
         temp = open("data_points.txt", 'w')
         temp.close()
         
-        fig = fg.Figura(self.main_data[self.STL_FILE], self.pr, self.gc)
+        fig = fg.Figura(self.pr, self.gc)
         
 #        with open(self.pr.outputSubDirectory+'\\'+self.pr.outputFileName, 'w') as f:    
         with open(self.pr.outputFileName, 'w') as f:

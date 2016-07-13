@@ -310,6 +310,8 @@ class Page_Variables(Frame):
                 
     def save(self, name = None):
         
+        gcodePath = ''
+        
         if name == None:
             self.filename = filedialog.asksaveasfilename()   #creates window to get filename
             gcodeName = self.filename.split('/')[len(self.filename.split('/'))-1] + '.gcode'
@@ -324,7 +326,7 @@ class Page_Variables(Frame):
         
         data = {}               #dictionary to put String value of StringVar values in
         #check if the user cancelled saving the file
-        if self.filename != '':
+        if self.filename:
                                                        #variables with type None
             data[self.OUTPUTFILENAME] = gcodeName
             data[self.OUTPUTSUBDIRECTORY] = gcodePath
@@ -378,7 +380,7 @@ class Page_Variables(Frame):
                 '10, 35, 60', '0', '8',                                                 #part parameters
                 'None', '0',                                                            #part parameters
                 '0, -45, 90, 45, 45, 90, -45', '0.5', '0.4',                            #layer parameters
-                '0', '0', '13,1,1,0,0,1,1',  '2*c.EPSILON',                             #layer parameters
+                '0', '0', '13,1,1,0,0,1,1',  '0.0002',                             #layer parameters
                 'Start_Gcode_Taz5.txt', 'End_Gcode_Taz5.txt',                      #file parameters
                 '999', '999']                                                       #print parameters
                 
