@@ -95,23 +95,21 @@ class Figura:
         """        
         
         layerParam_Gen = self.pr.layerParameters()
-#        currHeight = self.pr.firstLayerShiftZ
-        layerParam = next(layerParam_Gen)
-            
-        currHeight = layerParam.layerHeight
+        currHeight = self.pr.firstLayerShiftZ
         
-        # TODO: remove the -61
-        while currHeight <= self.maxZ-61:
-            sec = Section(self.mesh.section(plane_origin=[0,0,currHeight],plane_normal=[0,0,1]))
+        for _ in range(partParams.numLayers):
+            """ Iterate through for the correct number of layers. """
+            layerParam = next(layerParam_Gen)
+            
+            currHeight += layerParam.layerHeight
 
-            filledList = []
-
-            for shellNumber in range(layerParam.numShells):
-                offsetShape = sec.offset(layerParam.pathWidth*(shellNumber), c.INSIDE)
-                if offsetShape is not None:
-                    filledList.append(offsetShape)
-                else:
-                    break
+            if layerParam not in self.layers:
+                currOutline = self.shape
+                filledList = []
+                for shellNumber in range(layerParam.numShells):
+                    """ If the layer needs shells create them here. """
+                    filledList.append(currOutline)
+                    currOutline = currOutline.offset(layerParam.pathWidth, c.INSIDE)
                     
                 """
                 To help with problems that occur when an offset shape has its sides
@@ -119,25 +117,18 @@ class Figura:
                 want to fudge the trimShape outward just a little so that we end
                 up with the correct lines.
                 """
-            trimShape = sec.offset(layerParam.pathWidth * layerParam.numShells - 
-                            layerParam.trimAdjust, c.INSIDE)
-                            
-            if trimShape is not None:
+                if layerParam.numShells == 0:
+                    trimShape = currOutline.offset(layerParam.trimAdjust, c.OUTSIDE)
+                else:
+                    trimShape = filledList[-1].offset(layerParam.pathWidth-layerParam.trimAdjust, c.INSIDE)
                 infill = InF.InFill(trimShape,
                                     layerParam.pathWidth, layerParam.infillAngle,
                                     shiftX=layerParam.infillShiftX, shiftY=layerParam.infillShiftY,
                                     design=self.pr.pattern, designType=self.pr.designType)
-    #                self.layers[layerParam] = self.organizedLayer(filledList + [infill])
-                filledList.append(infill)
-            ol = self.organizedLayer(filledList)
+                self.layers[layerParam] = self.organizedLayer(filledList + [infill])
             """ a tuple of the organized LineGroup and the layer parameters. """
-            yield (ol.translate(partParams.shiftX, partParams.shiftY,
-                                currHeight+self.pr.firstLayerShiftZ), layerParam)
-            layerParam = next(layerParam_Gen)
-            
-            currHeight += layerParam.layerHeight
-#            yield (self.layers[layerParam].translate(partParams.shiftX,
-#                                            partParams.shiftY, currHeight), layerParam)
+            yield (self.layers[layerParam].translate(partParams.shiftX,
+                                            partParams.shiftY, currHeight), layerParam)
     
     def partGcode_gen(self, partParams):        
         layerNumber = 1
