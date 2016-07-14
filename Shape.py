@@ -391,17 +391,3 @@ class Shape(LG):
         intersections = (0 < all_t) & (all_t < 1)
 #        print('Intersections: ', intersections)
         return (c.INSIDE if np.sum(intersections) % 2 else c.OUTSIDE)
-
-
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
