@@ -34,15 +34,22 @@ from Shape import Shape
 
 class Figura:  
     
-    def __init__(self, shape):
-        self.shape = shape
-#        startTime = time.time()
-#        layer = self.organizedLayer(inShapes)
-#        layer = layer.translate(0,0, pr.firstLayerShiftZ)
-#        print '\nLayer organized in: %.2f sec\n' %(time.time() - startTime)
-#        with open('I:\RedBench\static\data\LineList.txt', 'w') as f:
-#            f.write('test\n')
-#            f.write(layer.CSVstr())
+    def __init__(self, param, g_code):
+        
+        self.data_points =  open("data_points.txt", 'a')
+        
+        self.gc = g_code
+        self.pr = param
+        
+        currPath = os.path.dirname(os.path.realpath(__file__))
+        self.mesh = trimesh.load_mesh(self.pr.stl_file)#currPath+'\\'+stl)        
+        
+        self.maxZ = self.mesh.bounds[:,2:][1]
+        
+        self.numLayers = []
+        
+        for layerH in self.pr.layerHeight:
+            self.numLayers.append(int((self.maxZ//layerH)[0]))       
         
         self.partCount = 1 # The current part number
 
