@@ -24,13 +24,12 @@ if another layer with the same parameters is used it does not need to be recalcu
 @author: lvanhulle
 """
 
-import gcode as gc
-import parameters as pr
 import Point as p
 import InFill as InF
 import LineGroup as lg
 import constants as c
-from Shape import Shape
+from Shape import Shape, Section
+import os
 
 class Figura:  
     
