@@ -20,7 +20,7 @@ CENTER = 3 #center of circle
 INSIDE = 1 #Point is inside shape
 OUTSIDE = 0 #point is outside shape
 ALLOW_PROJECTION = True
-EPSILON = 1.0/10000 # The prcision level to use when doing numerical comparisons
+EPSILON = 1.0/10000 # The precision level to use when doing numerical comparisons
 OMIT_Z = True # When moving to a new point this chooses the Z level should not be used
 INCLUDE_Z = False
 USED = True
@@ -35,7 +35,7 @@ TRIMMED_FIELD = 4
 GCODE = 0
 ROBOTCODE = 1
 
-LOG_LEVEL = logging.WARN
+LOG_LEVEL = logging.INFO
 importlib.reload(logging)
 logging.basicConfig(format='\n\nLog Message\n-----------\nModule: %(name)s\n' + 
                     'Log Level: %(levelname)s\nMsg: %(message)s', level=LOG_LEVEL)

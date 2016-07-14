@@ -57,8 +57,8 @@ class Figura:
         layer_gen(). """
         
     def masterGcode_gen(self):
-        yield gc.startGcode()
-        for partParams in pr.everyPartsParameters:
+        yield self.gc.startGcode()
+        for partParams in self.pr.everyPartsParameters:
             """ pr.everyPartsParameters is a generator of the parameters for the parts.
             The generator stops yielding additional parameters when there are no
             more parts left to print. The parameters are sent to layer_gen() which
@@ -74,7 +74,7 @@ class Figura:
             yield from self.partGcode_gen(partParams)
                 
             self.partCount += 1
-        yield gc.endGcode()
+        yield self.gc.endGcode()
 
     def layer_gen(self, partParams):
         """ Creates and yields each organized layer for the part.
@@ -94,80 +94,95 @@ class Figura:
         the layer parameters so they can be printed in the gcode.)
         """        
         
-        layerParam_Gen = pr.layerParameters()
-        currHeight = pr.firstLayerShiftZ
-        
-        for _ in range(partParams.numLayers):
-            """ Iterate through for the correct number of layers. """
-            layerParam = next(layerParam_Gen)
+        layerParam_Gen = self.pr.layerParameters()
+#        currHeight = self.pr.firstLayerShiftZ
+        layerParam = next(layerParam_Gen)
             
-            currHeight += layerParam.layerHeight
+        currHeight = layerParam.layerHeight
+        
+        # TODO: remove the -61
+        while currHeight <= self.maxZ-61:
+            sec = Section(self.mesh.section(plane_origin=[0,0,currHeight],plane_normal=[0,0,1]))
 
-            if layerParam not in self.layers:
-                currOutline = self.shape
-                filledList = []
-                for shellNumber in range(layerParam.numShells):
-                    """ If the layer needs shells create them here. """
-                    filledList.append(currOutline)
-                    currOutline = currOutline.offset(layerParam.pathWidth, c.INSIDE)
+            filledList = []
+
+            for shellNumber in range(layerParam.numShells):
+                offsetShape = sec.offset(layerParam.pathWidth*(shellNumber), c.INSIDE)
+                if offsetShape is not None:
+                    filledList.append(offsetShape)
+                else:
+                    break
+                    
                 """
                 To help with problems that occur when an offset shape has its sides
                 collide or if the infill liens are colinear with the trim lines we
                 want to fudge the trimShape outward just a little so that we end
                 up with the correct lines.
                 """
-                if layerParam.numShells == 0:
-                    trimShape = currOutline.offset(layerParam.trimAdjust, c.OUTSIDE)
-                else:
-                    trimShape = filledList[-1].offset(layerParam.pathWidth-layerParam.trimAdjust, c.INSIDE)
+            trimShape = sec.offset(layerParam.pathWidth * layerParam.numShells - 
+                            layerParam.trimAdjust, c.INSIDE)
+                            
+            if trimShape is not None:
                 infill = InF.InFill(trimShape,
                                     layerParam.pathWidth, layerParam.infillAngle,
                                     shiftX=layerParam.infillShiftX, shiftY=layerParam.infillShiftY,
-                                    design=pr.pattern, designType=pr.designType)
-                self.layers[layerParam] = self.organizedLayer(filledList + [infill])
-            
+                                    design=self.pr.pattern, designType=self.pr.designType)
+    #                self.layers[layerParam] = self.organizedLayer(filledList + [infill])
+                filledList.append(infill)
+            ol = self.organizedLayer(filledList)
             """ a tuple of the organized LineGroup and the layer parameters. """
-            yield (self.layers[layerParam].translate(partParams.shiftX,
-                                            partParams.shiftY, currHeight), layerParam)
+            yield (ol.translate(partParams.shiftX, partParams.shiftY,
+                                currHeight+self.pr.firstLayerShiftZ), layerParam)
+            layerParam = next(layerParam_Gen)
+            
+            currHeight += layerParam.layerHeight
+#            yield (self.layers[layerParam].translate(partParams.shiftX,
+#                                            partParams.shiftY, currHeight), layerParam)
     
     def partGcode_gen(self, partParams):        
         layerNumber = 1
-        yield gc.newPart()
+        yield self.gc.newPart()
         totalExtrusion = 0
         
         for layer, layerParam in self.layer_gen(partParams):
             extrusionRate = (partParams.solidityRatio*layerParam.layerHeight*
-                            pr.nozzleDiameter/pr.filamentArea)
+                            self.pr.nozzleDiameter/self.pr.filamentArea)
             yield ';Layer: ' + str(layerNumber) + '\n'
             yield ';' + str(layerParam) + '\n'
             yield ';T' + str(self.partCount) + str(layerNumber) + '\n'
             yield ';M6\n'
             yield ('M117 Layer ' + str(layerNumber) + ' of ' +
-                            str(partParams.numLayers) + '..\n')
-            yield gc.rapidMove(layer[0].start, c.OMIT_Z)
-            yield gc.firstApproach(totalExtrusion, layer[0].start)
+                            str(self.numLayers) + '..\n')
+            yield self.gc.rapidMove(layer[0].start, c.OMIT_Z)
+            yield self.gc.firstApproach(totalExtrusion, layer[0].start)
             
             prevLoc = layer[0].start
-            for line in layer:                
+            self.data_points.write('start\n')
+            for line in layer:
+                self.data_points.write(','.join(str(i) for i in line.start.normalVector[:3])+',')
+                self.data_points.write(','.join(str(i) for i in line.end.normalVector[:3]))
+                self.data_points.write('\n')
                 if prevLoc != line.start:
-                    if (prevLoc - line.start) < pr.MAX_FEED_TRAVERSE:
-                        yield gc.rapidMove(line.start, c.OMIT_Z)
+                    if (prevLoc - line.start) < self.pr.MAX_FEED_TRAVERSE:
+                        yield self.gc.rapidMove(line.start, c.OMIT_Z)
                     else:
-                        yield gc.retractLayer(totalExtrusion, prevLoc)
-                        yield gc.rapidMove(line.start, c.OMIT_Z)
-                        yield gc.approachLayer(totalExtrusion, line.start)
+                        yield self.gc.retractLayer(totalExtrusion, prevLoc)
+                        yield self.gc.rapidMove(line.start, c.OMIT_Z)
+                        yield self.gc.approachLayer(totalExtrusion, line.start)
                         
                 line.extrusionRate = extrusionRate
                 totalExtrusion += line.length*line.extrusionRate
-                yield gc.feedMove(line.end, c.OMIT_Z, totalExtrusion,
+                yield self.gc.feedMove(line.end, c.OMIT_Z, totalExtrusion,
                                           partParams.printSpeed)
                 prevLoc = line.end
             
-            yield gc.retractLayer(totalExtrusion, layer[-1].end)
+            self.data_points.write('layer_number:' + str(layerNumber) + ':  part_number:' + str(self.partCount) + ':\n')
+            yield self.gc.retractLayer(totalExtrusion, layer[-1].end)
             yield '\n'
             layerNumber += 1
         yield ';Extrusion amount for part is ({:.1f} mm)\n\n'.format(totalExtrusion)
-                
+
+            
     def organizedLayer(self, inShapes):
         """ Takes in a list of LineGroup objects and returns them as an organized layer.
         
@@ -225,7 +240,7 @@ class Figura:
                 to be continuous contours (except if the have internal holes) so
                 there is no need to check any other LineGroup for a closer line.
                 Plus if the shape was being used as a brim to help start a print
-                we would not want to stop party way through the brim.
+                we would not want to stop partialy way through the brim.
                 """
                 while 1:
                     try:
@@ -237,6 +252,17 @@ class Figura:
                         """ A reminder than an else is run if there is no exception. """
                         lastPoint = line.end
                         layer.append(line)
+        """
+        #creats text file of all data points
+        data = []
+        for line in layer:
+            temp = []
+            temp.append(str(line.start).replace("X", "").replace("Y", "").replace("Z", "").split(" "))
+            temp.append(str(line.end).replace("X", "").replace("Y", "").replace("Z", "").split(" "))
+            data.append(temp)
+        for entry in data:
+            self.data_points.write(str(entry) + "\n")
+        """
         return layer
     
     def __str__(self):
@@ -248,4 +274,7 @@ class Figura:
             tempString += str(layer)
             layerNumber += 1
         return tempString
+        
+    def close_file(self):
+        self.data_points.close()
     

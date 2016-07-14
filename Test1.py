@@ -5,8 +5,8 @@ Created on Wed Oct 28 10:16:22 2015
 @author: lvanhulle
 """
 import Point as p
-#import InFill as infill
-#import Shape as s
+import InFill as infill
+import Shape as s
 import Line as l
 #import arc as a
 import math
@@ -28,6 +28,14 @@ import random
 import bisect
 import collections as col
 from collections import namedtuple
+import sys
+import trimesh
+from stl import mesh
+from shapely.geometry.polygon import LinearRing, Polygon
+from shapely.geometry import *#MultiPolygon
+import matplotlib.pyplot as plt
+from shapely.ops import cascaded_union
+from matplotlib import animation
 
 
 p1 = p.Point(2.073, 0.0806)
@@ -59,38 +67,49 @@ points = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11]
 
 lines = [l.Line(points[i], points[i+1]) for i in range(len(points)-1)]
 
+COMMON = 0
+PART = 1
+LAYER = 2
+FILE = 3
+PRINT = 4
 
-#d1 = ds.rect(0,0,10,10)
-#sub1 = s.Shape()
-#sub1.addLinesFromCoordinateList([[5,1],[4,5],[5,9],[6,5],[5,1]])
-#sub1 = sub1.translate(-0.1,0)
-#sub1.finishOutline()
-#d1.addInternalShape(sub1)
-#print('d1:')
-#d1.finishOutline()
+Menu = namedtuple('Menu', 'name group')
+menus = [
+        Menu('Common', COMMON),
+        Menu('Part', PART),
+        Menu('Layer', LAYER),
+        Menu('File', FILE),
+        Menu('Print', PRINT)
+        ]
 
-#d1 = ds.simpleDogBone()
+Par = namedtuple('Parameter', 'label type groups')
+parameters = [
+            Par('stl_file', str, (COMMON, PART)),
+            Par('solidityRatio', float, (COMMON, PART)),
+            Par('shiftX', float, (COMMON, PART)),
+            Par('shiftY', float, (COMMON, PART)),
+            Par('firstLayerShiftZ', float, (PART,)),
+            Par('numLayers', int, (COMMON, PART)),
+            Par('pattern', None, (PART,)),
+            Par('designType', int, (PART,)),
+            Par('infillAngleDegrees', float, (COMMON, LAYER)),
+            Par('pathWidth', float, (LAYER,)),
+            Par('layerHeight', float, (LAYER,)),
+            Par('infillShiftX', float, (LAYER,)),
+            Par('infillShiftY', float, (LAYER,)),
+            Par('numShells', int, (COMMON, LAYER)),
+            Par('trimAdjust', float, (LAYER,)),
+            Par('start_Gcode_FileName', str, (FILE,)),
+            Par('end_Gcode_FileName', str, (FILE,)),
+            Par('outputFileName', str, (COMMON, FILE)),
+            Par('bed_temp', int, (COMMON, PRINT)),
+            Par('extruder_temp', int, (COMMON, PRINT)),
+            ]
 
-#print('R1')
-#r1 = ds.squareWithHole()
-##r1 = ds.rect(0,0,10,20)
-#print('R2')
-#r2 = r1.offset(0.5, c.INSIDE)
-#print('R3')
-#r3 = r1.newOffset(0.5, c.INSIDE)
-
-#def printG(shape):
-#    for line in shape:
-#        print(*line, sep='\n')
-#
-#def offsets(shape, num, dist=1):
-#    print('G90 G1')
-#    for i in range(num+1):
-#        print('T',i+1,'\nM6',sep='')
-#        printG(shape)
-#        shape = shape.newOffset(dist, c.INSIDE)
-#    
-#in1 = ds.lineField(0.5, 185, 185)
+fields = []
+for menu in menus:
+    fields.append([par for par in parameters if menu.group in par.groups])
+    
 
 """ An example of how to do other infills. """  
 #currOutline = ds.rect(0,0,15,250)
