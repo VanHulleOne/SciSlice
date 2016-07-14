@@ -15,8 +15,6 @@ import constants as c
 from functools import wraps
 import numpy as np
 import Point as p
-from shapely.geometry.polygon import Polygon
-from shapely.ops import cascaded_union
 logger = c.logging.getLogger(__name__)
 logger.setLevel(c.LOG_LEVEL)
 
@@ -394,102 +392,7 @@ class Shape(LG):
 #        print('Intersections: ', intersections)
         return (c.INSIDE if np.sum(intersections) % 2 else c.OUTSIDE)
 
-class _SidedPolygon:
-    def __init__(self, poly, level):
-        self.poly = poly
-        self.level = level
-        self.isFeature = not level%2
-    def contains(self, other):
-        return self.poly.contains(other)
 
-    def offset(self, dist, side):
-        if dist == 0:
-            return _SidedPolygon(self.poly, self.level)
-        if dist < 0:
-            side = not side
-            dist = abs(dist)
-        if (side == c.OUTSIDE and self.isFeature) or (side == c.INSIDE and not self.isFeature):
-            return _SidedPolygon(self.poly.buffer(dist), self.level)
-        try:
-            buffPoly = self.poly.exterior.buffer(dist)
-            if len(buffPoly.interiors) > 1:
-                inPoly = cascaded_union([Polygon(i) for i in buffPoly.interiors])            
-            else:
-                inPoly = Polygon(buffPoly.interiors[0])
-            return _SidedPolygon(inPoly, self.level)
-        except Exception:
-            return None
-    
-    def brim(self, dist):
-        return self.offset(dist, c.OUTSIDE)
-    
-    def shell(self, dist):
-        return self.offset(dist, c.INSIDE)
-
-class Section:
-    def __init__(self, section):
-        self.section = section
-        self.sidedPolygons = self.createSided([Polygon(i) for i in section.discrete])
-        
-    @property
-    def shape(self):
-        shape = Shape()
-        for sidedPolygon in self.sidedPolygons:
-            for coords in self.polygonCoords(sidedPolygon.poly):
-                shape.addCoordLoop(coords)        
-    
-    def re_union(self, polies):
-        final = None
-        for ps in polies:
-            if final is None:
-                if ps.isFeature:
-                    final = ps.poly
-            elif ps.isFeature:
-                final = final.union(ps.poly)
-            else:
-                final = final.difference(ps.poly)
-        return final    
-
-    def offset(self, dist, side):
-        union = self.re_union(filter(None, (j.offset(dist, side) for j in self.sidedPolygons)))
-        if not union:
-            return None
-        shape = Shape()
-        try:
-            for coords in self.polygonCoords(union):
-                shape.addCoordLoop(coords)
-        except Exception:
-            for polygon in union:
-                for coords in self.polygonCoords(polygon):
-                    shape.addCoordLoop(coords)
-        return shape
-        
-    def polygonCoords(self, polygon):
-        yield polygon.exterior.coords
-        for inner in polygon.interiors:
-            yield inner.coords
-        
-    def createSided(self, polys):
-        sidedPolygons = []
-        polys = sorted(polys, key = lambda x: x.area, reverse=True)
-        def io(thisPoly, index=0):
-            while index < len(polys):
-                if thisPoly.contains(polys[index]):
-                    new = _SidedPolygon(polys[index], thisPoly.level+1)
-                    sidedPolygons.append(new)
-                    polys.pop(index)
-                    io(new, index)
-                else:
-                    index += 1
-        while polys:
-            first = _SidedPolygon(polys.pop(0), 0)
-            sidedPolygons.append(first)
-            io(first)
-        return sidedPolygons    
-        
-        
-        
-        
         
         
         
