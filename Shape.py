@@ -42,16 +42,6 @@ class Shape(LG):
     def __init__(self, shape=None):
         LG.__init__(self, shape)
         self.outlineFinished = False
-
-    def addCoordLoop(self, loop):
-        loop_iter = iter(loop)
-        pp = list(next(loop_iter))
-        prev = p.Point(pp[:2]+[0])
-        for curr in (p.Point(list(i[:2])+[0]) for i in loop_iter):
-            if prev != curr:
-                self.append(l.Line(prev,curr))
-                prev = curr
-        self.outlineFinished = False
     
     @finishedOutline
     def addInternalShape(self, inShape):
@@ -251,6 +241,7 @@ class Shape(LG):
         splitLines = []
         starts = np.array([line.start.get2DPoint() for line in tempLines])
         vectors = np.array([line.vector for line in tempLines])
+        
         for iLine in tempLines:
             """ Find if the new lines cross eachother anywhere and if so split them. """
             pointSet = {iLine.start, iLine.end}
@@ -272,14 +263,10 @@ class Shape(LG):
 
         tempShape = Shape(splitLines)
         shapeLines = []
-        print('split Lines shape line 265')
         for line in splitLines:
-            print(line)
             """ Check each line to see if its left side is inside the new offset shape. """
-            if(tempShape.isInside(line.getOffsetLine(4*c.EPSILON, c.INSIDE).getMidPoint())):
+            if(tempShape.isInside(line.getOffsetLine(2*c.EPSILON, c.INSIDE).getMidPoint())):
                 shapeLines.append(line)
-#            else:
-#                print('not added\n')
 
         offShape = Shape(shapeLines)
         offShape.finishOutline()
@@ -337,7 +324,7 @@ class Shape(LG):
         offsetLines.append(moveEnd)
         offsetLines[0] = l.Line(point, offsetLines[0].end, offsetLines[0])
         yield offsetLines
-
+    
     def isInside(self, point, ray=np.array([0.998, 0.067])):
         """
         This method determines if the point is inside

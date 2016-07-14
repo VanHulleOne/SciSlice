@@ -116,6 +116,7 @@ class Page_Variables(Frame):
              
     Par = namedtuple('Parameter', 'label data_type groups')
     parameters = [
+                Par('outline', str, (COMMON, PART)),
                 Par('stl_file', str, (COMMON, PART)),
                 Par('solidityRatio', FLOAT_LIST, (COMMON, PART)),
                 Par('printSpeed', INT_LIST, (COMMON, PART)),
