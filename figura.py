@@ -40,15 +40,10 @@ class Figura:
         self.gc = g_code
         self.pr = param
         
-        currPath = os.path.dirname(os.path.realpath(__file__))
-        self.mesh = trimesh.load_mesh(self.pr.stl_file)#currPath+'\\'+stl)        
-        
-        self.maxZ = self.mesh.bounds[:,2:][1]
-        
         self.numLayers = []
         
-        for layerH in self.pr.layerHeight:
-            self.numLayers.append(int((self.maxZ//layerH)[0]))       
+#        for layerH in self.pr.layerHeight:
+#            self.numLayers.append(int((self.maxZ//layerH)[0]))       
         
         self.partCount = 1 # The current part number
 
@@ -104,7 +99,7 @@ class Figura:
             currHeight += layerParam.layerHeight
 
             if layerParam not in self.layers:
-                currOutline = self.shape
+                currOutline = self.pr.shape
                 filledList = []
                 for shellNumber in range(layerParam.numShells):
                     """ If the layer needs shells create them here. """

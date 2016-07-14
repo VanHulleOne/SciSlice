@@ -19,7 +19,6 @@ import itertools
 import os
 import numpy as np
 import json
-import trimesh
 import Shape as s
 import Point as p
 
@@ -44,6 +43,7 @@ class Parameters:
         self.param_data["MAX_EXTRUDE_SPEED"] = 100
         self.param_data["Z_CLEARANCE"] = 10.0
         self.param_data["APPROACH_FR"] = 1500
+        self.param_data['shape'] = ds.regularDogBone()
         for key, value in self.param_data.items():
             setattr(self, key, value)
         self.LayerParams = namedtuple('LayerParams', 'infillShiftX infillShiftY infillAngle \
