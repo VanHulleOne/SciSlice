@@ -21,6 +21,7 @@ import numpy as np
 import json
 import Shape as s
 import Point as p
+import doneShapes as ds
 
 class Parameters:
     
@@ -35,7 +36,7 @@ class Parameters:
 #        self.param_data["outputSubDirectory"] = self.param_data['currPath'] + '\\Gcode'
         self.param_data["startEndSubDirectory"] = self.param_data['currPath'] + '\\Start_End_Gcode'
         self.param_data["filamentArea"] = math.pi*self.param_data['filamentDiameter']**2/4.0
-        self.param_data['shape'] = ds.regularDogBone()
+        self.param_data['shape'] = getattr(ds, param_data['outline'])()
         for key, value in self.param_data.items():
             setattr(self, key, value)
         self.LayerParams = namedtuple('LayerParams', 'infillShiftX infillShiftY infillAngle \
