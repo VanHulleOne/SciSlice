@@ -197,7 +197,7 @@ class Page_Variables(Frame):
                     '0, -45, 90, 45, 45, 90, -45', '0.5', '0.4',                    #layer parameters
                     '0', '0', '13,1,1,0,0,1,1', '0.0002, 0.0002',                      #layer parameters
                     'Start_Gcode_Taz5.txt', 'End_Gcode_Taz5.txt',                   #file parameters   
-                    '999', '999',] + [str(i) for i in range(10)]                                              #print parameters
+                    '999', '999',]                                            #print parameters
                     
         self.create_var_page()
               
@@ -208,9 +208,9 @@ class Page_Variables(Frame):
     #initial creation of labels
     def set_labels(self):        
         #create all labels
-        for x in range(len(self.texts)):
+        for label in self.texts:
             #create label
-            self.labels[self.texts[x]] = Label(self, text=self.texts[x])
+            self.labels[label] = Label(self, text=label)
         
         for x, par in enumerate(self.fields[self.COMMON]):
             self.labels[par.label].grid(row=x+1,column=0)  
@@ -220,10 +220,13 @@ class Page_Variables(Frame):
 
         #create all StringVars
         for x, label in enumerate(self.texts):
-            self.text_variable[label] = StringVar(self, value=self.defaults[x])
-            
+            try:
+                self.text_variable[label] = StringVar(self, value=self.defaults[x])
+            except Exception:
+                self.text_variable[label] = StringVar(self, value='-')
+
         #create all entries
-        for x, label in enumerate(self.texts):
+        for label in self.texts:
             #create entry 
             self.entries[label] = ttk.Entry(self, textvariable=self.text_variable[label])
             
