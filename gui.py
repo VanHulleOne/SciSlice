@@ -98,6 +98,7 @@ class Page_Variables(Frame):
     LAYER = 2
     FILE = 3
     PRINT = 4
+    PRINTER = 5
     
     INT_LIST = 0
     FLOAT_LIST = 1
@@ -108,7 +109,8 @@ class Page_Variables(Frame):
             Menu('Part', PART),
             Menu('Layer', LAYER),
             Menu('File', FILE),
-            Menu('Print', PRINT)
+            Menu('Print', PRINT),
+            Menu('Printer', PRINTER)
             ]
 
     menus.sort(key=lambda x : x.group)             
@@ -137,6 +139,14 @@ class Page_Variables(Frame):
                 Par('end_Gcode_FileName', str, (FILE,)),
                 Par('bed_temp', int, (COMMON, PRINT)),
                 Par('extruder_temp', int, (COMMON, PRINT)),
+                Par('nozzleDiameter', float, (PRINTER,)),
+                Par('filamentDiameter', float, (PRINTER,)),
+                Par('RAPID', int, (PRINTER,)),
+                Par('TRAVERSE_RETRACT', float, (PRINTER,)),
+                Par('MAX_FEED_TRAVERSE', float, (PRINTER,)),
+                Par('MAX_EXTRUDE_SPEED', int, (PRINTER,)),
+                Par('Z_CLEARANCE', float, (PRINTER,)),
+                Par('APPROACH_FR', int, (PRINTER,))
                 ]
                 
     OUTPUTFILENAME = 'outputFileName'
@@ -187,7 +197,7 @@ class Page_Variables(Frame):
                     '0, -45, 90, 45, 45, 90, -45', '0.5', '0.4',                    #layer parameters
                     '0', '0', '13,1,1,0,0,1,1', '0.0002, 0.0002',                      #layer parameters
                     'Start_Gcode_Taz5.txt', 'End_Gcode_Taz5.txt',                   #file parameters   
-                    '999', '999', '0', '1', '2', '3']                                               #print parameters
+                    '999', '999',] + [str(i) for i in range(10)]                                              #print parameters
                     
         self.create_var_page()
               

@@ -34,15 +34,7 @@ class Parameters:
         self.param_data["currPath"] = os.path.dirname(os.path.realpath(__file__))
 #        self.param_data["outputSubDirectory"] = self.param_data['currPath'] + '\\Gcode'
         self.param_data["startEndSubDirectory"] = self.param_data['currPath'] + '\\Start_End_Gcode'
-        self.param_data["filamentDiameter"] = 3.0
         self.param_data["filamentArea"] = math.pi*self.param_data['filamentDiameter']**2/4.0
-        self.param_data["nozzleDiameter"] = 0.5
-        self.param_data["RAPID"] = 4000
-        self.param_data["TRAVERSE_RETRACT"] = 0.5
-        self.param_data["MAX_FEED_TRAVERSE"] = 10
-        self.param_data["MAX_EXTRUDE_SPEED"] = 100
-        self.param_data["Z_CLEARANCE"] = 10.0
-        self.param_data["APPROACH_FR"] = 1500
         self.param_data['shape'] = ds.regularDogBone()
         for key, value in self.param_data.items():
             setattr(self, key, value)
