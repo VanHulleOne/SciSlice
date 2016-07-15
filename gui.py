@@ -31,6 +31,7 @@ from tkinter import ttk             #for styling purposing
 from tkinter import filedialog      #window for saving and uploading files
 import json                         #for saving and uploading files
 from main import Main        #for converting to Gcode
+from parameters import __version__ as version
 
 class GUI(Tk):
 
@@ -219,7 +220,8 @@ class Page_Variables(Frame):
             self.labels[self.texts[x]] = Label(self, text=self.texts[x])
         
         for x, par in enumerate(self.fields[self.COMMON]):
-            self.labels[par.label].grid(row=x+1,column=0)  
+            self.labels[par.label].grid(row=x+1,column=0)
+
             
     #initial creation of entries
     def set_entries(self):
@@ -303,6 +305,7 @@ class Page_Variables(Frame):
         self.gcode()
         self.model_page()
         self.g_robot()
+        lableVersion = Label(self, text='Version ' + version).grid(sticky='s')
     
     #create button to switch to 3D model page
     def model_page(self):  
