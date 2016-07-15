@@ -219,7 +219,7 @@ class Page_Variables(Frame):
         #create all labels
         for x in range(len(self.texts)):
             #create label
-            self.labels[self.texts[x]] = Label(self, text=self.texts[x])
+            self.labels[self.texts[x]] = ttk.Label(self, text=self.texts[x])
         
         for x, par in enumerate(self.fields[self.COMMON]):
             self.labels[par.label].grid(row=x+1,column=0)
@@ -248,7 +248,7 @@ class Page_Variables(Frame):
         for member in inspect.getmembers(ds, inspect.isfunction):
             doneshape_funcs.append(member[0])
         
-        self.entries['outline'] = ttk.OptionMenu(self, self.text_variable['outline'], *doneshape_funcs)
+        self.entries['outline'] = ttk.OptionMenu(self, self.text_variable['outline'], *doneshape_funcs, command=self.set_var)
         
     #creates button for saving all values
     def save_option(self): 
@@ -266,7 +266,7 @@ class Page_Variables(Frame):
     def tab_buttons(self):
         
         #label for parameters
-        labelParameters = Label(self,text='Parameters',font='-weight bold')
+        labelParameters = ttk.Label(self,text='Parameters',font='-weight bold')
         labelParameters.grid(row=0,column=2)
 
         #button to display all variables
@@ -291,7 +291,7 @@ class Page_Variables(Frame):
     def presets(self):
         
         #label for presets
-        labelPresets = Label(self,text='Presets',font='-weight bold')
+        labelPresets = ttk.Label(self,text='Presets',font='-weight bold')
         labelPresets.grid(row=0,column=3)
         #button for dogbone
         buttonDogbone = ttk.Button(self,text='Dogbone',command=lambda: self.dogbone())
@@ -336,7 +336,7 @@ class Page_Variables(Frame):
         
     def version_num(self):
         
-        labelVersion = Label(self, text='Version ' + version)
+        labelVersion = ttk.Label(self, text='Version ' + version)
         labelVersion.grid(row=len(self.texts)+3,column=0)
         
     #############################################
@@ -452,7 +452,74 @@ class Page_Variables(Frame):
         
         os.remove(self.GCODEPATH + 'temp.gcode')
         
-
+    def set_var(self, var):
+        
+        annot = inspect.getfullargspec(getattr(ds, var)).annotations       
+        
+        if annot:       
+            var_window = Tk()
+            
+            var_window.title(var)
+            
+            var_keys = []
+            var_values = {}
+            var_stringvars = {}
+            var_labels = {}
+            var_entries = {}
+            
+            x = 0
+            for x, (key, value) in enumerate(annot.items()):
+                if key != 'return':
+                    
+                    var_keys.append(key)
+                    var_values[key] = value
+                    var_stringvars[key] = StringVar(var_window)
+                    var_stringvars[key].set(value)
+                    var_labels[key] = ttk.Label(var_window, text=key)
+                    var_labels[key].grid(row=x, column=0)
+                    var_entries[key] = ttk.Entry(var_window, textvariable=var_stringvars[key])
+                    var_entries[key].grid(row=x, column=1)
+                    
+            def default(event, key):
+                current = var_stringvars[key].get()
+                if current == var_values[key]:
+                    print('true')
+                    var_stringvars[key].set('')
+                elif current == '':
+                    var_stringvars[key].set(var_values[key])                    
+                    
+            for key in var_keys:
+                var_entries[key].bind('<FocusIn>', lambda event: default(event, key))
+                var_entries[key].bind('<FocusOut>', lambda event: default(event, key))
+  
+                      
+        
+#    def set_var(self, var):
+#        
+#        wind = Tk()
+#        
+#        var = StringVar(wind)
+#        var.set('Default')        
+#        
+#        textbox = Entry(wind, textvariable=var)
+#        textbox.pack()
+#        
+#        var2 = StringVar(wind)
+#        entry = Entry(wind, textvariable=var2)
+#        entry.pack()        
+#        
+#        def default(event, ):
+#            print(event)
+#            print(key)
+#            current = var.get()
+#            if current == 'Default':
+#                var.set('')
+#            elif current == '':
+#                var.set('Default')
+#            
+#                
+#        textbox.bind('<FocusIn>', lambda: default(var.get()))
+#        textbox.bind('<FocusOut>', default)
 
 class Page_Model(Frame):    
     
@@ -494,13 +561,13 @@ class Page_Model(Frame):
     
     def show_labels(self):
         
-        labelIntro = Label(self, text='Choose the start and end layers of the model:')
+        labelIntro = ttk.Label(self, text='Choose the start and end layers of the model:')
         labelIntro.grid(row=0,column=1)
         
-        labelStart = Label(self, text='Start')
+        labelStart = ttk.Label(self, text='Start')
         labelStart.grid(row=1,column=0)
         
-        labelEnd = Label(self, text='End')
+        labelEnd = ttk.Label(self, text='End')
         labelEnd.grid(row=2,column=0)
         
     def show_scales(self):
@@ -629,7 +696,7 @@ class Page_Model(Frame):
 #        Frame.__init__(self, parent)
 #        self.controller = controller
 #        
-#        labelExample = Label(self, text='HELLO')
+#        labelExample = ttk.Label(self, text='HELLO')
 #        labelExample.pack()
 #        
 #        self.to_variables()
