@@ -36,6 +36,7 @@ from shapely.geometry import *#MultiPolygon
 import matplotlib.pyplot as plt
 from shapely.ops import cascaded_union
 from matplotlib import animation
+import inspect
 
 
 p1 = p.Point(2.073, 0.0806)
@@ -67,48 +68,7 @@ points = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11]
 
 lines = [l.Line(points[i], points[i+1]) for i in range(len(points)-1)]
 
-COMMON = 0
-PART = 1
-LAYER = 2
-FILE = 3
-PRINT = 4
 
-Menu = namedtuple('Menu', 'name group')
-menus = [
-        Menu('Common', COMMON),
-        Menu('Part', PART),
-        Menu('Layer', LAYER),
-        Menu('File', FILE),
-        Menu('Print', PRINT)
-        ]
-
-Par = namedtuple('Parameter', 'label type groups')
-parameters = [
-            Par('stl_file', str, (COMMON, PART)),
-            Par('solidityRatio', float, (COMMON, PART)),
-            Par('shiftX', float, (COMMON, PART)),
-            Par('shiftY', float, (COMMON, PART)),
-            Par('firstLayerShiftZ', float, (PART,)),
-            Par('numLayers', int, (COMMON, PART)),
-            Par('pattern', None, (PART,)),
-            Par('designType', int, (PART,)),
-            Par('infillAngleDegrees', float, (COMMON, LAYER)),
-            Par('pathWidth', float, (LAYER,)),
-            Par('layerHeight', float, (LAYER,)),
-            Par('infillShiftX', float, (LAYER,)),
-            Par('infillShiftY', float, (LAYER,)),
-            Par('numShells', int, (COMMON, LAYER)),
-            Par('trimAdjust', float, (LAYER,)),
-            Par('start_Gcode_FileName', str, (FILE,)),
-            Par('end_Gcode_FileName', str, (FILE,)),
-            Par('outputFileName', str, (COMMON, FILE)),
-            Par('bed_temp', int, (COMMON, PRINT)),
-            Par('extruder_temp', int, (COMMON, PRINT)),
-            ]
-
-fields = []
-for menu in menus:
-    fields.append([par for par in parameters if menu.group in par.groups])
     
 
 """ An example of how to do other infills. """  
