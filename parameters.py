@@ -32,10 +32,10 @@ class Parameters:
     
     def __init__(self, param_data):
         self.param_data = param_data
-        self.param_data["currPath"] = os.path.dirname(os.path.realpath(__file__))
-#        self.param_data["outputSubDirectory"] = self.param_data['currPath'] + '\\Gcode'
-        self.param_data["startEndSubDirectory"] = self.param_data['currPath'] + '\\Start_End_Gcode'
-        self.param_data["filamentArea"] = math.pi*self.param_data['filamentDiameter']**2/4.0
+        self.param_data['currPath'] = os.path.dirname(os.path.realpath(__file__))
+#        self.param_data['outputSubDirectory'] = self.param_data['currPath'] + '\\Gcode'
+        self.param_data['startEndSubDirectory'] = self.param_data['currPath'] + '\\Start_End_Gcode'
+        self.param_data['filamentArea'] = math.pi*self.param_data['filamentDiameter']**2/4.0
         self.param_data['shape'] = getattr(ds, param_data['outline'])()
         for key, value in self.param_data.items():
             setattr(self, key, value)
