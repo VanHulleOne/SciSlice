@@ -59,20 +59,21 @@ class GUI(Tk):
         #dictionary of Frames
         self.frames = {}
         
-        self.shapes = {Page_Variables : '425x525+150+100',       
+        self.shapes = {Page_Variables : '425x750+150+100',       
                        Page_Model : '600x500+150+100'}
         
         #add Frames to dictionary
-#        for F in (Page_Variables):
-#        
-#            frame = F(self.container, self)
-#            
-#            self.frames[F] = frame
-#            
-#            frame.grid(row=0, column=0, sticky='nsew')
-        frame = Page_Variables(self.container, self)
-        self.frames[Page_Variables] = frame
-        frame.grid(row=0, column=0, sticky='nsew')
+        for F in (Page_Variables,):
+        
+            frame = F(self.container, self)
+            
+            self.frames[F] = frame
+            
+            frame.grid(row=0, column=0, sticky='nsew')
+            
+#        frame = Page_Variables(self.container, self)
+#        self.frames[Page_Variables] = frame
+#        frame.grid(row=0, column=0, sticky='nsew')
             
         
         #show initial Frame
