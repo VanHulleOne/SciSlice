@@ -33,6 +33,7 @@ import json                         #for saving and uploading files
 from main import Main        #for converting to Gcode
 from parameters import __version__ as version
 import doneShapes as ds
+import inspect
 
 class GUI(Tk):
 
@@ -227,19 +228,27 @@ class Page_Variables(Frame):
     #initial creation of entries
     def set_entries(self):
 
-        #create all StringVars
         for x, label in enumerate(self.texts):
+            #create all StringVars
             self.text_variable[label] = StringVar(self, value=self.defaults[label])
             
-        #create all entries
-        for x, label in enumerate(self.texts):
             #create entry 
-            self.entries[label] = ttk.Entry(self, textvariable=self.text_variable[label])
-            
+            self.entries[label] = ttk.Entry(self, textvariable=self.text_variable[label])  
+        
+        self.doneshapes_menu()
+        
         #show commonly used variables
         for x, par in enumerate(self.fields[self.COMMON]):
             #use grid() after creating entry or dictionary value will be 'NoneType'
-            self.entries[par.label].grid(row=x+1,column=1)
+            self.entries[par.label].grid(row=x+1,column=1, sticky='ew')
+            
+    def doneshapes_menu(self):
+        
+        doneshape_funcs = ['choose a shape']
+        for member in inspect.getmembers(ds, inspect.isfunction):
+            doneshape_funcs.append(member[0])
+        
+        self.entries['outline'] = ttk.OptionMenu(self, self.text_variable['outline'], *doneshape_funcs)
         
     #creates button for saving all values
     def save_option(self): 
@@ -275,7 +284,7 @@ class Page_Variables(Frame):
                 self.entries[text].grid_forget()
             for x, param in enumerate(params):
                 self.labels[param.label].grid(row=x+1, column=0)
-                self.entries[param.label].grid(row=x+1, column=1)
+                self.entries[param.label].grid(row=x+1, column=1, sticky='ew')
         return inner_command
         
     #create label and buttons for different preset values of parameters
@@ -306,8 +315,8 @@ class Page_Variables(Frame):
         self.gcode()
         self.model_page()
         self.g_robot()
-        self.version_num()
-    
+        self.version_num()        
+        
     #create button to switch to 3D model page
     def model_page(self):  
         
