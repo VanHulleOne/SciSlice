@@ -85,12 +85,12 @@ def squareWithHole():
     shape.addLineGroup(circle)
     return shape
     
-def circle(centerX, centerY, radius):
+def circle(centerX: float, centerY: float, radius: float) ->s.Shape:
     startPoint = p.Point(centerX+radius, centerY)
     center = p.Point(centerX, centerY)
     return s.Shape(a.Arc(startPoint, startPoint, c.CW, center))
     
-def rect(lowerLeftX, lowerLeftY, width, height):
+def rect(lowerLeftX: float, lowerLeftY: float, width: float, height: float) ->s.Shape:
     rect = [p.Point(lowerLeftX, lowerLeftY)]
     rect.append(p.Point(lowerLeftX+width, lowerLeftY))
     rect.append(p.Point(lowerLeftX+width, lowerLeftY+height))
@@ -100,7 +100,7 @@ def rect(lowerLeftX, lowerLeftY, width, height):
     rectLG.closeShape()
     return rectLG
     
-def polygon(centerX, centerY, radius, numCorners):
+def polygon(centerX: float, centerY: float, radius: float, numCorners: int) ->s.Shape:
     angle = 1.5*math.pi
     points = []
     incAngle = 2*math.pi/numCorners
@@ -114,7 +114,7 @@ def polygon(centerX, centerY, radius, numCorners):
     poly = poly.rotate(incAngle/2.0, p.Point(centerX, centerY))
     return poly
         
-def lineField(space, length, height):
+def lineField(space: float, length: float, height: float) ->lg.LineGroup:
     lines = []
     currHeight = 0
     while currHeight < height:
@@ -129,7 +129,7 @@ def lineField(space, length, height):
     return group
     
 
-def hexField(side, space, length, height):
+def hexField(side: float, space: float, length: float, height: float) -> lg.LineGroup:
     baseLine = lg.LineGroup(None)
     baseLine.addLinesFromCoordinateList([[0,0], [side, 0],
              [side+math.cos(math.pi/4)*side, math.cos(math.pi/4)*side],
