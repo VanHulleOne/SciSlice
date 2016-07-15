@@ -347,30 +347,30 @@ class Page_Variables(Frame):
         
         #only saving JSON
         if name == None:
-            savePath = filedialog.asksaveasfilename()
-            savePath = self.check_end(savePath)
-            gcodeName = savePath.split('/')[len(savePath.split('/'))-1] + '.gcode'
-            self.filename = savePath + '.json'  
+            self.savePath = filedialog.asksaveasfilename()
+            self.savePath = self.check_end(self.savePath)
+            gcodeName = self.savePath.split('/')[len(self.savePath.split('/'))-1] + '.gcode'
+            self.filename = self.savePath + '.json'  
         
         #converting to gcode -- create temp json file with same name as gcode file
         elif name == 'gcode':
-            savePath = filedialog.asksaveasfilename()
-            savePath = self.check_end(savePath)
-            self.filename = self.JSONPATH + savePath.split('/')[len(savePath.split('/'))-1] + '.json'
-            gcodeName = savePath + '.gcode'
+            self.savePath = filedialog.asksaveasfilename()
+            self.savePath = self.check_end(self.savePath)
+            self.filename = self.JSONPATH + self.savePath.split('/')[len(self.savePath.split('/'))-1] + '.json'
+            gcodeName = self.savePath + '.gcode'
             
         #switching to 3D model page -- create temp json file
         else:
-            savePath = 'blank'
+            self.savePath = 'blank'
             gcodeName = self.GCODEPATH + name + '.gcode'
             self.filename = self.JSONPATH + name + '.json'          
         
         data = {}               #dictionary to put String value of StringVar values in
         #check if the user cancelled saving the file
-        if self.filename:
+        if self.savePath:
                                                        #variables with type None
             data[self.OUTPUTFILENAME] = gcodeName
-            data[self.OUTPUTSUBDIRECTORY] = savePath
+            data[self.OUTPUTSUBDIRECTORY] = self.savePath
             
             for label, data_type, _ in self.parameters:
                 if data_type is str:
@@ -380,15 +380,19 @@ class Page_Variables(Frame):
                 elif data_type is int or data_type is float:
                     data[label] = data_type(self.text_variable[label].get())
                 else:
-                    value = self.text_variable[label].get()            
+                    value = self.text_variable[label].get()    
                     if ' ' in value:
                         value = value.replace(' ', ',')                
                     if ',,' in value:
-                        value = value.replace(',,', ',')                         
+                        value = value.replace(',,', ',')     
+                    if '(' in value:
+                        value = value.replace('(', '')
+                    if ')' in value:
+                        value = value.replace(')', '')
                     if data_type == self.INT_LIST:
-                        data[label] = [int(i) for i in value.split(',')]     
+                        data[label] = [int(i) for i in value.split(',') if i  != '']     
                     elif data_type == self.FLOAT_LIST:
-                        data[label] = [float(i) for i in value.split(',')]    
+                        data[label] = [float(i) for i in value.split(',') if i  != '']    
             
             if not os.path.isdir(self.JSONPATH):
                 os.makedirs(self.JSONPATH)
@@ -422,20 +426,6 @@ class Page_Variables(Frame):
                     value = value.replace('[','')
                     value = value.replace(']','')
                     self.text_variable[key].set(value)   #replace current StringVar values with data from JSON file
-        
-    #change values to dogbone preset    
-    def dogbone(self):
-        
-        dogbone_data = ['Arch3.stl', '1.09', '2000', '10, 50',                     #part parameters
-                '10, 35, 60', '0', '8',                                                 #part parameters
-                'None', '0',                                                            #part parameters
-                '0, -45, 90, 45, 45, 90, -45', '0.5', '0.4',                            #layer parameters
-                '0', '0', '13,1,1,0,0,1,1',  '0.0002',                             #layer parameters
-                'Start_Gcode_Taz5.txt', 'End_Gcode_Taz5.txt',                      #file parameters
-                '999', '999']                                                       #print parameters
-                
-        for x in range(len(self.texts)):
-            self.text_variable[self.texts[x]].set(dogbone_data[x])        #change values to dogbone values
     
     #create Gcode file                    
     def convert(self, name = None):
@@ -446,7 +436,7 @@ class Page_Variables(Frame):
             self.save(name)
         
         #check if the user cancelled converting to Gcode
-        if self.filename != '':
+        if self.savePath and self.text_variable['outline'].get() != 'choose a shape':
             #convert to Gcode
             conversion = Main(self.filename, self.g_robot_var.get())
             conversion.run()
