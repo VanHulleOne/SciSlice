@@ -32,6 +32,7 @@ from tkinter import filedialog      #window for saving and uploading files
 import json                         #for saving and uploading files
 from main import Main        #for converting to Gcode
 from parameters import __version__ as version
+import doneShapes as ds
 
 class GUI(Tk):
 
@@ -305,7 +306,7 @@ class Page_Variables(Frame):
         self.gcode()
         self.model_page()
         self.g_robot()
-        lableVersion = Label(self, text='Version ' + version).grid(sticky='s')
+        self.version_num()
     
     #create button to switch to 3D model page
     def model_page(self):  
@@ -323,6 +324,11 @@ class Page_Variables(Frame):
         
         ttk.Radiobutton(self, text='Gcode', variable=self.g_robot_var, value=c.GCODE).grid(row=len(self.texts)+2,column=0)
         ttk.Radiobutton(self, text='RobotCode', variable=self.g_robot_var, value=c.ROBOTCODE).grid(row=len(self.texts)+2,column=1)
+        
+    def version_num(self):
+        
+        labelVersion = Label(self, text='Version ' + version)
+        labelVersion.grid(row=len(self.texts)+3,column=0)
         
     #############################################
     #   methods that are called from buttons    #
