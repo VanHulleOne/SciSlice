@@ -4,6 +4,9 @@ Created on Sat May 28 16:39:58 2016
 @author: Alex Diebold
 '''
 
+import sys
+sys.path.append('C:\\Users\\adiebold\\Documents\\GitHub\\DogBone')
+
 import os
 import constants as c
 import matplotlib                   #for 3D model
@@ -179,15 +182,17 @@ class Page_Variables(Frame):
         self.fields = []
         for menu in self.menus:
             self.fields.append([par for par in self.parameters if menu.group in par.groups])
-                      
-        #array of Strings of the default values
-        self.defaults = ['Arch3.stl', '1.09', '2000', '10, 50',                #part parameters
-                    '10, 35, 60', '0', '8',                                         #part parameters
-                    'None', '0',                                                    #part parameters
-                    '0, -45, 90, 45, 45, 90, -45', '0.5', '0.4',                    #layer parameters
-                    '0', '0', '13,1,1,0,0,1,1', '0.0002, 0.0002',                      #layer parameters
-                    'Start_Gcode_Taz5.txt', 'End_Gcode_Taz5.txt',                   #file parameters   
-                    '999', '999', '0', '1', '2', '3']                                               #print parameters
+           
+        defaults_path = self.JSONPATH + 'DEFAULT.json'   
+        if os.path.isfile(defaults_path):
+            with open(defaults_path, 'r') as fp:
+                self.defaults = json.load(fp)
+        else:
+            self.defaults = {}
+            
+        for key in self.texts:
+            if key not in self.defaults:
+                self.defaults[key] = ''
                     
         self.create_var_page()
               
@@ -210,7 +215,7 @@ class Page_Variables(Frame):
 
         #create all StringVars
         for x, label in enumerate(self.texts):
-            self.text_variable[label] = StringVar(self, value=self.defaults[x])
+            self.text_variable[label] = StringVar(self, value=self.defaults[label])
             
         #create all entries
         for x, label in enumerate(self.texts):
