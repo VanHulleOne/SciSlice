@@ -101,6 +101,7 @@ class Page_Variables(Frame):
     LAYER = 2
     FILE = 3
     PRINT = 4
+    PRINTER = 5
     
     INT_LIST = 0
     FLOAT_LIST = 1
@@ -111,7 +112,8 @@ class Page_Variables(Frame):
             Menu('Part', PART),
             Menu('Layer', LAYER),
             Menu('File', FILE),
-            Menu('Print', PRINT)
+            Menu('Print', PRINT),
+            Menu('Printer', PRINTER)
             ]
 
     menus.sort(key=lambda x : x.group)             
@@ -140,6 +142,14 @@ class Page_Variables(Frame):
                 Par('end_Gcode_FileName', str, (FILE,)),
                 Par('bed_temp', int, (COMMON, PRINT)),
                 Par('extruder_temp', int, (COMMON, PRINT)),
+                Par('nozzleDiameter', float, (PRINTER,)),
+                Par('filamentDiameter', float, (PRINTER,)),
+                Par('RAPID', int, (PRINTER,)),
+                Par('TRAVERSE_RETRACT', float, (PRINTER,)),
+                Par('MAX_FEED_TRAVERSE', float, (PRINTER,)),
+                Par('MAX_EXTRUDE_SPEED', int, (PRINTER,)),
+                Par('Z_CLEARANCE', float, (PRINTER,)),
+                Par('APPROACH_FR', int, (PRINTER,)),
                 ]
                 
     OUTPUTFILENAME = 'outputFileName'
