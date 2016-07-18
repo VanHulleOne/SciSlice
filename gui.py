@@ -461,65 +461,65 @@ class Page_Variables(Frame):
             
             var_window.title(var)
             
-            var_keys = []
-            var_values = {}
-            var_stringvars = {}
-            var_labels = {}
-            var_entries = {}
+            self.var_keys = []
+            self.var_values = {}
+            self.var_stringvars = {}
+            self.var_labels = {}
+            self.var_entries = {}
             
-            x = 0
             for x, (key, value) in enumerate(annot.items()):
                 if key != 'return':
-                    
-                    var_keys.append(key)
-                    var_values[key] = value
-                    var_stringvars[key] = StringVar(var_window)
-                    var_stringvars[key].set(value)
-                    var_labels[key] = ttk.Label(var_window, text=key)
-                    var_labels[key].grid(row=x, column=0)
-                    var_entries[key] = ttk.Entry(var_window, textvariable=var_stringvars[key])
-                    var_entries[key].grid(row=x, column=1)
-                    
-            def default(event, key):
-                current = var_stringvars[key].get()
-                if current == var_values[key]:
-                    print('true')
-                    var_stringvars[key].set('')
-                elif current == '':
-                    var_stringvars[key].set(var_values[key])                    
-                    
-            for key in var_keys:
-                var_entries[key].bind('<FocusIn>', lambda event: default(event, key))
-                var_entries[key].bind('<FocusOut>', lambda event: default(event, key))
-  
-                      
-        
-#    def set_var(self, var):
-#        
-#        wind = Tk()
-#        
-#        var = StringVar(wind)
-#        var.set('Default')        
-#        
-#        textbox = Entry(wind, textvariable=var)
-#        textbox.pack()
-#        
-#        var2 = StringVar(wind)
-#        entry = Entry(wind, textvariable=var2)
-#        entry.pack()        
-#        
-#        def default(event, ):
-#            print(event)
-#            print(key)
-#            current = var.get()
-#            if current == 'Default':
-#                var.set('')
-#            elif current == '':
-#                var.set('Default')
+                    self.var_keys.append(key)
+                    new_value = str(value).split('\'')[1]
+                    self.var_stringvars[key] = StringVar(var_window)
+                    self.var_stringvars[key].set(new_value)
+                    self.var_labels[key] = ttk.Label(var_window, text=key)
+                    self.var_labels[key].grid(row=x, column=0)
+                    self.var_entries[key] = ttk.Entry(var_window, textvariable=self.var_stringvars[key])
+                    self.var_entries[key].grid(row=x, column=1) 
+                    self.var_values[self.var_entries[key]] = new_value
+            
+            def default(event):
+                current = event.widget
+                if current.get() == self.var_values[current]:
+                    current.delete(0, END)
+                elif current.get() == '':
+                    current.insert(0, self.var_values[current])                    
+                   
+               
+#            var_entries['centerY'].bind('<FocusIn>', default) 
+#            var_entries['centerY'].bind('<FocusOut>', default)
+            for key in self.var_keys:
+                self.var_entries[key].bind('<FocusIn>', default)
+                self.var_entries[key].bind('<FocusOut>', default)
+            
+#            var1 = StringVar(var_window)
+#            var1.set('Default')
+#            var2 = StringVar(var_window)
+#            var2.set('Default')            
 #            
-#                
-#        textbox.bind('<FocusIn>', lambda: default(var.get()))
-#        textbox.bind('<FocusOut>', default)
+#            textbox1 = Entry(var_window, textvariable=var1)
+#            textbox1.pack()
+#            textbox2 = Entry(var_window, textvariable=var2)
+#            textbox2.pack()
+#            
+##            # This is for demonstration purposes
+##            Text(height=10, width=10).pack()
+#            
+#            def default(event):
+#                textbox = event.widget
+#                current = textbox.get()
+#                if current == "Default":
+#                    textbox.delete(0, END)
+#                elif current == "":
+#                    textbox.insert(0, "Default")
+#            
+#            textbox1.bind("<FocusIn>", default)
+#            textbox1.bind("<FocusOut>", default)
+#            textbox2.bind("<FocusIn>", default)
+#            textbox2.bind("<FocusOut>", default)
+        
+            var_window.mainloop()
 
 class Page_Model(Frame):    
     
