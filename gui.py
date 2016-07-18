@@ -471,8 +471,7 @@ class Page_Variables(Frame):
                 if key != 'return':
                     self.var_keys.append(key)
                     new_value = str(value).split('\'')[1]
-                    self.var_stringvars[key] = StringVar(var_window)
-                    self.var_stringvars[key].set(new_value)
+                    self.var_stringvars[key] = StringVar(var_window, value=new_value)
                     self.var_labels[key] = ttk.Label(var_window, text=key)
                     self.var_labels[key].grid(row=x, column=0)
                     self.var_entries[key] = ttk.Entry(var_window, textvariable=self.var_stringvars[key])
@@ -486,38 +485,10 @@ class Page_Variables(Frame):
                 elif current.get() == '':
                     current.insert(0, self.var_values[current])                    
                    
-               
-#            var_entries['centerY'].bind('<FocusIn>', default) 
-#            var_entries['centerY'].bind('<FocusOut>', default)
             for key in self.var_keys:
                 self.var_entries[key].bind('<FocusIn>', default)
                 self.var_entries[key].bind('<FocusOut>', default)
-            
-#            var1 = StringVar(var_window)
-#            var1.set('Default')
-#            var2 = StringVar(var_window)
-#            var2.set('Default')            
-#            
-#            textbox1 = Entry(var_window, textvariable=var1)
-#            textbox1.pack()
-#            textbox2 = Entry(var_window, textvariable=var2)
-#            textbox2.pack()
-#            
-##            # This is for demonstration purposes
-##            Text(height=10, width=10).pack()
-#            
-#            def default(event):
-#                textbox = event.widget
-#                current = textbox.get()
-#                if current == "Default":
-#                    textbox.delete(0, END)
-#                elif current == "":
-#                    textbox.insert(0, "Default")
-#            
-#            textbox1.bind("<FocusIn>", default)
-#            textbox1.bind("<FocusOut>", default)
-#            textbox2.bind("<FocusIn>", default)
-#            textbox2.bind("<FocusOut>", default)
+
         
             var_window.mainloop()
 
