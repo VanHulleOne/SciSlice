@@ -372,6 +372,15 @@ class Page_Variables(Frame):
             data[self.OUTPUTFILENAME] = gcodeName
             data[self.OUTPUTSUBDIRECTORY] = self.savePath
             
+            if self.var_keys:
+                for key in self.var_keys:
+                    if self.var_types[key] == float:
+                        data[key] = float(self.var_stringvars[key].get())
+                    elif self.var_types[key] == int:
+                        data[key] = int(self.var_stringvars[key].get())
+                    elif self.var_types[key] == str:
+                        data[key] = str(self.var_stringvars[key].get())
+            
             for label, data_type, _ in self.parameters:
                 if data_type is str:
                     data[label] = self.text_variable[label].get()
@@ -460,8 +469,9 @@ class Page_Variables(Frame):
             var_window = Tk()
             
             var_window.title(var)
-            
+            var_window.geometry('+650+100')
             self.var_keys = []
+            self.var_types = {}
             self.var_values = {}
             self.var_stringvars = {}
             self.var_labels = {}
@@ -470,6 +480,7 @@ class Page_Variables(Frame):
             for x, (key, value) in enumerate(annot.items()):
                 if key != 'return':
                     self.var_keys.append(key)
+                    self.var_types[key] = value
                     new_value = str(value).split('\'')[1]
                     self.var_stringvars[key] = StringVar(var_window, value=new_value)
                     self.var_labels[key] = ttk.Label(var_window, text=key)
