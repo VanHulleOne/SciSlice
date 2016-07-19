@@ -409,6 +409,7 @@ class Page_Variables(Frame):
             self.filename = self.JSONPATH + name + '.json'          
         
         data = {}               #dictionary to put String value of StringVar values in
+        var_data = {}
         #check if the user cancelled saving the file
         if self.savePath:
                                                        #variables with type None
@@ -418,11 +419,11 @@ class Page_Variables(Frame):
             if self.var_keys:
                 for key in self.var_keys:
                     if self.var_types[key] == float:
-                        data[key] = float(self.var_stringvars[key].get())
+                        var_data[key] = float(self.var_stringvars[key].get())
                     elif self.var_types[key] == int:
-                        data[key] = int(self.var_stringvars[key].get())
+                        var_data[key] = int(self.var_stringvars[key].get())
                     elif self.var_types[key] == str:
-                        data[key] = str(self.var_stringvars[key].get())
+                        var_data[key] = str(self.var_stringvars[key].get())
             
             for label, data_type, _ in self.parameters:
                 if data_type is str:
@@ -445,11 +446,15 @@ class Page_Variables(Frame):
                         data[label] = [int(i) for i in value.split(',') if i  != '']     
                     elif data_type == self.FLOAT_LIST:
                         data[label] = [float(i) for i in value.split(',') if i  != '']    
+
+            full_data = []
+            full_data.append(data)
+            full_data.append(var_data)            
             
             if not os.path.isdir(self.JSONPATH):
                 os.makedirs(self.JSONPATH)
             with open(self.filename, 'w') as fp:
-                json.dump(data, fp)    #save JSON file
+                json.dump(full_data, fp)    #save JSON file
     
     def check_end(self, pathName):
         
