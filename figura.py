@@ -63,8 +63,8 @@ class Figura:
             print('\nPart number: ' + str(self.partCount))            
             print(partParams)
            
-            yield '\n\n;Part number: ' + str(self.partCount) + '\n'
-            yield ';' + str(partParams) + '\n'
+            yield '\n\n' + self.pr.comment + 'Part number: ' + str(self.partCount) + '\n'
+            yield self.pr.comment + str(partParams) + '\n'
             
             yield from self.partGcode_gen(partParams)
                 
@@ -133,10 +133,10 @@ class Figura:
         for layer, layerParam in self.layer_gen(partParams):
             extrusionRate = (partParams.solidityRatio*layerParam.layerHeight*
                             self.pr.nozzleDiameter/self.pr.filamentArea)
-            yield ';Layer: ' + str(layerNumber) + '\n'
-            yield ';' + str(layerParam) + '\n'
-            yield ';T' + str(self.partCount) + str(layerNumber) + '\n'
-            yield ';M6\n'
+            yield self.pr.comment + 'Layer: ' + str(layerNumber) + '\n'
+            yield self.pr.comment + str(layerParam) + '\n'
+            yield self.pr.comment + 'T' + str(self.partCount) + str(layerNumber) + '\n'
+            yield self.pr.comment + 'M6\n'
             yield ('M117 Layer ' + str(layerNumber) + ' of ' +
                             str(self.numLayers) + '..\n')
             yield self.gc.rapidMove(layer[0].start, c.OMIT_Z)
@@ -166,7 +166,7 @@ class Figura:
             yield self.gc.retractLayer(totalExtrusion, layer[-1].end)
             yield '\n'
             layerNumber += 1
-        yield ';Extrusion amount for part is ({:.1f} mm)\n\n'.format(totalExtrusion)
+        yield self.pr.comment + 'Extrusion amount for part is ({:.1f} mm)\n\n'.format(totalExtrusion)
 
             
     def organizedLayer(self, inShapes):
@@ -255,8 +255,8 @@ class Figura:
         tempString = ''
         layerNumber = 1
         for layer in self.layers:
-            tempString += ';T' + str(layerNumber) + '\n'
-            tempString += ';M6\n'
+            tempString += self.pr.comment + 'T' + str(layerNumber) + '\n'
+            tempString += self.pr.comment + 'M6\n'
             tempString += str(layer)
             layerNumber += 1
         return tempString
