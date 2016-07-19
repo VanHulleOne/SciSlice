@@ -342,7 +342,6 @@ class Page_Variables(Frame):
         self.var_stringvars = {}
         self.var_labels = {}
         self.var_entries = {}
-        self.new = True
         self.var_saved = {}
     
     def set_var(self, var):
@@ -353,9 +352,7 @@ class Page_Variables(Frame):
             var_window = Tk()
             
             var_window.title(var)
-            var_window.geometry('+650+100')
-            
-            self.new = False            
+            var_window.geometry('+650+100')         
             
             if self.old_var != var:
                 self.reset_vars()
@@ -367,10 +364,10 @@ class Page_Variables(Frame):
                     self.var_types[key] = value
                     new_value = str(value).split('\'')[1]
                     self.var_stringvars[key] = StringVar(var_window)
-                    if self.new:
-                        self.var_stringvars[key].set(new_value)
-                    else:
+                    if self.var_saved:
                         self.var_stringvars[key].set(self.var_saved[key])
+                    else:
+                        self.var_stringvars[key].set(new_value)
                     self.var_labels[key] = ttk.Label(var_window, text=key)
                     self.var_labels[key].grid(row=x, column=0, padx=5)
                     self.var_entries[key] = ttk.Entry(var_window, textvariable=self.var_stringvars[key])
