@@ -154,6 +154,7 @@ class Page_Variables(Frame):
                 Par('MAX_EXTRUDE_SPEED', int, (PRINTER,)),
                 Par('Z_CLEARANCE', float, (PRINTER,)),
                 Par('APPROACH_FR', int, (PRINTER,)),
+                Par('comment', str, (PRINTER,)),
                 ]
                 
     OUTPUTFILENAME = 'outputFileName'
@@ -254,7 +255,7 @@ class Page_Variables(Frame):
     def save_option(self): 
         
         #create button
-        buttonSave = ttk.Button(self,text='Save (exclude .json)',command=lambda: self.save()).grid(row=0,column=1)
+        buttonSave = ttk.Button(self,text='Save',command=lambda: self.save()).grid(row=0,column=1)
     
     #creates label, entry, and button for uploading all values    
     def upload_option(self):   
@@ -372,14 +373,14 @@ class Page_Variables(Frame):
             data[self.OUTPUTFILENAME] = gcodeName
             data[self.OUTPUTSUBDIRECTORY] = self.savePath
             
-            if self.var_keys:
-                for key in self.var_keys:
-                    if self.var_types[key] == float:
-                        data[key] = float(self.var_stringvars[key].get())
-                    elif self.var_types[key] == int:
-                        data[key] = int(self.var_stringvars[key].get())
-                    elif self.var_types[key] == str:
-                        data[key] = str(self.var_stringvars[key].get())
+#            if self.var_keys:
+#                for key in self.var_keys:
+#                    if self.var_types[key] == float:
+#                        data[key] = float(self.var_stringvars[key].get())
+#                    elif self.var_types[key] == int:
+#                        data[key] = int(self.var_stringvars[key].get())
+#                    elif self.var_types[key] == str:
+#                        data[key] = str(self.var_stringvars[key].get())
             
             for label, data_type, _ in self.parameters:
                 if data_type is str:
@@ -484,7 +485,7 @@ class Page_Variables(Frame):
                     new_value = str(value).split('\'')[1]
                     self.var_stringvars[key] = StringVar(var_window, value=new_value)
                     self.var_labels[key] = ttk.Label(var_window, text=key)
-                    self.var_labels[key].grid(row=x, column=0)
+                    self.var_labels[key].grid(row=x, column=0, padx=5)
                     self.var_entries[key] = ttk.Entry(var_window, textvariable=self.var_stringvars[key])
                     self.var_entries[key].grid(row=x, column=1) 
                     self.var_values[self.var_entries[key]] = new_value
