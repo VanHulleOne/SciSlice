@@ -200,7 +200,9 @@ class Page_Variables(Frame):
         for key in self.texts:
             if key not in self.defaults:
                 self.defaults[key] = ''
-                    
+        
+        self.shift = 0
+            
         self.create_var_page()
               
     ##########################################################
@@ -286,15 +288,12 @@ class Page_Variables(Frame):
         #label for presets
         labelPresets = ttk.Label(self,text='Presets',font='-weight bold')
         labelPresets.grid(row=0,column=3)
-        #button for dogbone
-        buttonDogbone = ttk.Button(self,text='Dogbone',command=lambda: self.dogbone())
-        buttonDogbone.grid(row=1,column=3)
     
     #create button to convert to Gcode
     def gcode(self):
         
-        buttonGcode = ttk.Button(self,text='Convert to Gcode',command=lambda: self.convert())
-        buttonGcode.grid(row=len(self.texts)+1,column=1)
+        self.buttonGcode = ttk.Button(self,text='Convert to Gcode',command=lambda: self.convert())
+        self.buttonGcode.grid(row=len(self.texts)+1,column=1)
         
     #all set up functions together
     def create_var_page(self):
@@ -315,9 +314,9 @@ class Page_Variables(Frame):
     def model_page(self):  
         
         #button to switch to 3D model page
-        buttonModel = ttk.Button(self, text='3D Model', 
+        self.buttonModel = ttk.Button(self, text='3D Model', 
                              command=lambda: self.to_model())
-        buttonModel.grid(row=len(self.texts)+1,column=0)
+        self.buttonModel.grid(row=len(self.texts)+1,column=0)
         
     #create radiobutton to switch between gcode and robotcode
     def g_robot(self):
@@ -325,13 +324,33 @@ class Page_Variables(Frame):
         self.g_robot_var = IntVar()
         self.g_robot_var.set(0)
         
-        ttk.Radiobutton(self, text='Gcode', variable=self.g_robot_var, value=c.GCODE).grid(row=len(self.texts)+2,column=0)
-        ttk.Radiobutton(self, text='RobotCode', variable=self.g_robot_var, value=c.ROBOTCODE).grid(row=len(self.texts)+2,column=1)
+        self.buttonChooseGcode = ttk.Radiobutton(self, text='Gcode', variable=self.g_robot_var, value=c.GCODE)
+        self.buttonChooseGcode.grid(row=len(self.texts)+2,column=0)
+        self.buttonChooseRobot = ttk.Radiobutton(self, text='RobotCode', variable=self.g_robot_var, value=c.ROBOTCODE)
+        self.buttonChooseRobot.grid(row=len(self.texts)+2,column=1)
         
     def version_num(self):
         
-        labelVersion = ttk.Label(self, text='Version ' + version)
-        labelVersion.grid(row=len(self.texts)+3,column=0)
+        self.labelVersion = ttk.Label(self, text='Version ' + version)
+        self.labelVersion.grid(row=len(self.texts)+3,column=0)
+        
+    def regrid(self):
+        
+        print(self.labels['shiftX'].visible)
+        for text in self.texts:
+            self.labels[text].grid_forget()      
+            self.entries[text].grid_forget()
+        for x, par in enumerate(self.fields[self.COMMON]):
+            if par.label != 'outline':
+                self.entries[par.label].grid(row=x+1+self.shift,column=1, sticky='ew')
+        for x, par in enumerate(self.fields[self.COMMON]):
+            if par.label != 'outline':
+                self.labels[par.label].grid(row=x+1+self.shift,column=0)
+        self.buttonGcode.grid(row=len(self.texts)+1+self.shift,column=1)
+        self.buttonModel.grid(row=len(self.texts)+1+self.shift,column=0)
+        self.buttonChooseGcode.grid(row=len(self.texts)+2+self.shift,column=0)
+        self.buttonChooseRobot.grid(row=len(self.texts)+2+self.shift,column=1)
+        self.labelVersion.grid(row=len(self.texts)+3+self.shift,column=0)
     
     def reset_vars(self):
         
@@ -346,9 +365,15 @@ class Page_Variables(Frame):
     
     def set_var(self, var):
         
+        self.shift = 0
+        self.regrid()        
+        
         self.annot = inspect.getfullargspec(getattr(ds, var)).annotations
         
-        if self.annot:       
+        if self.annot: 
+            self.shift = 1
+            self.regrid()            
+            
             var_window = Tk()
             
             var_window.title(var)
