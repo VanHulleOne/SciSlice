@@ -333,22 +333,22 @@ class Page_Variables(Frame):
         labelVersion = ttk.Label(self, text='Version ' + version)
         labelVersion.grid(row=len(self.texts)+3,column=0)
     
-    def reset_vars(self):
+    def reset_vars(self, reset = True):
         
-        self.annot = ''
+        self.old_var = ''
         self.var_keys = []
         self.var_types = {}
         self.var_values = {}
         self.var_stringvars = {}
         self.var_labels = {}
         self.var_entries = {}
+        self.new = True
+        if reset:
+            self.var_saved = {}
     
     def set_var(self, var):
         
-        new_annot = inspect.getfullargspec(getattr(ds, var)).annotations       
-        if self.annot != new_annot:
-            self.reset_vars()
-            self.annot = new_annot
+        self.annot = inspect.getfullargspec(getattr(ds, var)).annotations
         
         if self.annot:       
             var_window = Tk()
@@ -356,16 +356,26 @@ class Page_Variables(Frame):
             var_window.title(var)
             var_window.geometry('+650+100')
             
+            self.new = False            
+            
+            if self.old_var != var:
+                self.reset_vars(False)
+                self.old_var = var
+            
             for x, (key, value) in enumerate(self.annot.items()):
                 if key != 'return':
                     self.var_keys.append(key)
                     self.var_types[key] = value
                     new_value = str(value).split('\'')[1]
-                    self.var_stringvars[key] = StringVar(var_window, value=new_value)
+                    self.var_stringvars[key] = StringVar(var_window)
+                    if self.new:
+                        self.var_stringvars[key].set(new_value)
+                    else:
+                        self.var_stringvars[key].set(self.var_saved[key])
                     self.var_labels[key] = ttk.Label(var_window, text=key)
                     self.var_labels[key].grid(row=x, column=0, padx=5)
                     self.var_entries[key] = ttk.Entry(var_window, textvariable=self.var_stringvars[key])
-                    self.var_entries[key].grid(row=x, column=1) 
+                    self.var_entries[key].grid(row=x, column=1)
                     self.var_values[self.var_entries[key]] = new_value
             
             def default(event):
@@ -373,13 +383,18 @@ class Page_Variables(Frame):
                 if current.get() == self.var_values[current]:
                     current.delete(0, END)
                 elif current.get() == '':
-                    current.insert(0, self.var_values[current])                    
+                    current.insert(0, self.var_values[current])   
+                    
+            def quicksave():
+                for key in self.var_keys:
+                    self.var_saved[key] = self.var_stringvars[key].get()
+                var_window.destroy ()
                    
             for key in self.var_keys:
                 self.var_entries[key].bind('<FocusIn>', default)
                 self.var_entries[key].bind('<FocusOut>', default)
 
-        
+            var_window.protocol("WM_DELETE_WINDOW", quicksave)
             var_window.mainloop()
         
     #############################################

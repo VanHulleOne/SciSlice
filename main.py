@@ -22,9 +22,7 @@ class Main:
         currPath = os.path.dirname(os.path.realpath(__file__))
 #        with open(currPath +'\\'+ name, 'r') as fp:
         with open(name, 'r') as fp:
-            full_data = json.load(fp)
-        self.parameters = full_data[0]
-        self.variables = full_data[1]
+            self.parameters = json.load(fp)
 #        self.outline_options[self.REGULARDOGBONE] = ds.regularDogBone()
 #        self.trimAdjust_options[self.EPSILON] = c.EPSILON
 #        for key in self.trimAdjust_options:              
