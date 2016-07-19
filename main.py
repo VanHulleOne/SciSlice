@@ -25,8 +25,6 @@ class Main:
             full_data = json.load(fp)
         self.parameters = full_data[0]
         self.variables = full_data[1]
-        if not self.variables:
-            print("GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG")
 #        self.outline_options[self.REGULARDOGBONE] = ds.regularDogBone()
 #        self.trimAdjust_options[self.EPSILON] = c.EPSILON
 #        for key in self.trimAdjust_options:              
