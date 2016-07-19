@@ -202,6 +202,7 @@ class Page_Variables(Frame):
                 self.defaults[key] = ''
         
         self.shift = 0
+        self.current_menu = self.fields[self.COMMON]
             
         self.create_var_page()
               
@@ -274,12 +275,13 @@ class Page_Variables(Frame):
             
     def command(self, params):
         def inner_command():
+            self.current_menu = params
             for text in self.texts:
                 self.labels[text].grid_forget()      
                 self.entries[text].grid_forget()
             for x, param in enumerate(params):
-                self.labels[param.label].grid(row=x+1, column=0)
-                self.entries[param.label].grid(row=x+1, column=1, sticky='ew')
+                self.labels[param.label].grid(row=x+1+self.shift, column=0)
+                self.entries[param.label].grid(row=x+1+self.shift, column=1, sticky='ew')
         return inner_command
         
     #create label and buttons for different preset values of parameters
@@ -336,16 +338,14 @@ class Page_Variables(Frame):
         
     def regrid(self):
         
-        print(self.labels['shiftX'].visible)
         for text in self.texts:
             self.labels[text].grid_forget()      
             self.entries[text].grid_forget()
-        for x, par in enumerate(self.fields[self.COMMON]):
-            if par.label != 'outline':
-                self.entries[par.label].grid(row=x+1+self.shift,column=1, sticky='ew')
-        for x, par in enumerate(self.fields[self.COMMON]):
-            if par.label != 'outline':
-                self.labels[par.label].grid(row=x+1+self.shift,column=0)
+
+        for x, param in enumerate(self.current_menu):
+            self.labels[param.label].grid(row=x+1+self.shift, column=0)
+            self.entries[param.label].grid(row=x+1+self.shift, column=1)
+        
         self.buttonGcode.grid(row=len(self.texts)+1+self.shift,column=1)
         self.buttonModel.grid(row=len(self.texts)+1+self.shift,column=0)
         self.buttonChooseGcode.grid(row=len(self.texts)+2+self.shift,column=0)
