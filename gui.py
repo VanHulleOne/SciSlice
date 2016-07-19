@@ -333,7 +333,7 @@ class Page_Variables(Frame):
         labelVersion = ttk.Label(self, text='Version ' + version)
         labelVersion.grid(row=len(self.texts)+3,column=0)
     
-    def reset_vars(self, reset = True):
+    def reset_vars(self):
         
         self.old_var = ''
         self.var_keys = []
@@ -343,8 +343,7 @@ class Page_Variables(Frame):
         self.var_labels = {}
         self.var_entries = {}
         self.new = True
-        if reset:
-            self.var_saved = {}
+        self.var_saved = {}
     
     def set_var(self, var):
         
@@ -359,7 +358,7 @@ class Page_Variables(Frame):
             self.new = False            
             
             if self.old_var != var:
-                self.reset_vars(False)
+                self.reset_vars()
                 self.old_var = var
             
             for x, (key, value) in enumerate(self.annot.items()):
