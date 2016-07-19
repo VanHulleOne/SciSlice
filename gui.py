@@ -184,16 +184,8 @@ class Page_Variables(Frame):
         self.entries = {}
         
         #array of Strings of the variables
-#        self.texts = [self.STL_FILE, self.SOLIDITYRATIO, self.PRINTSPEED, self.SHIFTX,            #part parameters
-#                 self.SHIFTY, self.FIRSTLAYERSHIFTZ, self.NUMLAYERS,                         #part parameters
-#                 self.PATTERN, self.DESIGNTYPE,                                           #part parameters
-#                 self.INFILLANGLEDEGREES, self.PATHWIDTH, self.LAYERHEIGHT,                  #layer parameters
-#                 self.INFILLSHIFTX, self.INFILLSHIFTY, self.NUMSHELLS, self.TRIMADJUST,         #layer parameters
-#                 self.START_GCODE_FILENAME, self.END_GCODE_FILENAME,                      #file parameters
-#                 self.BEDTEMP, self.EXTRUDERTEMP]                                           #print parameters
         self.texts = [i.label for i in self.parameters]
-        
-        
+               
         self.fields = []
         for menu in self.menus:
             self.fields.append([par for par in self.parameters if menu.group in par.groups])
@@ -316,7 +308,8 @@ class Page_Variables(Frame):
         self.gcode()
         self.model_page()
         self.g_robot()
-        self.version_num()        
+        self.version_num()      
+        self.reset_vars()
         
     #create button to switch to 3D model page
     def model_page(self):  
@@ -339,6 +332,55 @@ class Page_Variables(Frame):
         
         labelVersion = ttk.Label(self, text='Version ' + version)
         labelVersion.grid(row=len(self.texts)+3,column=0)
+    
+    def reset_vars(self):
+        
+        self.annot = ''
+        self.var_keys = []
+        self.var_types = {}
+        self.var_values = {}
+        self.var_stringvars = {}
+        self.var_labels = {}
+        self.var_entries = {}
+    
+    def set_var(self, var):
+        
+        new_annot = inspect.getfullargspec(getattr(ds, var)).annotations       
+        if self.annot != new_annot:
+            self.reset_vars()
+            self.annot = new_annot
+        
+        if self.annot:       
+            var_window = Tk()
+            
+            var_window.title(var)
+            var_window.geometry('+650+100')
+            
+            for x, (key, value) in enumerate(self.annot.items()):
+                if key != 'return':
+                    self.var_keys.append(key)
+                    self.var_types[key] = value
+                    new_value = str(value).split('\'')[1]
+                    self.var_stringvars[key] = StringVar(var_window, value=new_value)
+                    self.var_labels[key] = ttk.Label(var_window, text=key)
+                    self.var_labels[key].grid(row=x, column=0, padx=5)
+                    self.var_entries[key] = ttk.Entry(var_window, textvariable=self.var_stringvars[key])
+                    self.var_entries[key].grid(row=x, column=1) 
+                    self.var_values[self.var_entries[key]] = new_value
+            
+            def default(event):
+                current = event.widget
+                if current.get() == self.var_values[current]:
+                    current.delete(0, END)
+                elif current.get() == '':
+                    current.insert(0, self.var_values[current])                    
+                   
+            for key in self.var_keys:
+                self.var_entries[key].bind('<FocusIn>', default)
+                self.var_entries[key].bind('<FocusOut>', default)
+
+        
+            var_window.mainloop()
         
     #############################################
     #   methods that are called from buttons    #
@@ -373,14 +415,14 @@ class Page_Variables(Frame):
             data[self.OUTPUTFILENAME] = gcodeName
             data[self.OUTPUTSUBDIRECTORY] = self.savePath
             
-#            if self.var_keys:
-#                for key in self.var_keys:
-#                    if self.var_types[key] == float:
-#                        data[key] = float(self.var_stringvars[key].get())
-#                    elif self.var_types[key] == int:
-#                        data[key] = int(self.var_stringvars[key].get())
-#                    elif self.var_types[key] == str:
-#                        data[key] = str(self.var_stringvars[key].get())
+            if self.var_keys:
+                for key in self.var_keys:
+                    if self.var_types[key] == float:
+                        data[key] = float(self.var_stringvars[key].get())
+                    elif self.var_types[key] == int:
+                        data[key] = int(self.var_stringvars[key].get())
+                    elif self.var_types[key] == str:
+                        data[key] = str(self.var_stringvars[key].get())
             
             for label, data_type, _ in self.parameters:
                 if data_type is str:
@@ -461,48 +503,7 @@ class Page_Variables(Frame):
         self.controller.show_frame(Page_Model)
         
         os.remove(self.GCODEPATH + 'temp.gcode')
-        
-    def set_var(self, var):
-        
-        annot = inspect.getfullargspec(getattr(ds, var)).annotations       
-        
-        if annot:       
-            var_window = Tk()
-            
-            var_window.title(var)
-            var_window.geometry('+650+100')
-            self.var_keys = []
-            self.var_types = {}
-            self.var_values = {}
-            self.var_stringvars = {}
-            self.var_labels = {}
-            self.var_entries = {}
-            
-            for x, (key, value) in enumerate(annot.items()):
-                if key != 'return':
-                    self.var_keys.append(key)
-                    self.var_types[key] = value
-                    new_value = str(value).split('\'')[1]
-                    self.var_stringvars[key] = StringVar(var_window, value=new_value)
-                    self.var_labels[key] = ttk.Label(var_window, text=key)
-                    self.var_labels[key].grid(row=x, column=0, padx=5)
-                    self.var_entries[key] = ttk.Entry(var_window, textvariable=self.var_stringvars[key])
-                    self.var_entries[key].grid(row=x, column=1) 
-                    self.var_values[self.var_entries[key]] = new_value
-            
-            def default(event):
-                current = event.widget
-                if current.get() == self.var_values[current]:
-                    current.delete(0, END)
-                elif current.get() == '':
-                    current.insert(0, self.var_values[current])                    
-                   
-            for key in self.var_keys:
-                self.var_entries[key].bind('<FocusIn>', default)
-                self.var_entries[key].bind('<FocusOut>', default)
 
-        
-            var_window.mainloop()
 
 class Page_Model(Frame):    
     
