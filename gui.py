@@ -231,8 +231,10 @@ class Page_Variables(Frame):
         for x, par in enumerate(self.fields[self.COMMON]):
             self.labels[par.label].grid(row=x+1,column=0)
         
-        self.var_text = StringVar(self)
-        self.labelValues = Label(self, textvariable=self.var_text)
+        self.var_text_keys = StringVar(self)
+        self.labelKeys = Label(self, textvariable=self.var_text_keys)
+        self.var_text_values = StringVar(self)
+        self.labelValues = Label(self, textvariable=self.var_text_values)
 
             
     #initial creation of entries
@@ -365,11 +367,15 @@ class Page_Variables(Frame):
         
     def values_bar(self):
         
-        text = ''
+        text_keys = ''        
+        text_values = ''
         for key, value in self.var_saved.items():
-            text += ' ' + value
-        self.var_text.set(text)
+            text_keys += key + ' '
+            text_values += value + ' '
+        self.var_text_keys.set(text_keys)
+        self.var_text_values.set(text_values)
         if self.shift:
+            self.labelKeys.grid(row=self.shift,column=0)
             self.labelValues.grid(row=self.shift,column=1)
     
     def reset_vars(self):
