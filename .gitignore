@@ -6,6 +6,7 @@ __pycache__/
 *.gcode
 *.pyc
 *.lprof
+data_points*
 
 #Keep gcode files that start with SAVE
 !SAVE*.gcode

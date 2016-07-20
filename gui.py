@@ -5,7 +5,7 @@ Created on Sat May 28 16:39:58 2016
 '''
 
 import sys
-sys.path.append('C:\\Users\\lvanhulle\\Documents\\GitHub\\DogBone')
+sys.path.append('C:\\Users\\adiebold\\Documents\\GitHub\\DogBone')
 
 import os
 import constants as c
@@ -294,7 +294,7 @@ class Page_Variables(Frame):
     #create button to convert to Gcode
     def gcode(self):
         
-        self.buttonGcode = ttk.Button(self,text='Convert to Gcode',command=lambda: self.convert())
+        self.buttonGcode = ttk.Button(self,text='Generate Code',command=lambda: self.convert())
         self.buttonGcode.grid(row=len(self.texts)+1,column=1)
         
     #all set up functions together
@@ -428,7 +428,10 @@ class Page_Variables(Frame):
         if name == None:
             self.savePath = filedialog.asksaveasfilename()
             self.savePath = self.check_end(self.savePath)
-            gcodeName = self.savePath.split('/')[len(self.savePath.split('/'))-1] + '.gcode'
+            if self.g_robot_var == c.GCODE:
+                gcodeName = self.savePath.split('/')[len(self.savePath.split('/'))-1] + '.gcode'
+            elif self.g_robot_var == c.ROBOTCODE:
+                gcodeName = self.savePath.split('/')[len(self.savePath.split('/'))-1] + '.mod'
             self.filename = self.savePath + '.json'  
         
         #converting to gcode -- create temp json file with same name as gcode file
@@ -436,12 +439,18 @@ class Page_Variables(Frame):
             self.savePath = filedialog.asksaveasfilename()
             self.savePath = self.check_end(self.savePath)
             self.filename = self.JSONPATH + self.savePath.split('/')[len(self.savePath.split('/'))-1] + '.json'
-            gcodeName = self.savePath + '.gcode'
+            if self.g_robot_var == c.GCODE:
+                gcodeName = self.savePath + '.gcode'
+            elif self.g_robot_var == c.ROBOTCODE:
+                gcodeName = self.savePath + '.mod'
             
         #switching to 3D model page -- create temp json file
         else:
             self.savePath = 'blank'
-            gcodeName = self.GCODEPATH + name + '.gcode'
+            if self.g_robot_var == c.GCODE:
+                gcodeName = self.GCODEPATH + name + '.gcode'
+            elif self.g_robot_var == c.ROBOTCODE:
+                gcodeName = self.GCODEPATH = anem + '.mod'
             self.filename = self.JSONPATH + name + '.json'          
         
         data = {}               #dictionary to put String value of StringVar values in
@@ -451,6 +460,7 @@ class Page_Variables(Frame):
                                                        #variables with type None
             data[self.OUTPUTFILENAME] = gcodeName
             data[self.OUTPUTSUBDIRECTORY] = self.savePath
+            data['g_robot_var'] = self.g_robot_var
             
             if self.var_keys:
                 for key in self.var_keys:
@@ -504,18 +514,19 @@ class Page_Variables(Frame):
     #uploads dictionary from JSON file to replace current StringVar values, opens window to find file       
     def upload(self):
 
+        full_data = []
+        var_data = {}
         data = {}               #new dictionary that will be replaced with dictionary from JSON file
         uploadname = filedialog.askopenfilename()     #creates window to find file
         
         if uploadname != '':
             with open(uploadname, 'r') as fp:
-                data = json.load(fp)    #upload JSON file
+                full_data = json.load(fp)    #upload JSON file
             
-            # TODO: Fix this problem so the call to the first element is not needed
-            data = data[0]
+            data = full_data[0]
+            var_data = full_data[1]
                 
-            for key in data:
-                
+            for key in data:    
                 if data[key] == None:
                     self.text_variable[key].set('None') #replace current StringVar with String 'None'
                 elif key in self.text_variable.keys():
@@ -523,6 +534,10 @@ class Page_Variables(Frame):
                     value = value.replace('[','')
                     value = value.replace(']','')
                     self.text_variable[key].set(value)   #replace current StringVar values with data from JSON file
+                    
+            if var_data:
+                for key, value in var_data.items():
+                    self.var_saved[key] = value
     
     #create Gcode file                    
     def convert(self, name = None):
