@@ -190,6 +190,19 @@ class Page_Variables(Frame):
         for menu in self.menus:
             self.fields.append([par for par in self.parameters if menu.group in par.groups])
            
+        self.set_defaults()
+        
+        self.shift = 0
+        self.current_menu = self.fields[self.COMMON]
+            
+        self.create_var_page()
+              
+    ##########################################################
+    #   methods that create labels, entries, and/or buttons  #
+    ##########################################################
+    
+    def set_defaults(self):
+        
         defaults_path = self.JSONPATH + 'DEFAULT.json'   
         if os.path.isfile(defaults_path):
             with open(defaults_path, 'r') as fp:
@@ -206,18 +219,10 @@ class Page_Variables(Frame):
         for key in self.texts:
             if key not in self.defaults:
                 self.defaults[key] = ''
-        
-        self.shift = 0
-        self.current_menu = self.fields[self.COMMON]
-            
-        self.create_var_page()
-              
-    ##########################################################
-    #   methods that create labels, entries, and/or buttons  #
-    ##########################################################
-              
+          
     #initial creation of labels
     def set_labels(self):        
+        
         #create all labels
         for x in range(len(self.texts)):
             #create label
@@ -253,7 +258,7 @@ class Page_Variables(Frame):
         for member in inspect.getmembers(ds, inspect.isfunction):
             doneshape_funcs.append(member[0])
         
-        self.entries['outline'] = ttk.OptionMenu(self, self.text_variable['outline'], *doneshape_funcs, command=self.set_var)
+        self.entries['outline'] = ttk.OptionMenu(self, self.text_variable['outline'], self.defaults['outline'], *doneshape_funcs, command=self.set_var)
         
     #creates button for saving all values
     def save_option(self): 
@@ -363,10 +368,8 @@ class Page_Variables(Frame):
         text = ''
         for key, value in self.var_saved.items():
             text += ' ' + value
-        print(text)
         self.var_text.set(text)
         if self.shift:
-            print('hello')
             self.labelValues.grid(row=self.shift,column=1)
     
     def reset_vars(self):
@@ -385,7 +388,10 @@ class Page_Variables(Frame):
         self.shift = 0
         self.regrid()        
         
-        self.annot = inspect.getfullargspec(getattr(ds, var)).annotations
+        if var != 'choose a shape':
+            self.annot = inspect.getfullargspec(getattr(ds, var)).annotations
+        else:
+            self.annot = False
         
         if self.annot: 
             self.shift = 1
