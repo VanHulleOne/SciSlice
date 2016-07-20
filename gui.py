@@ -290,13 +290,6 @@ class Page_Variables(Frame):
                 self.entries[param.label].grid(row=x+1+self.shift, column=1, sticky='ew')
         return inner_command
         
-    #create label and buttons for different preset values of parameters
-    def presets(self):
-        
-        #label for presets
-        labelPresets = ttk.Label(self,text='Presets',font='-weight bold')
-        labelPresets.grid(row=0,column=3)
-    
     #create button to convert to Gcode
     def gcode(self):
         
@@ -311,7 +304,6 @@ class Page_Variables(Frame):
         self.save_option()
         self.upload_option()
         self.tab_buttons()
-        self.presets()
         self.gcode()
         self.model_page()
         self.g_robot()
@@ -330,7 +322,10 @@ class Page_Variables(Frame):
     def g_robot(self):
         
         self.g_robot_var = IntVar()
-        self.g_robot_var.set(0)
+        if self.defaults['g_robot_var']:
+            self.g_robot_var.set(self.defaults['g_robot_var'])
+        else:
+            self.g_robot_var.set(c.GCODE)
         
         self.buttonChooseGcode = ttk.Radiobutton(self, text='Gcode', variable=self.g_robot_var, value=c.GCODE)
         self.buttonChooseGcode.grid(row=len(self.texts)+2,column=0)
@@ -423,6 +418,9 @@ class Page_Variables(Frame):
 
             var_window.protocol("WM_DELETE_WINDOW", quicksave)
             var_window.mainloop()
+            
+        else:
+            self.reset_vars()
         
     #############################################
     #   methods that are called from buttons    #
@@ -532,11 +530,15 @@ class Page_Variables(Frame):
             data = full_data[0]
             var_data = full_data[1]
                 
-            for key in data:    
+            for key, value in data.items():    
                 if data[key] == None:
                     self.text_variable[key].set('None') #replace current StringVar with String 'None'
+                elif key == 'g_robot_var':
+                    self.g_robot_var.set(value)
+#                elif key == 'outline':
+#                    self.entries[key].set(value)
                 elif key in self.text_variable.keys():
-                    value = str(data[key])
+                    value = str(value)
                     value = value.replace('[','')
                     value = value.replace(']','')
                     self.text_variable[key].set(value)   #replace current StringVar values with data from JSON file
@@ -544,6 +546,7 @@ class Page_Variables(Frame):
             if var_data:
                 for key, value in var_data.items():
                     self.var_saved[key] = value
+                    
     
     #create Gcode file                    
     def convert(self, name = None):
