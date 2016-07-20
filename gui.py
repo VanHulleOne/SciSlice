@@ -5,7 +5,10 @@ Created on Sat May 28 16:39:58 2016
 '''
 
 import sys
-sys.path.append('C:\\Users\\adiebold\\Documents\\GitHub\\DogBone')
+pathway = os.path.dirname(os.path.realpath(__file__))
+pathway = pathway[-10]
+pathway += 'DogBone'
+sys.path.append(pathway)
 
 import os
 import constants as c
