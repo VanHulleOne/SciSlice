@@ -577,17 +577,32 @@ class Page_Variables(Frame):
     #create Gcode file                    
     def convert(self, name = None):
         
-        if name == None:
-            self.save('gcode')
+        if self.text_variable['outline'].get() == 'choose a shape':
+            text = 'Error: no shape is selected.\nPlease choose a shape.'
+            self.popup(text, 'Error')
         else:
-            self.save(name)
+            if name == None:
+                self.save('gcode')
+            else:
+                self.save(name)
+            
+            #check if the user cancelled converting to Gcode
+            if self.savePath and self.text_variable['outline'].get() != 'choose a shape':
+                #convert to Gcode
+                conversion = Main(self.filename, self.g_robot_var.get())
+                conversion.run()
+                os.remove(self.filename)
+            
+    def popup(self, msg, title):
         
-        #check if the user cancelled converting to Gcode
-        if self.savePath and self.text_variable['outline'].get() != 'choose a shape':
-            #convert to Gcode
-            conversion = Main(self.filename, self.g_robot_var.get())
-            conversion.run()
-            os.remove(self.filename)
+        popup = Tk()
+        
+        popup.title(title)
+        popup.geometry('300x400+200+200')
+        labelPopup = ttk.Label(popup, text=msg)
+        labelPopup.pack(padx=10, pady=10)
+        
+        popup.mainloop()
             
     
     #convert to gcode, switch to Page_Model        
