@@ -584,8 +584,8 @@ class Page_Variables(Frame):
     def convert(self, name = None):
         
         if self.text_variable['outline'].get() == 'choose a shape':
-            text = 'Error: no shape is selected.\nPlease choose a shape.'
-            self.popup(text, 'Error')
+            text = 'Error: no shape is selected.\n  Please choose a shape.'
+            self.popup(text, 'Error', '300x200+300+300')
         else:
             if name == None:
                 self.save('gcode')
@@ -599,14 +599,16 @@ class Page_Variables(Frame):
                 conversion.run()
                 os.remove(self.filename)
             
-    def popup(self, msg, title):
+    def popup(self, msg, title, size):
         
         popup = Tk()
         
         popup.title(title)
-        popup.geometry('300x400+200+200')
+        popup.geometry(size)
         labelPopup = ttk.Label(popup, text=msg)
-        labelPopup.pack(padx=10, pady=10)
+        labelPopup.pack(pady=50, anchor='center')
+        buttonExit = ttk.Button(popup, text='OK', command=popup.destroy)
+        buttonExit.pack()
         
         popup.mainloop()
             
