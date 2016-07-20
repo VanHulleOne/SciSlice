@@ -525,10 +525,7 @@ class Page_Variables(Frame):
     
     def check_end(self, pathName):
         
-        if pathName.endswith('.json'):
-            pathName = pathName[:-5]
-        elif pathName.endswith('.gcode'):
-            pathName = pathName[:-6]
+        pathName = os.path.splitext(pathName)[0]
     
         return pathName
         
@@ -583,7 +580,7 @@ class Page_Variables(Frame):
     
     #convert to gcode, switch to Page_Model        
     def to_model(self):
-# TODO: uncomment these        
+      
         self.convert('temp')
         
         self.controller.show_frame(Page_Model)
