@@ -193,9 +193,15 @@ class Page_Variables(Frame):
         defaults_path = self.JSONPATH + 'DEFAULT.json'   
         if os.path.isfile(defaults_path):
             with open(defaults_path, 'r') as fp:
-                self.defaults = json.load(fp)
+                full_defaults = json.load(fp)
         else:
             self.defaults = {}
+            
+        self.defaults = full_defaults[0]
+        var_defaults = full_defaults[1]
+        if var_defaults:
+            for key, value in var_defaults.items():
+                self.var_saved[key] = value
             
         for key in self.texts:
             if key not in self.defaults:
@@ -423,14 +429,14 @@ class Page_Variables(Frame):
     #############################################
                 
     def save(self, name = None):
-        
+
         #only saving JSON
         if name == None:
             self.savePath = filedialog.asksaveasfilename()
             self.savePath = self.check_end(self.savePath)
-            if self.g_robot_var == c.GCODE:
+            if self.g_robot_var.get() == c.GCODE:
                 gcodeName = self.savePath.split('/')[len(self.savePath.split('/'))-1] + '.gcode'
-            elif self.g_robot_var == c.ROBOTCODE:
+            elif self.g_robot_var.get() == c.ROBOTCODE:
                 gcodeName = self.savePath.split('/')[len(self.savePath.split('/'))-1] + '.mod'
             self.filename = self.savePath + '.json'  
         
@@ -439,17 +445,17 @@ class Page_Variables(Frame):
             self.savePath = filedialog.asksaveasfilename()
             self.savePath = self.check_end(self.savePath)
             self.filename = self.JSONPATH + self.savePath.split('/')[len(self.savePath.split('/'))-1] + '.json'
-            if self.g_robot_var == c.GCODE:
+            if self.g_robot_var.get() == c.GCODE:
                 gcodeName = self.savePath + '.gcode'
-            elif self.g_robot_var == c.ROBOTCODE:
+            elif self.g_robot_var.get() == c.ROBOTCODE:
                 gcodeName = self.savePath + '.mod'
             
         #switching to 3D model page -- create temp json file
         else:
             self.savePath = 'blank'
-            if self.g_robot_var == c.GCODE:
+            if self.g_robot_var.get() == c.GCODE:
                 gcodeName = self.GCODEPATH + name + '.gcode'
-            elif self.g_robot_var == c.ROBOTCODE:
+            elif self.g_robot_var.get() == c.ROBOTCODE:
                 gcodeName = self.GCODEPATH = anem + '.mod'
             self.filename = self.JSONPATH + name + '.json'          
         
@@ -460,7 +466,7 @@ class Page_Variables(Frame):
                                                        #variables with type None
             data[self.OUTPUTFILENAME] = gcodeName
             data[self.OUTPUTSUBDIRECTORY] = self.savePath
-            data['g_robot_var'] = self.g_robot_var
+            data['g_robot_var'] = self.g_robot_var.get()
             
             if self.var_keys:
                 for key in self.var_keys:
