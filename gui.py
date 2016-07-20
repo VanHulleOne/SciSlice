@@ -5,7 +5,7 @@ Created on Sat May 28 16:39:58 2016
 '''
 
 import sys
-sys.path.append('C:\\Users\\adiebold\\Documents\\GitHub\\DogBone')
+sys.path.append('C:\\Users\\lvanhulle\\Documents\\GitHub\\DogBone')
 
 import os
 import constants as c
@@ -510,8 +510,12 @@ class Page_Variables(Frame):
         if uploadname != '':
             with open(uploadname, 'r') as fp:
                 data = json.load(fp)    #upload JSON file
+            
+            # TODO: Fix this problem so the call to the first element is not needed
+            data = data[0]
                 
             for key in data:
+                
                 if data[key] == None:
                     self.text_variable[key].set('None') #replace current StringVar with String 'None'
                 elif key in self.text_variable.keys():
