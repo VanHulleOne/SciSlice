@@ -375,8 +375,8 @@ class Page_Variables(Frame):
         self.var_text_keys.set(text_keys)
         self.var_text_values.set(text_values)
         if self.shift:
-            self.labelKeys.grid(row=self.shift,column=0)
-            self.labelValues.grid(row=self.shift,column=1)
+            self.labelKeys.grid(row=1,column=1)
+            self.labelValues.grid(row=2,column=1)
     
     def reset_vars(self):
         
@@ -400,7 +400,7 @@ class Page_Variables(Frame):
             self.annot = False
         
         if self.annot: 
-            self.shift = 1
+            self.shift = 2
             self.regrid()            
             
             var_window = Tk()
@@ -439,11 +439,14 @@ class Page_Variables(Frame):
                 for key in self.var_keys:
                     self.var_saved[key] = self.var_stringvars[key].get()
                 self.values_bar()
-                var_window.destroy ()
+                var_window.destroy()
                    
             for key in self.var_keys:
                 self.var_entries[key].bind('<FocusIn>', default)
                 self.var_entries[key].bind('<FocusOut>', default)
+
+            buttonDestroy = ttk.Button(var_window, text='OK', command=quicksave)
+            buttonDestroy.grid(row=len(self.annot.items())+1, column=1)
 
             var_window.protocol("WM_DELETE_WINDOW", quicksave)
             var_window.mainloop()
