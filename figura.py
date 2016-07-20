@@ -137,7 +137,7 @@ class Figura:
             yield self.gc.comment(str(layerParam) + '\n')
             yield self.gc.comment('T' + str(self.partCount) + str(layerNumber) + '\n')
             yield self.gc.comment('M6\n')
-            yield self.gc.operatorMessage('Layer', layerNumber, 'of', self.numLayers)
+            yield self.gc.operatorMessage('Layer', layerNumber, 'of', partParams.numLayers)
             yield self.gc.rapidMove(layer[0].start, c.OMIT_Z)
             yield self.gc.firstApproach(totalExtrusion, layer[0].start)
             
