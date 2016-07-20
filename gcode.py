@@ -49,6 +49,9 @@ class Gcode:
         
     def newPart(self):
         return 'G92 E0\n'
+        
+    def layerProgress(self, currLayer, lastLayer):
+        return 'M117 Layer ' + str(currLayer) + ' of ' + str(lastLayer) + '..\n'
     
     def startGcode(self):
         with open(self.pr.startEndSubDirectory + '\\' + self.pr.start_Gcode_FileName) as startFile:
@@ -119,18 +122,11 @@ class RobotCode:
         # TODO: Maybe do something here.
         return '\n'#'G92 E0\n'
     
+    def layerProgress(self, currLayer, lastLayer):
+        return '\t\tTPWRITE "Layer ' + str(currLayer) + ' of ' + str(lastLayer) + '.";\n'
+    
     def startGcode(self):
-        with open(self.pr.startEndSubDirectory + '\\' + self.pr.start_Gcode_FileName) as startFile:
-            lines = startFile.readlines()   
-        tempString = ''
-        for line in lines:
-            tempString += str(line)
-        return tempString
+        return 'MODULE MainModule\n\tPROC main()\n'
     
     def endGcode(self):
-        with open(self.pr.startEndSubDirectory + '\\' + self.pr.end_Gcode_FileName) as endFile:
-            lines = endFile.readlines()       
-        tempString = ''
-        for line in lines:
-            tempString += str(line)
-        return tempString
+        return '\tENDPROC\nENDMODULE'
