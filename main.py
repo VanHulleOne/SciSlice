@@ -76,7 +76,7 @@ class Main:
         """
             
 if __name__ == '__main__':
-    main = Main('Gcode\\Robot1.json')
+    main = Main('Gcode\\Cyl1J.json', c.ROBOTCODE)
     main.run()
 
 

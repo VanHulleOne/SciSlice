@@ -102,7 +102,7 @@ class Figura:
         currHeight = layerParam.layerHeight
         
         # TODO: remove the -61
-        while currHeight <= self.maxZ-61:
+        while currHeight <= self.maxZ-2:
             sec = Section(self.mesh.section(plane_origin=[0,0,currHeight],plane_normal=[0,0,1]))
 
             filledList = []
