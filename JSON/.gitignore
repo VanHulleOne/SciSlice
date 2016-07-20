@@ -1,0 +1,13 @@
+#Files to ignore
+
+__pycache__/
+
+#Ignore extensions
+*.gcode
+*.pyc
+*.lprof
+*.json
+
+#Keep gcode files that start with SAVE
+!SAVE*.gcode
+!DEFAULT*
