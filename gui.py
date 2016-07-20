@@ -225,6 +225,9 @@ class Page_Variables(Frame):
         
         for x, par in enumerate(self.fields[self.COMMON]):
             self.labels[par.label].grid(row=x+1,column=0)
+        
+        self.var_text = StringVar(self)
+        self.labelValues = Label(self, textvariable=self.var_text)
 
             
     #initial creation of entries
@@ -347,11 +350,24 @@ class Page_Variables(Frame):
             self.labels[param.label].grid(row=x+1+self.shift, column=0)
             self.entries[param.label].grid(row=x+1+self.shift, column=1)
         
+        self.values_bar()
+        
         self.buttonGcode.grid(row=len(self.texts)+1+self.shift,column=1)
         self.buttonModel.grid(row=len(self.texts)+1+self.shift,column=0)
         self.buttonChooseGcode.grid(row=len(self.texts)+2+self.shift,column=0)
         self.buttonChooseRobot.grid(row=len(self.texts)+2+self.shift,column=1)
         self.labelVersion.grid(row=len(self.texts)+3+self.shift,column=0)
+        
+    def values_bar(self):
+        
+        text = ''
+        for key, value in self.var_saved.items():
+            text += ' ' + value
+        print(text)
+        self.var_text.set(text)
+        if self.shift:
+            print('hello')
+            self.labelValues.grid(row=self.shift,column=1)
     
     def reset_vars(self):
         
@@ -410,6 +426,7 @@ class Page_Variables(Frame):
             def quicksave():
                 for key in self.var_keys:
                     self.var_saved[key] = self.var_stringvars[key].get()
+                self.values_bar()
                 var_window.destroy ()
                    
             for key in self.var_keys:
