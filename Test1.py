@@ -67,49 +67,12 @@ points = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11]
 
 lines = [l.Line(points[i], points[i+1]) for i in range(len(points)-1)]
 
-COMMON = 0
-PART = 1
-LAYER = 2
-FILE = 3
-PRINT = 4
+mesh1 = trimesh.load_mesh('Arch3.stl')
+sec = mesh1.section(plane_origin=[0,0,5], plane_normal=[0,0,1])
 
-Menu = namedtuple('Menu', 'name group')
-menus = [
-        Menu('Common', COMMON),
-        Menu('Part', PART),
-        Menu('Layer', LAYER),
-        Menu('File', FILE),
-        Menu('Print', PRINT)
-        ]
+sq = ds.squareWithHole()
 
-Par = namedtuple('Parameter', 'label type groups')
-parameters = [
-            Par('stl_file', str, (COMMON, PART)),
-            Par('solidityRatio', float, (COMMON, PART)),
-            Par('shiftX', float, (COMMON, PART)),
-            Par('shiftY', float, (COMMON, PART)),
-            Par('firstLayerShiftZ', float, (PART,)),
-            Par('numLayers', int, (COMMON, PART)),
-            Par('pattern', None, (PART,)),
-            Par('designType', int, (PART,)),
-            Par('infillAngleDegrees', float, (COMMON, LAYER)),
-            Par('pathWidth', float, (LAYER,)),
-            Par('layerHeight', float, (LAYER,)),
-            Par('infillShiftX', float, (LAYER,)),
-            Par('infillShiftY', float, (LAYER,)),
-            Par('numShells', int, (COMMON, LAYER)),
-            Par('trimAdjust', float, (LAYER,)),
-            Par('start_Gcode_FileName', str, (FILE,)),
-            Par('end_Gcode_FileName', str, (FILE,)),
-            Par('outputFileName', str, (COMMON, FILE)),
-            Par('bed_temp', int, (COMMON, PRINT)),
-            Par('extruder_temp', int, (COMMON, PRINT)),
-            ]
-
-fields = []
-for menu in menus:
-    fields.append([par for par in parameters if menu.group in par.groups])
-    
+sec2 = s.Section(sq)
 
 """ An example of how to do other infills. """  
 #currOutline = ds.rect(0,0,15,250)

@@ -41,22 +41,15 @@ class Figura:
         self.gc = g_code
         self.pr = param
         
-        currPath = os.path.dirname(os.path.realpath(__file__))
-        self.mesh = trimesh.load_mesh(self.pr.stl_file)#currPath+'\\'+stl)        
-        
-        self.maxZ = self.mesh.bounds[:,2:][1]
-        
-        self.numLayers = []
-        
-        for layerH in self.pr.layerHeight:
-            self.numLayers.append(int((self.maxZ//layerH)[0]))       
+        if self.pr.outline == c.STL_FLAG:
+            self.mesh = trimesh.load_mesh(self.pr.stl_file)          
         
         self.partCount = 1 # The current part number
 
         self.layers = {}
         """ The dictionary which stores the computed layers. The key is created in
         layer_gen(). """
-        
+
     def masterGcode_gen(self):
         yield self.gc.startGcode()
         for partParams in self.pr.everyPartsParameters:
@@ -96,14 +89,21 @@ class Figura:
         """        
         
         layerParam_Gen = self.pr.layerParameters()
-#        currHeight = self.pr.firstLayerShiftZ
         layerParam = next(layerParam_Gen)
             
         currHeight = layerParam.layerHeight
+        numLayers = 0
         
-        # TODO: remove the -61
-        while currHeight <= self.maxZ-2:
-            sec = Section(self.mesh.section(plane_origin=[0,0,currHeight],plane_normal=[0,0,1]))
+        if pr.outline == c.STL_FLAG and partParams.numLayers <= 0:
+            maxZ = self.mesh.bounds[:,2:][1] - c.EPSILON
+            numLayers = float('inf')
+        else:
+            maxZ = float('inf')
+            maxLayers = partParams.numLayers
+            
+        while currHeight <= maxZ and numLayers < maxLayers:
+            if self.pr.outline == c.STL_FLAG:
+                sec = Section(self.mesh.section(plane_origin=[0,0,currHeight],plane_normal=[0,0,1]))
 
             filledList = []
 
@@ -137,8 +137,7 @@ class Figura:
             layerParam = next(layerParam_Gen)
             
             currHeight += layerParam.layerHeight
-#            yield (self.layers[layerParam].translate(partParams.shiftX,
-#                                            partParams.shiftY, currHeight), layerParam)
+            numLayers += 1
     
     def partGcode_gen(self, partParams):        
         layerNumber = 1
