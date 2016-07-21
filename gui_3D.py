@@ -72,7 +72,7 @@ class GUI(Tk):
         #dictionary of Frames
         self.frames = {}
         
-        self.shapes = {Page_Variables : '425x750+150+100', Page_Model: '505x175+150+100'}     
+        self.shapes = {Page_Variables : '425x750+150+100', Page_Model: '505x200+150+100'}     
 #                       Page_Model : '600x500+150+100'}
         
         #add Frames to dictionary
@@ -685,7 +685,8 @@ class Page_Model(Frame):
                     "w/s for rotation along x-axis", "q/e for rotation along z-axis",
                     "mousewheel to zoom",
                     "be warned: once things get rotated, the arrow key translations won't look the same. be flexible.",
-                    "also, heads up, closing the model will crash the GUI"] 
+                    "also, heads up, closing the model will crash the GUI", 
+                    "note: make sure the window for the model, not the GUI, is selected when pressing keys"] 
         for words in the_text:
             Label(self, text=words).pack(anchor=CENTER)
         buttonMakeModel = ttk.Button(self, text='Make Model', command=self.make_model)
