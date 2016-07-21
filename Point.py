@@ -74,6 +74,10 @@ class Point(object):
     @property
     def normalVector(self):
         return numpy.array(self.__normalVector)
+        
+    @property
+    def point(self):
+        return numpy.array(self.__normalVector[:3])
     
     def __iter__(self):
         """ iterate through the coordinates. I don't think this is used anywhere. """
