@@ -90,7 +90,11 @@ class Shape(LG):
                 tempLines = []
         if len(tempLines) != 0:
             yield tempLines
-            
+    
+    def loop_gen(self):
+        for subShape in self.subShape_gen():
+            yield [line.start.point for line in subShape] + subShape[-1].end.point
+      
     def closeShape(self):
         if(self[0].start != self[-1].end):
             self.append(l.Line(self[-1].end, self[0].start))
@@ -428,8 +432,10 @@ class _SidedPolygon:
 
 class Section:
     def __init__(self, section):
-        self.section = section
-        self.sidedPolygons = self.createSided([Polygon(i) for i in section.discrete])
+        if isinstance(section, Shape):
+            self.sidedPolygons = self.createSided([Polygon(i) for i in section.loop_gen()])
+        else:
+            self.sidedPolygons = self.createSided([Polygon(i) for i in section.discrete])
         
     @property
     def shape(self):
