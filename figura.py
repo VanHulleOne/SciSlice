@@ -28,7 +28,8 @@ import Point as p
 import InFill as InF
 import LineGroup as lg
 import constants as c
-from Shape import Shape
+from Shape import Shape, Section
+import trimesh
 import os
 
 class Figura:  
@@ -93,7 +94,7 @@ class Figura:
         currHeight = layerParam.layerHeight
         numLayers = 0
         
-        if pr.outline == c.STL_FLAG and partParams.numLayers <= 0:
+        if self.pr.outline == c.STL_FLAG and partParams.numLayers <= 0:
             maxZ = self.mesh.bounds[:,2:][1] - c.EPSILON
             numLayers = float('inf')
         else:
