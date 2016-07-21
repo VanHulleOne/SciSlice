@@ -417,6 +417,7 @@ class Page_Variables(Frame):
                 self.text_variable['stl_file'].set(os.path.basename(os.path.normpath(self.stl_path)))
             self.annot = False
         else:
+            self.stl_path = ''
             self.annot = inspect.getfullargspec(getattr(ds, var)).annotations
         
         if self.annot: 
