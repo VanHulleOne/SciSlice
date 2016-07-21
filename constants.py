@@ -34,6 +34,7 @@ CENTERED_FIELD = 3
 TRIMMED_FIELD = 4 
 GCODE = 0
 ROBOTCODE = 1
+STL_FLAG = 'stl_file'
 
 LOG_LEVEL = logging.INFO
 importlib.reload(logging)
