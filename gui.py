@@ -229,6 +229,10 @@ class Page_Variables(Frame):
         for key in self.texts:
             if key not in self.defaults:
                 self.defaults[key] = ''
+            elif key == 'stl_file':
+                self.stl_path = self.defaults[key]
+                if self.stl_path:
+                    self.defaults[key] = os.path.basename(os.path.normpath(self.stl_path))
           
     #initial creation of labels
     def set_labels(self):        
@@ -589,6 +593,9 @@ class Page_Variables(Frame):
                     self.g_robot_var.set(value)
 #                elif key == 'outline':
 #                    self.entries[key].set(value)
+                elif key == 'stl_file':
+                    self.stl_path = value
+                    self.text_variable[key].set(os.path.basename(os.path.normpath(self.stl_path)))
                 elif key in self.text_variable.keys():
                     value = str(value)
                     value = value.replace('[','')
@@ -649,6 +656,8 @@ class Page_Model(Frame):
         Frame.__init__(self, parent)
         self.controller = controller
         
+        self.model()
+        
     def model(self):
         
         data = []
@@ -673,8 +682,11 @@ class Page_Model(Frame):
                     data[counter] = [tuple(data[counter][0:3]), tuple(data[counter][3:])]
                     counter += 1
                     
-        buttonMakeModel = ttk.Button(self, text='Make Model', command=make_model)
-        buttonMakeModel.pack(padx=10, pady=10)
+        buttonMakeModel = ttk.Button(self, text='Make Model', command=self.hello)
+        buttonMakeModel.pack(anchor=CENTER)
+        
+    def hello(self):
+        print('hello')
         
     def make_model(self):
         
