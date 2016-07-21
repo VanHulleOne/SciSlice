@@ -1,0 +1,17 @@
+pygame:
+1. open spyder
+2. navigate to "console" (should be next to History Log
+	it is one of the tabs you can switch between on the
+	bottom-right)
+3. right click in the upper tab bar of console where "Python 1"
+	and "Kernel 1" is; select "Open command prompt"
+4. type "pip install pygame" and hit enter
+voila
+	
+opengl:
+1. click *windows key* + r
+2. click "cmd" and hit enter
+3. type "conda install pyopengl" and hit enter
+4. wait for the prompt "Proceed ([y]/n)?", then type
+	"y" and hit enter
+voila
