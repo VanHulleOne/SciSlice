@@ -374,8 +374,8 @@ class Page_Variables(Frame):
         text_keys = ''        
         text_values = ''
         for key, value in self.var_saved.items():
-            text_keys += key + ' '
-            text_values += value + ' '
+            text_keys += '%10s ' % (key)
+            text_values += '%10s ' %(value)
         self.var_text_keys.set(text_keys)
         self.var_text_values.set(text_values)
         if self.shift:
