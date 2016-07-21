@@ -39,6 +39,12 @@ from parameters import __version__ as version
 import doneShapes as ds
 import inspect
 
+import pygame
+from pygame.locals import *
+
+from OpenGL.GL import *
+from OpenGL.GLU import *
+
 class GUI(Tk):
 
     def __init__(self, *args, **kwargs):
@@ -638,22 +644,18 @@ class Page_Variables(Frame):
 
 class Page_Model(Frame):    
     
-    def __init__(self, parent, controller):
+    def __init__ (self, parent, controller):
         Frame.__init__(self, parent)
         self.controller = controller
         
-        self.get_data()
-        
-    def get_data(self):
+    def model(self):
         
         data = []
         counter = 0
-        self.xar = []
-        self.yar = []
-        self.zar = []
-        self.layer_part = []
+        layer_part = []
         
-        with open('data_points.txt', 'r') as f:
+        datapath = pathway + '\\data_points.txt'
+        with open(datapath, 'r') as f:
             for line in f:
                 if 'start' in line:
                     print('start ', counter)
@@ -661,187 +663,304 @@ class Page_Model(Frame):
                 elif 'layer_number' in line:
                     print(line)
                     print(counter)
-                    self.layer_part.append([line.split(':')[1], line.split(':')[3], start, counter])
+                    layer_part.append([line.split(':')[1], line.split(':')[3], start, counter])
                 else:
                     data.append(line)      
                     data[counter] = data[counter].split(',')
                     for y in range(0,len(data[counter])):
                         data[counter][y] = float(data[counter][y])
-                    self.xar.append([data[counter][0], data[counter][3]])
-                    self.yar.append([data[counter][1], data[counter][4]])
-                    self.zar.append([data[counter][2], data[counter][5]])     
+                    data[counter] = [tuple(data[counter][0:3]), tuple(data[counter][3:])]
                     counter += 1
                     
-        self.setup()
-    
-    def show_labels(self):
-        
-        labelIntro = ttk.Label(self, text='Choose the start and end layers of the model:')
-        labelIntro.grid(row=0,column=1)
-        
-        labelStart = ttk.Label(self, text='Start')
-        labelStart.grid(row=1,column=0)
-        
-        labelEnd = ttk.Label(self, text='End')
-        labelEnd.grid(row=2,column=0)
-        
-    def show_scales(self):
-        
-        self.scaleStart = Scale(self, from_=0, to=len(self.xar), length=500, orient=HORIZONTAL)
-        self.scaleStart.grid(row=1,column=1)
-        
-        self.scaleEnd = Scale(self, from_=0, to=len(self.xar), length=500, tickinterval=5000, orient=HORIZONTAL)
-        self.scaleEnd.grid(row=2,column=1)
-        
-    def show_buttons(self):
-        
-        buttonSubmit = ttk.Button(self, text='Create Model', command=lambda: 
-            self.make_graph(self.scaleStart.get(), self.scaleEnd.get()))
-        buttonSubmit.grid(row=3,column=1)
-        
-        buttonVariables = ttk.Button(self, text='Variables', 
-                     command=lambda: self.to_variables())
-        buttonVariables.grid(row=0,column=0)
-    
-#        self.buttonUpdate = ttk.Button(self, text='Update from Variables', command=lambda: self.get_data())
-#        self.buttonUpdate.grid(row=4,column=1)
-
-#        self.radiobuttons = {}
-#        x = 0
-#        y = 0
-#        z = 0
-#        selection = IntVar()
-#        
-#        for id_array in self.layer_part:
-#            rb_text = 'Part:' + str(id_array[1] + ' Layer:' + str(id_array[0]))
-#            self.radiobuttons[str(id_array)] = ttk.Radiobutton(self, text=rb_text, variable=selection, value=x)
-#            self.radiobuttons[str(id_array)].grid(row=z+4,column=y)
-#            x+=1
-#            y = x//5
-#            z = x%5 
-
-        self.intvar_layerparts = {}
-        
-        self.mb = ttk.Menubutton(self, text='testing')
-        self.mb.grid()
-        self.mb.menu = Menu (self.mb, tearoff=1)
-        self.mb['menu'] = self.mb.menu
-        
-        for id_array in self.layer_part:
-            self.intvar_layerparts[str(id_array)] = IntVar()
-            self.rb_text = 'Part:' + str(id_array[1] + ' Layer:' + str(id_array[0]))
-            self.mb.menu.add_checkbutton(label=self.rb_text, onvalue=1, offvalue=0, variable=self.intvar_layerparts[str(id_array)])
-        
-        self.mb.grid(row=5,column=1)
-        
-        buttonModel = ttk.Button(self, text='Create Model', command=lambda:
-            self.make_model())
-        buttonModel.grid(row=6,column=1)
-        
-
-    def setup(self):
-
-        self.show_labels()
-        self.show_scales()
-        self.show_buttons()                
-        
-    def make_graph(self, start, end):
-                
-        self.fig = plt.figure()
-        self.ax = self.fig.add_subplot(111, projection='3d')
-        
-        self.colors = []
-        
-        color_num = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F']
-        color_num2 = ['0','8']
-        for one in color_num:
-            for two in color_num2:
-                for three in color_num2:
-                    for four in color_num2:
-                        for five in color_num2:
-                            for six in color_num:
-                                curr_color = '#' + one + two + three + four + five + six
-                                self.colors.append(curr_color)
-            
-        for num in range(start, end):
-            num_color = num%len(self.colors)
-            self.ax.plot_wireframe(self.xar[num], self.yar[num], self.zar[num], color=self.colors[num_color])
-            
-        plt.show()
+        buttonMakeModel = ttk.Button(self, text='Make Model', command=make_model)
+        buttonMakeModel.pack(padx=10, pady=10)
         
     def make_model(self):
         
-        self.fig = plt.figure()
-        self.ax = self.fig.add_subplot(111, projection='3d')
-        
-        self.colors = []
-        
-        color_num = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F']
-        color_num2 = ['0','8']
-        for one in color_num:
-            for two in color_num2:
-                for three in color_num2:
-                    for four in color_num2:
-                        for five in color_num2:
-                            for six in color_num:
-                                curr_color = '#' + one + two + three + four + five + six
-                                self.colors.append(curr_color)
-         
-#        for id_array in self.layer_part:
-#            print(self.intvar_layerparts[id_array].get())
-         
-         
-        counting = 0                       
-        for id_array in self.layer_part:
-            if self.intvar_layerparts[str(id_array)].get() == 1:
-                for c in range(int(id_array[2]), int(id_array[3])):
-                    num_color=c%len(self.colors)
-                    self.ax.plot_wireframe(self.xar[c], self.yar[c], self.zar[c], color=self.colors[num_color])
+        def Cube():
+        #    x=0
+        #    glBegin(GL_QUADS)
+        #    for line in data:
+        #        
+        #        for point in line:
+        #            glColor3fv((x,x,0))
+        #            glVertex3fv(point)
+        #            num = 1.0/len(data)
+        #            x += num
+        #            
+        #    glEnd()
+        #    
+            glBegin(GL_LINES)
+        #    for edge in edges:
+        #        print('line')
+        #        for vertex in edge:
+        #            glVertex3fv(vertices[vertex])
+        #            print(vertices[vertex])
+            for line in data:
+        #        print('line')
+                for point in line:
                     
-        plt.show()
-        
-    def to_variables(self):
-        
-        self.controller.show_frame(Page_Variables, True, Page_Model)
-        
+                    glVertex3fv(point)
+        #            print(point)
+            glEnd()
+            
+        def main():
+            pygame.init()
+            display = (800,600)
+            pygame.display.set_mode(display, DOUBLEBUF|OPENGL)
+            
+            gluPerspective(45, (display[0]/display[1]), 0.1, 1000.0) #187
+            
+            glTranslatef(-112.0,-40.0, -500)
+            
+            glRotatef(0, 0, 0, 0)
+            
+            while True:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        quit()
+                        
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_LEFT:
+                            glTranslatef(-10,0,0)
+                        if event.key == pygame.K_RIGHT:
+                            glTranslatef(10,0,0)
+                        if event.key == pygame.K_UP:
+                            glTranslatef(0,10,0)
+                        if event.key == pygame.K_DOWN:
+                            glTranslatef(0,-10,0)
+                        if event.key == pygame.K_a:
+                            glRotatef(10,0,1,0)
+                        if event.key == pygame.K_d:
+                            glRotatef(-10,0,1,0)
+                        if event.key == pygame.K_w:
+                            glRotatef(10,1,0,0)
+                        if event.key == pygame.K_s:
+                            glRotatef(-10,1,0,0)
+                        if event.key == pygame.K_q:
+                            glRotatef(10,0,0,1)
+                        if event.key == pygame.K_e:
+                            glRotatef(-10,0,0,1)
+                            
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        if event.button == 4:
+                            glTranslatef(0,0,10.0)
+                        if event.button == 5:
+                            glTranslatef(0,0,-10.0)
+                
+                glRotatef(0,0,0,0)        
+                glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
+                Cube()
+                pygame.display.flip()
+                pygame.time.wait(10)
+                
+        main()
     
-#class Page_Model(Frame):
-#    
 #    def __init__(self, parent, controller):
 #        Frame.__init__(self, parent)
 #        self.controller = controller
 #        
-#        labelExample = ttk.Label(self, text='HELLO')
-#        labelExample.pack()
+#        self.get_data()
 #        
-#        self.to_variables()
+#    def get_data(self):
 #        
-#        canvasExample = Canvas(self, width=200, height=100)
-#        canvasExample.pack()      \
+#        data = []
+#        counter = 0
+#        self.xar = []
+#        self.yar = []
+#        self.zar = []
+#        self.layer_part = []
 #        
-#        canvasExample.create_rectangle(50, 20, 150, 80, fill='#476042')
-#        canvasExample.create_line(0, 0, 50, 20, width=3)
+#        with open('data_points.txt', 'r') as f:
+#            for line in f:
+#                if 'start' in line:
+#                    print('start ', counter)
+#                    start = counter
+#                elif 'layer_number' in line:
+#                    print(line)
+#                    print(counter)
+#                    self.layer_part.append([line.split(':')[1], line.split(':')[3], start, counter])
+#                else:
+#                    data.append(line)      
+#                    data[counter] = data[counter].split(',')
+#                    for y in range(0,len(data[counter])):
+#                        data[counter][y] = float(data[counter][y])
+#                    self.xar.append([data[counter][0], data[counter][3]])
+#                    self.yar.append([data[counter][1], data[counter][4]])
+#                    self.zar.append([data[counter][2], data[counter][5]])     
+#                    counter += 1
+#                    
+#        self.setup()
+#    
+#    def show_labels(self):
 #        
-#        '''
-#        f = Figure(figsize=(5,5), dpi=100)
-#        a = f.add_subplot(111)
-#        a.plot([1,2,3,4,5,6,7,8],[5,6,1,3,8,9,3,5])
+#        labelIntro = ttk.Label(self, text='Choose the start and end layers of the model:')
+#        labelIntro.grid(row=0,column=1)
 #        
-#        canvas = FigureCanvasTkAgg(f, self)
-#        canvas.show()
-#        canvas.get_tk_widget().pack(side=TOP, fill=BOTH, expand=True)
+#        labelStart = ttk.Label(self, text='Start')
+#        labelStart.grid(row=1,column=0)
 #        
-#        toolbar = NavigationToolbar2TkAgg(canvas, self)
-#        toolbar.update()
-#        canvas._tkcanvas.pack()
-#        '''
+#        labelEnd = ttk.Label(self, text='End')
+#        labelEnd.grid(row=2,column=0)
 #        
+#    def show_scales(self):
+#        
+#        self.scaleStart = Scale(self, from_=0, to=len(self.xar), length=500, orient=HORIZONTAL)
+#        self.scaleStart.grid(row=1,column=1)
+#        
+#        self.scaleEnd = Scale(self, from_=0, to=len(self.xar), length=500, tickinterval=5000, orient=HORIZONTAL)
+#        self.scaleEnd.grid(row=2,column=1)
+#        
+#    def show_buttons(self):
+#        
+#        buttonSubmit = ttk.Button(self, text='Create Model', command=lambda: 
+#            self.make_graph(self.scaleStart.get(), self.scaleEnd.get()))
+#        buttonSubmit.grid(row=3,column=1)
+#        
+#        buttonVariables = ttk.Button(self, text='Variables', 
+#                     command=lambda: self.to_variables())
+#        buttonVariables.grid(row=0,column=0)
+#    
+##        self.buttonUpdate = ttk.Button(self, text='Update from Variables', command=lambda: self.get_data())
+##        self.buttonUpdate.grid(row=4,column=1)
+#
+##        self.radiobuttons = {}
+##        x = 0
+##        y = 0
+##        z = 0
+##        selection = IntVar()
+##        
+##        for id_array in self.layer_part:
+##            rb_text = 'Part:' + str(id_array[1] + ' Layer:' + str(id_array[0]))
+##            self.radiobuttons[str(id_array)] = ttk.Radiobutton(self, text=rb_text, variable=selection, value=x)
+##            self.radiobuttons[str(id_array)].grid(row=z+4,column=y)
+##            x+=1
+##            y = x//5
+##            z = x%5 
+#
+#        self.intvar_layerparts = {}
+#        
+#        self.mb = ttk.Menubutton(self, text='testing')
+#        self.mb.grid()
+#        self.mb.menu = Menu (self.mb, tearoff=1)
+#        self.mb['menu'] = self.mb.menu
+#        
+#        for id_array in self.layer_part:
+#            self.intvar_layerparts[str(id_array)] = IntVar()
+#            self.rb_text = 'Part:' + str(id_array[1] + ' Layer:' + str(id_array[0]))
+#            self.mb.menu.add_checkbutton(label=self.rb_text, onvalue=1, offvalue=0, variable=self.intvar_layerparts[str(id_array)])
+#        
+#        self.mb.grid(row=5,column=1)
+#        
+#        buttonModel = ttk.Button(self, text='Create Model', command=lambda:
+#            self.make_model())
+#        buttonModel.grid(row=6,column=1)
+#        
+#
+#    def setup(self):
+#
+#        self.show_labels()
+#        self.show_scales()
+#        self.show_buttons()                
+#        
+#    def make_graph(self, start, end):
+#                
+#        self.fig = plt.figure()
+#        self.ax = self.fig.add_subplot(111, projection='3d')
+#        
+#        self.colors = []
+#        
+#        color_num = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F']
+#        color_num2 = ['0','8']
+#        for one in color_num:
+#            for two in color_num2:
+#                for three in color_num2:
+#                    for four in color_num2:
+#                        for five in color_num2:
+#                            for six in color_num:
+#                                curr_color = '#' + one + two + three + four + five + six
+#                                self.colors.append(curr_color)
+#            
+#        for num in range(start, end):
+#            num_color = num%len(self.colors)
+#            self.ax.plot_wireframe(self.xar[num], self.yar[num], self.zar[num], color=self.colors[num_color])
+#            
+#        plt.show()
+#        
+#    def make_model(self):
+#        
+#        self.fig = plt.figure()
+#        self.ax = self.fig.add_subplot(111, projection='3d')
+#        
+#        self.colors = []
+#        
+#        color_num = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F']
+#        color_num2 = ['0','8']
+#        for one in color_num:
+#            for two in color_num2:
+#                for three in color_num2:
+#                    for four in color_num2:
+#                        for five in color_num2:
+#                            for six in color_num:
+#                                curr_color = '#' + one + two + three + four + five + six
+#                                self.colors.append(curr_color)
+#         
+##        for id_array in self.layer_part:
+##            print(self.intvar_layerparts[id_array].get())
+#         
+#         
+#        counting = 0                       
+#        for id_array in self.layer_part:
+#            if self.intvar_layerparts[str(id_array)].get() == 1:
+#                for c in range(int(id_array[2]), int(id_array[3])):
+#                    num_color=c%len(self.colors)
+#                    self.ax.plot_wireframe(self.xar[c], self.yar[c], self.zar[c], color=self.colors[num_color])
+#                    
+#        plt.show()
 #        
 #    def to_variables(self):
 #        
-#        buttonVariable = ttk.Button(self, text='Variables', 
-#                                command=lambda: self.controller.show_frame(Page_Variables))
-#        buttonVariable.pack()
+#        self.controller.show_frame(Page_Variables, True, Page_Model)
+#        
+#    
+##class Page_Model(Frame):
+##    
+##    def __init__(self, parent, controller):
+##        Frame.__init__(self, parent)
+##        self.controller = controller
+##        
+##        labelExample = ttk.Label(self, text='HELLO')
+##        labelExample.pack()
+##        
+##        self.to_variables()
+##        
+##        canvasExample = Canvas(self, width=200, height=100)
+##        canvasExample.pack()      \
+##        
+##        canvasExample.create_rectangle(50, 20, 150, 80, fill='#476042')
+##        canvasExample.create_line(0, 0, 50, 20, width=3)
+##        
+##        '''
+##        f = Figure(figsize=(5,5), dpi=100)
+##        a = f.add_subplot(111)
+##        a.plot([1,2,3,4,5,6,7,8],[5,6,1,3,8,9,3,5])
+##        
+##        canvas = FigureCanvasTkAgg(f, self)
+##        canvas.show()
+##        canvas.get_tk_widget().pack(side=TOP, fill=BOTH, expand=True)
+##        
+##        toolbar = NavigationToolbar2TkAgg(canvas, self)
+##        toolbar.update()
+##        canvas._tkcanvas.pack()
+##        '''
+##        
+##        
+##    def to_variables(self):
+##        
+##        buttonVariable = ttk.Button(self, text='Variables', 
+##                                command=lambda: self.controller.show_frame(Page_Variables))
+##        buttonVariable.pack()
     
 #only works if program is used as the main program, not as a module    
 #if __name__ == '__main__':
