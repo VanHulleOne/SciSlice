@@ -660,7 +660,7 @@ class Page_Model(Frame):
         
     def model(self):
         
-        data = []
+        self.data = []
         counter = 0
         layer_part = []
         
@@ -675,14 +675,14 @@ class Page_Model(Frame):
                     print(counter)
                     layer_part.append([line.split(':')[1], line.split(':')[3], start, counter])
                 else:
-                    data.append(line)      
-                    data[counter] = data[counter].split(',')
-                    for y in range(0,len(data[counter])):
-                        data[counter][y] = float(data[counter][y])
-                    data[counter] = [tuple(data[counter][0:3]), tuple(data[counter][3:])]
+                    self.data.append(line)      
+                    self.data[counter] = self.data[counter].split(',')
+                    for y in range(0,len(self.data[counter])):
+                        self.data[counter][y] = float(self.data[counter][y])
+                    self.data[counter] = [tuple(self.data[counter][0:3]), tuple(self.data[counter][3:])]
                     counter += 1
                     
-        buttonMakeModel = ttk.Button(self, text='Make Model', command=self.hello)
+        buttonMakeModel = ttk.Button(self, text='Make Model', command=self.make_model)
         buttonMakeModel.pack(anchor=CENTER)
         
     def hello(self):
@@ -709,7 +709,7 @@ class Page_Model(Frame):
         #        for vertex in edge:
         #            glVertex3fv(vertices[vertex])
         #            print(vertices[vertex])
-            for line in data:
+            for line in self.data:
         #        print('line')
                 for point in line:
                     
