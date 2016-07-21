@@ -258,9 +258,12 @@ class Page_Variables(Frame):
             #use grid() after creating entry or dictionary value will be 'NoneType'
             self.entries[par.label].grid(row=x+1,column=1, sticky='ew')
             
+        self.entries['stl_file'].config(state=DISABLED)
+            
     def doneshapes_menu(self):
         
         doneshape_funcs = ['choose a shape']
+        doneshape_funcs.append(c.STL_FLAG)
         for member in inspect.getmembers(ds, inspect.isfunction):
             doneshape_funcs.append(member[0])
         
@@ -398,10 +401,17 @@ class Page_Variables(Frame):
         self.shift = 0
         self.regrid()        
         
-        if var != 'choose a shape':
-            self.annot = inspect.getfullargspec(getattr(ds, var)).annotations
-        else:
+        if var == 'choose a shape':
             self.annot = False
+        elif var == c.STL_FLAG:
+            self.stl_path = filedialog.askopenfilename()
+            if self.stl_path == '':
+                self.text_variable['outline'].set('choose a shape')
+            else:
+                self.text_variable['stl_file'].set(os.path.basename(os.path.normpath(self.stl_path)))
+            self.annot = False
+        else:
+            self.annot = inspect.getfullargspec(getattr(ds, var)).annotations
         
         if self.annot: 
             self.shift = 2
@@ -512,7 +522,9 @@ class Page_Variables(Frame):
                         var_data[key] = str(self.var_stringvars[key].get())
             
             for label, data_type, _ in self.parameters:
-                if data_type is str:
+                if label == 'stl_file':
+                    data[label] = self.stl_path
+                elif data_type is str:
                     data[label] = self.text_variable[label].get()
                 elif data_type is None:
                     data[label] = None
