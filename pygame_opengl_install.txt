@@ -15,3 +15,12 @@ opengl:
 4. wait for the prompt "Proceed ([y]/n)?", then type
 	"y" and hit enter
 voila
+
+to test these were properly installed, navigate to the 
+a python console (either "Python 1" tab in console or the 
+"IPython console" works) and type:
+"import pygame" + enter
+"import OpenGL" + enter (mind the caps, capital O & G & L)
+
+if both of these commands work without generating an 
+erro then you are ready to go
