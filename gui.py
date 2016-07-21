@@ -5,12 +5,13 @@ Created on Sat May 28 16:39:58 2016
 '''
 
 import sys
-pathway = os.path.dirname(os.path.realpath(__file__))
-pathway = pathway[-10]
-pathway += 'DogBone'
-sys.path.append(pathway)
-
 import os
+
+pathway = os.path.dirname(os.path.realpath(__file__)).split(sep='\\')
+pathway[-1] = 'DogBone'
+pathway = '\\'.join(pathway)
+
+sys.path.append(pathway)
 import constants as c
 import matplotlib                   #for 3D model
 from collections import namedtuple
