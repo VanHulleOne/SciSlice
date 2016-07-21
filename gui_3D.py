@@ -72,8 +72,8 @@ class GUI(Tk):
         #dictionary of Frames
         self.frames = {}
         
-        self.shapes = {Page_Variables : '425x750+150+100',       
-                       Page_Model : '600x500+150+100'}
+        self.shapes = {Page_Variables : '425x750+150+100', Page_Model: '505x175+150+100'}     
+#                       Page_Model : '600x500+150+100'}
         
         #add Frames to dictionary
         for F in (Page_Variables,):
@@ -681,7 +681,13 @@ class Page_Model(Frame):
                         self.data[counter][y] = float(self.data[counter][y])
                     self.data[counter] = [tuple(self.data[counter][0:3]), tuple(self.data[counter][3:])]
                     counter += 1
-                    
+        the_text = ["arrow keys = up/down/left/right translations", "a/d for rotation along y-axis", 
+                    "w/s for rotation along x-axis", "q/e for rotation along z-axis",
+                    "mousewheel to zoom",
+                    "be warned: once things get rotated, the arrow key translations won't look the same. be flexible.",
+                    "also, heads up, closing the model will crash the GUI"] 
+        for words in the_text:
+            Label(self, text=words).pack(anchor=CENTER)
         buttonMakeModel = ttk.Button(self, text='Make Model', command=self.make_model)
         buttonMakeModel.pack(anchor=CENTER)
         
