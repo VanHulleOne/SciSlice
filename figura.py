@@ -28,8 +28,7 @@ import Point as p
 import InFill as InF
 import LineGroup as lg
 import constants as c
-from Shape import Shape, Section
-import trimesh
+from Shape import Shape
 import os
 
 class Figura:  
@@ -62,8 +61,8 @@ class Figura:
             print('\nPart number: ' + str(self.partCount))            
             print(partParams)
            
-            yield '\n\n;Part number: ' + str(self.partCount) + '\n'
-            yield ';' + str(partParams) + '\n'
+            yield '\n\n' + self.gc.comment('Part number: ' + str(self.partCount) + '\n')
+            yield self.gc.comment(str(partParams) + '\n')
             
             yield from self.partGcode_gen(partParams)
                 
@@ -107,12 +106,13 @@ class Figura:
 
             filledList = []
 
-            for shellNumber in range(layerParam.numShells):
-                offsetShape = sec.offset(layerParam.pathWidth*(shellNumber), c.INSIDE)
-                if offsetShape is not None:
-                    filledList.append(offsetShape)
-                else:
-                    break
+            if layerParam not in self.layers:
+                currOutline = self.pr.shape
+                filledList = []
+                for shellNumber in range(layerParam.numShells):
+                    """ If the layer needs shells create them here. """
+                    filledList.append(currOutline)
+                    currOutline = currOutline.offset(layerParam.pathWidth, c.INSIDE)
                     
                 """
                 To help with problems that occur when an offset shape has its sides
@@ -120,17 +120,15 @@ class Figura:
                 want to fudge the trimShape outward just a little so that we end
                 up with the correct lines.
                 """
-            trimShape = sec.offset(layerParam.pathWidth * layerParam.numShells - 
-                            layerParam.trimAdjust, c.INSIDE)
-                            
-            if trimShape is not None:
+                if layerParam.numShells == 0:
+                    trimShape = currOutline.offset(layerParam.trimAdjust, c.OUTSIDE)
+                else:
+                    trimShape = filledList[-1].offset(layerParam.pathWidth-layerParam.trimAdjust, c.INSIDE)
                 infill = InF.InFill(trimShape,
                                     layerParam.pathWidth, layerParam.infillAngle,
                                     shiftX=layerParam.infillShiftX, shiftY=layerParam.infillShiftY,
                                     design=self.pr.pattern, designType=self.pr.designType)
-    #                self.layers[layerParam] = self.organizedLayer(filledList + [infill])
-                filledList.append(infill)
-            ol = self.organizedLayer(filledList)
+                self.layers[layerParam] = self.organizedLayer(filledList + [infill])
             """ a tuple of the organized LineGroup and the layer parameters. """
             yield (ol.translate(partParams.shiftX, partParams.shiftY,
                                 currHeight+self.pr.firstLayerShiftZ), layerParam)
@@ -147,12 +145,11 @@ class Figura:
         for layer, layerParam in self.layer_gen(partParams):
             extrusionRate = (partParams.solidityRatio*layerParam.layerHeight*
                             self.pr.nozzleDiameter/self.pr.filamentArea)
-            yield ';Layer: ' + str(layerNumber) + '\n'
-            yield ';' + str(layerParam) + '\n'
-            yield ';T' + str(self.partCount) + str(layerNumber) + '\n'
-            yield ';M6\n'
-            yield ('M117 Layer ' + str(layerNumber) + ' of ' +
-                            str(self.numLayers) + '..\n')
+            yield self.gc.comment('Layer: ' + str(layerNumber) + '\n')
+            yield self.gc.comment(str(layerParam) + '\n')
+            yield self.gc.comment('T' + str(self.partCount) + str(layerNumber) + '\n')
+            yield self.gc.comment('M6\n')
+            yield self.gc.operatorMessage('Layer', layerNumber, 'of', partParams.numLayers)
             yield self.gc.rapidMove(layer[0].start, c.OMIT_Z)
             yield self.gc.firstApproach(totalExtrusion, layer[0].start)
             
@@ -180,7 +177,7 @@ class Figura:
             yield self.gc.retractLayer(totalExtrusion, layer[-1].end)
             yield '\n'
             layerNumber += 1
-        yield ';Extrusion amount for part is ({:.1f} mm)\n\n'.format(totalExtrusion)
+        yield self.gc.comment('Extrusion amount for part is ({:.1f} mm)\n\n'.format(totalExtrusion))
 
             
     def organizedLayer(self, inShapes):
@@ -269,8 +266,8 @@ class Figura:
         tempString = ''
         layerNumber = 1
         for layer in self.layers:
-            tempString += ';T' + str(layerNumber) + '\n'
-            tempString += ';M6\n'
+            tempString += self.pr.comment + 'T' + str(layerNumber) + '\n'
+            tempString += self.pr.comment + 'M6\n'
             tempString += str(layer)
             layerNumber += 1
         return tempString

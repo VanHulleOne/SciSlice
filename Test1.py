@@ -36,6 +36,7 @@ from shapely.geometry import *#MultiPolygon
 import matplotlib.pyplot as plt
 from shapely.ops import cascaded_union
 from matplotlib import animation
+import inspect
 
 
 p1 = p.Point(2.073, 0.0806)
@@ -73,6 +74,7 @@ sec = mesh1.section(plane_origin=[0,0,5], plane_normal=[0,0,1])
 sq = ds.squareWithHole()
 
 sec2 = s.Section(sq)
+
 
 """ An example of how to do other infills. """  
 #currOutline = ds.rect(0,0,15,250)

@@ -7,6 +7,9 @@ Below is the command for NotePad++ to run this file.
 C:\Anaconda3\python.exe -i "$(FULL_CURRENT_PATH)"
 @author: lvanhulle
 """
+
+__version__ = '1.2'
+
 import math
 from collections import namedtuple
 import constants as c
@@ -16,9 +19,9 @@ import itertools
 import os
 import numpy as np
 import json
-import trimesh
 import Shape as s
 import Point as p
+import doneShapes as ds
 
 class Parameters:
     
@@ -27,20 +30,14 @@ class Parameters:
     LayerParams = None
     _layerParameters = None    
     
-    def __init__(self, param_data):
-        self.param_data = param_data
-        self.param_data["currPath"] = os.path.dirname(os.path.realpath(__file__))
-#        self.param_data["outputSubDirectory"] = self.param_data['currPath'] + '\\Gcode'
-        self.param_data["startEndSubDirectory"] = self.param_data['currPath'] + '\\Start_End_Gcode'
-        self.param_data["filamentDiameter"] = 3.0
-        self.param_data["filamentArea"] = math.pi*self.param_data['filamentDiameter']**2/4.0
-        self.param_data["nozzleDiameter"] = 0.5
-        self.param_data["RAPID"] = 4000
-        self.param_data["TRAVERSE_RETRACT"] = 0.5
-        self.param_data["MAX_FEED_TRAVERSE"] = 10
-        self.param_data["MAX_EXTRUDE_SPEED"] = 100
-        self.param_data["Z_CLEARANCE"] = 10.0
-        self.param_data["APPROACH_FR"] = 1500
+    def __init__(self, full_data):
+        self.var_data = full_data[1]
+        self.param_data = full_data[0]
+        self.param_data['currPath'] = os.path.dirname(os.path.realpath(__file__))
+#        self.param_data['outputSubDirectory'] = self.param_data['currPath'] + '\\Gcode'
+        self.param_data['startEndSubDirectory'] = self.param_data['currPath'] + '\\Start_End_Gcode'
+        self.param_data['filamentArea'] = math.pi*self.param_data['filamentDiameter']**2/4.0
+        self.param_data['shape'] = getattr(ds, self.param_data['outline'])(**self.var_data)
         for key, value in self.param_data.items():
             setattr(self, key, value)
         self.LayerParams = namedtuple('LayerParams', 'infillShiftX infillShiftY infillAngle \

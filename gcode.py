@@ -49,6 +49,12 @@ class Gcode:
         
     def newPart(self):
         return 'G92 E0\n'
+        
+    def operatorMessage(self, *args, sep=' '):
+        return 'M117 '+ sep.join(str(arg) for arg in args) + '.\n'
+        
+    def comment(self, comment):
+        return self.pr.comment + ' ' + comment
     
     def startGcode(self):
         with open(self.pr.startEndSubDirectory + '\\' + self.pr.start_Gcode_FileName) as startFile:
@@ -119,18 +125,14 @@ class RobotCode:
         # TODO: Maybe do something here.
         return '\n'#'G92 E0\n'
     
+    def operatorMessage(self, *args, sep=' '):
+        return '\t\tTPWRITE "'+ sep.join(str(arg) for arg in args) + '";\n'
+        
+    def comment(self, comment):
+        return '\t\t' + self.pr.comment + ' ' + comment
+    
     def startGcode(self):
-        with open(self.pr.startEndSubDirectory + '\\' + self.pr.start_Gcode_FileName) as startFile:
-            lines = startFile.readlines()   
-        tempString = ''
-        for line in lines:
-            tempString += str(line)
-        return tempString
+        return 'MODULE MainModule\n\tPROC main()\n'
     
     def endGcode(self):
-        with open(self.pr.startEndSubDirectory + '\\' + self.pr.end_Gcode_FileName) as endFile:
-            lines = endFile.readlines()       
-        tempString = ''
-        for line in lines:
-            tempString += str(line)
-        return tempString
+        return '\tENDPROC\nENDMODULE'

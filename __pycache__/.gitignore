@@ -3,8 +3,7 @@
 #Ignore extensions
 *.gcode
 *.pyc
-*.mod
+*.lprof
 
 #Keep gcode files that start with SAVE
 !SAVE*.gcode
-!SAVE*.mod

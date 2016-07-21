@@ -98,6 +98,7 @@ class Page_Variables(Frame):
     LAYER = 2
     FILE = 3
     PRINT = 4
+    PRINTER = 5
     
     INT_LIST = 0
     FLOAT_LIST = 1
@@ -108,7 +109,8 @@ class Page_Variables(Frame):
             Menu('Part', PART),
             Menu('Layer', LAYER),
             Menu('File', FILE),
-            Menu('Print', PRINT)
+            Menu('Print', PRINT),
+            Menu('Printer', PRINTER)
             ]
 
     menus.sort(key=lambda x : x.group)             
@@ -116,6 +118,7 @@ class Page_Variables(Frame):
              
     Par = namedtuple('Parameter', 'label data_type groups')
     parameters = [
+                Par('outline', str, (COMMON, PART)),
                 Par('stl_file', str, (COMMON, PART)),
                 Par('solidityRatio', FLOAT_LIST, (COMMON, PART)),
                 Par('printSpeed', INT_LIST, (COMMON, PART)),
@@ -136,6 +139,14 @@ class Page_Variables(Frame):
                 Par('end_Gcode_FileName', str, (FILE,)),
                 Par('bed_temp', int, (COMMON, PRINT)),
                 Par('extruder_temp', int, (COMMON, PRINT)),
+                Par('nozzleDiameter', float, (PRINTER,)),
+                Par('filamentDiameter', float, (PRINTER,)),
+                Par('RAPID', int, (PRINTER,)),
+                Par('TRAVERSE_RETRACT', float, (PRINTER,)),
+                Par('MAX_FEED_TRAVERSE', float, (PRINTER,)),
+                Par('MAX_EXTRUDE_SPEED', int, (PRINTER,)),
+                Par('Z_CLEARANCE', float, (PRINTER,)),
+                Par('APPROACH_FR', int, (PRINTER,))
                 ]
                 
     OUTPUTFILENAME = 'outputFileName'
@@ -186,7 +197,7 @@ class Page_Variables(Frame):
                     '0, -45, 90, 45, 45, 90, -45', '0.5', '0.4',                    #layer parameters
                     '0', '0', '13,1,1,0,0,1,1', '0.0002, 0.0002',                      #layer parameters
                     'Start_Gcode_Taz5.txt', 'End_Gcode_Taz5.txt',                   #file parameters   
-                    '999', '999', '0', '1', '2', '3']                                               #print parameters
+                    '999', '999',]                                            #print parameters
                     
         self.create_var_page()
               
@@ -197,9 +208,9 @@ class Page_Variables(Frame):
     #initial creation of labels
     def set_labels(self):        
         #create all labels
-        for x in range(len(self.texts)):
+        for label in self.texts:
             #create label
-            self.labels[self.texts[x]] = Label(self, text=self.texts[x])
+            self.labels[label] = Label(self, text=label)
         
         for x, par in enumerate(self.fields[self.COMMON]):
             self.labels[par.label].grid(row=x+1,column=0)  
@@ -209,10 +220,13 @@ class Page_Variables(Frame):
 
         #create all StringVars
         for x, label in enumerate(self.texts):
-            self.text_variable[label] = StringVar(self, value=self.defaults[x])
-            
+            try:
+                self.text_variable[label] = StringVar(self, value=self.defaults[x])
+            except Exception:
+                self.text_variable[label] = StringVar(self, value='-')
+
         #create all entries
-        for x, label in enumerate(self.texts):
+        for label in self.texts:
             #create entry 
             self.entries[label] = ttk.Entry(self, textvariable=self.text_variable[label])
             
