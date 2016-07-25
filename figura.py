@@ -94,12 +94,13 @@ class Figura:
         currHeight = layerParam.layerHeight
         numLayers = 0
         
-        if self.pr.outline == c.STL_FLAG and partParams.numLayers <= 0:
+        if self.pr.outline == c.STL_FLAG:# and partParams.numLayers <= 0:
             maxZ = self.mesh.bounds[:,2:][1] - c.EPSILON
-            numLayers = float('inf')
+            maxLayers = float('inf')
         else:
             maxZ = float('inf')
             maxLayers = partParams.numLayers
+            sec = Section(self.pr.shape)
             
         while currHeight <= maxZ and numLayers < maxLayers:
             if self.pr.outline == c.STL_FLAG:
