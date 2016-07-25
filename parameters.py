@@ -37,7 +37,10 @@ class Parameters:
 #        self.param_data['outputSubDirectory'] = self.param_data['currPath'] + '\\Gcode'
         self.param_data['startEndSubDirectory'] = self.param_data['currPath'] + '\\Start_End_Gcode'
         self.param_data['filamentArea'] = math.pi*self.param_data['filamentDiameter']**2/4.0
-        self.param_data['shape'] = getattr(ds, self.param_data['outline'])(**self.var_data)
+        if self.param_data['outline'] == c.STL_FLAG:
+            self.param_data['shape'] = None
+        else:
+            self.param_data['shape'] = getattr(ds, self.param_data['outline'])(**self.var_data)
         for key, value in self.param_data.items():
             setattr(self, key, value)
         self.LayerParams = namedtuple('LayerParams', 'infillShiftX infillShiftY infillAngle \
