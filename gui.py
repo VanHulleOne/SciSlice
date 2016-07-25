@@ -130,7 +130,7 @@ class Page_Variables(Frame):
     Par = namedtuple('Parameter', 'label data_type groups')
     parameters = [
                 Par('outline', str, (COMMON, PART)),
-                Par('stl_file', str, (COMMON, PART)),
+                Par(c.STL_FLAG, str, (COMMON, PART)),
                 Par('solidityRatio', FLOAT_LIST, (COMMON, PART)),
                 Par('printSpeed', INT_LIST, (COMMON, PART)),
                 Par('shiftX', FLOAT_LIST, (COMMON, PART)),
@@ -223,7 +223,7 @@ class Page_Variables(Frame):
         for key in self.texts:
             if key not in self.defaults:
                 self.defaults[key] = ''
-            elif key == 'stl_file':
+            elif key == c.STL_FLAG:
                 self.stl_path = self.defaults[key]
                 if self.stl_path:
                     self.defaults[key] = os.path.basename(os.path.normpath(self.stl_path))
@@ -262,7 +262,7 @@ class Page_Variables(Frame):
             #use grid() after creating entry or dictionary value will be 'NoneType'
             self.entries[par.label].grid(row=x+1,column=1, sticky='ew')
             
-        self.entries['stl_file'].config(state=DISABLED)
+        self.entries[c.STL_FLAG].config(state=DISABLED)
             
     def doneshapes_menu(self):
         
@@ -412,7 +412,7 @@ class Page_Variables(Frame):
             if self.stl_path == '':
                 self.text_variable['outline'].set('choose a shape')
             else:
-                self.text_variable['stl_file'].set(os.path.basename(os.path.normpath(self.stl_path)))
+                self.text_variable[c.STL_FLAG].set(os.path.basename(os.path.normpath(self.stl_path)))
             self.annot = False
         else:
             self.stl_path = ''
@@ -527,7 +527,7 @@ class Page_Variables(Frame):
                         var_data[key] = str(self.var_stringvars[key].get())
             
             for label, data_type, _ in self.parameters:
-                if label == 'stl_file':
+                if label == c.STL_FLAG:
                     data[label] = self.stl_path
                 elif data_type is str:
                     data[label] = self.text_variable[label].get()
@@ -587,7 +587,7 @@ class Page_Variables(Frame):
                     self.g_robot_var.set(value)
 #                elif key == 'outline':
 #                    self.entries[key].set(value)
-                elif key == 'stl_file':
+                elif key == c.STL_FLAG:
                     self.stl_path = value
                     if self.stl_path:
                         self.text_variable[key].set(os.path.basename(os.path.normpath(self.stl_path)))
