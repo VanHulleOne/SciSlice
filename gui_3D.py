@@ -698,17 +698,17 @@ class Page_Model(Frame):
     def make_model(self):
         
         def Cube():
-        #    x=0
-        #    glBegin(GL_QUADS)
-        #    for line in data:
-        #        
-        #        for point in line:
-        #            glColor3fv((x,x,0))
-        #            glVertex3fv(point)
-        #            num = 1.0/len(data)
-        #            x += num
-        #            
-        #    glEnd()
+            x=0
+            glBegin(GL_QUADS)
+            for line in self.data:
+                
+                for point in line:
+                    glColor3fv((0.1,0.2,0))
+                    glVertex3fv(point)
+                    num = 1.0/len(self.data)
+                    x += num
+                    
+            glEnd()
         #    
             glBegin(GL_LINES)
         #    for edge in edges:
