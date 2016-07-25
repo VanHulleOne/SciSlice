@@ -107,13 +107,12 @@ class Figura:
 
             filledList = []
 
-            if layerParam not in self.layers:
-                currOutline = self.pr.shape
-                filledList = []
-                for shellNumber in range(layerParam.numShells):
-                    """ If the layer needs shells create them here. """
-                    filledList.append(currOutline)
-                    currOutline = currOutline.offset(layerParam.pathWidth, c.INSIDE)
+            for shellNumber in range(layerParam.numShells):
+                offsetShape = sec.offset(layerParam.pathWidth*(shellNumber), c.INSIDE)
+                if offsetShape is not None:
+                    filledList.append(offsetShape)
+                else:
+                    break
                     
                 """
                 To help with problems that occur when an offset shape has its sides
@@ -121,15 +120,17 @@ class Figura:
                 want to fudge the trimShape outward just a little so that we end
                 up with the correct lines.
                 """
-                if layerParam.numShells == 0:
-                    trimShape = currOutline.offset(layerParam.trimAdjust, c.OUTSIDE)
-                else:
-                    trimShape = filledList[-1].offset(layerParam.pathWidth-layerParam.trimAdjust, c.INSIDE)
+            trimShape = sec.offset(layerParam.pathWidth * layerParam.numShells - 
+                            layerParam.trimAdjust, c.INSIDE)
+                            
+            if trimShape is not None:
                 infill = InF.InFill(trimShape,
                                     layerParam.pathWidth, layerParam.infillAngle,
                                     shiftX=layerParam.infillShiftX, shiftY=layerParam.infillShiftY,
                                     design=self.pr.pattern, designType=self.pr.designType)
-                self.layers[layerParam] = self.organizedLayer(filledList + [infill])
+    #                self.layers[layerParam] = self.organizedLayer(filledList + [infill])
+                filledList.append(infill)
+            ol = self.organizedLayer(filledList)
             """ a tuple of the organized LineGroup and the layer parameters. """
             yield (ol.translate(partParams.shiftX, partParams.shiftY,
                                 currHeight+self.pr.firstLayerShiftZ), layerParam)
