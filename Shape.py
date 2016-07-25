@@ -15,6 +15,8 @@ import constants as c
 from functools import wraps
 import numpy as np
 import Point as p
+from shapely.geometry.polygon import Polygon
+from shapely.ops import cascaded_union
 logger = c.logging.getLogger(__name__)
 logger.setLevel(c.LOG_LEVEL)
 
@@ -41,6 +43,16 @@ def finishedOutline(func):
 class Shape(LG):    
     def __init__(self, shape=None):
         LG.__init__(self, shape)
+        self.outlineFinished = False
+        
+    def addCoordLoop(self, loop):
+        loop_iter = iter(loop)
+        pp = list(next(loop_iter))
+        prev = p.Point(pp[:2]+[0])
+        for curr in (p.Point(list(i[:2])+[0]) for i in loop_iter):
+            if prev != curr:
+                self.append(l.Line(prev,curr))
+                prev = curr
         self.outlineFinished = False
     
     @finishedOutline
