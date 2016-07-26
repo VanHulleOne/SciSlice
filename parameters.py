@@ -20,20 +20,22 @@ import doneShapes as ds
 
 class Parameters:
     
-    def __init__(self, full_data):
-        self.var_data = full_data[1]
-        self.param_data = full_data[0]
-        self.param_data['currPath'] = os.path.dirname(os.path.realpath(__file__))
-        self.param_data['startEndSubDirectory'] = self.param_data['currPath'] + '\\Start_End_Gcode'
-        self.param_data['filamentArea'] = math.pi*self.param_data['filamentDiameter']**2/4.0
+    def __init__(self, param_data, var_data):
         
-        if self.param_data['outline'] == c.STL_FLAG:
-            self.param_data['shape'] = None
-        else:
-            self.param_data['shape'] = getattr(ds, self.param_data['outline'])(**self.var_data)
-        
-        for key, value in self.param_data.items():
+        for key, value in param_data.items():
             setattr(self, key, value)
+        
+        self.currPath = os.path.dirname(os.path.realpath(__file__))
+        
+        self.startEndSubDirectory = self.currPath + '\\Start_End_Gcode'
+        self.filamentArea = math.pi * self.filamentDiameter**2 / 4.0
+        
+        if self.outline == c.STL_FLAG:
+            self.shape = None
+        else:
+            self.shape = getattr(ds, self.outline)(**var_data)
+        
+        
         
         self.LayerParams = namedtuple('LayerParams', 'infillShiftX infillShiftY infillAngle '
                                             + 'numShells layerHeight pathWidth trimAdjust')            
