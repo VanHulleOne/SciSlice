@@ -117,7 +117,7 @@ class Figura:
                     
                 """
                 To help with problems that occur when an offset shape has its sides
-                collide or if the infill liens are colinear with the trim lines we
+                collide or if the infill lines are colinear with the trim lines we
                 want to fudge the trimShape outward just a little so that we end
                 up with the correct lines.
                 """
