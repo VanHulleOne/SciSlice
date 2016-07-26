@@ -8,43 +8,35 @@ C:\Anaconda3\python.exe -i "$(FULL_CURRENT_PATH)"
 @author: lvanhulle
 """
 
-__version__ = '1.2'
+__version__ = '2.0'
 
-import math
 from collections import namedtuple
-import constants as c
-import doneShapes as ds
-import time
 import itertools
+import math
 import os
-import numpy as np
-import json
-import Shape as s
-import Point as p
+
+import constants as c
 import doneShapes as ds
 
 class Parameters:
-    
-    param_data = {}
-    
-    LayerParams = None
-    _layerParameters = None    
     
     def __init__(self, full_data):
         self.var_data = full_data[1]
         self.param_data = full_data[0]
         self.param_data['currPath'] = os.path.dirname(os.path.realpath(__file__))
-#        self.param_data['outputSubDirectory'] = self.param_data['currPath'] + '\\Gcode'
         self.param_data['startEndSubDirectory'] = self.param_data['currPath'] + '\\Start_End_Gcode'
         self.param_data['filamentArea'] = math.pi*self.param_data['filamentDiameter']**2/4.0
+        
         if self.param_data['outline'] == c.STL_FLAG:
             self.param_data['shape'] = None
         else:
             self.param_data['shape'] = getattr(ds, self.param_data['outline'])(**self.var_data)
+        
         for key, value in self.param_data.items():
             setattr(self, key, value)
-        self.LayerParams = namedtuple('LayerParams', 'infillShiftX infillShiftY infillAngle \
-                                            numShells layerHeight pathWidth trimAdjust')            
+        
+        self.LayerParams = namedtuple('LayerParams', 'infillShiftX infillShiftY infillAngle '
+                                            + 'numShells layerHeight pathWidth trimAdjust')            
         self._layerParameters = self.LayerParams(self.infillShiftX, self.infillShiftY, self.infillAngleDegrees, 
                                                  self.numShells, self.layerHeight, self.pathWidth, self.trimAdjust)
         self.PartParams = namedtuple('PartParams', 'solidityRatio printSpeed shiftX shiftY numLayers')
@@ -69,14 +61,6 @@ class Parameters:
                     yield iterType(list(map(next, variableGenerators)))
             if not repeat:
                 break    
-    
-    
+
     def layerParameters(self):
         return self.zipVariables_gen(self._layerParameters, repeat=True)
-    
-    
-        
-     
-                              
-if __name__ == '__main__':
-    Parameters.run()
