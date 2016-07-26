@@ -12,17 +12,15 @@ from gcode import Gcode, RobotCode
 import time
 from parameters import Parameters
 import json
-import os
-import doneShapes as ds
 import constants as c
 
 class Main:
     
     def __init__(self, name, gRobot):
         with open(name, 'r') as fp:
-            self.parameters = json.load(fp)
+            data, var_data = json.load(fp)
 
-        self.pr = Parameters(self.parameters)
+        self.pr = Parameters(data, var_data)
         if gRobot == c.GCODE:
             self.gc = Gcode(self.pr)
         elif gRobot == c.ROBOTCODE:
