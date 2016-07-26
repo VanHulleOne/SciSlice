@@ -4,18 +4,20 @@ Created on Thu Dec 03 16:30:08 2015
 
 Functions used to more quickly create commonly used shapes. Some of the functions
 contain fully defined shapes while others allow parameter inputs to create a
-custom shape.
+custom shape. Type hints have been included to provide the user extra information
+when entering parameters in the GUI.
 
 @author: lvanhulle
 """
 
-import Shape as s
-import LineGroup as lg
-import arc as a
-import Point as p
-import constants as c
 import math
+
+import arc as a
+import constants as c
 import Line as l
+import LineGroup as lg
+import Point as p
+import Shape as s
 
 def regularDogBone():    
     dogBone = s.Shape(None)

@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 Created on Thu Nov 19 19:52:29 2015
-Contains all of the print parameters and the if __name__ == '__main__': logic
-so the whole program can be run from here after making parameter changes.
-Below is the command for NotePad++ to run this file.
-C:\Anaconda3\python.exe -i "$(FULL_CURRENT_PATH)"
+Contains all of the print parameters
+
 @author: lvanhulle
 """
 
@@ -33,8 +31,7 @@ class Parameters:
         if self.outline == c.STL_FLAG:
             self.shape = None
         else:
-            self.shape = getattr(ds, self.outline)(**var_data)
-        
+            self.shape = getattr(ds, self.outline)(**var_data)       
         
         
         self.LayerParams = namedtuple('LayerParams', 'infillShiftX infillShiftY infillAngle '
