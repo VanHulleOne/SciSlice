@@ -479,8 +479,10 @@ class Page_Variables(Frame):
                 
     def save(self, name = None):
 
+# TODO: There seems to be a lot of repeated code in this if block. Please try
+# to refactor to reduce this section
         #only saving JSON
-        if name == None:
+        if name is None:
             self.savePath = filedialog.asksaveasfilename()
             self.savePath = self.check_end(self.savePath)
             if self.g_robot_var.get() == c.GCODE:
@@ -505,7 +507,7 @@ class Page_Variables(Frame):
             if self.g_robot_var.get() == c.GCODE:
                 gcodeName = self.GCODEPATH + name + '.gcode'
             elif self.g_robot_var.get() == c.ROBOTCODE:
-                gcodeName = self.GCODEPATH = anem + '.mod'
+                gcodeName = self.GCODEPATH = name + '.mod'
             self.filename = self.JSONPATH + name + '.json'          
         
         data = {}               #dictionary to put String value of StringVar values in
@@ -549,17 +551,16 @@ class Page_Variables(Frame):
                         data[label] = [int(i) for i in value.split(',') if i  != '']     
                     elif data_type == self.FLOAT_LIST:
                         data[label] = [float(i) for i in value.split(',') if i  != '']    
-
-            full_data = []
-            full_data.append(data)
-            full_data.append(var_data)            
             
             if not os.path.isdir(self.JSONPATH):
                 os.makedirs(self.JSONPATH)
             with open(self.filename, 'w') as fp:
-                json.dump(full_data, fp)    #save JSON file
+                json.dump([data, var_data], fp)    #save JSON file
     
     def check_end(self, pathName):
+        # TODO: Don't create variables that are not needed. This method
+        # could be:
+        # return os.path.splitext(pathName)[0]
         
         pathName = os.path.splitext(pathName)[0]
     
@@ -567,26 +568,17 @@ class Page_Variables(Frame):
         
     #uploads dictionary from JSON file to replace current StringVar values, opens window to find file       
     def upload(self):
-
-        full_data = []
-        var_data = {}
-        data = {}               #new dictionary that will be replaced with dictionary from JSON file
         uploadname = filedialog.askopenfilename()     #creates window to find file
         
         if uploadname != '':
             with open(uploadname, 'r') as fp:
-                full_data = json.load(fp)    #upload JSON file
-            
-            data = full_data[0]
-            var_data = full_data[1]
+                data, var_data = json.load(fp)
                 
             for key, value in data.items():    
                 if data[key] == None:
                     self.text_variable[key].set('None') #replace current StringVar with String 'None'
                 elif key == 'g_robot_var':
                     self.g_robot_var.set(value)
-#                elif key == 'outline':
-#                    self.entries[key].set(value)
                 elif key == c.STL_FLAG:
                     self.stl_path = value
                     if self.stl_path:
@@ -711,7 +703,7 @@ class Page_Model(Frame):
         buttonSubmit.grid(row=3,column=1)
         
         buttonVariables = ttk.Button(self, text='Variables', 
-                     command=lambda: self.to_variables())
+                                 command=lambda: self.to_variables())
         buttonVariables.grid(row=0,column=0)
     
 #        self.buttonUpdate = ttk.Button(self, text='Update from Variables', command=lambda: self.get_data())
@@ -745,8 +737,8 @@ class Page_Model(Frame):
         
         self.mb.grid(row=5,column=1)
         
-        buttonModel = ttk.Button(self, text='Create Model', command=lambda:
-            self.make_model())
+        buttonModel = ttk.Button(self, text='Create Model',
+                                 command=lambda: self.make_model())
         buttonModel.grid(row=6,column=1)
         
 
