@@ -111,8 +111,13 @@ class Page_Variables(Frame):
     PRINT = 4
     PRINTER = 5
     
-    INT_LIST = 0
-    FLOAT_LIST = 1
+    INT_LIST = '[int]'
+    FLOAT_LIST = '[float]'
+    STR = 'str'
+    INT = 'int'
+    FLOAT = 'float'
+    NONE = 'None'
+    
     
     Menu = namedtuple('Menu', 'name group')
     menus = [
@@ -129,16 +134,16 @@ class Page_Variables(Frame):
              
     Par = namedtuple('Parameter', 'label data_type groups')
     parameters = [
-                Par('outline', str, (COMMON, PART)),
-                Par(c.STL_FLAG, str, (COMMON, PART)),
+                Par('outline', STR, (COMMON, PART)),
+                Par(c.STL_FLAG, STR, (COMMON, PART)),
                 Par('solidityRatio', FLOAT_LIST, (COMMON, PART)),
                 Par('printSpeed', INT_LIST, (COMMON, PART)),
                 Par('shiftX', FLOAT_LIST, (COMMON, PART)),
                 Par('shiftY', FLOAT_LIST, (COMMON, PART)),
-                Par('firstLayerShiftZ', float, (PART,)),
+                Par('firstLayerShiftZ', FLOAT, (PART,)),
                 Par('numLayers', INT_LIST, (COMMON, PART)),
-                Par('pattern', None, (PART,)),
-                Par('designType', int, (PART,)),
+                Par('pattern', NONE, (PART,)),
+                Par('designType', INT, (PART,)),
                 Par('infillAngleDegrees', FLOAT_LIST, (COMMON, LAYER)),
                 Par('pathWidth', FLOAT_LIST, (LAYER,)),
                 Par('layerHeight', FLOAT_LIST, (LAYER,)),
@@ -146,19 +151,19 @@ class Page_Variables(Frame):
                 Par('infillShiftY', FLOAT_LIST, (LAYER,)),
                 Par('numShells', INT_LIST, (COMMON, LAYER)),
                 Par('trimAdjust', FLOAT_LIST, (LAYER,)),
-                Par('start_Gcode_FileName', str, (FILE,)),
-                Par('end_Gcode_FileName', str, (FILE,)),
-                Par('bed_temp', int, (COMMON, PRINT)),
-                Par('extruder_temp', int, (COMMON, PRINT)),
-                Par('nozzleDiameter', float, (PRINTER,)),
-                Par('filamentDiameter', float, (PRINTER,)),
-                Par('RAPID', int, (PRINTER,)),
-                Par('TRAVERSE_RETRACT', float, (PRINTER,)),
-                Par('MAX_FEED_TRAVERSE', float, (PRINTER,)),
-                Par('MAX_EXTRUDE_SPEED', int, (PRINTER,)),
-                Par('Z_CLEARANCE', float, (PRINTER,)),
-                Par('APPROACH_FR', int, (PRINTER,)),
-                Par('comment', str, (PRINTER,)),
+                Par('start_Gcode_FileName', STR, (FILE,)),
+                Par('end_Gcode_FileName', STR, (FILE,)),
+                Par('bed_temp', INT, (COMMON, PRINT)),
+                Par('extruder_temp', INT, (COMMON, PRINT)),
+                Par('nozzleDiameter', FLOAT, (PRINTER,)),
+                Par('filamentDiameter', FLOAT, (PRINTER,)),
+                Par('RAPID', INT, (PRINTER,)),
+                Par('TRAVERSE_RETRACT', FLOAT, (PRINTER,)),
+                Par('MAX_FEED_TRAVERSE', FLOAT, (PRINTER,)),
+                Par('MAX_EXTRUDE_SPEED', INT, (PRINTER,)),
+                Par('Z_CLEARANCE', FLOAT, (PRINTER,)),
+                Par('APPROACH_FR', INT, (PRINTER,)),
+                Par('comment', STR, (PRINTER,)),
                 ]
                 
     OUTPUTFILENAME = 'outputFileName'
@@ -186,9 +191,6 @@ class Page_Variables(Frame):
                    
         #dictionary with variable name as key and Entry as value
         self.entries = {}
-        
-        #array of Strings of the variables
-        self.texts = [i.label for i in self.parameters]
                
         self.fields = []
         for menu in self.menus:
@@ -220,7 +222,7 @@ class Page_Variables(Frame):
             for key, value in var_defaults.items():
                 self.var_saved[key] = value
             
-        for key in self.texts:
+        for key, _, _ in self.parameters:
             if key not in self.defaults:
                 self.defaults[key] = ''
             elif key == c.STL_FLAG:
@@ -232,9 +234,9 @@ class Page_Variables(Frame):
     def set_labels(self):        
         
         #create all labels
-        for x in range(len(self.texts)):
+        for label, data_type, _ in self.parameters:
             #create label
-            self.labels[self.texts[x]] = ttk.Label(self, text=self.texts[x])
+            self.labels[label] = ttk.Label(self, text= label + ' - ' + data_type)
         
         for x, par in enumerate(self.fields[self.COMMON]):
             self.labels[par.label].grid(row=x+1,column=0)
@@ -248,7 +250,7 @@ class Page_Variables(Frame):
     #initial creation of entries
     def set_entries(self):
 
-        for x, label in enumerate(self.texts):
+        for label, _, _ in self.parameters:
             #create all StringVars
             self.text_variable[label] = StringVar(self, value=self.defaults[label])
             
@@ -271,7 +273,11 @@ class Page_Variables(Frame):
         for member in inspect.getmembers(ds, inspect.isfunction):
             doneshape_funcs.append(member[0])
         
-        self.entries['outline'] = ttk.OptionMenu(self, self.text_variable['outline'], self.defaults['outline'], *doneshape_funcs, command=self.set_var)
+        self.entries['outline'] = ttk.OptionMenu(self,
+                                                self.text_variable['outline'],
+                                                self.defaults['outline'],
+                                                *doneshape_funcs,
+                                                command=self.set_var)
         
     #creates button for saving all values
     def save_option(self): 
@@ -531,12 +537,14 @@ class Page_Variables(Frame):
             for label, data_type, _ in self.parameters:
                 if label == c.STL_FLAG:
                     data[label] = self.stl_path
-                elif data_type is str:
+                elif data_type == self.STR:
                     data[label] = self.text_variable[label].get()
-                elif data_type is None:
+                elif data_type == self.NONE:
                     data[label] = None
-                elif data_type is int or data_type is float:
-                    data[label] = data_type(self.text_variable[label].get())
+                elif data_type == self.INT:
+                    data[label] = int(self.text_variable[label].get())
+                elif data_type == self.FLOAT:
+                    data[label] = float(self.text_variable[label].get())
                 else:
                     value = self.text_variable[label].get()    
                     if ' ' in value:
