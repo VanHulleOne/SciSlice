@@ -11,9 +11,11 @@ Executing RUN_ME.py with Python 3+ will display a GUI through which you can ente
 all of the parameters for printing.
 
 ## Dependencies
+[matplotlib](http://matplotlib.org/)<br/>
 [NumPy](http://www.numpy.org/)<br/>
 [trimesh](https://pypi.python.org/pypi/trimesh/1.14.9)<br/>
 [Shapely](https://pypi.python.org/pypi/Shapely)<br/>
+
 
 ## Getting Started
 After downloading the zip file and extracting it in an appropriate location and installing
