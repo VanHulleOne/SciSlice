@@ -26,17 +26,18 @@ five sections:<br/>
 * [Misc](#misc-parameters)<br/>
 * [Printer](#printer-parameters)<br/>
 
-Parameters which are in Python lists [enclosed in square brackets] can very varied
-between either parts or layers depending on which parameter set they are located.
-For **_part parameters_** _the longest list determines_ **_how many_** _parts are printed_
-all other parameters a cycled until the longest list is exhausted. For layer parameters
-the parameters are cycled until the specified number of layers have been printed.
+Parameters types are indicated after the name of the parameter. Types [enclosed in square brackets]
+can be lists, comma or space separated. For **_part parameters_** _the
+longest list determines_ **_how many_** _parts are printed_ all other
+parameters are cycled, one for each part, until the longest list is exhausted. For layer parameters
+the parameters are cycled layer by layer until the specified number of layers have been printed.
 
 ### Part Parameters
 Part parameters are parameters that are constant throughout a single part but can
 change between parts (except for outline). The longest list of part parameters
 determines how many parts will be created. The part parameters are:<br/>
 * outline<br/>
+* stl_file<br/>
 * solidity ratio<br/>
 * print speed (mm/min)<br/>
 * shift X<br/>
@@ -44,13 +45,19 @@ determines how many parts will be created. The part parameters are:<br/>
 * number of layers<br/>
 
 #### Outline
-The outline of the part to be made. An outline must be of type Shape. The doneShapes
-module contains several methods which return pre-defined shapes. Only one outline
-is allowed.
+The outline of the part to be made. The drop down menu is populated by the functions
+in the doneShapes module. An outline must be of type Shape. If an stl file is desired
+select `stl_file` from the drop down.
+
+#### Stl File
+To slice an .stl file select `stl_file` from the **outline** drop down menu.
+From there a file chooser window will pop up allowing you to select an .stl file.
 
 #### Solidity Ratio
 Solidity ratio is used to calculate the extrusion rate for each layer.<br/>
 `extrusion_rate = solidity_ratio*layer_height*nozzle_diameter/filament_area`<br/>
+A solidity ratio of 1 should create a fully filled part, a theoretical minimum
+to have all beads in a square just touching is π/4
 
 #### Print Speed mm/min
 Print speed is how fast in millimeters per minute the print head moves while printing.
