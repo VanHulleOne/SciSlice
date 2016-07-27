@@ -1,4 +1,4 @@
-# DogBone v1.2
+# DogBone v2.1
 
 DogBone is a program that creates custom tool paths for Fused Filament Fabrication
 3D printers (also known by the trade marked term FDM). The motivation for creating
@@ -6,20 +6,20 @@ this program was to allow the user to independently adjust as many printing
 parameters as possible for the purpose of researching and characterizing each
 parameter's effect on a part's properties.
 
-Version 1 can only produce single profile parts (parts which can be extruded).
-Version 2 can also tool path STL files. Through the parameters.py module the user
-can a large group of printing parameters. Most parameters can be adjusted for each
-individual layer. The program contains some methods to make it easier to print
-multiple parts.
+Version 2 can tool path both STL files and pre-defined shapes.
+Executing RUN_ME.py with Python 3+ will display a GUI through which you can enter
+all of the parameters for printing.
 
 ## Dependencies
-NumPy
+[NumPy](http://www.numpy.org/)<br/>
+[trimesh](https://pypi.python.org/pypi/trimesh/1.14.9)<br/>
+[Shapely](https://pypi.python.org/pypi/Shapely)<br/>
 
 ## Getting Started
-After downloading the zip file and extracting it in an appropriate location either
-open the parameters.py file in your preferred Python IDE or with a text editor
+After downloading the zip file and extracting it in an appropriate location and installing
+the dependencies simply run RUN_ME.py in your preferred Python IDE or with a text editor
 (I prefer Notepad++)*. The user adjustable printing parameters are broken into
-five section:<br/>
+five sections:<br/>
 * [Part](#part-parameters)<br/>
 * [Layer](#layer-parameters)<br/>
 * [File](#file-parameters)<br/>
