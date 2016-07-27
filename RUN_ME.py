@@ -34,7 +34,7 @@ from tkinter import *               #GUI module
 from tkinter import ttk             #for styling purposing
 from tkinter import filedialog      #window for saving and uploading files
 import json                         #for saving and uploading files
-from main import Main        #for converting to Gcode
+from runner import Runner        #for converting to Gcode
 from parameters import __version__ as version
 import doneShapes as ds
 import inspect
@@ -611,7 +611,7 @@ class Page_Variables(Frame):
             #check if the user cancelled converting to Gcode
             if self.savePath and self.text_variable['outline'].get() != 'choose a shape':
                 #convert to Gcode
-                conversion = Main(self.filename, self.g_robot_var.get())
+                conversion = Runner(self.filename, self.g_robot_var.get())
                 conversion.run()
                 os.remove(self.filename)
             

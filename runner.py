@@ -14,7 +14,7 @@ from parameters import Parameters
 import json
 import constants as c
 
-class Main:
+class Runner:
     
     def __init__(self, name, gRobot):
         with open(name, 'r') as fp:
@@ -64,10 +64,6 @@ class Main:
                             print('---------------------------\n')
             print('\nTotal number of differences: ', numDiffs)
         """
-            
-if __name__ == '__main__':
-    main = Main('Gcode\\Robot1.json')
-    main.run()
 
 
            
