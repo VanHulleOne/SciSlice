@@ -191,6 +191,8 @@ class Page_Variables(Frame):
                    
         #dictionary with variable name as key and Entry as value
         self.entries = {}
+        
+        self.numRows = len(self.parameters)
                
         self.fields = []
         for menu in self.menus:
@@ -222,21 +224,21 @@ class Page_Variables(Frame):
             for key, value in var_defaults.items():
                 self.var_saved[key] = value
             
-        for key, _, _ in self.parameters:
-            if key not in self.defaults:
-                self.defaults[key] = ''
-            elif key == c.STL_FLAG:
-                self.stl_path = self.defaults[key]
+        for param in self.parameters:
+            if param.label not in self.defaults:
+                self.defaults[param.label] = ''
+            elif param.label == c.STL_FLAG:
+                self.stl_path = self.defaults[param.label]
                 if self.stl_path:
-                    self.defaults[key] = os.path.basename(os.path.normpath(self.stl_path))
+                    self.defaults[param.label] = os.path.basename(os.path.normpath(self.stl_path))
           
     #initial creation of labels
     def set_labels(self):        
         
         #create all labels
-        for label, data_type, _ in self.parameters:
+        for param in self.parameters:
             #create label
-            self.labels[label] = ttk.Label(self, text= label + ' - ' + data_type)
+            self.labels[param.label] = ttk.Label(self, text= param.label + ' - ' + param.data_type)
         
         for x, par in enumerate(self.fields[self.COMMON]):
             self.labels[par.label].grid(row=x+1,column=0)
@@ -250,12 +252,12 @@ class Page_Variables(Frame):
     #initial creation of entries
     def set_entries(self):
 
-        for label, _, _ in self.parameters:
+        for param in self.parameters:
             #create all StringVars
-            self.text_variable[label] = StringVar(self, value=self.defaults[label])
+            self.text_variable[param.label] = StringVar(self, value=self.defaults[param.label])
             
             #create entry 
-            self.entries[label] = ttk.Entry(self, textvariable=self.text_variable[label])  
+            self.entries[param.label] = ttk.Entry(self, textvariable=self.text_variable[param.label])  
         
         self.doneshapes_menu()
         
@@ -309,9 +311,9 @@ class Page_Variables(Frame):
     def command(self, params):
         def inner_command():
             self.current_menu = params
-            for text in self.texts:
-                self.labels[text].grid_forget()      
-                self.entries[text].grid_forget()
+            for param in self.parameters:
+                self.labels[param.label].grid_forget()      
+                self.entries[param.label].grid_forget()
             for x, param in enumerate(params):
                 self.labels[param.label].grid(row=x+1+self.shift, column=0)
                 self.entries[param.label].grid(row=x+1+self.shift, column=1, sticky='ew')
@@ -321,7 +323,7 @@ class Page_Variables(Frame):
     def gcode(self):
         
         self.buttonGcode = ttk.Button(self,text='Generate Code',command=lambda: self.convert())
-        self.buttonGcode.grid(row=len(self.texts)+1,column=1)
+        self.buttonGcode.grid(row=len(self.parameters)+1,column=1)
         
     #all set up functions together
     def create_var_page(self):
@@ -343,7 +345,7 @@ class Page_Variables(Frame):
         #button to switch to 3D model page
         self.buttonModel = ttk.Button(self, text='3D Model', 
                              command=lambda: self.to_model())
-        self.buttonModel.grid(row=len(self.texts)+1,column=0)
+        self.buttonModel.grid(row=self.numRows+1, column=0)
         
     #create radiobutton to switch between gcode and robotcode
     def g_robot(self):
@@ -355,20 +357,20 @@ class Page_Variables(Frame):
             self.g_robot_var.set(c.GCODE)
         
         self.buttonChooseGcode = ttk.Radiobutton(self, text='Gcode', variable=self.g_robot_var, value=c.GCODE)
-        self.buttonChooseGcode.grid(row=len(self.texts)+2,column=0)
+        self.buttonChooseGcode.grid(row=self.numRows+2,column=0)
         self.buttonChooseRobot = ttk.Radiobutton(self, text='RobotCode', variable=self.g_robot_var, value=c.ROBOTCODE)
-        self.buttonChooseRobot.grid(row=len(self.texts)+2,column=1)
+        self.buttonChooseRobot.grid(row=self.numRows+2,column=1)
         
     def version_num(self):
         
         self.labelVersion = ttk.Label(self, text='Version ' + version)
-        self.labelVersion.grid(row=len(self.texts)+3,column=0)
+        self.labelVersion.grid(row=self.numRows+3,column=0)
         
     def regrid(self):
         
-        for text in self.texts:
-            self.labels[text].grid_forget()      
-            self.entries[text].grid_forget()
+        for param in self.parameters:
+            self.labels[param.label].grid_forget()      
+            self.entries[param.label].grid_forget()
 
         for x, param in enumerate(self.current_menu):
             self.labels[param.label].grid(row=x+1+self.shift, column=0)
@@ -376,11 +378,11 @@ class Page_Variables(Frame):
         
         self.values_bar()
         
-        self.buttonGcode.grid(row=len(self.texts)+1+self.shift,column=1)
-        self.buttonModel.grid(row=len(self.texts)+1+self.shift,column=0)
-        self.buttonChooseGcode.grid(row=len(self.texts)+2+self.shift,column=0)
-        self.buttonChooseRobot.grid(row=len(self.texts)+2+self.shift,column=1)
-        self.labelVersion.grid(row=len(self.texts)+3+self.shift,column=0)
+        self.buttonGcode.grid(row=self.numRows+1+self.shift,column=1)
+        self.buttonModel.grid(row=self.numRows+1+self.shift,column=0)
+        self.buttonChooseGcode.grid(row=self.numRows+2+self.shift,column=0)
+        self.buttonChooseRobot.grid(row=self.numRows+2+self.shift,column=1)
+        self.labelVersion.grid(row=self.numRows+3+self.shift,column=0)
         
     def values_bar(self):
         
@@ -534,7 +536,9 @@ class Page_Variables(Frame):
                     elif self.var_types[key] == str:
                         var_data[key] = str(self.var_stringvars[key].get())
             
-            for label, data_type, _ in self.parameters:
+            for param in self.parameters:
+                label = param.label
+                data_type = param.data_type
                 if label == c.STL_FLAG:
                     data[label] = self.stl_path
                 elif data_type == self.STR:
