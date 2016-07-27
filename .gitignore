@@ -6,6 +6,7 @@ __pycache__/
 *.gcode
 *.pyc
 *.lprof
+*.mod
 
 data_points*
 
