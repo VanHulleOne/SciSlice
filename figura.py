@@ -8,7 +8,7 @@ of strings. The list is stored in self.gcode which can then be accessed and writ
 to the correct output file by using join().
 
 A layer in Figura starts as a list of LineGroups, typically shells in (Shapes)
-and then an InFill but could also be a variety of different shapes all printed
+and then an Infill but could also be a variety of different shapes all printed
 at the same Z-height. The list of layers is then organized and turned into a single
 LineGroup with the order of the lines being the print order of the layer. The
 goal is to allow easy adjustability when deciding how to organize a layer.
@@ -25,7 +25,7 @@ if another layer with the same parameters is used it does not need to be recalcu
 """
 
 from point import Point
-import InFill as InF
+from infill import Infill
 import LineGroup as lg
 import constants as c
 from Shape import Shape, Section
@@ -125,7 +125,7 @@ class Figura:
                             layerParam.trimAdjust, c.INSIDE)
                             
             if trimShape is not None:
-                infill = InF.InFill(trimShape,
+                infill = Infill(trimShape,
                                     layerParam.pathWidth, layerParam.infillAngle,
                                     shiftX=layerParam.infillShiftX, shiftY=layerParam.infillShiftY,
                                     design=self.pr.pattern, designType=self.pr.designType)

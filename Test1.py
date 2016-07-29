@@ -5,7 +5,7 @@ Created on Wed Oct 28 10:16:22 2015
 @author: lvanhulle
 """
 from point import Point
-import InFill as infill
+from infill import Infillill
 import Shape as s
 from line import Line
 #import arc as a
@@ -15,7 +15,7 @@ import copy
 import gcode as gc
 import parameters as pr
 import constants as c
-import InFill as InF
+from infill import Infill
 from itertools import islice
 import LineGroup as lg
 import doneShapes as ds

@@ -2,7 +2,7 @@
 """
 Created on Thu Oct 29 15:45:02 2015
 
-InFill inherits from LineGroup and is the class responsible for creating the
+Infill inherits from LineGroup and is the class responsible for creating the
 pattern which will be used as the tool path inside the part.
 
 The most basic operation is to send in a trimShape (typically of type Shape),
@@ -53,7 +53,7 @@ import numpy as np
 import constants as c
 import doneShapes as ds
 
-class InFill(LG):
+class Infill(LG):
     
    
     
@@ -81,7 +81,7 @@ class InFill(LG):
         else:
             self.design = lg.LineGroup(design)
         
-#        print('\nInFill times:')
+#        print('\nInfill times:')
 #        maxLength = max(len(f.__name__) for f in self.operations) + 2 
         for i in range(self.designType, c.TRIMMED_FIELD):
             startTime = time.time()
