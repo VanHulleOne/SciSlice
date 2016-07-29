@@ -16,7 +16,7 @@ import arc as a
 import constants as c
 from line import Line
 import LineGroup as lg
-import Point as p
+import point as p
 import Shape as s
 
 def regularDogBone():    

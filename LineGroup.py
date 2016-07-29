@@ -8,7 +8,7 @@ so they do not need to be calculated when called.
 
 @author: lvanhulle
 """
-import Point as p
+import point as p
 from line import Line
 import numpy as np
 import matrixTrans as mt

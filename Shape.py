@@ -14,7 +14,7 @@ from LineGroup import LineGroup as LG
 import constants as c
 from functools import wraps
 import numpy as np
-import Point as p
+import point as p
 from shapely.geometry.polygon import Polygon
 from shapely.ops import cascaded_union
 logger = c.logging.getLogger(__name__)

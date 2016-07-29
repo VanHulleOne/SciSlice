@@ -43,7 +43,7 @@ trimmed, and centered over trimShape.
 """
 
 from line import Line
-import Point as p
+import point as p
 import Shape as s
 from LineGroup import LineGroup as LG
 import LineGroup as lg

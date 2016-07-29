@@ -24,7 +24,7 @@ if another layer with the same parameters is used it does not need to be recalcu
 @author: lvanhulle
 """
 
-import Point as p
+import point as p
 import InFill as InF
 import LineGroup as lg
 import constants as c

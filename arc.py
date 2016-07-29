@@ -9,7 +9,7 @@ A small module for easily creating arcs and circles.
 
 from LineGroup import LineGroup as LG
 import math
-import Point as p
+import point as p
 from line import Line
 import constants as c
 

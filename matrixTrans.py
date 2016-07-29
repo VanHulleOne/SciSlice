@@ -7,7 +7,7 @@ A module to store operations related to matrix tranformations.
 @author: Luke
 """
 
-import Point as p
+import point as p
 from line import Line
 import constants as c
 import numpy

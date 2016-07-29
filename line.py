@@ -9,7 +9,7 @@ can be changed.
 
 @author: lvanhulle
 """
-import Point as p
+import point as p
 import numpy as np
 import constants as c
 import time

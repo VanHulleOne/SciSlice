@@ -4,7 +4,7 @@ Created on Wed Oct 28 10:16:22 2015
 
 @author: lvanhulle
 """
-import Point as p
+import point as p
 import InFill as infill
 import Shape as s
 from line import Line
