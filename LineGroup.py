@@ -8,7 +8,7 @@ so they do not need to be calculated when called.
 
 @author: lvanhulle
 """
-import point as p
+from point import Point
 from line import Line
 import numpy as np
 import matrixTrans as mt
@@ -47,10 +47,10 @@ class LineGroup(object):
             
     def fourCorners(self):
         corners = []
-        corners.append(p.Point(self.minX, self.minY))
-        corners.append(p.Point(self.maxX, self.minY))
-        corners.append(p.Point(self.maxX, self.maxY))
-        corners.append(p.Point(self.minX, self.maxY))
+        corners.append(Point(self.minX, self.minY))
+        corners.append(Point(self.maxX, self.minY))
+        corners.append(Point(self.maxX, self.maxY))
+        corners.append(Point(self.minX, self.maxY))
         return corners
     
     @property       
@@ -70,7 +70,7 @@ class LineGroup(object):
     def addLinesFromCoordinateList(self, coordList):
         pointList = []        
         for coord in coordList:
-            pointList.append(p.Point(coord[c.X], coord[c.Y]))
+            pointList.append(Point(coord[c.X], coord[c.Y]))
         self.addLinesFromPoints(pointList)
     
     def addLinesFromPoints(self, pointList):
@@ -83,7 +83,7 @@ class LineGroup(object):
     def translate(self, xShift, yShift,zShift=0):
         return self.transform(mt.translateMatrix(xShift, yShift, zShift))      
         
-    def rotate(self, angle, point=p.Point(0,0)):
+    def rotate(self, angle, point=Point(0,0)):
         return self.transform(mt.rotateMatrix(angle, point))
   
     def transform(self, transMatrix):
@@ -92,8 +92,8 @@ class LineGroup(object):
         result = np.inner(numpyArray, transMatrix)
         lines = []        
         for i in range(0,len(result),2):
-            start = p.Point(result[i])
-            end = p.Point(result[i+1])
+            start = Point(result[i])
+            end = Point(result[i+1])
             lines.append(Line(start, end, self[i%2]))
         transShape = cls()
         transShape.lines = lines
@@ -104,7 +104,7 @@ class LineGroup(object):
     def getMidPoint(self):
         x = (self.maxX - self.minX)/2.0 + self.minX
         y = (self.maxY - self.minY)/2.0 + self.minY
-        return p.Point(x, y)
+        return Point(x, y)
     
     def lineOutsideBoundingBox(self, line):
         startX = line.start.x

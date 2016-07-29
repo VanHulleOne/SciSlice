@@ -43,7 +43,7 @@ trimmed, and centered over trimShape.
 """
 
 from line import Line
-import point as p
+from point import Point
 import Shape as s
 from LineGroup import LineGroup as LG
 import LineGroup as lg
@@ -66,16 +66,16 @@ class InFill(LG):
         self.trimShape = s.Shape(trimShape)
         self.angleRad = (angleDegrees/360.0*2*np.pi)
         self.pathWidth = pathWidth
-        lowerLeft = p.Point(self.trimShape.minX, self.trimShape.minY)
-        upperRight = p.Point(self.trimShape.maxX, self.trimShape.maxY)
+        lowerLeft = Point(self.trimShape.minX, self.trimShape.minY)
+        upperRight = Point(self.trimShape.maxX, self.trimShape.maxY)
         
         self.trimDiagonal = (lowerLeft - upperRight)*1.1       
         self.operations = (self.extendDesign, self.createField,
                            self.centerAndRotateField, self.trimField)
         
         if(design is None):
-#            point1 = p.Point(-self.trimDiagonal-10, 0)
-#            point2 = p.Point(self.trimDiagonal+10, 0)
+#            point1 = Point(-self.trimDiagonal-10, 0)
+#            point2 = Point(self.trimDiagonal+10, 0)
             self.design = ds.lineField(self.pathWidth, self.trimDiagonal, self.trimDiagonal)#lg.LineGroup([Line(point1, point2)])
             self.designType = c.FULL_FIELD
         else:
@@ -133,7 +133,7 @@ class InFill(LG):
                 pointSet = set([line.start])
                 t = t[(0 <= u) & (u <= 1) & (0 <= t) & (t <= 1)]
 
-                pointSet |= set(p.Point(line.start.x + line.vector[c.X]*value,
+                pointSet |= set(Point(line.start.x + line.vector[c.X]*value,
                                     line.start.y+line.vector[c.Y]*value)
                                     for value in t)
 

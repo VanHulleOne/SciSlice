@@ -24,7 +24,7 @@ if another layer with the same parameters is used it does not need to be recalcu
 @author: lvanhulle
 """
 
-import point as p
+from point import Point
 import InFill as InF
 import LineGroup as lg
 import constants as c
@@ -214,7 +214,7 @@ class Figura:
         for coro in lineCoros.values():
             next(coro)
         
-        lastPoint = p.Point(0,0) # The starting point is the origin of the printer
+        lastPoint = Point(0,0) # The starting point is the origin of the printer
         indexOfClosest = -1 # A default value for the inital run
         while 1:
             results = []

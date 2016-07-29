@@ -14,7 +14,7 @@ from LineGroup import LineGroup as LG
 import constants as c
 from functools import wraps
 import numpy as np
-import point as p
+from point import Point
 from shapely.geometry.polygon import Polygon
 from shapely.ops import cascaded_union
 logger = c.logging.getLogger(__name__)
@@ -48,8 +48,8 @@ class Shape(LG):
     def addCoordLoop(self, loop):
         loop_iter = iter(loop)
         pp = list(next(loop_iter))
-        prev = p.Point(pp[:2]+[0])
-        for curr in (p.Point(list(i[:2])+[0]) for i in loop_iter):
+        prev = Point(pp[:2]+[0])
+        for curr in (Point(list(i[:2])+[0]) for i in loop_iter):
             if prev != curr:
                 self.append(Line(prev,curr))
                 prev = curr
@@ -158,7 +158,7 @@ class Shape(LG):
             if distances[index] > c.EPSILON:
                 raise Exception('Shape has a gap of ' + str(distances[index]) +
                                 ' at point ' + str(testPoint) + ', ' + 
-                                str(p.Point(normList[index])))
+                                str(Point(normList[index])))
             if index%2:
                 """ If index is odd we are at the end of a line so the line needs to be flipped. """
                 nearestLine = nearestLine.fliped()
@@ -268,7 +268,7 @@ class Shape(LG):
             t = all_t[(0 <= all_u) & (all_u <= 1) & (0 <= all_t) & (all_t <= 1)]
 
             if len(t):
-                pointSet |= set(p.Point(iLine.start.x + iLine.vector[c.X]*value,
+                pointSet |= set(Point(iLine.start.x + iLine.vector[c.X]*value,
                                         iLine.start.y+iLine.vector[c.Y]*value)
                                         for value in t)
 
