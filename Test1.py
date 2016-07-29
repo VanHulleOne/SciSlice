@@ -18,7 +18,7 @@ import constants as c
 from infill import Infill
 from itertools import islice
 import LineGroup as lg
-import doneShapes as ds
+import doneshapes as ds
 import itertools
 from operator import itemgetter
 import time
