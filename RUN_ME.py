@@ -35,8 +35,8 @@ from tkinter import ttk             #for styling purposing
 from tkinter import filedialog      #window for saving and uploading files
 import json                         #for saving and uploading files
 from runner import Runner        #for converting to Gcode
-from parameters import __version__ as version
-import doneShapes as ds
+import parameters
+import doneshapes as ds
 import inspect
 
 class GUI(Tk):
@@ -363,7 +363,7 @@ class Page_Variables(Frame):
         
     def version_num(self):
         
-        self.labelVersion = ttk.Label(self, text='Version ' + version)
+        self.labelVersion = ttk.Label(self, text='Version ' + parameters.__version__)
         self.labelVersion.grid(row=self.numRows+3,column=0)
         
     def regrid(self):
