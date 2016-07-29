@@ -9,7 +9,7 @@ can be changed.
 
 @author: lvanhulle
 """
-import Point as p
+from point import Point
 import numpy as np
 import constants as c
 import time
@@ -54,8 +54,8 @@ class Line(object):
                          [self.start.y, self.end.y]]
             for row in tempList:
                 row.sort()
-            self.__upperLeft = p.Point(tempList[0][0], tempList[1][1])
-            self.__lowerRight = p.Point(tempList[0][1], tempList[1][0])
+            self.__upperLeft = Point(tempList[0][0], tempList[1][1])
+            self.__lowerRight = Point(tempList[0][1], tempList[1][0])
         return self.__upperLeft
         
     @property
@@ -65,8 +65,8 @@ class Line(object):
                      [self.start.y, self.end.y]]
             for row in tempList:
                 row.sort()
-            self.__upperLeft = p.Point(tempList[0][0], tempList[1][1])
-            self.__lowerRight = p.Point(tempList[0][1], tempList[1][0])
+            self.__upperLeft = Point(tempList[0][0], tempList[1][1])
+            self.__lowerRight = Point(tempList[0][1], tempList[1][0])
         return self.__lowerRight
     
     @property
@@ -213,7 +213,7 @@ class Line(object):
         denom = np.cross(r, s)*1.0
         t = np.cross(Q_Less_P, s)/denom
         u = np.cross(Q_Less_P, r)/denom 
-        point = p.Point(self.start.x + r[c.X]*t, self.start.y+r[c.Y]*t)         
+        point = Point(self.start.x + r[c.X]*t, self.start.y+r[c.Y]*t)         
         #If t or u are not in the range 0-1 then the intersection is projected
         if(t > 1 or u > 1 or t < 0 or u < 0):
             """
@@ -298,7 +298,7 @@ class Line(object):
         return Line(newStart, newEnd, self)
     
     def rotate(self, angle, point):
-        if(point is None): point = p.Point(0,0)
+        if(point is None): point = Point(0,0)
         newStart = self.start.rotate(angle, point)
         newEnd = self.end.rotate(angle, point)
         return Line(newStart, newEnd, self)
@@ -334,7 +334,7 @@ class Line(object):
     
     def getMidPoint(self):
         """ Calculate and return the midpoint of self. """
-        return p.Point((self.start.normalVector + self.end.normalVector)/2.0)
+        return Point((self.start.normalVector + self.end.normalVector)/2.0)
     
     def __lt__(self, other):
         """
