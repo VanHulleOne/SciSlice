@@ -28,11 +28,8 @@ class Parameters:
         self.startEndSubDirectory = self.currPath + '\\Start_End_Gcode'
         self.filamentArea = math.pi * self.filamentDiameter**2 / 4.0
         
-        if self.outline == c.STL_FLAG:
-            self.shape = None
-        else:
-            self.shape = getattr(ds, self.outline)(**var_data)       
-        
+        if self.outline != c.STL_FLAG:
+            self.outline = getattr(ds, self.outline)(**var_data) 
         
         self.LayerParams = namedtuple('LayerParams', 'infillShiftX infillShiftY infillAngle '
                                             + 'numShells layerHeight pathWidth trimAdjust')            

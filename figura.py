@@ -2,13 +2,13 @@
 """
 Created on Thu Nov 19 16:45:00 2015
 
-Figura takes all of the parameters and the input shape and creates each layer
+Figura takes all of the parameters and the input outline and creates each layer
 for every part. These layers are then converted to Gcode in the form of a list
 of strings. The list is stored in self.gcode which can then be accessed and written
 to the correct output file by using join().
 
-A layer in Figura starts as a list of LineGroups, typically shells in (Shapes)
-and then an Infill but could also be a variety of different shapes all printed
+A layer in Figura starts as a list of LineGroups, typically shells in (Outlines)
+and then an Infill but could also be a variety of different outlines all printed
 at the same Z-height. The list of layers is then organized and turned into a single
 LineGroup with the order of the lines being the print order of the layer. The
 goal is to allow easy adjustability when deciding how to organize a layer.
@@ -28,7 +28,7 @@ from point import Point
 from infill import Infill
 from linegroup import LineGroup
 import constants as c
-from Shape import Shape, Section
+from outline import Outline, Section
 import trimesh
 import os
 
@@ -100,7 +100,7 @@ class Figura:
         else:
             maxZ = float('inf')
             maxLayers = partParams.numLayers
-            sec = Section(self.pr.shape)
+            sec = Section(self.pr.outline)
             
         while currHeight <= maxZ and numLayers < maxLayers:
             if self.pr.outline == c.STL_FLAG:
@@ -109,23 +109,23 @@ class Figura:
             filledList = []
 
             for shellNumber in range(layerParam.numShells):
-                offsetShape = sec.offset(layerParam.pathWidth*(shellNumber), c.INSIDE)
-                if offsetShape is not None:
-                    filledList.append(offsetShape)
+                offsetOutline = sec.offset(layerParam.pathWidth*(shellNumber), c.INSIDE)
+                if offsetOutline is not None:
+                    filledList.append(offsetOutline)
                 else:
                     break
                     
                 """
-                To help with problems that occur when an offset shape has its sides
-                collide or if the infill lines are colinear with the trim lines we
-                want to fudge the trimShape outward just a little so that we end
+                To help with problems that occur when an offset outline has its sides
+                collide or if the infill lines are co-linear with the trim lines we
+                want to fudge the trimOutline outward just a little so that we end
                 up with the correct lines.
                 """
-            trimShape = sec.offset(layerParam.pathWidth * layerParam.numShells - 
+            trimOutline = sec.offset(layerParam.pathWidth * layerParam.numShells - 
                             layerParam.trimAdjust, c.INSIDE)
                             
-            if trimShape is not None:
-                infill = Infill(trimShape,
+            if trimOutline is not None:
+                infill = Infill(trimOutline,
                                     layerParam.pathWidth, layerParam.infillAngle,
                                     shiftX=layerParam.infillShiftX, shiftY=layerParam.infillShiftY,
                                     design=self.pr.pattern, designType=self.pr.designType)
@@ -183,7 +183,7 @@ class Figura:
         yield self.gc.comment('Extrusion amount for part is ({:.1f} mm)\n\n'.format(totalExtrusion))
 
             
-    def organizedLayer(self, inShapes):
+    def organizedLayer(self, inOutlines):
         """ Takes in a list of LineGroup objects and returns them as an organized layer.
         
         A dictonary was used to hold the coroutines from linegroup since we
@@ -196,12 +196,12 @@ class Figura:
         was printed (for cooling purposes). The yielded in boolean is whether or
         not the previous line was used.
         
-        Currently if the LineGroup with the closest line is a Shape then the
-        entire Shape is printed before checking any other LineGroups again.
+        Currently if the LineGroup with the closest line is a outline then the
+        entire outline is printed before checking any other LineGroups again.
         
         Parameters
         ----------
-        inShapes - a list of LineGroups that make up the layer
+        inOutlines - a list of LineGroups that make up the layer
         
         Return
         ------
@@ -209,7 +209,7 @@ class Figura:
         """
         layer = LineGroup()
         
-        lineCoros = {i : inShapes[i].nearestLine_Coro(i) for i in range(len(inShapes))}
+        lineCoros = {i : inOutlines[i].nearestLine_Coro(i) for i in range(len(inOutlines))}
         
         for coro in lineCoros.values():
             next(coro)
@@ -234,13 +234,13 @@ class Figura:
             indexOfClosest = result.name
             lastPoint = line.end
             layer.append(line)
-            if isinstance(inShapes[indexOfClosest], Shape):
-                """ If the closest line was from a Shape then go around the whole
-                shape without checking any other LineGroup. Shapes are required
+            if isinstance(inOutlines[indexOfClosest], Outline):
+                """ If the closest line was from a Outline then go around the whole
+                outline without checking any other LineGroup. Outlines are required
                 to be continuous contours (except if the have internal holes) so
                 there is no need to check any other LineGroup for a closer line.
-                Plus if the shape was being used as a brim to help start a print
-                we would not want to stop partialy way through the brim.
+                Plus if the outline was being used as a brim to help start a print
+                we would not want to stop partially way through the brim.
                 """
                 while 1:
                     try:

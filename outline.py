@@ -2,10 +2,9 @@
 """
 Created on Wed Oct 28 14:09:55 2015
 
-Shape should probably have been called outline but I have not yet bothered to
-rename it. It is a subclass of LineGroup with extra methods for checking if it
-is a closed polygon. The shape can be manifold (have internal holes) as long
-as they are fully enclosed inside of the boundry.
+Outline is a subclass of LineGroup with extra methods for checking if it
+is a closed polygon. The Outline can be manifold (have internal holes) as long
+as they are fully enclosed inside of the boundary.
 
 @author: lvanhulle
 """
@@ -22,9 +21,9 @@ logger.setLevel(c.LOG_LEVEL)
 
 def finishedOutline(func):
     """
-    This method is used as a decorator to make sure that the Shape is valid
-    before certian functions are used. See finishOutline() for what makes a 
-    valid shape.
+    This method is used as a decorator to make sure that the Outline is valid
+    before certain functions are used. See finishOutline() for what makes a 
+    valid outline.
     """
     @wraps(func)
     def checker(self, *args):            
@@ -33,16 +32,16 @@ def finishedOutline(func):
                 self.finishOutline()
             except Exception as e:
                 try:
-                    raise Exception('Shape must have a continuous closed outline to use '
+                    raise Exception('Outline must be continuous and closed to use '
                                 + func.__name__ + '()\n\t\t' + e.message)
                 except Exception as _:
                     raise e
         return func(self, *args)
     return checker
 
-class Shape(LineGroup):    
-    def __init__(self, shape=None):
-        LineGroup.__init__(self, shape)
+class Outline(LineGroup):    
+    def __init__(self, outline=None):
+        LineGroup.__init__(self, outline)
         self.outlineFinished = False
         
     def addCoordLoop(self, loop):
@@ -60,15 +59,15 @@ class Shape(LineGroup):
         if(not inShape.outlineFinished):
             print('********** Your internal shape was not a finished outline **********')
         if(not self.isInside(inShape.lines[0].start)):
-            print('********** The internal shape is not inside the main shape. **********')
+            print('********** The internal shape is not inside the main outline. **********')
         if(self.doShapesIntersect(inShape)):
-            print('********** Internal shape is not completely inside main shape. **********')
+            print('********** Internal shape is not completely inside main outline. **********')
         
         for line in inShape:
             self.append(line)
     
     @finishedOutline
-    def doShapesIntersect(self, inShape):
+    def doOutlinesIntersect(self, inShape):
         for line in self.lines:
             for line2 in inShape.lines:
                 result, point = line.segmentsIntersect(line2)
@@ -77,7 +76,7 @@ class Shape(LineGroup):
         return False
    
     def addLineGroup(self, inGroup):
-        super(Shape, self).addLineGroup(inGroup)
+        super(Outline, self).addLineGroup(inGroup)
         self.outlineFinished = False
     
     @finishedOutline    
@@ -105,40 +104,40 @@ class Shape(LineGroup):
         Finishes the outline with a companion methods or throws an exception if it fails.
         
         Calls the companion method self.__finishOutline() and if that method
-        does not throw an eror it assigns the returned value to self.lines and
-        sets the outline as finsihed.
+        does not throw an error it assigns the returned value to self.lines and
+        sets the outline as finished.
         """
         self.lines = self._finishOutline()
         self.outlineFinished = True
 
-    def _finishOutline(self, normList=None, finishedShape=None):
+    def _finishOutline(self, normList=None, finishedOutline=None):
         """ A companion method for finishOutline.
         
         The method sorts the lines so the the end of one line is touching
         the start of the next line and orients the lines so that the left side
-        of the line is inside the shape. The shapes are allowed to have internal
+        of the line is inside the outline. The outlines are allowed to have internal
         features but every feature must be continuous and closed.
         
         Parameters
         ----------
         normList - A NumPy array containing the normalVectors for every point in self
-        finsihedShape - A list of Lines which will define the new shape
+        finsihedShape - A list of Lines which will define the new outline
         
         Return
         ------
-        finishedShape
+        finishedOutline
         """
         if normList is None:
             normList = np.array([point.normalVector for point in self.iterPoints()], dtype=np.float)
         elif len(normList[(normList < np.inf)]) == 0:
             return
-        if finishedShape is None:
-            finishedShape = []
+        if finishedOutline is None:
+            finishedOutline = []
 
         """ Find the first index in normList that is not infinity. """
         firstLineIndex = np.where(normList[:,0] < np.inf)[0][0]//2
         
-        """ firstLine is needed to know if the last line closes the shape. """
+        """ firstLine is needed to know if the last line closes the outline. """
         firstLine = self[firstLineIndex]
         normList[firstLineIndex*2:firstLineIndex*2+2] = np.inf
 
@@ -148,7 +147,7 @@ class Shape(LineGroup):
             firstLine = firstLine.fliped()
   
         testPoint = firstLine.end
-        finishedShape.append(firstLine)
+        finishedOutline.append(firstLine)
         while len(normList[(normList < np.inf)]) > 0:
 
             distances = np.linalg.norm(normList-testPoint.normalVector, None, 1)
@@ -156,7 +155,7 @@ class Shape(LineGroup):
             nearestLine = self[index//2]
             
             if distances[index] > c.EPSILON:
-                raise Exception('Shape has a gap of ' + str(distances[index]) +
+                raise Exception('Outline has a gap of ' + str(distances[index]) +
                                 ' at point ' + str(testPoint) + ', ' + 
                                 str(Point(normList[index])))
             if index%2:
@@ -164,7 +163,7 @@ class Shape(LineGroup):
                 nearestLine = nearestLine.fliped()
             
             testPoint = nearestLine.end
-            finishedShape.append(nearestLine)
+            finishedOutline.append(nearestLine)
             
             index //= 2
             """ Instead of deleting elements from the NumPy array we set the used
@@ -172,16 +171,16 @@ class Shape(LineGroup):
             normList[[index*2,index*2+1]] = np.inf
             
             if testPoint == firstLine.start:
-                self._finishOutline(normList, finishedShape)
-                return finishedShape
-        dist = firstLine.start - finishedShape[-1].end
+                self._finishOutline(normList, finishedOutline)
+                return finishedOutline
+        dist = firstLine.start - finishedOutline[-1].end
         if dist < c.EPSILON:
-            return finishedShape
-        raise Exception('Shape not closed. There is a gap of {:0.5f} at point {}'.format(dist, testPoint))
+            return finishedOutline
+        raise Exception('Outline not closed. There is a gap of {:0.5f} at point {}'.format(dist, testPoint))
 
     @finishedOutline                                
     def offset(self, distance, desiredSide):
-        """ Offsets a shape be distance to the desired side.
+        """ Offsets an outline by distance to the desired side.
         
         The main offset method which calls _offset on each sub-shape of itself.
         If an error occurs while trying to offset a sub-shape the error is logged
@@ -194,16 +193,16 @@ class Shape(LineGroup):
         
         Return
         ------
-        newShape - The newly offset shape.
+        newOutline - The newly offset outline.
         
         """
-        newShape = Shape()
+        newOutline = Outline()
         for subShape in self.subShape_gen():
             try:
                 newShape.addLineGroup(self._offset(subShape, distance, desiredSide))
             except Exception as e:
                 logger.info('One or more sub-shapes could not be offset. ' + str(e))
-        return newShape
+        return newOutline
     
     def _offset(self, subShape, distance, desiredSide):
         """ A companion method for offset which actually does the offsetting.
@@ -216,14 +215,14 @@ class Shape(LineGroup):
         2) Tests every line against every other line to find intersections. If there
         are any intersections then the line is split at those points.
         
-        3) Turns all of the split lines into a new Shape
+        3) Turns all of the split lines into a new Outline
         
         4) Checks all of the lines to see if their left side is still inside of the
-        shape. If they are inside they are appended to a new list
+        outline. If they are inside they are appended to a new list
         
-        5) Turn the new list of lines into another Shape
+        5) Turn the new list of lines into another Outline
         
-        6) Finishes the new shape.
+        6) Finishes the new outline.
         
         Parameters
         ----------
@@ -243,7 +242,7 @@ class Shape(LineGroup):
             _, point = prevLine.segmentsIntersect(currLine, c.ALLOW_PROJECTION)
             if prevLine.calcT(point) > 0:
                 """ Make sure the new point is ahead of the start of the prev line.
-                If it is not we probably have two lines which have crossed the shape's
+                If it is not we probably have two lines which have crossed the outline's
                 medial axis and therefore their projected intersection is in a
                 non-useful location.
                 """
@@ -277,14 +276,14 @@ class Shape(LineGroup):
             splitLines.extend(Line(pointList[i], pointList[i+1])
                                 for i in range(len(pointList)-1))
 
-        tempShape = Shape(splitLines)
+        tempOutline = Outline(splitLines)
         shapeLines = []
         for line in splitLines:
-            """ Check each line to see if its left side is inside the new offset shape. """
-            if(tempShape.isInside(line.getOffsetLine(2*c.EPSILON, c.INSIDE).getMidPoint())):
+            """ Check each line to see if its left side is inside the new offset outline. """
+            if(tempOutline.isInside(line.getOffsetLine(2*c.EPSILON, c.INSIDE).getMidPoint())):
                 shapeLines.append(line)
 
-        offShape = Shape(shapeLines)
+        offShape = Outline(shapeLines)
         offShape.finishOutline()
         return offShape
               
@@ -344,12 +343,12 @@ class Shape(LineGroup):
     def isInside(self, point, ray=np.array([0.998, 0.067])):
         """
         This method determines if the point is inside
-        or outside the shape. Returns the side of the shape the point is on.
+        or outside the outline. Returns the side of the outline the point is on.
         
-        If a line is drawn from the point to outside of the shape the number
-        of times that line intersects with the shape determines if the point was inside
+        If a line is drawn from the point to outside of the outline the number
+        of times that line intersects with the outline determines if the point was inside
         or outside. If the number of intersections is even then the point was outside
-        of the shape. If the number of intersections is odd then the point is inside.
+        of the outline. If the number of intersections is odd then the point is inside.
         
         Problems arise if the line passes through the endpoints of two lines so
         if that happens draw a new line and test again. This redraw is handled
@@ -429,14 +428,14 @@ class _SidedPolygon:
 
 class Section:
     def __init__(self, section):
-        if isinstance(section, Shape):
+        if isinstance(section, Outline):
             self.sidedPolygons = self.createSided([Polygon(i) for i in section.loop_gen()])
         else:
             self.sidedPolygons = self.createSided([Polygon(i) for i in section.discrete])
         
     @property
-    def shape(self):
-        shape = Shape()
+    def outline(self):
+        outline = Outline()
         for sidedPolygon in self.sidedPolygons:
             for coords in self.polygonCoords(sidedPolygon.poly):
                 shape.addCoordLoop(coords)        
@@ -457,15 +456,15 @@ class Section:
         union = self.re_union(filter(None, (j.offset(dist, side) for j in self.sidedPolygons)))
         if not union:
             return None
-        shape = Shape()
+        outline = Outline()
         try:
             for coords in self.polygonCoords(union):
-                shape.addCoordLoop(coords)
+                outline.addCoordLoop(coords)
         except Exception:
             for polygon in union:
                 for coords in self.polygonCoords(polygon):
-                    shape.addCoordLoop(coords)
-        return shape
+                    outline.addCoordLoop(coords)
+        return outline
         
     def polygonCoords(self, polygon):
         yield polygon.exterior.coords

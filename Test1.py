@@ -5,8 +5,8 @@ Created on Wed Oct 28 10:16:22 2015
 @author: lvanhulle
 """
 from point import Point
-from infill import Infillill
-import Shape as s
+from infill import Infill
+from outline import Outline
 from line import Line
 #import arc as a
 import math
