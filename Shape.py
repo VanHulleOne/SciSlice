@@ -10,7 +10,7 @@ as they are fully enclosed inside of the boundry.
 @author: lvanhulle
 """
 from line import Line
-from LineGroup import LineGroup as LG
+from linegroup import LineGroup
 import constants as c
 from functools import wraps
 import numpy as np
@@ -40,9 +40,9 @@ def finishedOutline(func):
         return func(self, *args)
     return checker
 
-class Shape(LG):    
+class Shape(LineGroup):    
     def __init__(self, shape=None):
-        LG.__init__(self, shape)
+        LineGroup.__init__(self, shape)
         self.outlineFinished = False
         
     def addCoordLoop(self, loop):

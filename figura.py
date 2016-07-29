@@ -26,7 +26,7 @@ if another layer with the same parameters is used it does not need to be recalcu
 
 from point import Point
 from infill import Infill
-import LineGroup as lg
+from linegroup import LineGroup
 import constants as c
 from Shape import Shape, Section
 import trimesh
@@ -186,7 +186,7 @@ class Figura:
     def organizedLayer(self, inShapes):
         """ Takes in a list of LineGroup objects and returns them as an organized layer.
         
-        A dictonary was used to hold the coroutines from LineGroup since we
+        A dictonary was used to hold the coroutines from linegroup since we
         will want to delete keys, value pairs while iterating throught the dict.
         
         The coroutines yield in a boolean and a Point and then yield back out
@@ -207,7 +207,7 @@ class Figura:
         ------
         A single organized LineGroup 
         """
-        layer = lg.LineGroup()
+        layer = LineGroup()
         
         lineCoros = {i : inShapes[i].nearestLine_Coro(i) for i in range(len(inShapes))}
         

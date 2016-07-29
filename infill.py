@@ -2,7 +2,7 @@
 """
 Created on Thu Oct 29 15:45:02 2015
 
-Infill inherits from LineGroup and is the class responsible for creating the
+Infill inherits from linegroup and is the class responsible for creating the
 pattern which will be used as the tool path inside the part.
 
 The most basic operation is to send in a trimShape (typically of type Shape),
@@ -45,21 +45,20 @@ trimmed, and centered over trimShape.
 from line import Line
 from point import Point
 import Shape as s
-from LineGroup import LineGroup as LG
-import LineGroup as lg
+from linegroup import LineGroup
 import time
 import matrixTrans as mt
 import numpy as np
 import constants as c
 import doneShapes as ds
 
-class Infill(LG):
+class Infill(LineGroup):
     
    
     
     def __init__(self, trimShape, pathWidth, angleDegrees, shiftX=0, shiftY=0,
                  design=None, designType=c.PARTIAL_ROW):
-        LG.__init__(self, None)
+        LineGroup.__init__(self, None)
         self.shiftX = shiftX
         self.shiftY = shiftY
         self.designType = designType
@@ -79,7 +78,7 @@ class Infill(LG):
             self.design = ds.lineField(self.pathWidth, self.trimDiagonal, self.trimDiagonal)#lg.LineGroup([Line(point1, point2)])
             self.designType = c.FULL_FIELD
         else:
-            self.design = lg.LineGroup(design)
+            self.design = LineGroup(design)
         
 #        print('\nInfill times:')
 #        maxLength = max(len(f.__name__) for f in self.operations) + 2 
@@ -91,7 +90,7 @@ class Infill(LG):
 #                    '%.2f sec' %(time.time()-startTime)))
         
     def extendDesign(self):
-        tempDesign = lg.LineGroup(self.design.lines)
+        tempDesign = LineGroup(self.design.lines)
         designWidth = self.design.maxX - self.design.minX        
         while(designWidth <= self.trimDiagonal):
             shiftX = self.design[-1].end.x - tempDesign[0].start.x

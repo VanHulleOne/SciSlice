@@ -15,7 +15,7 @@ import math
 import arc as a
 import constants as c
 from line import Line
-import LineGroup as lg
+from linegroup import LineGroup
 from point import Point
 import Shape as s
 
@@ -116,13 +116,13 @@ def polygon(centerX: float, centerY: float, radius: float, numCorners: int) ->s.
     poly = poly.rotate(incAngle/2.0, Point(centerX, centerY))
     return poly
         
-def lineField(space: float, length: float, height: float) ->lg.LineGroup:
+def lineField(space: float, length: float, height: float) ->LineGroup:
     lines = []
     currHeight = 0
     while currHeight < height:
         lines.append(Line(Point(0,currHeight), Point(length,currHeight)))
         currHeight += space
-    group = lg.LineGroup()
+    group = LineGroup()
     group.lines = lines
     group.minX = 0
     group.minY = 0
@@ -131,23 +131,23 @@ def lineField(space: float, length: float, height: float) ->lg.LineGroup:
     return group
     
 
-def hexField(side: float, space: float, length: float, height: float) -> lg.LineGroup:
-    baseLine = lg.LineGroup(None)
+def hexField(side: float, space: float, length: float, height: float) -> LineGroup:
+    baseLine = LineGroup(None)
     baseLine.addLinesFromCoordinateList([[0,0], [side, 0],
              [side+math.cos(math.pi/4)*side, math.cos(math.pi/4)*side],
               [side*2+math.cos(math.pi/4)*side, math.cos(math.pi/4)*side],
                [2*(side+math.cos(math.pi/4)*side), 0]])
-    fullLine = lg.LineGroup(baseLine)
+    fullLine = LineGroup(baseLine)
     
     while fullLine.maxX - fullLine.minX < length:
         baseLine = baseLine.translate(baseLine.maxX - baseLine.minX, 0)
         fullLine.addLineGroup(baseLine)
         
-    mirrorLine = lg.LineGroup(fullLine)
+    mirrorLine = LineGroup(fullLine)
     mirrorLine = mirrorLine.mirror(c.X)
     mirrorLine = mirrorLine.translate(0, -space)
     fullLine.addLineGroup(mirrorLine)
-    field = lg.LineGroup(fullLine)
+    field = LineGroup(fullLine)
     
     while field.maxY - field.minY < height:
         fullLine = fullLine.translate(0, fullLine.maxY-fullLine.minY+space)

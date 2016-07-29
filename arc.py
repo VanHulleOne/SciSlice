@@ -7,7 +7,7 @@ A small module for easily creating arcs and circles.
 @author: lvanhulle
 """
 
-from LineGroup import LineGroup as LG
+from linegroup import LineGroup as LG
 import math
 from point import Point
 from line import Line
