@@ -7,7 +7,7 @@ Created on Wed Oct 28 10:16:22 2015
 import Point as p
 import InFill as infill
 import Shape as s
-import Line as l
+from line import Line
 #import arc as a
 import math
 import numpy as np
@@ -66,7 +66,7 @@ p24 = p.Point(50.326152, 9.516701)
 
 points = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11]
 
-lines = [l.Line(points[i], points[i+1]) for i in range(len(points)-1)]
+lines = [Line(points[i], points[i+1]) for i in range(len(points)-1)]
 
 mesh1 = trimesh.load_mesh('Arch3.stl')
 sec = mesh1.section(plane_origin=[0,0,5], plane_normal=[0,0,1])

@@ -9,7 +9,7 @@ as they are fully enclosed inside of the boundry.
 
 @author: lvanhulle
 """
-import Line as l
+from line import Line
 from LineGroup import LineGroup as LG
 import constants as c
 from functools import wraps
@@ -51,7 +51,7 @@ class Shape(LG):
         prev = p.Point(pp[:2]+[0])
         for curr in (p.Point(list(i[:2])+[0]) for i in loop_iter):
             if prev != curr:
-                self.append(l.Line(prev,curr))
+                self.append(Line(prev,curr))
                 prev = curr
         self.outlineFinished = False
     
@@ -97,7 +97,7 @@ class Shape(LG):
       
     def closeShape(self):
         if(self[0].start != self[-1].end):
-            self.append(l.Line(self[-1].end, self[0].start))
+            self.append(Line(self[-1].end, self[0].start))
             
     
     def finishOutline(self):
@@ -253,7 +253,7 @@ class Shape(LG):
                 points.append(currLine.start)
             prevLine = currLine
             
-        tempLines = [l.Line(p1, p2) for p1, p2 in self.pairwise_gen(points)]
+        tempLines = [Line(p1, p2) for p1, p2 in self.pairwise_gen(points)]
         splitLines = []
         starts = np.array([line.start.get2DPoint() for line in tempLines])
         vectors = np.array([line.vector for line in tempLines])
@@ -274,7 +274,7 @@ class Shape(LG):
 
             pointList = sorted(pointSet, key=iLine.calcT)
 
-            splitLines.extend(l.Line(pointList[i], pointList[i+1])
+            splitLines.extend(Line(pointList[i], pointList[i+1])
                                 for i in range(len(pointList)-1))
 
         tempShape = Shape(splitLines)
@@ -330,15 +330,15 @@ class Shape(LG):
         moveStart = yield
         while not(moveStart is None):
             _, point = moveEnd.segmentsIntersect(moveStart, c.ALLOW_PROJECTION)
-            moveEnd = l.Line(moveEnd.start, point, moveEnd)
-            moveStart = l.Line(point, moveStart.end, moveStart)
+            moveEnd = Line(moveEnd.start, point, moveEnd)
+            moveStart = Line(point, moveStart.end, moveStart)
             offsetLines.append(moveEnd)
             moveEnd = moveStart
             moveStart = yield
         _, point = moveEnd.segmentsIntersect(offsetLines[0], c.ALLOW_PROJECTION)
-        moveEnd = l.Line(moveEnd.start, point, moveEnd)
+        moveEnd = Line(moveEnd.start, point, moveEnd)
         offsetLines.append(moveEnd)
-        offsetLines[0] = l.Line(point, offsetLines[0].end, offsetLines[0])
+        offsetLines[0] = Line(point, offsetLines[0].end, offsetLines[0])
         yield offsetLines
     
     def isInside(self, point, ray=np.array([0.998, 0.067])):

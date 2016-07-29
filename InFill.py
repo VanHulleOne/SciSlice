@@ -42,7 +42,7 @@ trimmed, and centered over trimShape.
 @author: lvanhulle
 """
 
-import Line as l
+from line import Line
 import Point as p
 import Shape as s
 from LineGroup import LineGroup as LG
@@ -76,7 +76,7 @@ class InFill(LG):
         if(design is None):
 #            point1 = p.Point(-self.trimDiagonal-10, 0)
 #            point2 = p.Point(self.trimDiagonal+10, 0)
-            self.design = ds.lineField(self.pathWidth, self.trimDiagonal, self.trimDiagonal)#lg.LineGroup([l.Line(point1, point2)])
+            self.design = ds.lineField(self.pathWidth, self.trimDiagonal, self.trimDiagonal)#lg.LineGroup([Line(point1, point2)])
             self.designType = c.FULL_FIELD
         else:
             self.design = lg.LineGroup(design)
@@ -147,7 +147,7 @@ class InFill(LG):
                 midPoints = (pointVectors[1:] + pointVectors[:-1])/2.0
                 for i in range(len(midPoints)):
                     if self.trimShape.isInside(midPoints[i]):
-                        self.lines.append(l.Line(pointList[i], pointList[i+1]))
+                        self.lines.append(Line(pointList[i], pointList[i+1]))
 
                 
                 

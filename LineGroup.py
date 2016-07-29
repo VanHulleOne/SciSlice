@@ -9,7 +9,7 @@ so they do not need to be calculated when called.
 @author: lvanhulle
 """
 import Point as p
-import Line as l
+from line import Line
 import numpy as np
 import matrixTrans as mt
 import constants as c
@@ -75,7 +75,7 @@ class LineGroup(object):
     
     def addLinesFromPoints(self, pointList):
         for i in range(len(pointList)-1):
-            self.append(l.Line(pointList[i], pointList[i+1]))
+            self.append(Line(pointList[i], pointList[i+1]))
             
     def mirror(self, axis):
         return self.transform(mt.mirrorMatrix(axis))
@@ -94,7 +94,7 @@ class LineGroup(object):
         for i in range(0,len(result),2):
             start = p.Point(result[i])
             end = p.Point(result[i+1])
-            lines.append(l.Line(start, end, self[i%2]))
+            lines.append(Line(start, end, self[i%2]))
         transShape = cls()
         transShape.lines = lines
         transShape.minX, transShape.minY = np.amin(result[:,:2], axis=0)

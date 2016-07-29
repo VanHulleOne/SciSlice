@@ -10,7 +10,7 @@ A small module for easily creating arcs and circles.
 from LineGroup import LineGroup as LG
 import math
 import Point as p
-import Line as l
+from line import Line
 import constants as c
 
 class Arc(LG):
@@ -42,10 +42,10 @@ class Arc(LG):
             x = self.center.x+radius*math.cos(currentAngle)
             y = self.center.y+radius*math.sin(currentAngle)
             endPoint = p.Point(x, y)
-            self.append(l.Line(startPoint, endPoint))
+            self.append(Line(startPoint, endPoint))
             startPoint = endPoint
         endPoint = p.Point(self.end.x, self.end.y)
-        self.append(l.Line(startPoint, endPoint))
+        self.append(Line(startPoint, endPoint))
         
     def calcIncludedAngle(self, start, end):
         """

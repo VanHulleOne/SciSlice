@@ -14,7 +14,7 @@ import math
 
 import arc as a
 import constants as c
-import Line as l
+from line import Line
 import LineGroup as lg
 import Point as p
 import Shape as s
@@ -120,7 +120,7 @@ def lineField(space: float, length: float, height: float) ->lg.LineGroup:
     lines = []
     currHeight = 0
     while currHeight < height:
-        lines.append(l.Line(p.Point(0,currHeight), p.Point(length,currHeight)))
+        lines.append(Line(p.Point(0,currHeight), p.Point(length,currHeight)))
         currHeight += space
     group = lg.LineGroup()
     group.lines = lines

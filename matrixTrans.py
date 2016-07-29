@@ -8,7 +8,7 @@ A module to store operations related to matrix tranformations.
 """
 
 import Point as p
-import Line as l
+from line import Line
 import constants as c
 import numpy
 import math
@@ -36,7 +36,7 @@ def rotateMatrix(angle, point=None):
     
 def mirrorMatrix(axis):
     transMatrix = numpy.identity(4)
-    if type(axis) is l.Line:
+    if type(axis) is Line:
         mList = []
         mList.append(translateMatrix(-axis.start.x, -axis.start.y)) #toOrigin
         angle = math.asin((axis.end.y-axis.start.y)/axis.length) #angle
