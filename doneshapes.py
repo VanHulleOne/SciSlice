@@ -19,7 +19,7 @@ from linegroup import LineGroup
 from point import Point
 from outline import Outline
 
-def regularDogBone():    
+def regularDogBone() ->Outline:    
     dogBone = Outline(None)
     dogBone.addLinesFromCoordinateList([[82.5, 0], [82.5, 9.5], [49.642, 9.5]])
     arc = a.Arc(Point(49.642, 9.5), Point(28.5, 6.5), c.CW, Point(28.5, 82.5), 20)
@@ -31,7 +31,7 @@ def regularDogBone():
     dogBone.finishOutline()
     return dogBone
     
-def testSimpleDogBone():
+def testSimpleDogBone() ->Outline:
     temp = Outline(None)
     temp.addLinesFromCoordinateList([[82.5,0],[82.5,9.5],[49.642, 9.5], [28.5,6.5],[0,6.5]])
     temp.addLineGroup(temp.mirror(c.Y))
@@ -40,7 +40,7 @@ def testSimpleDogBone():
     temp.finishOutline()
     return temp
     
-def wideDogBone():
+def wideDogBone() ->Outline:
     halfWidth = 5.0    
     wideDogBone = Outline(None)
     wideDogBone.addLinesFromCoordinateList([[82.5, 0], [82.5, 9.5 + halfWidth],
@@ -54,7 +54,7 @@ def wideDogBone():
     wideDogBone.addLineGroup(wideDogBone.mirror(c.X))
     return wideDogBone.translate(82.5, 9.5 + halfWidth)
     
-def rightGrip():
+def rightGrip() ->Outline:
     outline = Outline(None)
     outline.addLinesFromCoordinateList([[82.5, 0], [82.5, 9.5], [49.642, 9.5]])
     arc = a.Arc(Point(49.642, 9.5), Point(28.5, 6.5), c.CW, Point(28.5, 82.5), 20)
@@ -63,29 +63,29 @@ def rightGrip():
     outline.addLineGroup(shape.mirror(c.X))
     return outline.translate(82.5, 9.5)
     
-def leftGrip():
+def leftGrip() ->Outline:
     outline = rightGrip()
     outline = outline.translate(-82.5, -9.5)
     outline = outline.mirror(c.Y)
     return outline.translate(82.5, 9.5)
     
-def grips():
+def grips() ->Outline:
     outline = leftGrip()
     outline.addLineGroup(rightGrip())
-    return shape
+    return outline
 
-def center():
+def center() ->Outline:
     outline = Outline(None)
     outline.addLinesFromCoordinateList([[28.5, 6.5], [-28.5, 6.5], [-28.5, -6.5],
                                       [28.5, -6.5], [28.5, 6.5]])
     return outline.translate(82.5, 9.5)
     
-def squareWithHole():
+def squareWithHole() ->Outline:
     outline = Outline(None)
     outline.addLinesFromCoordinateList([[0,0], [50,0], [50,50], [0,50], [0,0]])
     circle = a.Arc(Point(35,25), Point(35,25), c.CW, Point(25,25))
     outline.addLineGroup(circle)
-    return shape
+    return outline
     
 def circle(centerX: float, centerY: float, radius: float) ->Outline:
     startPoint = Point(centerX+radius, centerY)
@@ -153,4 +153,7 @@ def hexField(side: float, space: float, length: float, height: float) -> LineGro
         fullLine = fullLine.translate(0, fullLine.maxY-fullLine.minY+space)
         field.addLineGroup(fullLine)
     return field
+    
+    def straightLines()  -> LineGroup:
+        return None
     
