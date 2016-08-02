@@ -5,7 +5,12 @@ Created on Thu Jun  9 13:12:35 2016
 """
 
 import sys
-sys.path.append('C:\\Users\\adiebold\\Documents\\GitHub\\DogBone')
+import os
+#pathway = os.path.dirname(os.path.realpath(__file__)).split(sep='\\')
+#pathway[-1] = 'DogBone'
+#pathway = '\\'.join(pathway)
+#
+#sys.path.append(pathway)
 
 import figura as fg
 from gcode import Gcode, RobotCode
