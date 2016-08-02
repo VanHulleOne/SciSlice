@@ -4,14 +4,6 @@ Created on Thu Jun  9 13:12:35 2016
 @author: adiebold
 """
 
-import sys
-import os
-#pathway = os.path.dirname(os.path.realpath(__file__)).split(sep='\\')
-#pathway[-1] = 'DogBone'
-#pathway = '\\'.join(pathway)
-#
-#sys.path.append(pathway)
-
 import figura as fg
 from gcode import Gcode, RobotCode
 import time
