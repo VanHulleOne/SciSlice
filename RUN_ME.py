@@ -16,16 +16,6 @@ import constants as c
 import matplotlib                   #for 3D model
 from collections import namedtuple
 
-#if using the Spyder console, matplotlib is already imported and the backend cannot be changed with .use() as is needed
-#to change the backend to TkAgg, go to Tools > Preferences > Console > External modules > Matplotlib GUI backend
-#be sure to mind the caps in TkAgg
-'''
-backend = matplotlib.get_backend()
-if backend != 'TkAgg' and backend != 'module://ipykernel.pylab.backend_inline':
-    matplotlib.use('TkAgg')             #backend of matplotlib, used for putting in GUI
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
-from matplotlib.figure import Figure
-'''
 from mpl_toolkits.mplot3d import axes3d
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
@@ -54,15 +44,6 @@ class GUI(Tk):
         self.container.pack(side='top', fill='both', expand=True)
         self.container.grid(row=0,column=0)
         
-        #create menubar
-#        menubar = Menu(container)
-#        filemenu = Menu(menubar, tearoff=0)
-#        filemenu.add_command(label='Save', command=lambda: Page_Variables.save(Page_Variables))
-#        filemenu.add_command(label='Upload', command=lambda: Page_Variables.upload(Page_Variables))
-#        menubar.add_cascade(label='File', menu=filemenu)
-#        
-#        Tk.config(self, menu=menubar)
-        
         #dictionary of Frames
         self.frames = {}
         
@@ -70,18 +51,10 @@ class GUI(Tk):
                        Page_Model : '600x500+150+100'}
         
         #add Frames to dictionary
-        for F in (Page_Variables,):
-        
-            frame = F(self.container, self)
-            
-            self.frames[F] = frame
-            
-            frame.grid(row=0, column=0, sticky='nsew')
-            
-#        frame = Page_Variables(self.container, self)
-#        self.frames[Page_Variables] = frame
-#        frame.grid(row=0, column=0, sticky='nsew')
-            
+        for F in (Page_Variables,):        
+            frame = F(self.container, self)            
+            self.frames[F] = frame            
+            frame.grid(row=0, column=0, sticky='nsew')            
         
         #show initial Frame
         Tk.geometry(self, self.shapes[Page_Variables])
@@ -717,23 +690,6 @@ class Page_Model(Frame):
         buttonVariables = ttk.Button(self, text='Variables', 
                                  command=lambda: self.to_variables())
         buttonVariables.grid(row=0,column=0)
-    
-#        self.buttonUpdate = ttk.Button(self, text='Update from Variables', command=lambda: self.get_data())
-#        self.buttonUpdate.grid(row=4,column=1)
-
-#        self.radiobuttons = {}
-#        x = 0
-#        y = 0
-#        z = 0
-#        selection = IntVar()
-#        
-#        for id_array in self.layer_part:
-#            rb_text = 'Part:' + str(id_array[1] + ' Layer:' + str(id_array[0]))
-#            self.radiobuttons[str(id_array)] = ttk.Radiobutton(self, text=rb_text, variable=selection, value=x)
-#            self.radiobuttons[str(id_array)].grid(row=z+4,column=y)
-#            x+=1
-#            y = x//5
-#            z = x%5 
 
         self.intvar_layerparts = {}
         
@@ -800,11 +756,7 @@ class Page_Model(Frame):
                         for five in color_num2:
                             for six in color_num:
                                 curr_color = '#' + one + two + three + four + five + six
-                                self.colors.append(curr_color)
-         
-#        for id_array in self.layer_part:
-#            print(self.intvar_layerparts[id_array].get())
-         
+                                self.colors.append(curr_color)         
          
         counting = 0                       
         for id_array in self.layer_part:
@@ -818,49 +770,10 @@ class Page_Model(Frame):
     def to_variables(self):
         
         self.controller.show_frame(Page_Variables, True, Page_Model)
-#        
-#    
-##class Page_Model(Frame):
-##    
-##    def __init__(self, parent, controller):
-##        Frame.__init__(self, parent)
-##        self.controller = controller
-##        
-##        labelExample = ttk.Label(self, text='HELLO')
-##        labelExample.pack()
-##        
-##        self.to_variables()
-##        
-##        canvasExample = Canvas(self, width=200, height=100)
-##        canvasExample.pack()      \
-##        
-##        canvasExample.create_rectangle(50, 20, 150, 80, fill='#476042')
-##        canvasExample.create_line(0, 0, 50, 20, width=3)
-##        
-##        '''
-##        f = Figure(figsize=(5,5), dpi=100)
-##        a = f.add_subplot(111)
-##        a.plot([1,2,3,4,5,6,7,8],[5,6,1,3,8,9,3,5])
-##        
-##        canvas = FigureCanvasTkAgg(f, self)
-##        canvas.show()
-##        canvas.get_tk_widget().pack(side=TOP, fill=BOTH, expand=True)
-##        
-##        toolbar = NavigationToolbar2TkAgg(canvas, self)
-##        toolbar.update()
-##        canvas._tkcanvas.pack()
-##        '''
-##        
-##        
-##    def to_variables(self):
-##        
-##        buttonVariable = ttk.Button(self, text='Variables', 
-##                                command=lambda: self.controller.show_frame(Page_Variables))
-##        buttonVariable.pack()
+
     
 #only works if program is used as the main program, not as a module    
-#if __name__ == '__main__':
-    
+if __name__ == '__main__': 
 
 #####################
 #   GUI creation    #
