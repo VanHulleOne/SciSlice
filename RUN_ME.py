@@ -4,14 +4,8 @@ Created on Sat May 28 16:39:58 2016
 @author: Alex Diebold
 '''
 
-import sys
 import os
 
-#pathway = os.path.dirname(os.path.realpath(__file__)).split(sep='\\')
-#pathway[-1] = 'DogBone'
-#pathway = '\\'.join(pathway)
-#
-#sys.path.append(pathway)
 import constants as c
 import matplotlib                   #for 3D model
 from collections import namedtuple
@@ -493,6 +487,10 @@ class Page_Variables(Frame):
         
         data = {}               #dictionary to put String value of StringVar values in
         var_data = {}
+        
+        def save(dic, var_dic, key, save_type):
+            dic[key] = save_type(var_dic[key].get())
+            
         #check if the user cancelled saving the file
         if self.savePath:
                                                        #variables with type None
@@ -502,12 +500,14 @@ class Page_Variables(Frame):
             
             if self.var_keys:
                 for key in self.var_keys:
-                    if self.var_types[key] == float:
-                        var_data[key] = float(self.var_stringvars[key].get())
-                    elif self.var_types[key] == int:
-                        var_data[key] = int(self.var_stringvars[key].get())
-                    elif self.var_types[key] == str:
-                        var_data[key] = str(self.var_stringvars[key].get())
+                    if self.var_types[key] in (float, int, str):
+                        
+#                    if self.var_types[key] == float:
+#                        var_data[key] = float(self.var_stringvars[key].get())
+#                    elif self.var_types[key] == int:
+#                        var_data[key] = int(self.var_stringvars[key].get())
+#                    elif self.var_types[key] == str:
+#                        var_data[key] = str(self.var_stringvars[key].get())
             
             for param in self.parameters:
                 label = param.label
