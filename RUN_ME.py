@@ -7,18 +7,17 @@ Created on Sat May 28 16:39:58 2016
 import os
 
 import constants as c
-import matplotlib                   #for 3D model
+import matplotlib                  
 from collections import namedtuple
 
 from mpl_toolkits.mplot3d import axes3d
 import matplotlib.pyplot as plt
-import matplotlib.animation as animation
 
 from tkinter import *               #GUI module
 from tkinter import ttk             #for styling purposing
 from tkinter import filedialog      #window for saving and uploading files
 import json                         #for saving and uploading files
-from runner import Runner        #for converting to Gcode
+from runner import Runner           #for converting to Gcode
 import parameters
 import doneshapes as ds
 import inspect
@@ -33,18 +32,15 @@ class GUI(Tk):
         #format window size -- width=450, height=475, 100px from left of screen, 100px from top of screen
         #Tk.geometry(self, '450x475+100+100')
         
-        #set up frame
         self.container = Frame(self)
         self.container.pack(side='top', fill='both', expand=True)
         self.container.grid(row=0,column=0)
         
-        #dictionary of Frames
         self.frames = {}
         
         self.shapes = {Page_Variables : '425x750+150+100',       
                        Page_Model : '600x500+150+100'}
         
-        #add Frames to dictionary
         for F in (Page_Variables,):        
             frame = F(self.container, self)            
             self.frames[F] = frame            
@@ -54,7 +50,6 @@ class GUI(Tk):
         Tk.geometry(self, self.shapes[Page_Variables])
         self.show_frame(Page_Variables)
        
-    #show frame
     def show_frame(self, cont, delete=False, cont_to_del = None):
         
         if cont not in self.frames:
@@ -143,22 +138,10 @@ class Page_Variables(Frame):
         Frame.__init__(self, parent)
         self.controller = controller
         
-        ########################
-        #   class variables    #
-        ########################
-        
-        #string that is the filename of the current file
         self.filename = ''
-        
-        #dictionary with variable name as key and StringVar as value
-        self.text_variable = {} 
-        
-        #dictionary with variable name as key and Label as value        
+        self.text_variable = {}       
         self.labels = {}
-                   
-        #dictionary with variable name as key and Entry as value
-        self.entries = {}
-        
+        self.entries = {}        
         self.numRows = len(self.parameters)
                
         self.fields = []
@@ -199,12 +182,9 @@ class Page_Variables(Frame):
                 if self.stl_path:
                     self.defaults[param.label] = os.path.basename(os.path.normpath(self.stl_path))
           
-    #initial creation of labels
     def set_labels(self):        
         
-        #create all labels
         for param in self.parameters:
-            #create label
             self.labels[param.label] = ttk.Label(self, text= param.label + ' - ' + param.data_type)
         
         for x, par in enumerate(self.fields[self.COMMON]):
@@ -216,25 +196,20 @@ class Page_Variables(Frame):
         self.labelValues = Label(self, textvariable=self.var_text_values)
 
             
-    #initial creation of entries
     def set_entries(self):
 
         for param in self.parameters:
-            #create all StringVars
             self.text_variable[param.label] = StringVar(self, value=self.defaults[param.label])
-            
-            #create entry 
             self.entries[param.label] = ttk.Entry(self, textvariable=self.text_variable[param.label])  
         
         self.doneshapes_menu()
         
-        #show commonly used variables
         for x, par in enumerate(self.fields[self.COMMON]):
-            #use grid() after creating entry or dictionary value will be 'NoneType'
             self.entries[par.label].grid(row=x+1,column=1, sticky='ew')
             
         self.entries[c.STL_FLAG].config(state=DISABLED)
-            
+    
+    #creates menu of the different possible shapes from the doneshapes class        
     def doneshapes_menu(self):
         
         doneshape_funcs = ['choose a shape']
@@ -248,63 +223,32 @@ class Page_Variables(Frame):
                                                 *doneshape_funcs,
                                                 command=self.set_var)
         
-    #creates button for saving all values
     def save_option(self): 
         
-        #create button
         buttonSave = ttk.Button(self,text='Save',command=lambda: self.save()).grid(row=0,column=1)
-    
-    #creates label, entry, and button for uploading all values    
+      
     def upload_option(self):   
         
-        #create button
         buttonUpload = ttk.Button(self,text='Upload',command=lambda: self.upload()).grid(row=0,column=0)
         
     #create menu of label and buttons to switch between tabs
     def tab_buttons(self):
         
-        #label for parameters
         labelParameters = ttk.Label(self,text='Parameters',font='-weight bold')
         labelParameters.grid(row=0,column=2)
 
-        #button to display all variables
         buttonAll = ttk.Button(self,text='All',command=self.command(self.parameters))
         buttonAll.grid(row=1,column=2)
         
         for x, menu in enumerate(self.menus):
             button = ttk.Button(self, text=menu.name, command=self.command(self.fields[menu.group]))
             button.grid(row=2+x, column=2)
-            
-    def command(self, params):
-        def inner_command():
-            self.current_menu = params
-            for param in self.parameters:
-                self.labels[param.label].grid_forget()      
-                self.entries[param.label].grid_forget()
-            for x, param in enumerate(params):
-                self.labels[param.label].grid(row=x+1+self.shift, column=0)
-                self.entries[param.label].grid(row=x+1+self.shift, column=1, sticky='ew')
-        return inner_command
         
-    #create button to convert to Gcode
+    #create Gcode conversion button
     def gcode(self):
         
         self.buttonGcode = ttk.Button(self,text='Generate Code',command=lambda: self.convert())
         self.buttonGcode.grid(row=len(self.parameters)+1,column=1)
-        
-    #all set up functions together
-    def create_var_page(self):
-        
-        self.set_labels()
-        self.set_entries()
-        self.save_option()
-        self.upload_option()
-        self.tab_buttons()
-        self.gcode()
-        self.model_page()
-        self.g_robot()
-        self.version_num()      
-        self.reset_vars()
         
     #create button to switch to 3D model page
     def model_page(self):  
@@ -327,12 +271,13 @@ class Page_Variables(Frame):
         self.buttonChooseGcode.grid(row=self.numRows+2,column=0)
         self.buttonChooseRobot = ttk.Radiobutton(self, text='RobotCode', variable=self.g_robot_var, value=c.ROBOTCODE)
         self.buttonChooseRobot.grid(row=self.numRows+2,column=1)
-        
+       
     def version_num(self):
         
         self.labelVersion = ttk.Label(self, text='Version ' + parameters.__version__)
         self.labelVersion.grid(row=self.numRows+3,column=0)
-        
+    
+    #moves labels and entries up or down depending on the self.shift value    
     def regrid(self):
         
         for param in self.parameters:
@@ -351,6 +296,7 @@ class Page_Variables(Frame):
         self.buttonChooseRobot.grid(row=self.numRows+2+self.shift,column=1)
         self.labelVersion.grid(row=self.numRows+3+self.shift,column=0)
         
+    #shows the values entered into the popup doneshapes menu
     def values_bar(self):
         
         text_keys = ''        
@@ -364,6 +310,7 @@ class Page_Variables(Frame):
             self.labelKeys.grid(row=1,column=1)
             self.labelValues.grid(row=2,column=1)
     
+    #resets doneshape menu variables
     def reset_vars(self):
         
         self.old_var = ''
@@ -375,6 +322,7 @@ class Page_Variables(Frame):
         self.var_entries = {}
         self.var_saved = {}
     
+    #creates popup menu to set values for a doneshape function
     def set_var(self, var):
         
         self.shift = 0
@@ -447,15 +395,41 @@ class Page_Variables(Frame):
             
         else:
             self.reset_vars()
+            
+    #creates error popup message        
+    def popup(self, msg, title, size):
+        
+        popup = Tk()
+        
+        popup.title(title)
+        popup.geometry(size)
+        labelPopup = ttk.Label(popup, text=msg)
+        labelPopup.pack(padx=70, pady=50, anchor='center')
+        buttonExit = ttk.Button(popup, text='OK', command=popup.destroy)
+        buttonExit.pack(pady=10)
+        
+        popup.mainloop()
+            
+    #all set up functions
+    def create_var_page(self):
+        
+        self.set_labels()
+        self.set_entries()
+        self.save_option()
+        self.upload_option()
+        self.tab_buttons()
+        self.gcode()
+        self.model_page()
+        self.g_robot()
+        self.version_num()      
+        self.reset_vars()
         
     #############################################
     #   methods that are called from buttons    #
     #############################################
-                
+               
     def save(self, name = None):
 
-# TODO: There seems to be a lot of repeated code in this if block. Please try
-# to refactor to reduce this section
         #only saving JSON
         if name is None:
             self.savePath = filedialog.asksaveasfilename()
@@ -485,7 +459,7 @@ class Page_Variables(Frame):
                 gcodeName = self.GCODEPATH = name + '.mod'
             self.filename = self.JSONPATH + name + '.json'          
         
-        data = {}               #dictionary to put String value of StringVar values in
+        data = {}              
         var_data = {}
         
         def save(dic, key, save_type, value, is_list = False):
@@ -499,9 +473,8 @@ class Page_Variables(Frame):
                 elif save_type == self.STR:
                     dic[key] = str(value)
             
-        #check if the user cancelled saving the file
         if self.savePath:
-                                                       #variables with type None
+                                                       
             data[self.OUTPUTFILENAME] = gcodeName
             data[self.OUTPUTSUBDIRECTORY] = self.savePath
             data['g_robot_var'] = self.g_robot_var.get()
@@ -533,20 +506,15 @@ class Page_Variables(Frame):
             if not os.path.isdir(self.JSONPATH):
                 os.makedirs(self.JSONPATH)
             with open(self.filename, 'w') as fp:
-                json.dump([data, var_data], fp)    #save JSON file
+                json.dump([data, var_data], fp)   
     
+    #accounts for file extensions
     def check_end(self, pathName):
-        # TODO: Don't create variables that are not needed. This method
-        # could be:
-        # return os.path.splitext(pathName)[0]
         
-        pathName = os.path.splitext(pathName)[0]
-    
-        return pathName
+        return os.path.splitext(pathName)[0]
         
-    #uploads dictionary from JSON file to replace current StringVar values, opens window to find file       
     def upload(self):
-        uploadname = filedialog.askopenfilename()     #creates window to find file
+        uploadname = filedialog.askopenfilename()  
         
         if uploadname != '':
             with open(uploadname, 'r') as fp:
@@ -556,7 +524,7 @@ class Page_Variables(Frame):
                
             for key, value in data.items():    
                 if data[key] == None:
-                    self.text_variable[key].set('None') #replace current StringVar with String 'None'
+                    self.text_variable[key].set('None') 
                 elif key == 'shift':
                     self.shift = value
                 elif key == 'g_robot_var':
@@ -570,13 +538,25 @@ class Page_Variables(Frame):
                 elif key in self.text_variable.keys():
                     value = str(value)
                     value = value.replace('[','').replace(']','')
-                    self.text_variable[key].set(value)   #replace current StringVar values with data from JSON file
+                    self.text_variable[key].set(value)  
             
             if var_data:
                 for key, value in var_data.items():
                     self.var_saved[key] = value
                     
             self.regrid()
+            
+    #swtiches between tabs        
+    def command(self, params):
+        def inner_command():
+            self.current_menu = params
+            for param in self.parameters:
+                self.labels[param.label].grid_forget()      
+                self.entries[param.label].grid_forget()
+            for x, param in enumerate(params):
+                self.labels[param.label].grid(row=x+1+self.shift, column=0)
+                self.entries[param.label].grid(row=x+1+self.shift, column=1, sticky='ew')
+        return inner_command
                     
     
     #create Gcode file                    
@@ -591,26 +571,10 @@ class Page_Variables(Frame):
             else:
                 self.save(name)
             
-            #check if the user cancelled converting to Gcode
             if self.savePath and self.text_variable['outline'].get() != 'choose a shape':
-                #convert to Gcode
                 conversion = Runner(self.filename, self.g_robot_var.get())
                 conversion.run()
-                os.remove(self.filename)
-            
-    def popup(self, msg, title, size):
-        
-        popup = Tk()
-        
-        popup.title(title)
-        popup.geometry(size)
-        labelPopup = ttk.Label(popup, text=msg)
-        labelPopup.pack(padx=70, pady=50, anchor='center')
-        buttonExit = ttk.Button(popup, text='OK', command=popup.destroy)
-        buttonExit.pack(pady=10)
-        
-        popup.mainloop()
-            
+                os.remove(self.filename)        
     
     #convert to gcode, switch to Page_Model        
     def to_model(self):
@@ -621,7 +585,6 @@ class Page_Variables(Frame):
         
         os.remove(self.GCODEPATH + 'temp.gcode')
 
-
 class Page_Model(Frame):    
     
     def __init__(self, parent, controller):
@@ -629,7 +592,8 @@ class Page_Model(Frame):
         self.controller = controller
         
         self.get_data()
-        
+    
+    #reads data in from .txt file    
     def get_data(self):
         
         data = []
@@ -642,11 +606,8 @@ class Page_Model(Frame):
         with open('data_points.txt', 'r') as f:
             for line in f:
                 if 'start' in line:
-#                    print('start ', counter)
                     start = counter
                 elif 'layer_number' in line:
-#                    print(line)
-#                    print(counter)
                     self.layer_part.append([line.split(':')[1], line.split(':')[3], start, counter])
                 else:
                     data.append(line)      
@@ -691,7 +652,7 @@ class Page_Model(Frame):
 
         self.intvar_layerparts = {}
         
-        self.mb = ttk.Menubutton(self, text='testing')
+        self.mb = ttk.Menubutton(self, text='Layers')
         self.mb.grid()
         self.mb.menu = Menu (self.mb, tearoff=1)
         self.mb['menu'] = self.mb.menu
@@ -704,7 +665,7 @@ class Page_Model(Frame):
         self.mb.grid(row=5,column=1)
         
         buttonModel = ttk.Button(self, text='Create Model',
-                                 command=lambda: self.make_model())
+                                 command=lambda: self.make_graph())
         buttonModel.grid(row=6,column=1)
         
 
@@ -713,8 +674,8 @@ class Page_Model(Frame):
         self.show_labels()
         self.show_scales()
         self.show_buttons()                
-        
-    def make_graph(self, start, end):
+   
+    def make_graph(self, start = False, end = False):
                 
         self.fig = plt.figure()
         self.ax = self.fig.add_subplot(111, projection='3d')
@@ -731,39 +692,20 @@ class Page_Model(Frame):
                             for six in color_num:
                                 curr_color = '#' + one + two + three + four + five + six
                                 self.colors.append(curr_color)
+
+        if end:      
+            for num in range(start, end):
+                num_color = num%len(self.colors)
+                self.ax.plot_wireframe(self.xar[num], self.yar[num], self.zar[num], color=self.colors[num_color])
+                
+        else:
+            counting = 0                       
+            for id_array in self.layer_part:
+                if self.intvar_layerparts[str(id_array)].get() == 1:
+                    for c in range(int(id_array[2]), int(id_array[3])):
+                        num_color=c%len(self.colors)
+                        self.ax.plot_wireframe(self.xar[c], self.yar[c], self.zar[c], color=self.colors[num_color])
             
-        for num in range(start, end):
-            num_color = num%len(self.colors)
-            self.ax.plot_wireframe(self.xar[num], self.yar[num], self.zar[num], color=self.colors[num_color])
-            
-        plt.show()
-        
-    def make_model(self):
-        
-        self.fig = plt.figure()
-        self.ax = self.fig.add_subplot(111, projection='3d')
-        
-        self.colors = []
-        
-        color_num = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F']
-        color_num2 = ['0','8']
-        for one in color_num:
-            for two in color_num2:
-                for three in color_num2:
-                    for four in color_num2:
-                        for five in color_num2:
-                            for six in color_num:
-                                curr_color = '#' + one + two + three + four + five + six
-                                self.colors.append(curr_color)         
-        
-         
-        counting = 0                       
-        for id_array in self.layer_part:
-            if self.intvar_layerparts[str(id_array)].get() == 1:
-                for c in range(int(id_array[2]), int(id_array[3])):
-                    num_color=c%len(self.colors)
-                    self.ax.plot_wireframe(self.xar[c], self.yar[c], self.zar[c], color=self.colors[num_color])
-                    
         plt.show()
         
     def to_variables(self):
@@ -773,13 +715,6 @@ class Page_Model(Frame):
     
 #only works if program is used as the main program, not as a module    
 if __name__ == '__main__': 
-
-#####################
-#   GUI creation    #
-#####################
-
-#create GUI
+    
     gui = GUI()
-
-#keeps GUI open, always necessary
     gui.mainloop() 
