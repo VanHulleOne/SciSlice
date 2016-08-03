@@ -488,8 +488,16 @@ class Page_Variables(Frame):
         data = {}               #dictionary to put String value of StringVar values in
         var_data = {}
         
-        def save(dic, var_dic, key, save_type):
-            dic[key] = save_type(var_dic[key].get())
+        def save(dic, key, save_type, value, is_list = False):
+            if is_list:
+                dic[key] = [save_type(i) for i in value.split(',') if i != '']
+            else:
+                if save_type == self.INT:
+                    dic[key] = int(value) 
+                elif save_type == self.FLOAT:
+                    dic[key] = float(value)
+                elif save_type == self.STR:
+                    dic[key] = str(value)
             
         #check if the user cancelled saving the file
         if self.savePath:
@@ -501,6 +509,7 @@ class Page_Variables(Frame):
             if self.var_keys:
                 for key in self.var_keys:
                     if self.var_types[key] in (float, int, str):
+                        save(var_data, key, self.var_types[key], self.var_stringvars[key])
                         
 #                    if self.var_types[key] == float:
 #                        var_data[key] = float(self.var_stringvars[key].get())
@@ -510,32 +519,49 @@ class Page_Variables(Frame):
 #                        var_data[key] = str(self.var_stringvars[key].get())
             
             for param in self.parameters:
-                label = param.label
-                data_type = param.data_type
-                if label == c.STL_FLAG:
-                    data[label] = self.stl_path
-                elif data_type == self.STR:
-                    data[label] = self.text_variable[label].get()
-                elif data_type == self.NONE:
-                    data[label] = None
-                elif data_type == self.INT:
-                    data[label] = int(self.text_variable[label].get())
-                elif data_type == self.FLOAT:
-                    data[label] = float(self.text_variable[label].get())
-                else:
-                    value = self.text_variable[label].get()    
-                    if ' ' in value:
-                        value = value.replace(' ', ',')                
-                    if ',,' in value:
-                        value = value.replace(',,', ',')     
-                    if '(' in value:
-                        value = value.replace('(', '')
-                    if ')' in value:
-                        value = value.replace(')', '')
-                    if data_type == self.INT_LIST:
-                        data[label] = [int(i) for i in value.split(',') if i  != '']     
-                    elif data_type == self.FLOAT_LIST:
-                        data[label] = [float(i) for i in value.split(',') if i  != '']    
+                if param.label == c.STL_FLAG:
+                    data[param.label] = self.stl_path
+                    
+                elif param.data_type == self.INT_LIST:
+                    save(data, param.label, int, 
+    self.text_variable[param.label].get().replace(' ', ',').replace(',,', ',').replace('(', '').replace(')', ''), True)
+    
+                elif param.data_type == self.FLOAT_LIST:
+                    save(data, param.label, float, 
+    self.text_variable[param.label].get().replace(' ', ',').replace(',,', ',').replace('(', '').replace(')', ''), True)
+                        
+                elif param.data_type in (self.STR, self.INT, self.FLOAT):
+                    save(data, param.label, param.data_type, self.text_variable[param.label].get())
+                    
+                elif param.data_type == self.NONE:
+                    data[param.label] = None
+                
+#                label = param.label
+#                data_type = param.data_type
+#                if label == c.STL_FLAG:
+#                    data[label] = self.stl_path
+#                elif data_type == self.STR:
+#                    data[label] = self.text_variable[label].get()
+#                elif data_type == self.NONE:
+#                    data[label] = None
+#                elif data_type == self.INT:
+#                    data[label] = int(self.text_variable[label].get())
+#                elif data_type == self.FLOAT:
+#                    data[label] = float(self.text_variable[label].get())
+#                else:
+#                    value = self.text_variable[label].get()    
+#                    if ' ' in value:
+#                        value = value.replace(' ', ',')                
+#                    if ',,' in value:
+#                        value = value.replace(',,', ',')     
+#                    if '(' in value:
+#                        value = value.replace('(', '')
+#                    if ')' in value:
+#                        value = value.replace(')', '')
+#                    if data_type == self.INT_LIST:
+#                        data[label] = [int(i) for i in value.split(',') if i  != '']     
+#                    elif data_type == self.FLOAT_LIST:
+#                        data[label] = [float(i) for i in value.split(',') if i  != '']    
             
             if not os.path.isdir(self.JSONPATH):
                 os.makedirs(self.JSONPATH)
@@ -780,7 +806,7 @@ if __name__ == '__main__':
 #####################
 
 #create GUI
-gui = GUI()
+    gui = GUI()
 
 #keeps GUI open, always necessary
-gui.mainloop() 
+    gui.mainloop() 
