@@ -505,18 +505,12 @@ class Page_Variables(Frame):
             data[self.OUTPUTFILENAME] = gcodeName
             data[self.OUTPUTSUBDIRECTORY] = self.savePath
             data['g_robot_var'] = self.g_robot_var.get()
+            data['shift'] = self.shift
             
             if self.var_keys:
                 for key in self.var_keys:
                     if self.var_types[key] in (float, int, str):
                         save(var_data, key, self.var_types[key], self.var_stringvars[key])
-                        
-#                    if self.var_types[key] == float:
-#                        var_data[key] = float(self.var_stringvars[key].get())
-#                    elif self.var_types[key] == int:
-#                        var_data[key] = int(self.var_stringvars[key].get())
-#                    elif self.var_types[key] == str:
-#                        var_data[key] = str(self.var_stringvars[key].get())
             
             for param in self.parameters:
                 if param.label == c.STL_FLAG:
@@ -535,33 +529,6 @@ class Page_Variables(Frame):
                     
                 elif param.data_type == self.NONE:
                     data[param.label] = None
-                
-#                label = param.label
-#                data_type = param.data_type
-#                if label == c.STL_FLAG:
-#                    data[label] = self.stl_path
-#                elif data_type == self.STR:
-#                    data[label] = self.text_variable[label].get()
-#                elif data_type == self.NONE:
-#                    data[label] = None
-#                elif data_type == self.INT:
-#                    data[label] = int(self.text_variable[label].get())
-#                elif data_type == self.FLOAT:
-#                    data[label] = float(self.text_variable[label].get())
-#                else:
-#                    value = self.text_variable[label].get()    
-#                    if ' ' in value:
-#                        value = value.replace(' ', ',')                
-#                    if ',,' in value:
-#                        value = value.replace(',,', ',')     
-#                    if '(' in value:
-#                        value = value.replace('(', '')
-#                    if ')' in value:
-#                        value = value.replace(')', '')
-#                    if data_type == self.INT_LIST:
-#                        data[label] = [int(i) for i in value.split(',') if i  != '']     
-#                    elif data_type == self.FLOAT_LIST:
-#                        data[label] = [float(i) for i in value.split(',') if i  != '']    
             
             if not os.path.isdir(self.JSONPATH):
                 os.makedirs(self.JSONPATH)
@@ -585,9 +552,13 @@ class Page_Variables(Frame):
             with open(uploadname, 'r') as fp:
                 data, var_data = json.load(fp)
                 
+            self.reset_vars()
+               
             for key, value in data.items():    
                 if data[key] == None:
                     self.text_variable[key].set('None') #replace current StringVar with String 'None'
+                elif key == 'shift':
+                    self.shift = value
                 elif key == 'g_robot_var':
                     self.g_robot_var.set(value)
                 elif key == c.STL_FLAG:
@@ -598,13 +569,14 @@ class Page_Variables(Frame):
                         self.text_variable[key].set(self.stl_path)
                 elif key in self.text_variable.keys():
                     value = str(value)
-                    value = value.replace('[','')
-                    value = value.replace(']','')
+                    value = value.replace('[','').replace(']','')
                     self.text_variable[key].set(value)   #replace current StringVar values with data from JSON file
-                    
+            
             if var_data:
                 for key, value in var_data.items():
                     self.var_saved[key] = value
+                    
+            self.regrid()
                     
     
     #create Gcode file                    
@@ -670,11 +642,11 @@ class Page_Model(Frame):
         with open('data_points.txt', 'r') as f:
             for line in f:
                 if 'start' in line:
-                    print('start ', counter)
+#                    print('start ', counter)
                     start = counter
                 elif 'layer_number' in line:
-                    print(line)
-                    print(counter)
+#                    print(line)
+#                    print(counter)
                     self.layer_part.append([line.split(':')[1], line.split(':')[3], start, counter])
                 else:
                     data.append(line)      
@@ -746,7 +718,7 @@ class Page_Model(Frame):
                 
         self.fig = plt.figure()
         self.ax = self.fig.add_subplot(111, projection='3d')
-        
+
         self.colors = []
         
         color_num = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F']
@@ -783,6 +755,7 @@ class Page_Model(Frame):
                             for six in color_num:
                                 curr_color = '#' + one + two + three + four + five + six
                                 self.colors.append(curr_color)         
+        
          
         counting = 0                       
         for id_array in self.layer_part:
