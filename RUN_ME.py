@@ -340,8 +340,8 @@ class Page_Variables(Frame):
         else:
             self.stl_path = ''
             self.annot = inspect.getfullargspec(getattr(ds, var)).annotations
-        
-        if self.annot: 
+
+        if len(self.annot) > 1: 
             self.shift = 2
             self.regrid()            
             
@@ -472,6 +472,8 @@ class Page_Variables(Frame):
                     dic[key] = float(value)
                 elif save_type == self.STR:
                     dic[key] = str(value)
+                else:
+                    dic[key] = save_type(value)
             
         if self.savePath:
                                                        
@@ -479,11 +481,10 @@ class Page_Variables(Frame):
             data[self.OUTPUTSUBDIRECTORY] = self.savePath
             data['g_robot_var'] = self.g_robot_var.get()
             data['shift'] = self.shift
-            
             if self.var_keys:
                 for key in self.var_keys:
                     if self.var_types[key] in (float, int, str):
-                        save(var_data, key, self.var_types[key], self.var_stringvars[key])
+                        save(var_data, key, self.var_types[key], self.var_stringvars[key].get())
             
             for param in self.parameters:
                 if param.label == c.STL_FLAG:
