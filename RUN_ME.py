@@ -38,7 +38,7 @@ class GUI(Tk):
         
         self.frames = {}
         
-        self.shapes = {Page_Variables : '425x750+150+100',       
+        self.shapes = {Page_Variables : '475x750+150+100',       
                        Page_Model : '600x500+150+100'}
         
         for F in (Page_Variables,):        
@@ -367,7 +367,7 @@ class Page_Variables(Frame):
                     self.var_labels[key] = ttk.Label(var_window, text=key)
                     self.var_labels[key].grid(row=x, column=0, padx=5)
                     self.var_entries[key] = ttk.Entry(var_window, textvariable=self.var_stringvars[key])
-                    self.var_entries[key].grid(row=x, column=1)
+                    self.var_entries[key].grid(row=x, column=1, padx=1, pady=1)
                     self.var_values[self.var_entries[key]] = new_value
             
             def default(event):
