@@ -331,6 +331,7 @@ class Page_Variables(Frame):
         self.regrid()        
         
         if var == 'choose a shape':
+            self.stl_path = ''
             self.annot = False
         elif var == c.STL_FLAG:
             self.stl_path = filedialog.askopenfilename()
@@ -397,6 +398,7 @@ class Page_Variables(Frame):
             
         else:
             self.reset_vars()
+            self.values_bar()
             
     #creates error popup message        
     def popup(self, msg, title, size):
