@@ -10,6 +10,8 @@ import constants as c
 import matplotlib                  
 from collections import namedtuple
 
+#when using Spyder, to make a pop-up interactive plot, go to 
+#tools > preferences > IPython console > Graphics > change "Backend" to "Automatic" > restart Spyder
 from mpl_toolkits.mplot3d import axes3d
 import matplotlib.pyplot as plt
 
