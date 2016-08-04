@@ -24,3 +24,20 @@ a python console (either "Python 1" tab in console or the
 
 if both of these commands work without generating an 
 erro then you are ready to go
+
+shapely:
+1. windows-key + r
+2. "cmd" + enter
+3. "conda install -c scitools shapely=1.5.13" + enter
+4. "y" + enter
+
+trimesh:
+1. spyder
+2. open command prompt
+3. "pip install trimesh" + enter
+
+rtree:
+1. window-key + r
+2. "cmd" + enter
+3. "conda install -c ioos rtree=0.8.2" + enter
+4. "y" + enter
