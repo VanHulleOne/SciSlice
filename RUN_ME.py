@@ -329,20 +329,21 @@ class Page_Variables(Frame):
         
         self.shift = 0
         self.regrid()        
-        
-        if var == 'choose a shape':
+
+        if var == 'choose a shape' or var != c.STL_FLAG:
             self.stl_path = ''
-            self.annot = False
-        elif var == c.STL_FLAG:
+            try:
+                self.annot = inspect.getfullargspec(getattr(ds, var)).annotations
+            except:
+                self.annot = {}
+            self.text_variable[c.STL_FLAG].set(self.stl_path)
+        else:
             self.stl_path = filedialog.askopenfilename()
             if self.stl_path == '':
                 self.text_variable['outline'].set('choose a shape')
             else:
                 self.text_variable[c.STL_FLAG].set(os.path.basename(os.path.normpath(self.stl_path)))
-            self.annot = False
-        else:
-            self.stl_path = ''
-            self.annot = inspect.getfullargspec(getattr(ds, var)).annotations
+            self.annot = {}
 
         if len(self.annot) > 1: 
             self.shift = 2
