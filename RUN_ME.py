@@ -53,7 +53,7 @@ class GUI(Tk):
         self.show_frame(Page_Variables)
        
     def show_frame(self, cont, delete=False, cont_to_del = None):
-        
+
         if cont not in self.frames:
             frame = cont(self.container, self)
             self.frames[cont] = frame
@@ -584,12 +584,18 @@ class Page_Variables(Frame):
     
     #convert to gcode, switch to Page_Model        
     def to_model(self):
-      
-        self.convert('temp')
         
-        self.controller.show_frame(Page_Model)
-        
-        os.remove(self.GCODEPATH + 'temp.gcode')
+        try:
+            self.convert('temp')
+            
+        except:
+            print('Error during Gcode conversion')
+            self.controller.show_frame(Page_Variables)
+            
+        else:
+            labelLoading.grid_remove()
+            self.controller.show_frame(Page_Model)
+            os.remove(self.GCODEPATH + 'temp.gcode')
 
 class Page_Model(Frame):    
     
@@ -717,7 +723,6 @@ class Page_Model(Frame):
     def to_variables(self):
         
         self.controller.show_frame(Page_Variables, True, Page_Model)
-
     
 #only works if program is used as the main program, not as a module    
 if __name__ == '__main__': 
