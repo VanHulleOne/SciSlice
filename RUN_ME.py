@@ -490,7 +490,7 @@ class Page_Variables(Frame):
             if self.var_keys:
                 for key in self.var_keys:
                     if self.var_types[key] in (float, int, str):
-                        save(var_data, key, self.var_types[key], self.var_stringvars[key].get())
+                        save(var_data, key, self.var_types[key], self.var_saved[key])
             
             for param in self.parameters:
                 if param.label == c.STL_FLAG:
@@ -549,7 +549,9 @@ class Page_Variables(Frame):
             
             if var_data:
                 for key, value in var_data.items():
+                    self.var_keys.append(key)
                     self.var_saved[key] = value
+                    self.var_types[key] = type(value)
                     
             self.regrid()
             
