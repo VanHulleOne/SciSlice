@@ -616,12 +616,17 @@ class Page_Model(Frame):
         self.yar = []
         self.zar = []
         self.layer_part = []
+        curr_layer = None
+        curr_part = None
         
         for line in data_points:
             if 'start' in line:
                 start = counter
             else:
-                self.layer_part.append([line[1].split(':')[1], line[1].split(':')[3], start, counter]) 
+                if curr_layer != line[1].split(':')[1] and curr_part != line[1].split(':')[3]:
+                    self.layer_part.append([line[1].split(':')[1], line[1].split(':')[3], start, counter]) 
+                    curr_layer = line[1].split(':')[1]
+                    curr_part = line[1].split(':')[3]
                 data.append(line[0])      
                 data[counter] = data[counter].split(',')
                 for y in range(0,len(data[counter])):
