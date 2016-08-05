@@ -593,7 +593,6 @@ class Page_Variables(Frame):
             self.controller.show_frame(Page_Variables)
             
         else:
-            labelLoading.grid_remove()
             self.controller.show_frame(Page_Model)
             os.remove(self.GCODEPATH + 'temp.gcode')
 
