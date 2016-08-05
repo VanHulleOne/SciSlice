@@ -479,9 +479,8 @@ class Page_Variables(Frame):
                     dic[key] = str(value)
                 else:
                     dic[key] = save_type(value)
-            
+   
         if self.savePath:
-                                                       
             data[self.OUTPUTFILENAME] = gcodeName
             data[self.OUTPUTSUBDIRECTORY] = self.savePath
             data['g_robot_var'] = self.g_robot_var.get()
@@ -489,7 +488,7 @@ class Page_Variables(Frame):
             if self.var_keys:
                 for key in self.var_keys:
                     if self.var_types[key] in (float, int, str):
-                        save(var_data, key, self.var_types[key], self.var_stringvars[key].get())
+                        save(var_data, key, self.var_types[key], self.var_saved[key])
             
             for param in self.parameters:
                 if param.label == c.STL_FLAG:
@@ -548,7 +547,9 @@ class Page_Variables(Frame):
             
             if var_data:
                 for key, value in var_data.items():
+                    self.var_keys.append(key)
                     self.var_saved[key] = value
+                    self.var_types[key] = type(value)
                     
             self.regrid()
             
