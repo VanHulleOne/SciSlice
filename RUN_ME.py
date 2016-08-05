@@ -23,7 +23,7 @@ from runner import Runner           #for converting to Gcode
 import parameters
 import doneshapes as ds
 import inspect
-
+data_points = []
 
 class GUI(Tk):
 
@@ -481,8 +481,7 @@ class Page_Variables(Frame):
                 else:
                     dic[key] = save_type(value)
             
-        if self.savePath:
-                                                       
+        if self.savePath:                                                       
             data[self.OUTPUTFILENAME] = gcodeName
             data[self.OUTPUTSUBDIRECTORY] = self.savePath
             data['g_robot_var'] = self.g_robot_var.get()
@@ -570,6 +569,7 @@ class Page_Variables(Frame):
     
     #create Gcode file                    
     def convert(self, name = None):
+        global data_points
         
         if self.text_variable['outline'].get() == 'choose a shape':
             text = 'Error: no shape is selected.\n   Please choose a shape.'
@@ -582,7 +582,7 @@ class Page_Variables(Frame):
             
             if self.savePath and self.text_variable['outline'].get() != 'choose a shape':
                 conversion = Runner(self.filename, self.g_robot_var.get())
-                conversion.run()
+                data_points = conversion.run()
                 os.remove(self.filename)        
     
     #convert to gcode, switch to Page_Model        
@@ -606,9 +606,9 @@ class Page_Model(Frame):
         self.controller = controller
         
         self.get_data()
-    
-    #reads data in from .txt file    
+       
     def get_data(self):
+        global data_points
         
         data = []
         counter = 0
@@ -617,21 +617,19 @@ class Page_Model(Frame):
         self.zar = []
         self.layer_part = []
         
-        with open('data_points.txt', 'r') as f:
-            for line in f:
-                if 'start' in line:
-                    start = counter
-                elif 'layer_number' in line:
-                    self.layer_part.append([line.split(':')[1], line.split(':')[3], start, counter])
-                else:
-                    data.append(line)      
-                    data[counter] = data[counter].split(',')
-                    for y in range(0,len(data[counter])):
-                        data[counter][y] = float(data[counter][y])
-                    self.xar.append([data[counter][0], data[counter][3]])
-                    self.yar.append([data[counter][1], data[counter][4]])
-                    self.zar.append([data[counter][2], data[counter][5]])     
-                    counter += 1
+        for line in data_points:
+            if 'start' in line:
+                start = counter
+            else:
+                self.layer_part.append([line[1].split(':')[1], line[1].split(':')[3], start, counter]) 
+                data.append(line[0])      
+                data[counter] = data[counter].split(',')
+                for y in range(0,len(data[counter])):
+                    data[counter][y] = float(data[counter][y])
+                self.xar.append([data[counter][0], data[counter][3]])
+                self.yar.append([data[counter][1], data[counter][4]])
+                self.zar.append([data[counter][2], data[counter][5]])     
+                counter += 1
                     
         self.setup()
     

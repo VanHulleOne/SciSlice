@@ -157,14 +157,8 @@ class Figura:
             yield self.gc.firstApproach(totalExtrusion, layer[0].start)
             
             prevLoc = layer[0].start
-#TODO            self.data_points.write('start\n')
+            self.data_points.append(['start'])
             for line in layer:
-                self.data_points.append(','.join(str(i) for i in line.start.normalVector[:3])+',')
-                print((','.join(str(i) for i in line.end.normalVector[:3])))
-#                self.data_points.append[(','.join(str(i) for i in line.start.normalVector[:3])+','),
-#                (','.join(str(i) for i in line.end.normalVector[:3]))]
-#                print(self.data_points)
-#TODO                self.data_points.write('\n')
                 if prevLoc != line.start:
                     if (prevLoc - line.start) < self.pr.MAX_FEED_TRAVERSE:
                         yield self.gc.rapidMove(line.start, c.OMIT_Z)
@@ -179,7 +173,9 @@ class Figura:
                                           partParams.printSpeed)
                 prevLoc = line.end
             
-#TODO            self.data_points.write('layer_number:' + str(layerNumber) + ':  part_number:' + str(self.partCount) + ':\n')
+                self.data_points.append([(','.join(str(i) for i in line.start.normalVector[:3])+',')+
+                                        (','.join(str(i) for i in line.end.normalVector[:3])),
+                                        ('layer_number:' + str(layerNumber) + ':  part_number:' + str(self.partCount) + ':')])
             yield self.gc.retractLayer(totalExtrusion, layer[-1].end)
             yield '\n'
             layerNumber += 1
@@ -277,9 +273,6 @@ class Figura:
             tempString += str(layer)
             layerNumber += 1
         return tempString
-        
-#TODO    def close_file(self):
-#        self.data_points.close()
     
     def return_data_points(self):
         return self.data_points

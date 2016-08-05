@@ -27,22 +27,17 @@ class Runner:
         startTime = time.time()
         print('\nGenerating code, please wait...')
         
-        #creates new, blank file for use
-#TODO        temp = open("data_points.txt", 'w')
-#        temp.close()
-        
         fig = fg.Figura(self.pr, self.gc)
 
         with open(self.pr.outputFileName, 'w') as f:
             for string in fig.masterGcode_gen():
                 f.write(string)
         
-#TODO        fig.close_file()
         endTime = time.time()
         print('\nCode generated.')
         print('Done writting: ' + self.pr.outputFileName + '\n')
         print('{:.2f} total time'.format(endTime - startTime))
-        print(fig.return_data_points())
+        return fig.return_data_points()
         """
         if c.LOG_LEVEL < c.logging.WARN:
             with open(self.outputSubDirectory+'\\'+self.outputFileName, 'r') as test,\
