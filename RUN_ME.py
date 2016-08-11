@@ -107,7 +107,7 @@ class Page_Variables(Frame):
                 Par('shiftY', FLOAT_LIST, (COMMON, PART)),
                 Par('firstLayerShiftZ', FLOAT, (PART,)),
                 Par('numLayers', INT_LIST, (COMMON, PART)),
-                Par('pattern', NONE, (PART,)),
+                Par('pattern', STR, (COMMON, PART,)),
                 Par('designType', INT, (PART,)),
                 Par('infillAngleDegrees', FLOAT_LIST, (COMMON, LAYER)),
                 Par('pathWidth', FLOAT_LIST, (LAYER,)),
@@ -215,15 +215,24 @@ class Page_Variables(Frame):
     #creates menu of the different possible shapes from the doneshapes class        
     def doneshapes_menu(self):
         
-        doneshape_funcs = ['choose a shape']
-        doneshape_funcs.append(c.STL_FLAG)
+        doneshape_outline = ['choose a shape']
+        doneshape_inline = ['none']
+        doneshape_outline.append(c.STL_FLAG)
         for member in inspect.getmembers(ds, inspect.isfunction):
-            doneshape_funcs.append(member[0])
+            if 'outline' in str(inspect.getfullargspec(getattr(ds, member[0])).annotations['return']):
+                doneshape_outline.append(member[0])
+            else:
+                doneshape_inline.append(member[0])
         
         self.entries['outline'] = ttk.OptionMenu(self,
                                                 self.text_variable['outline'],
                                                 self.defaults['outline'],
-                                                *doneshape_funcs,
+                                                *doneshape_outline,
+                                                command=self.set_var)
+        self.entries['pattern'] = ttk.OptionMenu(self,
+                                                self.text_variable['pattern'],
+                                                self.defaults['pattern'],
+                                                *doneshape_inline,
                                                 command=self.set_var)
         
     def save_option(self): 
@@ -330,14 +339,17 @@ class Page_Variables(Frame):
         
         self.shift = 0
         self.regrid()        
-
-        if var == 'choose a shape' or var != c.STL_FLAG:
-            self.stl_path = ''
+        is_outline = False
+        if var != c.STL_FLAG:
             try:
                 self.annot = inspect.getfullargspec(getattr(ds, var)).annotations
             except:
                 self.annot = {}
-            self.text_variable[c.STL_FLAG].set(self.stl_path)
+            print(self.annot)
+            if 'outline' in str(self.annot['return']):
+                is_outline = True
+                self.stl_path = ''
+                self.text_variable[c.STL_FLAG].set(self.stl_path)
         else:
             self.stl_path = filedialog.askopenfilename()
             if self.stl_path == '':
@@ -347,18 +359,20 @@ class Page_Variables(Frame):
             self.annot = {}
 
         if len(self.annot) > 1: 
-            self.shift = 2
-            self.regrid()            
+            if is_outline:
+                self.shift = 2
+                self.regrid()            
             
             var_window = Tk()
             
             var_window.title(var)
             var_window.geometry('+650+100')         
             
-            if self.old_var != var:
+            if self.old_var != var and is_outline:
                 self.reset_vars()
                 self.old_var = var
             
+            def create_window(keys, types, )            
             for x, (key, value) in enumerate(self.annot.items()):
                 if key != 'return':
                     self.var_keys.append(key)
