@@ -345,7 +345,6 @@ class Page_Variables(Frame):
                 self.annot = inspect.getfullargspec(getattr(ds, var)).annotations
             except:
                 self.annot = {}
-            print(self.annot)
             if 'outline' in str(self.annot['return']):
                 is_outline = True
                 self.stl_path = ''
@@ -371,8 +370,7 @@ class Page_Variables(Frame):
             if self.old_var != var and is_outline:
                 self.reset_vars()
                 self.old_var = var
-            
-            def create_window(keys, types, )            
+                      
             for x, (key, value) in enumerate(self.annot.items()):
                 if key != 'return':
                     self.var_keys.append(key)
