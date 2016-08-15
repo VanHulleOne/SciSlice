@@ -36,6 +36,8 @@ TRIMMED_FIELD = 4
 GCODE = 0
 ROBOTCODE = 1
 STL_FLAG = 'stl_file'
+OUTLINE_NONE_CHOICE = 'choose a shape'
+PATTERN_NONE_CHOICE = 'none'
 
 LOG_LEVEL = logging.INFO
 importlib.reload(logging)

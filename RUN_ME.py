@@ -232,8 +232,8 @@ class Page_Variables(Frame):
     #creates menu of the different possible shapes from the doneshapes class        
     def doneshapes_menu(self):
         
-        doneshape_outline = ['choose a shape']
-        doneshape_pattern = ['none']
+        doneshape_outline = [c.OUTLINE_NONE_CHOICE]
+        doneshape_pattern = [c.PATTERN_NONE_CHOICE]
         doneshape_outline.append(c.STL_FLAG)
         for member in inspect.getmembers(ds, inspect.isfunction):
             if 'outline' in str(inspect.getfullargspec(getattr(ds, member[0])).annotations['return']):
@@ -381,7 +381,7 @@ class Page_Variables(Frame):
                 self.annot = inspect.getfullargspec(getattr(ds, var)).annotations
             except:
                 self.annot = {}
-                if var == 'choose a shape':
+                if var == c.OUTLINE_NONE_CHOICE:
                     is_outline = True
                     self.stl_path = ''
                     self.text_variable[c.STL_FLAG].set(self.stl_path)
@@ -394,7 +394,7 @@ class Page_Variables(Frame):
             is_outline = True
             self.stl_path = filedialog.askopenfilename()
             if self.stl_path == '':
-                self.text_variable['outline'].set('choose a shape')
+                self.text_variable['outline'].set(c.OUTLINE_NONE_CHOICE)
             else:
                 self.text_variable[c.STL_FLAG].set(os.path.basename(os.path.normpath(self.stl_path)))
             self.annot = {}
@@ -532,7 +532,7 @@ class Page_Variables(Frame):
             self.filename = self.JSONPATH + name + '.json'          
         
         data = {}              
-        outline_var_data = {}
+        all_var_data = {self.OUTLINE : {}, self.PATTERN : {}}
         
         def save(dic, key, save_type, value, is_list = False):
             if is_list:
@@ -552,17 +552,16 @@ class Page_Variables(Frame):
             data[self.OUTPUTSUBDIRECTORY] = self.savePath
             data['g_robot_var'] = self.g_robot_var.get()
             data['shift'] = self.shift
-            if len(self.all_vars[self.OUTLINE][self.KEYS]) > 0:
-                for key in self.all_vars[self.OUTLINE][self.KEYS]:
-                    if self.all_vars[self.OUTLINE][self.TYPES][key] in (float, int, str):
-                        save(outline_var_data, key, self.all_vars[self.OUTLINE][self.TYPES][key], 
-                             self.all_vars[self.OUTLINE][self.SAVED][key])
             
-            for param in self.parameters:
-                if param.label == 'pattern':
-                    data[param.label] = None
-                    
-                elif param.label == c.STL_FLAG:
+            for outline_or_pattern in (self.OUTLINE, self.PATTERN):
+                if len(self.all_vars[outline_or_pattern][self.KEYS]) > 0:
+                    for key in self.all_vars[outline_or_pattern][self.KEYS]:
+                        if self.all_vars[outline_or_pattern][self.TYPES][key] in (float, int, str):
+                            save(all_var_data[outline_or_pattern], key, self.all_vars[outline_or_pattern][self.TYPES][key], 
+                                 self.all_vars[outline_or_pattern][self.SAVED][key])
+            
+            for param in self.parameters:                   
+                if param.label == c.STL_FLAG:
                     data[param.label] = self.stl_path
                     
                 elif param.data_type == self.INT_LIST or param.data_type == self.FLOAT_LIST:
@@ -582,7 +581,7 @@ class Page_Variables(Frame):
             if not os.path.isdir(self.JSONPATH):
                 os.makedirs(self.JSONPATH)
             with open(self.filename, 'w') as fp:
-                json.dump([data, outline_var_data], fp)   
+                json.dump([data, all_var_data[self.OUTLINE], all_var_data[self.PATTERN]], fp)   
     
     #accounts for file extensions
     def check_end(self, pathName):
@@ -594,9 +593,10 @@ class Page_Variables(Frame):
         
         if uploadname != '':
             with open(uploadname, 'r') as fp:
-                data, outline_var_data = json.load(fp)
+                data, outline_var_data, pattern_var_data = json.load(fp)
                 
-            self.reset_all_vars()
+            for outline_or_pattern in (self.OUTLINE, self.PATTERN):
+                self.reset_certain_vars(outline_or_pattern)
                
             for key, value in data.items():    
                 if data[key] == None:
@@ -616,11 +616,12 @@ class Page_Variables(Frame):
                     value = value.replace('[','').replace(']','')
                     self.text_variable[key].set(value)  
             
-            if outline_var_data:
-                for key, value in outline_var_data.items():
-                    self.all_vars[self.OUTLINE][self.KEYS].append(key)
-                    self.all_vars[self.OUTLINE][self.SAVED][key] = value
-                    self.all_vars[self.OUTLINE][self.TYPES][key] = type(value)
+            for var_dict, outline_or_pattern in ((outline_var_data, self.OUTLINE), (pattern_var_data, self.PATTERN)):
+                if len(var_dict) > 0:
+                    for key, value in var_dict.items():
+                        self.all_vars[outline_or_pattern][self.KEYS].append(key)
+                        self.all_vars[outline_or_pattern][self.SAVED][key] = value
+                        self.all_vars[outline_or_pattern][self.TYPES][key] = type(value)
                     
             self.regrid()
             
@@ -641,7 +642,7 @@ class Page_Variables(Frame):
     def convert(self, name = None):
         global data_points
         
-        if self.text_variable['outline'].get() == 'choose a shape':
+        if self.text_variable['outline'].get() == c.OUTLINE_NONE_CHOICE:
             text = 'Error: no shape is selected.\n   Please choose a shape.'
             self.popup(text, 'Error', '+300+300')
         else:
@@ -650,7 +651,7 @@ class Page_Variables(Frame):
             else:
                 self.save(name)
             
-            if self.savePath and self.text_variable['outline'].get() != 'choose a shape':
+            if self.savePath and self.text_variable['outline'].get() != c.OUTLINE_NONE_CHOICE:
                 conversion = Runner(self.filename, self.g_robot_var.get())
                 data_points = conversion.run()
                 os.remove(self.filename)        
