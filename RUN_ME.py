@@ -515,7 +515,20 @@ class Page_Variables(Frame):
     #############################################
     #   methods that are called from buttons    #
     #############################################
-               
+        
+    def _save(self, dic, key, save_type, value, is_list = False):
+        if is_list:
+            dic[key] = [save_type(i) for i in value.split(',') if i != '']
+        else:
+            if save_type == self.INT:
+                dic[key] = int(value) 
+            elif save_type == self.FLOAT:
+                dic[key] = float(value)
+            elif save_type == self.STR:
+                dic[key] = str(value)
+            else:
+                dic[key] = save_type(value)     
+                
     def save(self, name = None):
 
         #only saving JSON
@@ -549,19 +562,6 @@ class Page_Variables(Frame):
         
         data = {}              
         all_var_data = {self.OUTLINE : {}, self.PATTERN : {}}
-        
-        def save(dic, key, save_type, value, is_list = False):
-            if is_list:
-                dic[key] = [save_type(i) for i in value.split(',') if i != '']
-            else:
-                if save_type == self.INT:
-                    dic[key] = int(value) 
-                elif save_type == self.FLOAT:
-                    dic[key] = float(value)
-                elif save_type == self.STR:
-                    dic[key] = str(value)
-                else:
-                    dic[key] = save_type(value)
             
         if self.savePath:                                                       
             data[self.OUTPUTFILENAME] = gcodeName
@@ -573,7 +573,7 @@ class Page_Variables(Frame):
                 if len(self.all_vars[outline_or_pattern][self.KEYS]) > 0:
                     for key in self.all_vars[outline_or_pattern][self.KEYS]:
                         if self.all_vars[outline_or_pattern][self.TYPES][key] in (float, int, str):
-                            save(all_var_data[outline_or_pattern], key, self.all_vars[outline_or_pattern][self.TYPES][key], 
+                            self._save(all_var_data[outline_or_pattern], key, self.all_vars[outline_or_pattern][self.TYPES][key], 
                                  self.all_vars[outline_or_pattern][self.SAVED][key])
             
             for param in self.parameters:                   
@@ -585,11 +585,11 @@ class Page_Variables(Frame):
                         save_type = int
                     else:
                         save_type = float
-                    save(data, param.label, save_type, 
+                    self._save(data, param.label, save_type, 
     self.text_variable[param.label].get().replace(' ', ',').replace(',,', ',').replace('(', '').replace(')', ''), True)
                         
                 elif param.data_type in (self.STR, self.INT, self.FLOAT):
-                    save(data, param.label, param.data_type, self.text_variable[param.label].get())
+                    self._save(data, param.label, param.data_type, self.text_variable[param.label].get())
                     
                 elif param.data_type == self.NONE:
                     data[param.label] = None
