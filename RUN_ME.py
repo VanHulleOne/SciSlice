@@ -204,11 +204,17 @@ class Page_Variables(Frame):
         for x, par in enumerate(self.fields[self.COMMON]):
             self.labels[par.label].grid(row=x+1,column=0)
         
-        self.var_text_keys = StringVar(self)
-        self.labelKeys = Label(self, textvariable=self.var_text_keys)
-        self.var_text_values = StringVar(self)
-        self.labelValues = Label(self, textvariable=self.var_text_values)
-
+        #labels for displaying outline or pattern values
+        self.var_text = {}
+        self.var_labels = {}
+        self.var_overall_label = {}
+        for outline_or_pattern in (self.OUTLINE, self.PATTERN):
+            self.var_text[outline_or_pattern] = {}
+            self.var_labels[outline_or_pattern] = {}
+            self.var_overall_label[outline_or_pattern] = Label(self, text=outline_or_pattern)
+            for key_or_value in (self.KEYS, self.VALUES):
+                self.var_text[outline_or_pattern][key_or_value] = StringVar(self)
+                self.var_labels[outline_or_pattern][key_or_value] = Label(self, textvariable=self.var_text[outline_or_pattern][key_or_value])
             
     def set_entries(self):
 
@@ -322,16 +328,27 @@ class Page_Variables(Frame):
     #shows the values entered into the popup doneshapes menu
     def values_bar(self):
         
-        text_keys = ''        
-        text_values = ''
-        for key, value in self.all_vars[self.OUTLINE][self.SAVED].items():
-            text_keys += '%10s ' % (key)
-            text_values += '%10s ' %(value)
-        self.var_text_keys.set(text_keys)
-        self.var_text_values.set(text_values)
-        if self.shift:
-            self.labelKeys.grid(row=1,column=1)
-            self.labelValues.grid(row=2,column=1)
+        extra_shift = 0
+        for outline_or_pattern in (self.OUTLINE, self.PATTERN):
+            print(outline_or_pattern)
+            text_keys = ''        
+            text_values = ''
+            print(self.all_vars[outline_or_pattern][self.SAVED])
+            if len(self.all_vars[outline_or_pattern][self.SAVED]) > 0:
+                self.var_overall_label[outline_or_pattern].grid(row=1+extra_shift, column=0)
+                for key, value in self.all_vars[outline_or_pattern][self.SAVED].items():
+                    text_keys += '%10s ' % (key)
+                    text_values += '%10s ' %(value)
+                self.var_text[outline_or_pattern][self.KEYS].set(text_keys)
+                self.var_text[outline_or_pattern][self.VALUES].set(text_values)
+                self.var_labels[outline_or_pattern][self.KEYS].grid(row=1+extra_shift,column=1)
+                self.var_labels[outline_or_pattern][self.VALUES].grid(row=2+extra_shift,column=1)
+                extra_shift += 2
+            else:
+                print(str(outline_or_pattern), ' forget')
+                self.var_overall_label[outline_or_pattern].grid_forget()
+                self.var_labels[outline_or_pattern][self.KEYS].grid_forget()
+                self.var_labels[outline_or_pattern][self.VALUES].grid_forget()
             
     def set_all_vars(self):
         
@@ -344,23 +361,21 @@ class Page_Variables(Frame):
                              self.STRINGVARS : {}, self.LABELS : {}, 
                              self.ENTRIES : {}, self.SAVED : {}}}
     
-    #resets doneshape menu variables
-    def reset_vars(self):
+    #resets doneshape menu variables (either outline or pattern)                    
+    def reset_certain_vars(self, vars_to_reset):
         
-        for key in self.all_vars:
-            for var in self.all_vars[key]:
-                if type(var) == str:
-                    var = ''
-                elif type(var) == dict:
-                    var.clear()
-                elif type(var) == list:
-                    var[:] = []
+        for key, value in self.all_vars[vars_to_reset].items():
+            if type(value) == str:
+                value = ''
+            elif type(value) == dict:
+                value.clear()
+            elif type(value) == list:
+                value[:] = []
     
     #creates popup menu to set values for a doneshape function
     def set_var(self, var):
-        
-        self.shift = 0
-        self.regrid()     
+
+#        self.regrid()     
         
         is_outline = False
         
@@ -369,8 +384,9 @@ class Page_Variables(Frame):
                 self.annot = inspect.getfullargspec(getattr(ds, var)).annotations
             except:
                 self.annot = {}
-                self.stl_path = ''
-                self.text_variable[c.STL_FLAG].set(self.stl_path)
+                if var == 'choose a shape':
+                    self.stl_path = ''
+                    self.text_variable[c.STL_FLAG].set(self.stl_path)
             else:
                 if 'outline' in str(self.annot['return']):
                     is_outline = True
@@ -383,27 +399,28 @@ class Page_Variables(Frame):
             else:
                 self.text_variable[c.STL_FLAG].set(os.path.basename(os.path.normpath(self.stl_path)))
             self.annot = {}
+            
+        if is_outline:
+            outline_or_pattern = self.OUTLINE
+        else:
+            outline_or_pattern = self.PATTERN
 
         if len(self.annot) > 1: 
-            if is_outline:
-                self.shift = 2
-                self.regrid()            
+            self.shift += 2
+            
+            self.regrid()            
             
             var_window = Tk()
             
             var_window.title(var)
             var_window.geometry('+650+100')         
             
-            if self.all_vars[self.OUTLINE][self.VAR] != var and is_outline:
-                self.reset_vars()
-                self.all_vars[self.OUTLINE][self.VAR] = var
+            if self.all_vars[outline_or_pattern][self.VAR] != var:
+                self.reset_certain_vars(outline_or_pattern)
+                self.all_vars[outline_or_pattern][self.VAR] = var
                       
             for x, (key, value) in enumerate(self.annot.items()):
                 if key != 'return':
-                    if is_outline:
-                        outline_or_pattern = self.OUTLINE
-                    else:
-                        outline_or_pattern = self.PATTERN
                     self.all_vars[outline_or_pattern][self.KEYS].append(key)
                     self.all_vars[outline_or_pattern][self.TYPES][key] = value
                     new_value = str(value).split('\'')[1]
@@ -416,26 +433,26 @@ class Page_Variables(Frame):
                     self.all_vars[outline_or_pattern][self.LABELS][key] = ttk.Label(var_window, text=key)
                     self.all_vars[outline_or_pattern][self.LABELS][key].grid(row=x, column=0, padx=5)
                     self.all_vars[outline_or_pattern][self.ENTRIES][key] = ttk.Entry(var_window, 
-                                                                            textvariable=self.all_vars[self.OUTLINE][self.STRINGVARS][key])
+                                                                            textvariable=self.all_vars[outline_or_pattern][self.STRINGVARS][key])
                     self.all_vars[outline_or_pattern][self.ENTRIES][key].grid(row=x, column=1, padx=1, pady=1)
                     self.all_vars[outline_or_pattern][self.VALUES][self.all_vars[outline_or_pattern][self.ENTRIES][key]] = new_value                    
             
             def default(event):
                 current = event.widget
-                if current.get() == self.all_vars[self.OUTLINE][self.VALUES][current]:
+                if current.get() == self.all_vars[outline_or_pattern][self.VALUES][current]:
                     current.delete(0, END)
                 elif current.get() == '':
-                    current.insert(0, self.all_vars[self.OUTLINE][self.VALUES][current])   
+                    current.insert(0, self.all_vars[outline_or_pattern][self.VALUES][current])   
                     
             def quicksave():
-                for key in self.all_vars[self.OUTLINE][self.KEYS]:
-                    self.all_vars[self.OUTLINE][self.SAVED][key] = self.all_vars[self.OUTLINE][self.STRINGVARS][key].get()
+                for key in self.all_vars[outline_or_pattern][self.KEYS]:
+                    self.all_vars[outline_or_pattern][self.SAVED][key] = self.all_vars[outline_or_pattern][self.STRINGVARS][key].get()
                 self.values_bar()
                 var_window.destroy()
                    
-            for key in self.all_vars[self.OUTLINE][self.KEYS]:
-                self.all_vars[self.OUTLINE][self.ENTRIES][key].bind('<FocusIn>', default)
-                self.all_vars[self.OUTLINE][self.ENTRIES][key].bind('<FocusOut>', default)
+            for key in self.all_vars[outline_or_pattern][self.KEYS]:
+                self.all_vars[outline_or_pattern][self.ENTRIES][key].bind('<FocusIn>', default)
+                self.all_vars[outline_or_pattern][self.ENTRIES][key].bind('<FocusOut>', default)
 
             buttonDestroy = ttk.Button(var_window, text='OK', command=quicksave)
             buttonDestroy.grid(row=len(self.annot.items())+1, column=1)
@@ -444,8 +461,11 @@ class Page_Variables(Frame):
             var_window.mainloop()
             
         else:
-            self.reset_vars()
+            if self.shift > 0:
+                self.shift -= 2
+            self.reset_certain_vars(outline_or_pattern)
             self.values_bar()
+            self.regrid()
             
     #creates error popup message        
     def popup(self, msg, title, size):
@@ -575,7 +595,7 @@ class Page_Variables(Frame):
             with open(uploadname, 'r') as fp:
                 data, outline_var_data = json.load(fp)
                 
-            self.reset_vars()
+            self.reset_all_vars()
                
             for key, value in data.items():    
                 if data[key] == None:
