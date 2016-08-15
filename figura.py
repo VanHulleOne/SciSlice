@@ -273,6 +273,3 @@ class Figura:
             tempString += str(layer)
             layerNumber += 1
         return tempString
-    
-    def return_data_points(self):
-        return self.data_points

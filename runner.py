@@ -36,7 +36,7 @@ class Runner:
         print('\nCode generated.')
         print('Done writting: ' + self.pr.outputFileName + '\n')
         print('{:.2f} total time'.format(endTime - startTime))
-        return fig.return_data_points()
+        return fig.data_points
         """
         if c.LOG_LEVEL < c.logging.WARN:
             with open(self.outputSubDirectory+'\\'+self.outputFileName, 'r') as test,\
