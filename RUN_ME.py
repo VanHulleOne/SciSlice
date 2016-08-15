@@ -200,6 +200,9 @@ class Page_Variables(Frame):
                 if self.stl_path:
                     self.defaults[param.label] = os.path.basename(os.path.normpath(self.stl_path))
                     
+        for outline_or_pattern in (self.OUTLINE, self.PATTERN):
+            self.all_vars[outline_or_pattern][self.VAR] = self.defaults[outline_or_pattern]
+                    
         self.shift = self.defaults[self.SHIFT]
           
     def set_labels(self):        
@@ -324,7 +327,6 @@ class Page_Variables(Frame):
             self.entries[param.label].grid(row=x+1+self.shift, column=1)
     
         self.values_bar()
-        print(self.shift)
         self.buttonGcode.grid(row=self.numRows+1+self.shift,column=1)
         self.buttonModel.grid(row=self.numRows+1+self.shift,column=0)
         self.buttonChooseGcode.grid(row=self.numRows+2+self.shift,column=0)
@@ -355,14 +357,17 @@ class Page_Variables(Frame):
             
     def set_all_vars(self):
         
-        self.all_vars = {self.OUTLINE : {self.VAR : '', self.KEYS : [], 
-                             self.TYPES : {}, self.VALUES : {},
-                             self.STRINGVARS : {}, self.LABELS : {}, 
-                             self.ENTRIES : {}, self.SAVED : {}},
-                        self.PATTERN : {self.VAR : '', self.KEYS : [], 
-                             self.TYPES : {}, self.VALUES : {},
-                             self.STRINGVARS : {}, self.LABELS : {}, 
-                             self.ENTRIES : {}, self.SAVED : {}}}
+        self.all_vars = {self.OUTLINE : {}, self.PATTERN : {}}
+        for key, value in self.all_vars.items():
+            for added_key, added_value in ((self.VAR, ''), (self.KEYS, []), (self.TYPES, {}), (self.VALUES, {}), 
+                                           (self.STRINGVARS, {}), (self.LABELS, {}), (self.ENTRIES, {}), (self.SAVED, {})):
+                value[added_key] = added_value
+                                                
+                
+#            self.VAR : '', self.KEYS : [], 
+#                             self.TYPES : {}, self.VALUES : {},
+#                             self.STRINGVARS : {}, self.LABELS : {}, 
+#                             self.ENTRIES : {}, self.SAVED : {}
     
     #resets doneshape menu variables (either outline or pattern)                    
     def reset_certain_vars(self, vars_to_reset):
@@ -377,7 +382,6 @@ class Page_Variables(Frame):
     
     #creates popup menu to set values for a doneshape function
     def set_var(self, var):
-
         self.shift = 0    
         
         is_outline = False
@@ -423,7 +427,6 @@ class Page_Variables(Frame):
             
             var_window.title(var)
             var_window.geometry('+650+100')         
-            
             if self.all_vars[outline_or_pattern][self.VAR] != var:
                 self.reset_certain_vars(outline_or_pattern)
                 self.all_vars[outline_or_pattern][self.VAR] = var
@@ -435,8 +438,7 @@ class Page_Variables(Frame):
                     new_value = str(value).split('\'')[1]
                     self.all_vars[outline_or_pattern][self.STRINGVARS][key] = StringVar(var_window)
                     if len(self.all_vars[outline_or_pattern][self.SAVED]) > 0:
-                        self.all_vars[outline_or_pattern][self.STRINGVARS][key].set
-                        (self.all_vars[outline_or_pattern][self.SAVED][key])
+                        self.all_vars[outline_or_pattern][self.STRINGVARS][key].set(self.all_vars[outline_or_pattern][self.SAVED][key])
                     else:
                         self.all_vars[outline_or_pattern][self.STRINGVARS][key].set(new_value)
                     self.all_vars[outline_or_pattern][self.LABELS][key] = ttk.Label(var_window, text=key)
@@ -445,7 +447,6 @@ class Page_Variables(Frame):
                                                                             textvariable=self.all_vars[outline_or_pattern][self.STRINGVARS][key])
                     self.all_vars[outline_or_pattern][self.ENTRIES][key].grid(row=x, column=1, padx=1, pady=1)
                     self.all_vars[outline_or_pattern][self.VALUES][self.all_vars[outline_or_pattern][self.ENTRIES][key]] = new_value                    
-            
             def default(event):
                 current = event.widget
                 if current.get() == self.all_vars[outline_or_pattern][self.VALUES][current]:
@@ -557,7 +558,6 @@ class Page_Variables(Frame):
             data[self.OUTPUTFILENAME] = gcodeName
             data[self.OUTPUTSUBDIRECTORY] = self.savePath
             data[self.G_ROBOT_VAR] = self.g_robot_var.get()
-            print(self.shift)
             data[self.SHIFT] = self.shift
             
             for outline_or_pattern in (self.OUTLINE, self.PATTERN):
@@ -629,7 +629,9 @@ class Page_Variables(Frame):
                         self.all_vars[outline_or_pattern][self.KEYS].append(key)
                         self.all_vars[outline_or_pattern][self.SAVED][key] = value
                         self.all_vars[outline_or_pattern][self.TYPES][key] = type(value)
-                    
+                        self.all_vars[outline_or_pattern][self.VAR] = self.text_variable[outline_or_pattern].get()
+            
+            self.values_bar()
             self.regrid()
             
     #swtiches between tabs        
