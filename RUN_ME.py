@@ -316,7 +316,7 @@ class Page_Variables(Frame):
         for x, param in enumerate(self.current_menu):
             self.labels[param.label].grid(row=x+1+self.shift, column=0)
             self.entries[param.label].grid(row=x+1+self.shift, column=1)
-        
+    
         self.values_bar()
         
         self.buttonGcode.grid(row=self.numRows+1+self.shift,column=1)
@@ -330,10 +330,8 @@ class Page_Variables(Frame):
         
         extra_shift = 0
         for outline_or_pattern in (self.OUTLINE, self.PATTERN):
-            print(outline_or_pattern)
             text_keys = ''        
             text_values = ''
-            print(self.all_vars[outline_or_pattern][self.SAVED])
             if len(self.all_vars[outline_or_pattern][self.SAVED]) > 0:
                 self.var_overall_label[outline_or_pattern].grid(row=1+extra_shift, column=0)
                 for key, value in self.all_vars[outline_or_pattern][self.SAVED].items():
@@ -345,7 +343,6 @@ class Page_Variables(Frame):
                 self.var_labels[outline_or_pattern][self.VALUES].grid(row=2+extra_shift,column=1)
                 extra_shift += 2
             else:
-                print(str(outline_or_pattern), ' forget')
                 self.var_overall_label[outline_or_pattern].grid_forget()
                 self.var_labels[outline_or_pattern][self.KEYS].grid_forget()
                 self.var_labels[outline_or_pattern][self.VALUES].grid_forget()
@@ -375,7 +372,7 @@ class Page_Variables(Frame):
     #creates popup menu to set values for a doneshape function
     def set_var(self, var):
 
-#        self.regrid()     
+        self.shift = 0    
         
         is_outline = False
         
@@ -385,6 +382,7 @@ class Page_Variables(Frame):
             except:
                 self.annot = {}
                 if var == 'choose a shape':
+                    is_outline = True
                     self.stl_path = ''
                     self.text_variable[c.STL_FLAG].set(self.stl_path)
             else:
@@ -393,6 +391,7 @@ class Page_Variables(Frame):
                     self.stl_path = ''
                     self.text_variable[c.STL_FLAG].set(self.stl_path)
         else:
+            is_outline = True
             self.stl_path = filedialog.askopenfilename()
             if self.stl_path == '':
                 self.text_variable['outline'].set('choose a shape')
@@ -402,8 +401,12 @@ class Page_Variables(Frame):
             
         if is_outline:
             outline_or_pattern = self.OUTLINE
+            if len(self.all_vars[self.PATTERN][self.SAVED]) > 0:
+                self.shift += 2
         else:
             outline_or_pattern = self.PATTERN
+            if len(self.all_vars[self.OUTLINE][self.SAVED]) > 0:
+                self.shift += 2
 
         if len(self.annot) > 1: 
             self.shift += 2
@@ -461,8 +464,6 @@ class Page_Variables(Frame):
             var_window.mainloop()
             
         else:
-            if self.shift > 0:
-                self.shift -= 2
             self.reset_certain_vars(outline_or_pattern)
             self.values_bar()
             self.regrid()
