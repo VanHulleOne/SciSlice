@@ -146,7 +146,7 @@ class Page_Variables(Frame):
                 ]
                 
     Elem = namedtuple('Element', 'label entry text_variable')
-    elements = []
+    elements = {}
                 
     OUTPUTFILENAME = 'outputFileName'
     CURRPATH = os.path.dirname(os.path.realpath(__file__))
