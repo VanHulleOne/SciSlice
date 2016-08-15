@@ -83,6 +83,9 @@ class Page_Variables(Frame):
     FLOAT = 'float'
     NONE = 'None'
     
+    SHIFT = 'shift'
+    G_ROBOT_VAR =  'g_robot_var'   
+    
     VAR = 'var'
     KEYS = 'keys'
     TYPES = 'types'
@@ -162,9 +165,9 @@ class Page_Variables(Frame):
         for menu in self.menus:
             self.fields.append([par for par in self.parameters if menu.group in par.groups])
            
+        self.set_all_vars()
         self.set_defaults()
         
-        self.shift = 0
         self.current_menu = self.fields[self.COMMON]
             
         self.create_var_page()
@@ -183,10 +186,11 @@ class Page_Variables(Frame):
             self.defaults = {}
             
         self.defaults = full_defaults[0]
-        var_defaults = full_defaults[1]
-        if var_defaults:
-            for key, value in var_defaults.items():
-                self.outline_var_saved[key] = value
+        
+        for var_dict, outline_or_pattern in ((full_defaults[1], self.OUTLINE), (full_defaults[2], self.PATTERN)):
+                if len(var_dict) > 0:
+                    for key, value in var_dict.items():
+                        self.all_vars[outline_or_pattern][self.SAVED][key] = value
             
         for param in self.parameters:
             if param.label not in self.defaults:
@@ -195,6 +199,8 @@ class Page_Variables(Frame):
                 self.stl_path = self.defaults[param.label]
                 if self.stl_path:
                     self.defaults[param.label] = os.path.basename(os.path.normpath(self.stl_path))
+                    
+        self.shift = self.defaults[self.SHIFT]
           
     def set_labels(self):        
         
@@ -291,8 +297,8 @@ class Page_Variables(Frame):
     def g_robot(self):
         
         self.g_robot_var = IntVar()
-        if self.defaults['g_robot_var']:
-            self.g_robot_var.set(self.defaults['g_robot_var'])
+        if self.defaults[self.G_ROBOT_VAR]:
+            self.g_robot_var.set(self.defaults[self.G_ROBOT_VAR])
         else:
             self.g_robot_var.set(c.GCODE)
         
@@ -318,7 +324,7 @@ class Page_Variables(Frame):
             self.entries[param.label].grid(row=x+1+self.shift, column=1)
     
         self.values_bar()
-        
+        print(self.shift)
         self.buttonGcode.grid(row=self.numRows+1+self.shift,column=1)
         self.buttonModel.grid(row=self.numRows+1+self.shift,column=0)
         self.buttonChooseGcode.grid(row=self.numRows+2+self.shift,column=0)
@@ -494,7 +500,7 @@ class Page_Variables(Frame):
         self.model_page()
         self.g_robot()
         self.version_num()      
-        self.set_all_vars()
+        self.regrid()
         
     #############################################
     #   methods that are called from buttons    #
@@ -550,8 +556,9 @@ class Page_Variables(Frame):
         if self.savePath:                                                       
             data[self.OUTPUTFILENAME] = gcodeName
             data[self.OUTPUTSUBDIRECTORY] = self.savePath
-            data['g_robot_var'] = self.g_robot_var.get()
-            data['shift'] = self.shift
+            data[self.G_ROBOT_VAR] = self.g_robot_var.get()
+            print(self.shift)
+            data[self.SHIFT] = self.shift
             
             for outline_or_pattern in (self.OUTLINE, self.PATTERN):
                 if len(self.all_vars[outline_or_pattern][self.KEYS]) > 0:
@@ -601,9 +608,9 @@ class Page_Variables(Frame):
             for key, value in data.items():    
                 if data[key] == None:
                     self.text_variable[key].set('None') 
-                elif key == 'shift':
+                elif key == self.SHIFT:
                     self.shift = value
-                elif key == 'g_robot_var':
+                elif key == self.G_ROBOT_VAR:
                     self.g_robot_var.set(value)
                 elif key == c.STL_FLAG:
                     self.stl_path = value
