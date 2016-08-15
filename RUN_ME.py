@@ -145,6 +145,9 @@ class Page_Variables(Frame):
                 Par('comment', STR, (PRINTER,)),
                 ]
                 
+    Elem = namedtuple('Element', 'label entry text_variable')
+    elements = []
+                
     OUTPUTFILENAME = 'outputFileName'
     CURRPATH = os.path.dirname(os.path.realpath(__file__))
     GCODEPATH = CURRPATH + '\\Gcode\\'
@@ -156,9 +159,9 @@ class Page_Variables(Frame):
         self.controller = controller
         
         self.filename = ''
-        self.text_variable = {}       
-        self.labels = {}
-        self.entries = {}        
+#        self.text_variable = {}       
+#        self.labels = {}
+#        self.entries = {}        
         self.numRows = len(self.parameters)
                
         self.fields = []
@@ -204,6 +207,12 @@ class Page_Variables(Frame):
             self.all_vars[outline_or_pattern][self.VAR] = self.defaults[outline_or_pattern]
                     
         self.shift = self.defaults[self.SHIFT]
+        
+    def set_elements(self):
+        for param in self.parameters:
+            curr_label = ttk.Label(self, text= param.label + ' - ' + param.data_type)
+            curr_text_variable = StringVar(self, value=self.defaults[param.label])
+            curr_entry = ttk.Entry(self, textvariable=self.text_variable[param.label])
           
     def set_labels(self):        
         
