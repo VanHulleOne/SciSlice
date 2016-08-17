@@ -94,11 +94,6 @@ class Page_Variables(Frame):
     LABELS = 'labels'
     ENTRIES = 'entries'
     SAVED = 'saved'
-    OUTLINE = [0, 'outline']
-    PATTERN = [1, 'pattern']
-    VAR_INT = 0
-    VAR_STR = 1
-    
     
     Menu = namedtuple('Menu', 'name group')
     menus = [
@@ -111,11 +106,16 @@ class Page_Variables(Frame):
             ]
 
     menus.sort(key=lambda x : x.group)             
-
-             
+    
     Par = namedtuple('Parameter', 'label data_type groups')
+    Drop = namedtuple('Dropdown', Par._fields + ('ds_return'))
+    
+    dropdowns = [
+                Drop('outline', STR, (COMMON, PART), 'outline'),
+                Drop('pattern', STR, (COMMON, PART,), 'linegroup'),
+                ]
+          
     parameters = [
-                Par('outline', STR, (COMMON, PART)),
                 Par(c.STL_FLAG, STR, (COMMON, PART)),
                 Par('solidityRatio', FLOAT_LIST, (COMMON, PART)),
                 Par('printSpeed', INT_LIST, (COMMON, PART)),
@@ -123,7 +123,6 @@ class Page_Variables(Frame):
                 Par('shiftY', FLOAT_LIST, (COMMON, PART)),
                 Par('firstLayerShiftZ', FLOAT, (PART,)),
                 Par('numLayers', INT_LIST, (COMMON, PART)),
-                Par('pattern', STR, (COMMON, PART,)),
                 Par('designType', INT, (PART,)),
                 Par('infillAngleDegrees', FLOAT_LIST, (COMMON, LAYER)),
                 Par('pathWidth', FLOAT_LIST, (LAYER,)),
@@ -148,7 +147,6 @@ class Page_Variables(Frame):
                 ]
                 
     Elem = namedtuple('Element', 'label entry text_variable')
-    elements = {}
                 
     OUTPUTFILENAME = 'outputFileName'
     CURRPATH = os.path.dirname(os.path.realpath(__file__))
@@ -161,9 +159,10 @@ class Page_Variables(Frame):
         self.controller = controller
         
         self.filename = ''
-        self.text_variable = {}       
-        self.labels = {}
-        self.entries = {}        
+        self.elements = {}
+#        self.text_variable = {}       
+#        self.labels = {}
+#        self.entries = {}        
         self.numRows = len(self.parameters)
                
         self.fields = []
@@ -195,8 +194,9 @@ class Page_Variables(Frame):
         
         for var_dict, outline_or_pattern in ((full_defaults[1], self.OUTLINE), (full_defaults[2], self.PATTERN)):
                 if len(var_dict) > 0:
-                    for key, value in var_dict.items():
-                        self.all_vars[outline_or_pattern[self.VAR_INT]][self.SAVED][key] = value
+                    self.all_vars[outline_or_pattern[self.VAR_INT]][self.SAVED] = var_dict
+#                    for key, value in var_dict.items():
+#                        self.all_vars[outline_or_pattern[self.VAR_INT]][self.SAVED][key] = value
             
         for param in self.parameters:
             if param.label not in self.defaults:
@@ -220,12 +220,13 @@ class Page_Variables(Frame):
         
     def set_elements(self):
         for x, param in enumerate(self.parameters):
+            x += 1+len(self.dropdowns)
             curr_label = ttk.Label(self, text= param.label + ' - ' + param.data_type)
             curr_text_variable = StringVar(self, value=self.defaults[param.label])
             curr_entry = ttk.Entry(self, textvariable=curr_text_variable)
             self.elements[param.label] = self.Elem(curr_label, curr_entry, curr_text_variable)
-            self.elements[param.label].label.grid(row=x+1,column=0)
-            self.elements[param.label].entry.grid(row=x+1,column=1,sticky='ew')
+            self.elements[param.label].label.grid(row=x,column=0)
+            self.elements[param.label].entry.grid(row=x,column=1,sticky='ew')
             
         #labels for displaying outline or pattern values
         self.var_text = {}
@@ -240,64 +241,52 @@ class Page_Variables(Frame):
                 self.var_labels[outline_or_pattern[self.VAR_INT]][key_or_value] = Label(self, 
                                 textvariable=self.var_text[outline_or_pattern[self.VAR_INT]][key_or_value])
                                 
-#        self.doneshapes_menu()
+        self.doneshapes_menu()
         
         self.elements[c.STL_FLAG].entry.config(state=DISABLED)
       
-    def set_labels(self):        
-        
-        for param in self.parameters:
-            self.labels[param.label] = ttk.Label(self, text= param.label + ' - ' + param.data_type)
-        
-        for x, par in enumerate(self.fields[self.COMMON]):
-            self.labels[par.label].grid(row=x+1,column=0)
-            
-    def set_entries(self):
-
-        for param in self.parameters:
-            self.text_variable[param.label] = StringVar(self, value=self.defaults[param.label])
-            self.labels[param.label] = ttk.Entry(self, textvariable=self.text_variable[param.label])  
-        
-        self.doneshapes_menu()
-        
-        for x, par in enumerate(self.fields[self.COMMON]):
-            self.entries[par.label].grid(row=x+1,column=1, sticky='ew')
-            
-        self.entries[c.STL_FLAG].config(state=DISABLED)
+#    def set_labels(self):        
+#        
+#        for param in self.dropdowns + self.parameters:
+#            self.labels[param.label] = ttk.Label(self, text= param.label + ' - ' + param.data_type)
+#        
+#        for x, par in enumerate(self.fields[self.COMMON]):
+#            self.labels[par.label].grid(row=x+1,column=0)
+#            
+#    def set_entries(self):
+#
+#        for param in self.dropdowns + self.parameters:
+#            self.text_variable[param.label] = StringVar(self, value=self.defaults[param.label])
+#            self.labels[param.label] = ttk.Entry(self, textvariable=self.text_variable[param.label])  
+#        
+#        self.doneshapes_menu()
+#        
+#        for x, par in enumerate(self.fields[self.COMMON]):
+#            self.entries[par.label].grid(row=x+1,column=1, sticky='ew')
+#            
+#        self.entries[c.STL_FLAG].config(state=DISABLED)
     
     #creates menu of the different possible shapes from the doneshapes class        
     def doneshapes_menu(self):
         
-        doneshape_outline = [c.OUTLINE_NONE_CHOICE]
-        doneshape_pattern = [c.PATTERN_NONE_CHOICE]
-        doneshape_outline.append(c.STL_FLAG)
-        for member in inspect.getmembers(ds, inspect.isfunction):
-            if 'outline' in str(inspect.getfullargspec(getattr(ds, member[0])).annotations['return']):
-                doneshape_outline.append(member[0])
-            else:
-                doneshape_pattern.append(member[0])
+        for x, param in enumerate(self.dropdowns):
+            doneshape = [param.no_selection]
+            if param.label == 'outline':
+                doneshape.append(c.STL_FLAG)
+            for member in inspect.getmembers(ds, inspect.isfunction):
+                if param.ds_return in str(inspect.getfullargspec(getattr(ds, member[0])).annotations['return']):
+                    doneshape.append(member[0])
         
-#        self.elements['outline'].entry = ttk.OptionMenu(self,
-#                                                self.elements['outline'].text_variable,
-#                                                self.defaults['outline'],
-#                                                *doneshape_outline,
-#                                                command=self.set_var)
-#        self.elements['pattern'].entry = ttk.OptionMenu(self,
-#                                                self.elements['pattern'].text_variable,
-#                                                self.defaults['pattern'],
-#                                                *doneshape_pattern,
-#                                                command=self.set_var)
-        
-        self.elements['outline'].entry = ttk.OptionMenu(self,
-                                                self.elements['outline'].text_variable,
-                                                self.defaults['outline'],
-                                                *doneshape_outline,
-                                                command=self.set_var)
-        self.elements['pattern'].entry = ttk.OptionMenu(self,
-                                                self.elements['pattern'].text_variable,
-                                                self.defaults['pattern'],
-                                                *doneshape_pattern,
-                                                command=self.set_var)
+            curr_label = ttk.Label(self, text= param.label + ' - ' + param.data_type)
+            curr_text_variable = StringVar(self, value=self.defaults[param.label])
+            curr_entry = ttk.OptionMenu(self,
+                                        curr_text_variable,
+                                        self.defaults[param.label],
+                                        *doneshape,
+                                        command= lambda var : self.set_var(x, var))
+            self.elements[param.label] = self.Elem(curr_label, curr_entry, curr_text_variable)
+            self.elements[param.label].label.grid(row=x+1,column=0)
+            self.elements[param.label].entry.grid(row=x+1,column=1,sticky='ew')
         
     def save_option(self): 
         
@@ -330,8 +319,7 @@ class Page_Variables(Frame):
     def model_page(self):  
         
         #button to switch to 3D model page
-        self.buttonModel = ttk.Button(self, text='3D Model', 
-                             command=lambda: self.to_model())
+        self.buttonModel = ttk.Button(self, text='3D Model', command=lambda: self.to_model())
         self.buttonModel.grid(row=self.numRows+1, column=0)
         
     #create radiobutton to switch between gcode and robotcode
@@ -356,7 +344,7 @@ class Page_Variables(Frame):
     #moves labels and entries up or down depending on the self.shift value    
     def regrid(self):
         
-        for param in self.parameters:
+        for param in self.dropdowns + self.parameters:
             self.elements[param.label].label.grid_forget()      
             self.elements[param.label].entry.grid_forget()
 
@@ -375,31 +363,33 @@ class Page_Variables(Frame):
     def values_bar(self):
         
         extra_shift = 0
-        for outline_or_pattern in (self.OUTLINE, self.PATTERN):
+        for x in range(len(self.dropdowns)):
             text_keys = ''        
             text_values = ''
-            if len(self.all_vars[outline_or_pattern[self.VAR_INT]][self.SAVED]) > 0:
-                self.var_overall_label[outline_or_pattern[self.VAR_INT]].grid(row=1+extra_shift, column=0)
-                for key, value in self.all_vars[outline_or_pattern[self.VAR_INT]][self.SAVED].items():
+            if len(self.all_vars[x][self.SAVED]) > 0:
+                self.var_overall_label[x].grid(row=1+extra_shift, column=0)
+                for key, value in self.all_vars[x][self.SAVED].items():
                     text_keys += '%10s ' % (key)
                     text_values += '%10s ' %(value)
-                self.var_text[outline_or_pattern[self.VAR_INT]][self.KEYS].set(text_keys)
-                self.var_text[outline_or_pattern[self.VAR_INT]][self.VALUES].set(text_values)
-                self.var_labels[outline_or_pattern[self.VAR_INT]][self.KEYS].grid(row=1+extra_shift,column=1)
-                self.var_labels[outline_or_pattern[self.VAR_INT]][self.VALUES].grid(row=2+extra_shift,column=1)
+                self.var_text[x][self.KEYS].set(text_keys)
+                self.var_text[x][self.VALUES].set(text_values)
+                self.var_labels[x][self.KEYS].grid(row=1+extra_shift,column=1)
+                self.var_labels[x][self.VALUES].grid(row=2+extra_shift,column=1)
                 extra_shift += 2
             else:
-                self.var_overall_label[outline_or_pattern[self.VAR_INT]].grid_forget()
-                self.var_labels[outline_or_pattern[self.VAR_INT]][self.KEYS].grid_forget()
-                self.var_labels[outline_or_pattern[self.VAR_INT]][self.VALUES].grid_forget()
+                self.var_overall_label[x].grid_forget()
+                self.var_labels[x][self.KEYS].grid_forget()
+                self.var_labels[x][self.VALUES].grid_forget()
             
     def set_all_vars(self):
         
-        self.all_vars = [{}, {}]
-        for outline_or_pattern in (self.OUTLINE, self.PATTERN):
+        self.all_vars = []
+        
+        for x in range(len(self.dropdowns)):
+            self.all_vars.append({})
             for added_key, added_value in ((self.VAR, ''), (self.KEYS, []), (self.TYPES, {}), (self.VALUES, {}), 
                                            (self.STRINGVARS, {}), (self.LABELS, {}), (self.ENTRIES, {}), (self.SAVED, {})):
-                self.all_vars[outline_or_pattern[self.VAR_INT]][added_key] = added_value
+                self.all_vars[x][added_key] = added_value
     
     #resets doneshape menu variables (either outline or pattern)                    
     def reset_certain_vars(self, vars_to_reset):
@@ -413,18 +403,19 @@ class Page_Variables(Frame):
                 value[:] = []
     
     #creates popup menu to set values for a doneshape function
-    def set_var(self, var):
-        self.shift = 0    
+    def set_var(self, x, var):
         
+        self.shift = 0            
         is_outline = False
         
         if var != c.STL_FLAG:
+            
             try:
                 self.annot = inspect.getfullargspec(getattr(ds, var)).annotations
             except:
                 self.annot = {}
-                if var == c.OUTLINE_NONE_CHOICE:
-                    is_outline = True
+#                if var == c.NONE_CHOICE[self.OUTLINE[self.VAR_STR]]:
+#                    is_outline = True
                     self.stl_path = ''
                     self.elements[c.STL_FLAG].text_variable.set(self.stl_path)
             else:
@@ -440,7 +431,7 @@ class Page_Variables(Frame):
             else:
                 self.elements[c.STL_FLAG].text_variable.set(os.path.basename(os.path.normpath(self.stl_path)))
             self.annot = {}
-            
+         #TODO change this to for self.doneshapes   
         if is_outline:
             outline_or_pattern = self.OUTLINE[self.VAR_INT]
             if len(self.all_vars[self.PATTERN[self.VAR_INT]][self.SAVED]) > 0:
@@ -456,7 +447,7 @@ class Page_Variables(Frame):
             self.regrid()            
             
             var_window = Tk()
-            
+            print(self.annot)
             var_window.title(var)
             var_window.geometry('+650+100')         
             if self.all_vars[outline_or_pattern][self.VAR] != var:
@@ -707,8 +698,9 @@ class Page_Variables(Frame):
         try:
             self.convert('temp')
             
-        except:
+        except Exception as e:
             print('Error during Gcode conversion')
+            print(e)
             self.controller.show_frame(Page_Variables)
             
         else:

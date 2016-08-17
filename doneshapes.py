@@ -154,6 +154,6 @@ def hexField(side: float, space: float, length: float, height: float) -> LineGro
         field.addLineGroup(fullLine)
     return field
     
-    def straightLines()  -> LineGroup:
-        return None
+def straightLines()  -> LineGroup:
+    return None
     
