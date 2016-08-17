@@ -161,9 +161,9 @@ class Page_Variables(Frame):
         self.controller = controller
         
         self.filename = ''
-#        self.text_variable = {}       
-#        self.labels = {}
-#        self.entries = {}        
+        self.text_variable = {}       
+        self.labels = {}
+        self.entries = {}        
         self.numRows = len(self.parameters)
                
         self.fields = []
@@ -189,7 +189,8 @@ class Page_Variables(Frame):
                 full_defaults = json.load(fp)
         else:
             self.defaults = {}
-            
+            full_defaults = [{}, {}, {}]
+        
         self.defaults = full_defaults[0]
         
         for var_dict, outline_or_pattern in ((full_defaults[1], self.OUTLINE), (full_defaults[2], self.PATTERN)):
@@ -200,31 +201,32 @@ class Page_Variables(Frame):
         for param in self.parameters:
             if param.label not in self.defaults:
                 self.defaults[param.label] = ''
+                if param.label == c.STL_FLAG:
+                    self.stl_path = ''
             elif param.label == c.STL_FLAG:
                 self.stl_path = self.defaults[param.label]
                 if self.stl_path:
                     self.defaults[param.label] = os.path.basename(os.path.normpath(self.stl_path))
                     
         for outline_or_pattern in (self.OUTLINE, self.PATTERN):
-            self.all_vars[outline_or_pattern[self.VAR_INT]][self.VAR] = self.defaults[outline_or_pattern[self.VAR_STR]]
-                    
-        self.shift = self.defaults[self.SHIFT]
+            if outline_or_pattern[self.VAR_STR] in self.defaults:
+                self.all_vars[outline_or_pattern[self.VAR_INT]][self.VAR] = self.defaults[outline_or_pattern[self.VAR_STR]]
+        
+        if self.SHIFT in self.defaults:            
+            self.shift = self.defaults[self.SHIFT]
+        else:
+            self.shift = 0
+                
         
     def set_elements(self):
-        for param in self.parameters:
+        for x, param in enumerate(self.parameters):
             curr_label = ttk.Label(self, text= param.label + ' - ' + param.data_type)
             curr_text_variable = StringVar(self, value=self.defaults[param.label])
-            curr_entry = ttk.Entry(self, textvariable=self.text_variable[param.label])
+            curr_entry = ttk.Entry(self, textvariable=curr_text_variable)
             self.elements[param.label] = self.Elem(curr_label, curr_entry, curr_text_variable)
-          
-    def set_labels(self):        
-        
-        for param in self.parameters:
-            self.labels[param.label] = ttk.Label(self, text= param.label + ' - ' + param.data_type)
-        
-        for x, par in enumerate(self.fields[self.COMMON]):
-            self.labels[par.label].grid(row=x+1,column=0)
-        
+            self.elements[param.label].label.grid(row=x+1,column=0)
+            self.elements[param.label].entry.grid(row=x+1,column=1,sticky='ew')
+            
         #labels for displaying outline or pattern values
         self.var_text = {}
         self.var_labels = {}
@@ -235,13 +237,26 @@ class Page_Variables(Frame):
             self.var_overall_label[outline_or_pattern[self.VAR_INT]] = Label(self, text=outline_or_pattern[self.VAR_STR])
             for key_or_value in (self.KEYS, self.VALUES):
                 self.var_text[outline_or_pattern[self.VAR_INT]][key_or_value] = StringVar(self)
-                self.var_labels[outline_or_pattern[self.VAR_INT]][key_or_value] = Label(self, textvariable=self.var_text[outline_or_pattern[self.VAR_INT]][key_or_value])
+                self.var_labels[outline_or_pattern[self.VAR_INT]][key_or_value] = Label(self, 
+                                textvariable=self.var_text[outline_or_pattern[self.VAR_INT]][key_or_value])
+                                
+#        self.doneshapes_menu()
+        
+        self.elements[c.STL_FLAG].entry.config(state=DISABLED)
+      
+    def set_labels(self):        
+        
+        for param in self.parameters:
+            self.labels[param.label] = ttk.Label(self, text= param.label + ' - ' + param.data_type)
+        
+        for x, par in enumerate(self.fields[self.COMMON]):
+            self.labels[par.label].grid(row=x+1,column=0)
             
     def set_entries(self):
 
         for param in self.parameters:
             self.text_variable[param.label] = StringVar(self, value=self.defaults[param.label])
-            self.entries[param.label] = ttk.Entry(self, textvariable=self.text_variable[param.label])  
+            self.labels[param.label] = ttk.Entry(self, textvariable=self.text_variable[param.label])  
         
         self.doneshapes_menu()
         
@@ -262,13 +277,24 @@ class Page_Variables(Frame):
             else:
                 doneshape_pattern.append(member[0])
         
-        self.entries['outline'] = ttk.OptionMenu(self,
-                                                self.text_variable['outline'],
+#        self.elements['outline'].entry = ttk.OptionMenu(self,
+#                                                self.elements['outline'].text_variable,
+#                                                self.defaults['outline'],
+#                                                *doneshape_outline,
+#                                                command=self.set_var)
+#        self.elements['pattern'].entry = ttk.OptionMenu(self,
+#                                                self.elements['pattern'].text_variable,
+#                                                self.defaults['pattern'],
+#                                                *doneshape_pattern,
+#                                                command=self.set_var)
+        
+        self.elements['outline'].entry = ttk.OptionMenu(self,
+                                                self.elements['outline'].text_variable,
                                                 self.defaults['outline'],
                                                 *doneshape_outline,
                                                 command=self.set_var)
-        self.entries['pattern'] = ttk.OptionMenu(self,
-                                                self.text_variable['pattern'],
+        self.elements['pattern'].entry = ttk.OptionMenu(self,
+                                                self.elements['pattern'].text_variable,
                                                 self.defaults['pattern'],
                                                 *doneshape_pattern,
                                                 command=self.set_var)
@@ -312,7 +338,7 @@ class Page_Variables(Frame):
     def g_robot(self):
         
         self.g_robot_var = IntVar()
-        if self.defaults[self.G_ROBOT_VAR]:
+        if self.G_ROBOT_VAR in self.defaults:
             self.g_robot_var.set(self.defaults[self.G_ROBOT_VAR])
         else:
             self.g_robot_var.set(c.GCODE)
@@ -331,12 +357,12 @@ class Page_Variables(Frame):
     def regrid(self):
         
         for param in self.parameters:
-            self.labels[param.label].grid_forget()      
-            self.entries[param.label].grid_forget()
+            self.elements[param.label].label.grid_forget()      
+            self.elements[param.label].entry.grid_forget()
 
         for x, param in enumerate(self.current_menu):
-            self.labels[param.label].grid(row=x+1+self.shift, column=0)
-            self.entries[param.label].grid(row=x+1+self.shift, column=1)
+            self.elements[param.label].label.grid(row=x+1+self.shift, column=0)
+            self.elements[param.label].entry.grid(row=x+1+self.shift, column=1)
     
         self.values_bar()
         self.buttonGcode.grid(row=self.numRows+1+self.shift,column=1)
@@ -400,19 +426,19 @@ class Page_Variables(Frame):
                 if var == c.OUTLINE_NONE_CHOICE:
                     is_outline = True
                     self.stl_path = ''
-                    self.text_variable[c.STL_FLAG].set(self.stl_path)
+                    self.elements[c.STL_FLAG].text_variable.set(self.stl_path)
             else:
                 if 'outline' in str(self.annot['return']):
                     is_outline = True
                     self.stl_path = ''
-                    self.text_variable[c.STL_FLAG].set(self.stl_path)
+                    self.elements[c.STL_FLAG].text_variable.set(self.stl_path)
         else:
             is_outline = True
             self.stl_path = filedialog.askopenfilename()
             if self.stl_path == '':
-                self.text_variable['outline'].set(c.OUTLINE_NONE_CHOICE)
+                self.elements['outline'].text_variable.set(c.OUTLINE_NONE_CHOICE)
             else:
-                self.text_variable[c.STL_FLAG].set(os.path.basename(os.path.normpath(self.stl_path)))
+                self.elements[c.STL_FLAG].text_variable.set(os.path.basename(os.path.normpath(self.stl_path)))
             self.annot = {}
             
         if is_outline:
@@ -498,8 +524,7 @@ class Page_Variables(Frame):
     #all set up functions
     def create_var_page(self):
         
-        self.set_labels()
-        self.set_entries()
+        self.set_elements()
         self.save_option()
         self.upload_option()
         self.tab_buttons()
@@ -514,7 +539,9 @@ class Page_Variables(Frame):
     #############################################
         
     def _save(self, dic, key, save_type, value, is_list = False):
-        if is_list:
+        if value == '':
+            dic[key] = value
+        elif is_list:
             dic[key] = [save_type(i) for i in value.split(',') if i != '']
         else:
             if save_type == self.INT:
@@ -582,11 +609,14 @@ class Page_Variables(Frame):
                         save_type = int
                     else:
                         save_type = float
-                    self._save(data, param.label, save_type, 
-    self.text_variable[param.label].get().replace(' ', ',').replace(',,', ',').replace('(', '').replace(')', ''), True)
+                    if self.elements[param.label].text_variable.get() == '':
+                        self._save(data, param.label, save_type, '')
+                    else:
+                        self._save(data, param.label, save_type, 
+    self.elements[param.label].text_variable.get().replace(' ', ',').replace(',,', ',').replace('(', '').replace(')', ''), True)
                         
                 elif param.data_type in (self.STR, self.INT, self.FLOAT):
-                    self._save(data, param.label, param.data_type, self.text_variable[param.label].get())
+                    self._save(data, param.label, param.data_type, self.elements[param.label].text_variable.get())
                     
                 elif param.data_type == self.NONE:
                     data[param.label] = None
@@ -613,7 +643,7 @@ class Page_Variables(Frame):
                
             for key, value in data.items():    
                 if data[key] == None:
-                    self.text_variable[key].set('None') 
+                    self.elements[key].text_variable.set('None') 
                 elif key == self.SHIFT:
                     self.shift = value
                 elif key == self.G_ROBOT_VAR:
@@ -621,13 +651,13 @@ class Page_Variables(Frame):
                 elif key == c.STL_FLAG:
                     self.stl_path = value
                     if self.stl_path:
-                        self.text_variable[key].set(os.path.basename(os.path.normpath(self.stl_path)))
+                        self.elements[key].text_variable.set(os.path.basename(os.path.normpath(self.stl_path)))
                     else:
-                        self.text_variable[key].set(self.stl_path)
+                        self.elements[key].text_variable.set(self.stl_path)
                 elif key in self.text_variable.keys():
                     value = str(value)
                     value = value.replace('[','').replace(']','')
-                    self.text_variable[key].set(value)  
+                    self.elements[key].text_variable.set(value)  
             
             for var_dict, outline_or_pattern in ((outline_var_data, self.OUTLINE), (pattern_var_data, self.PATTERN)):
                 if len(var_dict) > 0:
@@ -635,7 +665,7 @@ class Page_Variables(Frame):
                         self.all_vars[outline_or_pattern[self.VAR_INT]][self.KEYS].append(key)
                         self.all_vars[outline_or_pattern[self.VAR_INT]][self.SAVED][key] = value
                         self.all_vars[outline_or_pattern[self.VAR_INT]][self.TYPES][key] = type(value)
-                        self.all_vars[outline_or_pattern[self.VAR_INT]][self.VAR] = self.text_variable[outline_or_pattern[self.VAR_INT]].get()
+                        self.all_vars[outline_or_pattern[self.VAR_INT]][self.VAR] = self.elements[outline_or_pattern[self.VAR_INT]].text_variable.get()
             
             self.values_bar()
             self.regrid()
@@ -645,11 +675,11 @@ class Page_Variables(Frame):
         def inner_command():
             self.current_menu = params
             for param in self.parameters:
-                self.labels[param.label].grid_forget()      
-                self.entries[param.label].grid_forget()
+                self.elements[param.label].label.grid_forget()      
+                self.elements[param.label].entry.grid_forget()
             for x, param in enumerate(params):
-                self.labels[param.label].grid(row=x+1+self.shift, column=0)
-                self.entries[param.label].grid(row=x+1+self.shift, column=1, sticky='ew')
+                self.elements[param.label].label.grid(row=x+1+self.shift, column=0)
+                self.elements[param.label].entry.grid(row=x+1+self.shift, column=1, sticky='ew')
         return inner_command
                     
     
@@ -657,7 +687,7 @@ class Page_Variables(Frame):
     def convert(self, name = None):
         global data_points
         
-        if self.text_variable['outline'].get() == c.OUTLINE_NONE_CHOICE:
+        if self.elements['outline'].text_variable.get() == c.OUTLINE_NONE_CHOICE:
             text = 'Error: no shape is selected.\n   Please choose a shape.'
             self.popup(text, 'Error', '+300+300')
         else:
@@ -666,7 +696,7 @@ class Page_Variables(Frame):
             else:
                 self.save(name)
             
-            if self.savePath and self.text_variable['outline'].get() != c.OUTLINE_NONE_CHOICE:
+            if self.savePath and self.elements['outline'].text_variable.get() != c.OUTLINE_NONE_CHOICE:
                 conversion = Runner(self.filename, self.g_robot_var.get())
                 data_points = conversion.run()
                 os.remove(self.filename)        
