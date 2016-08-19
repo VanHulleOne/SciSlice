@@ -28,22 +28,15 @@ class Parameters:
         
         self.startEndSubDirectory = self.currPath + '\\Start_End_Gcode'
         self.filamentArea = math.pi * self.filamentDiameter**2 / 4.0
-        print('dropdown_data: ', dropdown_data)
+
         for x in range(len(dropdown_data)):
             the_label = dropdown_data[x][c.THE_LABEL]
             if len(dropdown_data[x]) > 1:
-#                print('dropdown_data[x]: ', dropdown_data[x])
                 if type(getattr(self, the_label)) == str:
                     del dropdown_data[x][c.THE_LABEL]
                     setattr(self, the_label, getattr(ds, getattr(self, the_label))(**dropdown_data[x]))
-#                    print('outline: ', self.outline)
-#                    print('fullargspec: ', inspect.getfullargspec(getattr(ds, self.outline)).annotations)
-#                    print('outline return: ', inspect.getfullargspec(getattr(ds, self.outline)).annotations['return'])
-#                    if 'outline' in str(inspect.getfullargspec(getattr(ds, self.outline)).annotations['return']) and :
-#                        self.outline = getattr(ds, self.outline)(**dropdown_data[x])
 
             else:
-                print('the_label: ', the_label)
                 if getattr(self, the_label) != '':
                     setattr(self, the_label, getattr(ds, getattr(self, the_label))())
                 
