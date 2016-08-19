@@ -204,6 +204,9 @@ class Page_Variables(Frame):
             if x < len(dropdown_defaults):
                 if len(dropdown_defaults[x]) > 0:
                     self.all_vars[x][self.SAVED] = dropdown_defaults[x]
+                    for key, value in dropdown_defaults[x].items():
+                        self.all_vars[x][self.KEYS].append(key)
+                        self.all_vars[x][self.TYPES][key] = type(value)
             
         for param in self.dropdowns + self.parameters:
             if param.label not in self.defaults:

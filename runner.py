@@ -15,8 +15,9 @@ class Runner:
     
     def __init__(self, name, gRobot):
         with open(name, 'r') as fp:
-            data, dropdown_data = json.load(fp)
-        self.pr = Parameters(data, dropdown_data)
+            data = json.load(fp)
+
+        self.pr = Parameters(data[0], data[1])
         if gRobot == c.GCODE:
             self.gc = Gcode(self.pr)
         elif gRobot == c.ROBOTCODE:

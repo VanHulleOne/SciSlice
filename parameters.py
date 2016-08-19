@@ -28,13 +28,27 @@ class Parameters:
         
         self.startEndSubDirectory = self.currPath + '\\Start_End_Gcode'
         self.filamentArea = math.pi * self.filamentDiameter**2 / 4.0
-        
-        for dropdown in dropdown_data:
-            for key in dropdown:
-                if 'outline' in str(inspect.getfullargspec(getattr(ds, key)).annotations['return']):
-                    self.outline = getattr(ds, self.outline)(**dropdown)
-                elif 'linegroup' in str(inspect.getfullargspec(getattr(ds, key)).annotations['return']):
-                    self.pattern = getattr(ds, self.pattern)(**dropdown)
+        print('dropdown_data: ', dropdown_data)
+        for x in range(len(dropdown_data)):
+            if len(dropdown_data[x]) > 0:
+                print('dropdown_data[x]: ', dropdown_data[x])
+                if type(self.outline) == str:
+                    print('outline: ', self.outline)
+                    print('fullargspec: ', inspect.getfullargspec(getattr(ds, self.outline)).annotations)
+                    print('outline return: ', inspect.getfullargspec(getattr(ds, self.outline)).annotations['return'])
+                    if 'outline' in str(inspect.getfullargspec(getattr(ds, self.outline)).annotations['return']):
+                        self.outline = getattr(ds, self.outline)(**dropdown_data[x])
+                if type(self.pattern) == str:
+                    print('pattern: ', self.pattern)
+                    print('fullargspec: ', inspect.getfullargspec(getattr(ds, self.pattern)).annotations)
+                    print('pattern outline: ', inspect.getfullargspec(getattr(ds, self.pattern)).annotations['return'])
+                    if 'linegroup' in str(inspect.getfullargspec(getattr(ds, self.pattern)).annotations['return']):
+                        self.pattern = getattr(ds, self.pattern)(**dropdown_data[x])
+                      
+        if type(self.outline) == str:
+            self.outline = getattr(ds, self.outline)()
+        if type(self.pattern) == str:
+            self.pattern = getattr(ds, self.pattern)()
         
         self.LayerParams = namedtuple('LayerParams', 'infillShiftX infillShiftY infillAngle '
                                             + 'numShells layerHeight pathWidth trimAdjust')            
