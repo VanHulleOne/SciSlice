@@ -396,11 +396,6 @@ class Page_Variables(Frame):
     
     #creates popup menu to set values for a doneshape function
     def set_var(self, var):
-
-        for x, dropdown in enumerate(self.dropdowns):
-            if dropdown.ds_return in str(inspect.getfullargspec(getattr(ds, var)).annotations['return']):
-                dropdown_index = x
-                label = dropdown.label
             
         if var == c.STL_FLAG:
             self.stl_path = filedialog.askopenfilename()
@@ -409,9 +404,18 @@ class Page_Variables(Frame):
             else:
                 self.elements[c.STL_FLAG].text_variable.set(os.path.basename(os.path.normpath(self.stl_path)))
             self.annot = {}
+            for x, dropdown in enumerate(self.dropdowns):
+                if dropdown.label == 'outline':
+                    dropdown_index = x
+                    label = dropdown.label
+                    break
             
         else:
             self.annot = inspect.getfullargspec(getattr(ds, var)).annotations
+            for x, dropdown in enumerate(self.dropdowns):
+                if dropdown.ds_return in str(inspect.getfullargspec(getattr(ds, var)).annotations['return']):
+                    dropdown_index = x
+                    label = dropdown.label
             if label == 'outline':
                 self.stl_path = ''
                 self.elements[c.STL_FLAG].text_variable.set(self.stl_path)
