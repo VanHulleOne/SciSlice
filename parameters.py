@@ -12,13 +12,14 @@ from collections import namedtuple
 import itertools
 import math
 import os
+import inspect
 
 import constants as c
 import doneshapes as ds
 
 class Parameters:
     
-    def __init__(self, param_data, outline_var_data, pattern_var_data):
+    def __init__(self, param_data, dropdown_data):
         
         for key, value in param_data.items():
             setattr(self, key, value)
@@ -28,13 +29,12 @@ class Parameters:
         self.startEndSubDirectory = self.currPath + '\\Start_End_Gcode'
         self.filamentArea = math.pi * self.filamentDiameter**2 / 4.0
         
-        if self.outline != c.STL_FLAG:
-            self.outline = getattr(ds, self.outline)(**outline_var_data) 
-            
-        if self.pattern != c.PATTERN_NONE_CHOICE:
-            self.pattern = getattr(ds, self.pattern)(**pattern_var_data)
-        else:
-            self.pattern = None
+        for dropdown in dropdown_data:
+            for key in dropdown:
+                if 'outline' in str(inspect.getfullargspec(getattr(ds, key)).annotations['return']):
+                    self.outline = getattr(ds, self.outline)(**dropdown)
+                elif 'linegroup' in str(inspect.getfullargspec(getattr(ds, key)).annotations['return']):
+                    self.pattern = getattr(ds, self.pattern)(**dropdown)
         
         self.LayerParams = namedtuple('LayerParams', 'infillShiftX infillShiftY infillAngle '
                                             + 'numShells layerHeight pathWidth trimAdjust')            
