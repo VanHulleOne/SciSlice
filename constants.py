@@ -36,6 +36,7 @@ TRIMMED_FIELD = 4
 GCODE = 0
 ROBOTCODE = 1
 STL_FLAG = 'stl_file'
+THE_LABEL = 'the_label'
 
 LOG_LEVEL = logging.INFO
 importlib.reload(logging)

@@ -202,6 +202,7 @@ class Page_Variables(Frame):
         
         for x in range(len(self.dropdowns)):
             if x < len(dropdown_defaults):
+                del dropdown_defaults[x][c.THE_LABEL]
                 if len(dropdown_defaults[x]) > 0:
                     self.all_vars[x][self.SAVED] = dropdown_defaults[x]
                     for key, value in dropdown_defaults[x].items():
@@ -567,8 +568,8 @@ class Page_Variables(Frame):
             data[self.G_ROBOT_VAR] = self.g_robot_var.get()
             data[self.SHIFT] = self.shift
             
-            for x in range(len(self.dropdowns)):
-                dropdown_data.append({})
+            for x, dropdown in enumerate(self.dropdowns):
+                dropdown_data.append({c.THE_LABEL : dropdown.label})
                 if len(self.all_vars[x][self.KEYS]) > 0:
                     for key in self.all_vars[x][self.KEYS]:
                         if self.all_vars[x][self.TYPES][key] in (float, int, str):
