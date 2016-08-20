@@ -164,14 +164,7 @@ class Page_Variables(Frame):
                
         self.fields = []
         for menu in self.menus:
-            field = []
-            for dropdown in self.dropdowns:
-                if menu.group in dropdown.groups:
-                    field.append(dropdown)
-            for param in self.parameters:
-                if menu.group in param.groups:
-                    field.append(param)
-            self.fields.append(field)
+            self.fields.append([par for par in (self.dropdowns + self.parameters) if menu.group in par.groups])
            
         self.set_all_vars()
         self.set_defaults()
