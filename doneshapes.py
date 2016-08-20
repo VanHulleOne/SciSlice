@@ -60,15 +60,15 @@ def rightGrip() ->Outline:
     arc = a.Arc(Point(49.642, 9.5), Point(28.5, 6.5), c.CW, Point(28.5, 82.5), 20)
     outline.addLineGroup(arc)
     outline.addLinesFromCoordinateList([[28.5, 6.5], [28.5, 0]])
-    outline.addLineGroup(shape.mirror(c.X)) #TODO this line creates the error
+    outline.addLineGroup(outline.mirror(c.X)) 
     return outline.translate(82.5, 9.5)
-#TODO gives error - look to line 63  
+
 def leftGrip() ->Outline:
     outline = rightGrip()
     outline = outline.translate(-82.5, -9.5)
     outline = outline.mirror(c.Y)
     return outline.translate(82.5, 9.5)
-#TODO gives error - look to line 63
+
 def grips() ->Outline:
     outline = leftGrip()
     outline.addLineGroup(rightGrip())
