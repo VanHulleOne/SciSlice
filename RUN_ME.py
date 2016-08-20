@@ -192,15 +192,25 @@ class Page_Variables(Frame):
         self.defaults = full_defaults[0]
         dropdown_defaults = full_defaults[1]
         
-        for x in range(len(self.dropdowns)):
+        #this is so if the JSON is saved before a dropdown is edited, it will
+        #have all the necessary information (key, value, and type).
+        #also makes it so if the same dropdown option as the default is picked
+        #before any other option is picked, the program will recognize that
+        #and act accordingly     
+        for x, dropdown in enumerate(self.dropdowns):
             if x < len(dropdown_defaults):
                 del dropdown_defaults[x][c.THE_LABEL]
                 if len(dropdown_defaults[x]) > 0:
                     self.all_vars[x][self.SAVED] = dropdown_defaults[x]
+                    if dropdown.label in self.defaults:
+                        self.all_vars[x][self.VAR] = self.defaults[dropdown.label]
                     for key, value in dropdown_defaults[x].items():
                         self.all_vars[x][self.KEYS].append(key)
                         self.all_vars[x][self.TYPES][key] = type(value)
-            
+        
+        #makes the default value of any parameter not found in the JSON be 
+        #an empty string and, if the STL outline option is picked, changes
+        #the value of the STL parameter to the full path of the STL
         for param in self.dropdowns + self.parameters:
             if param.label not in self.defaults:
                 self.defaults[param.label] = ''
@@ -209,11 +219,7 @@ class Page_Variables(Frame):
             elif param.label == c.STL_FLAG:
                 self.stl_path = self.defaults[param.label]
                 if self.stl_path:
-                    self.defaults[param.label] = os.path.basename(os.path.normpath(self.stl_path))
-                    
-        for x, dropdown in enumerate(self.dropdowns):
-            if dropdown.label in self.defaults:
-                self.all_vars[x][self.VAR] = self.defaults[dropdown.label]
+                    self.defaults[param.label] = os.path.basename(os.path.normpath(self.stl_path))            
         
         if self.SHIFT in self.defaults:            
             self.shift = self.defaults[self.SHIFT]
@@ -225,17 +231,16 @@ class Page_Variables(Frame):
     
         self.doneshapes_menu()
         
-        dd = len(self.dropdowns)
         for x, param in enumerate(self.parameters):
             x += 1+len(self.dropdowns)
             curr_label = ttk.Label(self, text= param.label + ' - ' + param.data_type)
             curr_text_variable = StringVar(self, value=self.defaults[param.label])
             curr_entry = ttk.Entry(self, textvariable=curr_text_variable)
             self.elements[param.label] = self.Elem(curr_label, curr_entry, curr_text_variable)
-            self.elements[param.label].label.grid(row=x+dd,column=0)
-            self.elements[param.label].entry.grid(row=x+dd,column=1,sticky='ew')
+            self.elements[param.label].label.grid(row=x,column=0)
+            self.elements[param.label].entry.grid(row=x,column=1,sticky='ew')
             
-        #labels for displaying outline or pattern values
+        #labels for displaying dropdown values in the value bar
         self.var_text = {}
         self.var_labels = {}
         self.var_overall_label = {}
@@ -259,7 +264,7 @@ class Page_Variables(Frame):
                 doneshape.append(c.STL_FLAG)
             for member in inspect.getmembers(ds, inspect.isfunction):
                 if dropdown.ds_return in str(inspect.getfullargspec(getattr(ds, member[0])).annotations['return']):
-                    doneshape.append(member[0])
+                    doneshape.append(member[0]) #uses member[0] because member is a list of 2 things, and we want the first one
         
             curr_label = ttk.Label(self, text= dropdown.label + ' - ' + dropdown.data_type)
             curr_text_variable = StringVar(self, value=self.defaults[dropdown.label])
@@ -369,13 +374,18 @@ class Page_Variables(Frame):
         
         self.all_vars = []
         
+        #creates data structure-ception to hold the necessary dropdown information
+        #essentially is a list of dictionary, each dictionary having a string as the
+        #value and a string/list/dict as the value
+        #would look like this: [{'' : '', '' : [], '' : {}, '' : {}}, 
+        #                       {'' : '', '' : [], '' : {}, '' : {}}]
         for x in range(len(self.dropdowns)):
             self.all_vars.append({})
             for added_key, added_value in ((self.VAR, ''), (self.KEYS, []), (self.TYPES, {}), (self.VALUES, {}), 
                                            (self.STRINGVARS, {}), (self.LABELS, {}), (self.ENTRIES, {}), (self.SAVED, {})):
                 self.all_vars[x][added_key] = added_value
     
-    #resets doneshape menu variables (either outline or pattern)                    
+    #resets a specific doneshape menu's variables              
     def reset_certain_vars(self, vars_to_reset):
 
         for key, value in self.all_vars[vars_to_reset].items():
@@ -388,7 +398,8 @@ class Page_Variables(Frame):
     
     #creates popup menu to set values for a doneshape function
     def set_var(self, var):
-            
+        
+        #specific instructions solely for STL file option
         if var == c.STL_FLAG:
             self.stl_path = filedialog.askopenfilename()
             if self.stl_path == '':
@@ -396,6 +407,7 @@ class Page_Variables(Frame):
             else:
                 self.elements[c.STL_FLAG].text_variable.set(os.path.basename(os.path.normpath(self.stl_path)))
             self.annot = {}
+            #needed so the method knows it's currently using the outline dropdown menu
             for x, dropdown in enumerate(self.dropdowns):
                 if dropdown.label == 'outline':
                     dropdown_index = x
@@ -404,6 +416,7 @@ class Page_Variables(Frame):
             
         else:
             self.annot = inspect.getfullargspec(getattr(ds, var)).annotations
+            #determines which dropdown menu is currently being used
             for x, dropdown in enumerate(self.dropdowns):
                 if dropdown.ds_return in str(inspect.getfullargspec(getattr(ds, var)).annotations['return']):
                     dropdown_index = x
@@ -447,7 +460,10 @@ class Page_Variables(Frame):
                                                                             textvariable=self.all_vars[dropdown_index][self.STRINGVARS][key])
                     self.all_vars[dropdown_index][self.ENTRIES][key].grid(row=x, column=1, padx=1, pady=1)
                     self.all_vars[dropdown_index][self.VALUES][self.all_vars[dropdown_index][self.ENTRIES][key]] = new_value  
-                    
+            
+            #method that makes it so the entry clears itself upon being clicked when 
+            #the data type is the value and fills the entry with the data type if 
+            #it's empty
             def default(event):
                 current = event.widget
                 if current.get() == self.all_vars[dropdown_index][self.VALUES][current]:
@@ -564,6 +580,7 @@ class Page_Variables(Frame):
             data[self.G_ROBOT_VAR] = self.g_robot_var.get()
             data[self.SHIFT] = self.shift
             
+            #saves the extra dropdown menu data
             for x, dropdown in enumerate(self.dropdowns):
                 dropdown_data.append({c.THE_LABEL : dropdown.label})
                 if len(self.all_vars[x][self.KEYS]) > 0:
@@ -631,13 +648,19 @@ class Page_Variables(Frame):
                     value = value.replace('[','').replace(']','')
                     self.elements[key].text_variable.set(value)  
             
+            #deletes the label entry so it doesn't show up in the value bar
+            #uploads all necessary dropdown menu data so dropdown menu
+            #functions can act appropriately
             for x, dropdown in enumerate(self.dropdowns):
+                del dropdown_data[x][c.THE_LABEL]
                 if len(dropdown_data[x]) > 0:
                     for key, value in dropdown_data[x].items():
                         self.all_vars[x][self.KEYS].append(key)
                         self.all_vars[x][self.SAVED][key] = value
                         self.all_vars[x][self.TYPES][key] = type(value)
                         self.all_vars[x][self.VAR] = self.elements[dropdown.label].text_variable.get()
+                        
+            self.shift = data[self.SHIFT]
             
             self.values_bar()
             self.regrid()

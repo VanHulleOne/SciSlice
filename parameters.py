@@ -29,6 +29,10 @@ class Parameters:
         self.startEndSubDirectory = self.currPath + '\\Start_End_Gcode'
         self.filamentArea = math.pi * self.filamentDiameter**2 / 4.0
 
+        #goes through each dictionary, check the 'the_label' dictionary entry
+        #that has the dropdown.label as the value and using that value
+        #along with setattr and getattr to set the appropriate variable
+        #to the appropriate doneshape menu
         for x in range(len(dropdown_data)):
             the_label = dropdown_data[x][c.THE_LABEL]
             if getattr(self, the_label) != c.STL_FLAG:
