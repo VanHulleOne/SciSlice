@@ -113,7 +113,6 @@ class Page_Variables(Frame):
     dropdowns = [
                 Drop('outline', STR, (COMMON, PART), 'outline'),
                 Drop('pattern', STR, (COMMON, PART,), 'linegroup'),
-                Drop('test', STR, (COMMON,), 'test'),
                 ]
           
     parameters = [

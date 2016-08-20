@@ -31,19 +31,15 @@ class Parameters:
 
         for x in range(len(dropdown_data)):
             the_label = dropdown_data[x][c.THE_LABEL]
-            if len(dropdown_data[x]) > 1:
-                if type(getattr(self, the_label)) == str:
-                    del dropdown_data[x][c.THE_LABEL]
-                    setattr(self, the_label, getattr(ds, getattr(self, the_label))(**dropdown_data[x]))
+            if getattr(self, the_label) != c.STL_FLAG:
+                if len(dropdown_data[x]) > 1:
+                    if type(getattr(self, the_label)) == str:
+                        del dropdown_data[x][c.THE_LABEL]
+                        setattr(self, the_label, getattr(ds, getattr(self, the_label))(**dropdown_data[x]))
 
-            else:
-                if getattr(self, the_label) != '':
-                    setattr(self, the_label, getattr(ds, getattr(self, the_label))())
-                
-#        if type(self.outline) == str:
-#            self.outline = getattr(ds, self.outline)()
-#        if type(self.pattern) == str:
-#            self.pattern = getattr(ds, self.pattern)()
+                else:
+                    if getattr(self, the_label) != '':
+                        setattr(self, the_label, getattr(ds, getattr(self, the_label))())          
         
         self.LayerParams = namedtuple('LayerParams', 'infillShiftX infillShiftY infillAngle '
                                             + 'numShells layerHeight pathWidth trimAdjust')            
