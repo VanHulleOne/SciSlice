@@ -53,22 +53,22 @@ def wideDogBone() ->Outline:
     wideDogBone.addLineGroup(wideDogBone.mirror(c.Y))
     wideDogBone.addLineGroup(wideDogBone.mirror(c.X))
     return wideDogBone.translate(82.5, 9.5 + halfWidth)
-    
+   
 def rightGrip() ->Outline:
     outline = Outline(None)
     outline.addLinesFromCoordinateList([[82.5, 0], [82.5, 9.5], [49.642, 9.5]])
     arc = a.Arc(Point(49.642, 9.5), Point(28.5, 6.5), c.CW, Point(28.5, 82.5), 20)
     outline.addLineGroup(arc)
     outline.addLinesFromCoordinateList([[28.5, 6.5], [28.5, 0]])
-    outline.addLineGroup(shape.mirror(c.X))
+    outline.addLineGroup(outline.mirror(c.X)) 
     return outline.translate(82.5, 9.5)
-    
+
 def leftGrip() ->Outline:
     outline = rightGrip()
     outline = outline.translate(-82.5, -9.5)
     outline = outline.mirror(c.Y)
     return outline.translate(82.5, 9.5)
-    
+
 def grips() ->Outline:
     outline = leftGrip()
     outline.addLineGroup(rightGrip())
@@ -154,6 +154,6 @@ def hexField(side: float, space: float, length: float, height: float) -> LineGro
         field.addLineGroup(fullLine)
     return field
     
-    def straightLines()  -> LineGroup:
-        return None
+def straightLines()  -> LineGroup:
+    return None
     

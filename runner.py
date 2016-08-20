@@ -15,9 +15,9 @@ class Runner:
     
     def __init__(self, name, gRobot):
         with open(name, 'r') as fp:
-            data, var_data = json.load(fp)
+            data = json.load(fp)
 
-        self.pr = Parameters(data, var_data)
+        self.pr = Parameters(data[0], data[1])
         if gRobot == c.GCODE:
             self.gc = Gcode(self.pr)
         elif gRobot == c.ROBOTCODE:
@@ -27,21 +27,17 @@ class Runner:
         startTime = time.time()
         print('\nGenerating code, please wait...')
         
-        #creates new, blank file for use
-        temp = open("data_points.txt", 'w')
-        temp.close()
-        
         fig = fg.Figura(self.pr, self.gc)
 
         with open(self.pr.outputFileName, 'w') as f:
             for string in fig.masterGcode_gen():
                 f.write(string)
         
-        fig.close_file()
         endTime = time.time()
         print('\nCode generated.')
         print('Done writting: ' + self.pr.outputFileName + '\n')
         print('{:.2f} total time'.format(endTime - startTime))
+        return fig.data_points
         """
         if c.LOG_LEVEL < c.logging.WARN:
             with open(self.outputSubDirectory+'\\'+self.outputFileName, 'r') as test,\

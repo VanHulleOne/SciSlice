@@ -23,6 +23,7 @@ from runner import Runner           #for converting to Gcode
 import parameters
 import doneshapes as ds
 import inspect
+data_points = []
 
 class GUI(Tk):
 
@@ -82,6 +83,17 @@ class Page_Variables(Frame):
     FLOAT = 'float'
     NONE = 'None'
     
+    SHIFT = 'shift'
+    G_ROBOT_VAR =  'g_robot_var'   
+    
+    VAR = 'var'
+    KEYS = 'keys'
+    TYPES = 'types'
+    VALUES = 'values'
+    STRINGVARS = 'stringvars'
+    LABELS = 'labels'
+    ENTRIES = 'entries'
+    SAVED = 'saved'
     
     Menu = namedtuple('Menu', 'name group')
     menus = [
@@ -94,11 +106,16 @@ class Page_Variables(Frame):
             ]
 
     menus.sort(key=lambda x : x.group)             
-
-             
+    
     Par = namedtuple('Parameter', 'label data_type groups')
+    Drop = namedtuple('Dropdown', Par._fields + ('ds_return',))
+    
+    dropdowns = [
+                Drop('outline', STR, (COMMON, PART), 'outline'),
+                Drop('pattern', STR, (COMMON, PART,), 'linegroup'),
+                ]
+          
     parameters = [
-                Par('outline', STR, (COMMON, PART)),
                 Par(c.STL_FLAG, STR, (COMMON, PART)),
                 Par('solidityRatio', FLOAT_LIST, (COMMON, PART)),
                 Par('printSpeed', INT_LIST, (COMMON, PART)),
@@ -106,7 +123,6 @@ class Page_Variables(Frame):
                 Par('shiftY', FLOAT_LIST, (COMMON, PART)),
                 Par('firstLayerShiftZ', FLOAT, (PART,)),
                 Par('numLayers', INT_LIST, (COMMON, PART)),
-                Par('pattern', NONE, (PART,)),
                 Par('designType', INT, (PART,)),
                 Par('infillAngleDegrees', FLOAT_LIST, (COMMON, LAYER)),
                 Par('pathWidth', FLOAT_LIST, (LAYER,)),
@@ -130,6 +146,8 @@ class Page_Variables(Frame):
                 Par('comment', STR, (PRINTER,)),
                 ]
                 
+    Elem = namedtuple('Element', 'label entry text_variable')
+                
     OUTPUTFILENAME = 'outputFileName'
     CURRPATH = os.path.dirname(os.path.realpath(__file__))
     GCODEPATH = CURRPATH + '\\Gcode\\'
@@ -141,18 +159,23 @@ class Page_Variables(Frame):
         self.controller = controller
         
         self.filename = ''
-        self.text_variable = {}       
-        self.labels = {}
-        self.entries = {}        
+        self.elements = {}  
         self.numRows = len(self.parameters)
                
         self.fields = []
         for menu in self.menus:
-            self.fields.append([par for par in self.parameters if menu.group in par.groups])
+            field = []
+            for dropdown in self.dropdowns:
+                if menu.group in dropdown.groups:
+                    field.append(dropdown)
+            for param in self.parameters:
+                if menu.group in param.groups:
+                    field.append(param)
+            self.fields.append(field)
            
+        self.set_all_vars()
         self.set_defaults()
         
-        self.shift = 0
         self.current_menu = self.fields[self.COMMON]
             
         self.create_var_page()
@@ -169,61 +192,92 @@ class Page_Variables(Frame):
                 full_defaults = json.load(fp)
         else:
             self.defaults = {}
-            
+            full_defaults = [{}, []]
+            for x in range(len(self.dropdowns)):
+                full_defaults.append({})
+        
         self.defaults = full_defaults[0]
-        var_defaults = full_defaults[1]
-        if var_defaults:
-            for key, value in var_defaults.items():
-                self.var_saved[key] = value
+        dropdown_defaults = full_defaults[1]
+        
+        for x in range(len(self.dropdowns)):
+            if x < len(dropdown_defaults):
+                del dropdown_defaults[x][c.THE_LABEL]
+                if len(dropdown_defaults[x]) > 0:
+                    self.all_vars[x][self.SAVED] = dropdown_defaults[x]
+                    for key, value in dropdown_defaults[x].items():
+                        self.all_vars[x][self.KEYS].append(key)
+                        self.all_vars[x][self.TYPES][key] = type(value)
             
-        for param in self.parameters:
+        for param in self.dropdowns + self.parameters:
             if param.label not in self.defaults:
                 self.defaults[param.label] = ''
+                if param.label == c.STL_FLAG:
+                    self.stl_path = ''
             elif param.label == c.STL_FLAG:
                 self.stl_path = self.defaults[param.label]
                 if self.stl_path:
                     self.defaults[param.label] = os.path.basename(os.path.normpath(self.stl_path))
-          
-    def set_labels(self):        
+                    
+        for x, dropdown in enumerate(self.dropdowns):
+            if dropdown.label in self.defaults:
+                self.all_vars[x][self.VAR] = self.defaults[dropdown.label]
         
-        for param in self.parameters:
-            self.labels[param.label] = ttk.Label(self, text= param.label + ' - ' + param.data_type)
+        if self.SHIFT in self.defaults:            
+            self.shift = self.defaults[self.SHIFT]
+        else:
+            self.shift = 0
+                
         
-        for x, par in enumerate(self.fields[self.COMMON]):
-            self.labels[par.label].grid(row=x+1,column=0)
-        
-        self.var_text_keys = StringVar(self)
-        self.labelKeys = Label(self, textvariable=self.var_text_keys)
-        self.var_text_values = StringVar(self)
-        self.labelValues = Label(self, textvariable=self.var_text_values)
-
-            
-    def set_entries(self):
-
-        for param in self.parameters:
-            self.text_variable[param.label] = StringVar(self, value=self.defaults[param.label])
-            self.entries[param.label] = ttk.Entry(self, textvariable=self.text_variable[param.label])  
-        
+    def set_elements(self):
+    
         self.doneshapes_menu()
         
-        for x, par in enumerate(self.fields[self.COMMON]):
-            self.entries[par.label].grid(row=x+1,column=1, sticky='ew')
+        dd = len(self.dropdowns)
+        for x, param in enumerate(self.parameters):
+            x += 1+len(self.dropdowns)
+            curr_label = ttk.Label(self, text= param.label + ' - ' + param.data_type)
+            curr_text_variable = StringVar(self, value=self.defaults[param.label])
+            curr_entry = ttk.Entry(self, textvariable=curr_text_variable)
+            self.elements[param.label] = self.Elem(curr_label, curr_entry, curr_text_variable)
+            self.elements[param.label].label.grid(row=x+dd,column=0)
+            self.elements[param.label].entry.grid(row=x+dd,column=1,sticky='ew')
             
-        self.entries[c.STL_FLAG].config(state=DISABLED)
+        #labels for displaying outline or pattern values
+        self.var_text = {}
+        self.var_labels = {}
+        self.var_overall_label = {}
+        for x, dropdown in enumerate(self.dropdowns):
+            self.var_text[x] = {}
+            self.var_labels[x] = {}
+            self.var_overall_label[x] = Label(self, text=dropdown.label)
+            for key_or_value in (self.KEYS, self.VALUES):
+                self.var_text[x][key_or_value] = StringVar(self)
+                self.var_labels[x][key_or_value] = Label(self, 
+                                textvariable=self.var_text[x][key_or_value])
+        
+        self.elements[c.STL_FLAG].entry.config(state=DISABLED)
     
     #creates menu of the different possible shapes from the doneshapes class        
     def doneshapes_menu(self):
         
-        doneshape_funcs = ['choose a shape']
-        doneshape_funcs.append(c.STL_FLAG)
-        for member in inspect.getmembers(ds, inspect.isfunction):
-            doneshape_funcs.append(member[0])
+        for x, dropdown in enumerate(self.dropdowns):
+            doneshape = []
+            if dropdown.label == 'outline':
+                doneshape.append(c.STL_FLAG)
+            for member in inspect.getmembers(ds, inspect.isfunction):
+                if dropdown.ds_return in str(inspect.getfullargspec(getattr(ds, member[0])).annotations['return']):
+                    doneshape.append(member[0])
         
-        self.entries['outline'] = ttk.OptionMenu(self,
-                                                self.text_variable['outline'],
-                                                self.defaults['outline'],
-                                                *doneshape_funcs,
-                                                command=self.set_var)
+            curr_label = ttk.Label(self, text= dropdown.label + ' - ' + dropdown.data_type)
+            curr_text_variable = StringVar(self, value=self.defaults[dropdown.label])
+            curr_entry = ttk.OptionMenu(self,
+                                        curr_text_variable,
+                                        self.defaults[dropdown.label],
+                                        *doneshape,
+                                        command=self.set_var)
+            self.elements[dropdown.label] = self.Elem(curr_label, curr_entry, curr_text_variable)
+            self.elements[dropdown.label].label.grid(row=x+1,column=0)
+            self.elements[dropdown.label].entry.grid(row=x+1,column=1,sticky='ew')
         
     def save_option(self): 
         
@@ -239,7 +293,7 @@ class Page_Variables(Frame):
         labelParameters = ttk.Label(self,text='Parameters',font='-weight bold')
         labelParameters.grid(row=0,column=2)
 
-        buttonAll = ttk.Button(self,text='All',command=self.command(self.parameters))
+        buttonAll = ttk.Button(self,text='All',command=self.command(self.dropdowns + self.parameters))
         buttonAll.grid(row=1,column=2)
         
         for x, menu in enumerate(self.menus):
@@ -256,16 +310,15 @@ class Page_Variables(Frame):
     def model_page(self):  
         
         #button to switch to 3D model page
-        self.buttonModel = ttk.Button(self, text='3D Model', 
-                             command=lambda: self.to_model())
+        self.buttonModel = ttk.Button(self, text='3D Model', command=lambda: self.to_model())
         self.buttonModel.grid(row=self.numRows+1, column=0)
         
     #create radiobutton to switch between gcode and robotcode
     def g_robot(self):
         
         self.g_robot_var = IntVar()
-        if self.defaults['g_robot_var']:
-            self.g_robot_var.set(self.defaults['g_robot_var'])
+        if self.G_ROBOT_VAR in self.defaults:
+            self.g_robot_var.set(self.defaults[self.G_ROBOT_VAR])
         else:
             self.g_robot_var.set(c.GCODE)
         
@@ -282,16 +335,15 @@ class Page_Variables(Frame):
     #moves labels and entries up or down depending on the self.shift value    
     def regrid(self):
         
-        for param in self.parameters:
-            self.labels[param.label].grid_forget()      
-            self.entries[param.label].grid_forget()
+        for param in self.dropdowns + self.parameters:
+            self.elements[param.label].label.grid_forget()      
+            self.elements[param.label].entry.grid_forget()
 
         for x, param in enumerate(self.current_menu):
-            self.labels[param.label].grid(row=x+1+self.shift, column=0)
-            self.entries[param.label].grid(row=x+1+self.shift, column=1)
-        
+            self.elements[param.label].label.grid(row=x+1+self.shift, column=0)
+            self.elements[param.label].entry.grid(row=x+1+self.shift, column=1)
+    
         self.values_bar()
-        
         self.buttonGcode.grid(row=self.numRows+1+self.shift,column=1)
         self.buttonModel.grid(row=self.numRows+1+self.shift,column=0)
         self.buttonChooseGcode.grid(row=self.numRows+2+self.shift,column=0)
@@ -301,95 +353,126 @@ class Page_Variables(Frame):
     #shows the values entered into the popup doneshapes menu
     def values_bar(self):
         
-        text_keys = ''        
-        text_values = ''
-        for key, value in self.var_saved.items():
-            text_keys += '%10s ' % (key)
-            text_values += '%10s ' %(value)
-        self.var_text_keys.set(text_keys)
-        self.var_text_values.set(text_values)
-        if self.shift:
-            self.labelKeys.grid(row=1,column=1)
-            self.labelValues.grid(row=2,column=1)
-    
-    #resets doneshape menu variables
-    def reset_vars(self):
+        extra_shift = 0
+        for x in range(len(self.dropdowns)):
+            text_keys = ''        
+            text_values = ''
+            if len(self.all_vars[x][self.SAVED]) > 0:
+                self.var_overall_label[x].grid(row=1+extra_shift, column=0)
+                for key, value in self.all_vars[x][self.SAVED].items():
+                    text_keys += '%10s ' % (key)
+                    text_values += '%10s ' %(value)
+                self.var_text[x][self.KEYS].set(text_keys)
+                self.var_text[x][self.VALUES].set(text_values)
+                self.var_labels[x][self.KEYS].grid(row=1+extra_shift,column=1)
+                self.var_labels[x][self.VALUES].grid(row=2+extra_shift,column=1)
+                extra_shift += 2
+            else:
+                self.var_overall_label[x].grid_forget()
+                self.var_labels[x][self.KEYS].grid_forget()
+                self.var_labels[x][self.VALUES].grid_forget()
+            
+    def set_all_vars(self):
         
-        self.old_var = ''
-        self.var_keys = []
-        self.var_types = {}
-        self.var_values = {}
-        self.var_stringvars = {}
-        self.var_labels = {}
-        self.var_entries = {}
-        self.var_saved = {}
+        self.all_vars = []
+        
+        for x in range(len(self.dropdowns)):
+            self.all_vars.append({})
+            for added_key, added_value in ((self.VAR, ''), (self.KEYS, []), (self.TYPES, {}), (self.VALUES, {}), 
+                                           (self.STRINGVARS, {}), (self.LABELS, {}), (self.ENTRIES, {}), (self.SAVED, {})):
+                self.all_vars[x][added_key] = added_value
+    
+    #resets doneshape menu variables (either outline or pattern)                    
+    def reset_certain_vars(self, vars_to_reset):
+
+        for key, value in self.all_vars[vars_to_reset].items():
+            if type(value) == str:
+                value = ''
+            elif type(value) == dict:
+                self.all_vars[vars_to_reset][key].clear()
+            elif type(value) == list:
+                value[:] = []
     
     #creates popup menu to set values for a doneshape function
     def set_var(self, var):
-        
-        self.shift = 0
-        self.regrid()        
-
-        if var == 'choose a shape' or var != c.STL_FLAG:
-            self.stl_path = ''
-            try:
-                self.annot = inspect.getfullargspec(getattr(ds, var)).annotations
-            except:
-                self.annot = {}
-            self.text_variable[c.STL_FLAG].set(self.stl_path)
-        else:
+            
+        if var == c.STL_FLAG:
             self.stl_path = filedialog.askopenfilename()
             if self.stl_path == '':
-                self.text_variable['outline'].set('choose a shape')
+                self.elements['outline'].text_variable.set(c.OUTLINE_NONE_CHOICE)
             else:
-                self.text_variable[c.STL_FLAG].set(os.path.basename(os.path.normpath(self.stl_path)))
+                self.elements[c.STL_FLAG].text_variable.set(os.path.basename(os.path.normpath(self.stl_path)))
             self.annot = {}
+            for x, dropdown in enumerate(self.dropdowns):
+                if dropdown.label == 'outline':
+                    dropdown_index = x
+                    label = dropdown.label
+                    break
+            
+        else:
+            self.annot = inspect.getfullargspec(getattr(ds, var)).annotations
+            for x, dropdown in enumerate(self.dropdowns):
+                if dropdown.ds_return in str(inspect.getfullargspec(getattr(ds, var)).annotations['return']):
+                    dropdown_index = x
+                    label = dropdown.label
+            if label == 'outline':
+                self.stl_path = ''
+                self.elements[c.STL_FLAG].text_variable.set(self.stl_path)
+            
+         #TODO change this to for self.doneshapes   
+        self.shift = 0
+        for x, dropdown in enumerate(self.dropdowns):
+            if len(self.all_vars[x][self.SAVED]) > 0 and label != dropdown.label:
+                self.shift += 2
 
         if len(self.annot) > 1: 
-            self.shift = 2
+            self.shift += 2
+            
             self.regrid()            
             
             var_window = Tk()
-            
             var_window.title(var)
-            var_window.geometry('+650+100')         
+            var_window.geometry('+650+100')  
             
-            if self.old_var != var:
-                self.reset_vars()
-                self.old_var = var
-            
+            if self.all_vars[dropdown_index][self.VAR] != var:
+                self.reset_certain_vars(dropdown_index)
+                self.all_vars[dropdown_index][self.VAR] = var
+                      
             for x, (key, value) in enumerate(self.annot.items()):
                 if key != 'return':
-                    self.var_keys.append(key)
-                    self.var_types[key] = value
+                    self.all_vars[dropdown_index][self.KEYS].append(key)
+                    self.all_vars[dropdown_index][self.TYPES][key] = value
                     new_value = str(value).split('\'')[1]
-                    self.var_stringvars[key] = StringVar(var_window)
-                    if self.var_saved:
-                        self.var_stringvars[key].set(self.var_saved[key])
+                    self.all_vars[dropdown_index][self.STRINGVARS][key] = StringVar(var_window)
+                    if len(self.all_vars[dropdown_index][self.SAVED]) > 0:
+                        self.all_vars[dropdown_index][self.STRINGVARS][key].set(self.all_vars[dropdown_index][self.SAVED][key])
                     else:
-                        self.var_stringvars[key].set(new_value)
-                    self.var_labels[key] = ttk.Label(var_window, text=key)
-                    self.var_labels[key].grid(row=x, column=0, padx=5)
-                    self.var_entries[key] = ttk.Entry(var_window, textvariable=self.var_stringvars[key])
-                    self.var_entries[key].grid(row=x, column=1, padx=1, pady=1)
-                    self.var_values[self.var_entries[key]] = new_value
-            
+                        self.all_vars[dropdown_index][self.STRINGVARS][key].set(new_value)
+                    self.all_vars[dropdown_index][self.LABELS][key] = ttk.Label(var_window, text=key)
+                    self.all_vars[dropdown_index][self.LABELS][key].grid(row=x, column=0, padx=5)
+                    self.all_vars[dropdown_index][self.ENTRIES][key] = ttk.Entry(var_window, 
+                                                                            textvariable=self.all_vars[dropdown_index][self.STRINGVARS][key])
+                    self.all_vars[dropdown_index][self.ENTRIES][key].grid(row=x, column=1, padx=1, pady=1)
+                    self.all_vars[dropdown_index][self.VALUES][self.all_vars[dropdown_index][self.ENTRIES][key]] = new_value  
+                    
             def default(event):
                 current = event.widget
-                if current.get() == self.var_values[current]:
+                if current.get() == self.all_vars[dropdown_index][self.VALUES][current]:
                     current.delete(0, END)
                 elif current.get() == '':
-                    current.insert(0, self.var_values[current])   
+                    current.insert(0, self.all_vars[dropdown_index][self.VALUES][current]) 
+                quicksave(False)
                     
-            def quicksave():
-                for key in self.var_keys:
-                    self.var_saved[key] = self.var_stringvars[key].get()
+            def quicksave(destroy = True):
+                for key in self.all_vars[dropdown_index][self.KEYS]:
+                    self.all_vars[dropdown_index][self.SAVED][key] = self.all_vars[dropdown_index][self.STRINGVARS][key].get()
                 self.values_bar()
-                var_window.destroy()
+                if destroy:
+                    var_window.destroy()
                    
-            for key in self.var_keys:
-                self.var_entries[key].bind('<FocusIn>', default)
-                self.var_entries[key].bind('<FocusOut>', default)
+            for key in self.all_vars[dropdown_index][self.KEYS]:
+                self.all_vars[dropdown_index][self.ENTRIES][key].bind('<FocusIn>', default)
+                self.all_vars[dropdown_index][self.ENTRIES][key].bind('<FocusOut>', default)
 
             buttonDestroy = ttk.Button(var_window, text='OK', command=quicksave)
             buttonDestroy.grid(row=len(self.annot.items())+1, column=1)
@@ -398,8 +481,9 @@ class Page_Variables(Frame):
             var_window.mainloop()
             
         else:
-            self.reset_vars()
+            self.reset_certain_vars(dropdown_index)
             self.values_bar()
+            self.regrid()
             
     #creates error popup message        
     def popup(self, msg, title, size):
@@ -418,8 +502,7 @@ class Page_Variables(Frame):
     #all set up functions
     def create_var_page(self):
         
-        self.set_labels()
-        self.set_entries()
+        self.set_elements()
         self.save_option()
         self.upload_option()
         self.tab_buttons()
@@ -427,12 +510,27 @@ class Page_Variables(Frame):
         self.model_page()
         self.g_robot()
         self.version_num()      
-        self.reset_vars()
+        self.regrid()
         
     #############################################
     #   methods that are called from buttons    #
     #############################################
-               
+        
+    def _save(self, dic, key, save_type, value, is_list = False):
+        if value == '':
+            dic[key] = value
+        elif is_list:
+            dic[key] = [save_type(i) for i in value.split(',') if i != '']
+        else:
+            if save_type == self.INT:
+                dic[key] = int(value) 
+            elif save_type == self.FLOAT:
+                dic[key] = float(value)
+            elif save_type == self.STR:
+                dic[key] = str(value)
+            else:
+                dic[key] = save_type(value)     
+                
     def save(self, name = None):
 
         #only saving JSON
@@ -465,45 +563,39 @@ class Page_Variables(Frame):
             self.filename = self.JSONPATH + name + '.json'          
         
         data = {}              
-        var_data = {}
-        
-        def save(dic, key, save_type, value, is_list = False):
-            if is_list:
-                dic[key] = [save_type(i) for i in value.split(',') if i != '']
-            else:
-                if save_type == self.INT:
-                    dic[key] = int(value) 
-                elif save_type == self.FLOAT:
-                    dic[key] = float(value)
-                elif save_type == self.STR:
-                    dic[key] = str(value)
-                else:
-                    dic[key] = save_type(value)
-   
-        if self.savePath:
+        dropdown_data = []
+            
+        if self.savePath:                                                       
             data[self.OUTPUTFILENAME] = gcodeName
             data[self.OUTPUTSUBDIRECTORY] = self.savePath
-            data['g_robot_var'] = self.g_robot_var.get()
-            data['shift'] = self.shift
-            if self.var_keys:
-                for key in self.var_keys:
-                    if self.var_types[key] in (float, int, str):
-                        save(var_data, key, self.var_types[key], self.var_saved[key])
+            data[self.G_ROBOT_VAR] = self.g_robot_var.get()
+            data[self.SHIFT] = self.shift
             
-            for param in self.parameters:
+            for x, dropdown in enumerate(self.dropdowns):
+                dropdown_data.append({c.THE_LABEL : dropdown.label})
+                if len(self.all_vars[x][self.KEYS]) > 0:
+                    for key in self.all_vars[x][self.KEYS]:
+                        if self.all_vars[x][self.TYPES][key] in (float, int, str):
+                            self._save(dropdown_data[x], key, self.all_vars[x][self.TYPES][key], 
+                                 self.all_vars[x][self.SAVED][key])
+            
+            for param in self.dropdowns + self.parameters:                   
                 if param.label == c.STL_FLAG:
                     data[param.label] = self.stl_path
                     
-                elif param.data_type == self.INT_LIST:
-                    save(data, param.label, int, 
-    self.text_variable[param.label].get().replace(' ', ',').replace(',,', ',').replace('(', '').replace(')', ''), True)
-    
-                elif param.data_type == self.FLOAT_LIST:
-                    save(data, param.label, float, 
-    self.text_variable[param.label].get().replace(' ', ',').replace(',,', ',').replace('(', '').replace(')', ''), True)
+                elif param.data_type == self.INT_LIST or param.data_type == self.FLOAT_LIST:
+                    if param.data_type == self.INT_LIST:
+                        save_type = int
+                    else:
+                        save_type = float
+                    if self.elements[param.label].text_variable.get() == '':
+                        self._save(data, param.label, save_type, '')
+                    else:
+                        self._save(data, param.label, save_type, 
+    self.elements[param.label].text_variable.get().replace(' ', ',').replace(',,', ',').replace('(', '').replace(')', ''), True)
                         
                 elif param.data_type in (self.STR, self.INT, self.FLOAT):
-                    save(data, param.label, param.data_type, self.text_variable[param.label].get())
+                    self._save(data, param.label, param.data_type, self.elements[param.label].text_variable.get())
                     
                 elif param.data_type == self.NONE:
                     data[param.label] = None
@@ -511,7 +603,7 @@ class Page_Variables(Frame):
             if not os.path.isdir(self.JSONPATH):
                 os.makedirs(self.JSONPATH)
             with open(self.filename, 'w') as fp:
-                json.dump([data, var_data], fp)   
+                json.dump([data, dropdown_data], fp)   
     
     #accounts for file extensions
     def check_end(self, pathName):
@@ -523,34 +615,38 @@ class Page_Variables(Frame):
         
         if uploadname != '':
             with open(uploadname, 'r') as fp:
-                data, var_data = json.load(fp)
+                data, dropdown_data = json.load(fp)
                 
-            self.reset_vars()
+            for x in range(len(self.dropdowns)):
+                self.reset_certain_vars(x)
                
             for key, value in data.items():    
                 if data[key] == None:
-                    self.text_variable[key].set('None') 
-                elif key == 'shift':
+                    self.elements[key].text_variable.set('None') 
+                elif key == self.SHIFT:
                     self.shift = value
-                elif key == 'g_robot_var':
+                elif key == self.G_ROBOT_VAR:
                     self.g_robot_var.set(value)
                 elif key == c.STL_FLAG:
                     self.stl_path = value
                     if self.stl_path:
-                        self.text_variable[key].set(os.path.basename(os.path.normpath(self.stl_path)))
+                        self.elements[key].text_variable.set(os.path.basename(os.path.normpath(self.stl_path)))
                     else:
-                        self.text_variable[key].set(self.stl_path)
-                elif key in self.text_variable.keys():
+                        self.elements[key].text_variable.set(self.stl_path)
+                elif key in self.elements.keys():
                     value = str(value)
                     value = value.replace('[','').replace(']','')
-                    self.text_variable[key].set(value)  
+                    self.elements[key].text_variable.set(value)  
             
-            if var_data:
-                for key, value in var_data.items():
-                    self.var_keys.append(key)
-                    self.var_saved[key] = value
-                    self.var_types[key] = type(value)
-                    
+            for x, dropdown in enumerate(self.dropdowns):
+                if len(dropdown_data[x]) > 0:
+                    for key, value in dropdown_data[x].items():
+                        self.all_vars[x][self.KEYS].append(key)
+                        self.all_vars[x][self.SAVED][key] = value
+                        self.all_vars[x][self.TYPES][key] = type(value)
+                        self.all_vars[x][self.VAR] = self.elements[dropdown.label].text_variable.get()
+            
+            self.values_bar()
             self.regrid()
             
     #swtiches between tabs        
@@ -558,30 +654,27 @@ class Page_Variables(Frame):
         def inner_command():
             self.current_menu = params
             for param in self.parameters:
-                self.labels[param.label].grid_forget()      
-                self.entries[param.label].grid_forget()
+                self.elements[param.label].label.grid_forget()      
+                self.elements[param.label].entry.grid_forget()
             for x, param in enumerate(params):
-                self.labels[param.label].grid(row=x+1+self.shift, column=0)
-                self.entries[param.label].grid(row=x+1+self.shift, column=1, sticky='ew')
+                self.elements[param.label].label.grid(row=x+1+self.shift, column=0)
+                self.elements[param.label].entry.grid(row=x+1+self.shift, column=1, sticky='ew')
         return inner_command
                     
     
     #create Gcode file                    
     def convert(self, name = None):
+        global data_points
         
-        if self.text_variable['outline'].get() == 'choose a shape':
-            text = 'Error: no shape is selected.\n   Please choose a shape.'
-            self.popup(text, 'Error', '+300+300')
+        if name == None:
+            self.save('gcode')
         else:
-            if name == None:
-                self.save('gcode')
-            else:
-                self.save(name)
-            
-            if self.savePath and self.text_variable['outline'].get() != 'choose a shape':
-                conversion = Runner(self.filename, self.g_robot_var.get())
-                conversion.run()
-                os.remove(self.filename)        
+            self.save(name)
+        
+        if self.savePath:
+            conversion = Runner(self.filename, self.g_robot_var.get())
+            data_points = conversion.run()
+            os.remove(self.filename)        
     
     #convert to gcode, switch to Page_Model        
     def to_model(self):
@@ -589,8 +682,9 @@ class Page_Variables(Frame):
         try:
             self.convert('temp')
             
-        except:
+        except Exception as e:
             print('Error during Gcode conversion')
+            print(e)
             self.controller.show_frame(Page_Variables)
             
         else:
@@ -604,9 +698,9 @@ class Page_Model(Frame):
         self.controller = controller
         
         self.get_data()
-    
-    #reads data in from .txt file    
+       
     def get_data(self):
+        global data_points
         
         data = []
         counter = 0
@@ -614,22 +708,25 @@ class Page_Model(Frame):
         self.yar = []
         self.zar = []
         self.layer_part = []
+        curr_layer = None
+        curr_part = None
         
-        with open('data_points.txt', 'r') as f:
-            for line in f:
-                if 'start' in line:
-                    start = counter
-                elif 'layer_number' in line:
-                    self.layer_part.append([line.split(':')[1], line.split(':')[3], start, counter])
-                else:
-                    data.append(line)      
-                    data[counter] = data[counter].split(',')
-                    for y in range(0,len(data[counter])):
-                        data[counter][y] = float(data[counter][y])
-                    self.xar.append([data[counter][0], data[counter][3]])
-                    self.yar.append([data[counter][1], data[counter][4]])
-                    self.zar.append([data[counter][2], data[counter][5]])     
-                    counter += 1
+        for line in data_points:
+            if 'start' in line:
+                start = counter
+            else:
+                if curr_layer != line[1].split(':')[1] and curr_part != line[1].split(':')[3]:
+                    self.layer_part.append([line[1].split(':')[1], line[1].split(':')[3], start, counter]) 
+                    curr_layer = line[1].split(':')[1]
+                    curr_part = line[1].split(':')[3]
+                data.append(line[0])      
+                data[counter] = data[counter].split(',')
+                for y in range(0,len(data[counter])):
+                    data[counter][y] = float(data[counter][y])
+                self.xar.append([data[counter][0], data[counter][3]])
+                self.yar.append([data[counter][1], data[counter][4]])
+                self.zar.append([data[counter][2], data[counter][5]])     
+                counter += 1
                     
         self.setup()
     
