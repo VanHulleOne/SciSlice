@@ -15,7 +15,7 @@ from collections import namedtuple
 from mpl_toolkits.mplot3d import axes3d
 import matplotlib.pyplot as plt
 
-from tkinter import *               #GUI module
+import tkinter as tk                #GUI module
 from tkinter import ttk             #for styling purposing
 from tkinter import filedialog      #window for saving and uploading files
 import json                         #for saving and uploading files
@@ -25,17 +25,17 @@ import doneshapes as ds
 import inspect
 data_points = []
 
-class GUI(Tk):
+class GUI(tk.Tk):
 
     def __init__(self, *args, **kwargs):
-        Tk.__init__(self, *args, **kwargs)
+        tk.Tk.__init__(self, *args, **kwargs)
         
-        Tk.iconbitmap(self, 'UW_Madison_icon.ico')
-        Tk.title(self, '3D Printer Parameter Setter')
+        tk.Tk.iconbitmap(self, 'UW_Madison_icon.ico')
+        tk.Tk.title(self, '3D Printer Parameter Setter')
         #format window size -- width=450, height=475, 100px from left of screen, 100px from top of screen
-        #Tk.geometry(self, '450x475+100+100')
+        #tk.Tk.geometry(self, '450x475+100+100')
         
-        self.container = Frame(self)
+        self.container = tk.Frame(self)
         self.container.pack(side='top', fill='both', expand=True)
         self.container.grid(row=0,column=0)
         
@@ -50,7 +50,7 @@ class GUI(Tk):
             frame.grid(row=0, column=0, sticky='nsew')            
         
         #show initial Frame
-        Tk.geometry(self, self.shapes[Page_Variables])
+        tk.Tk.geometry(self, self.shapes[Page_Variables])
         self.show_frame(Page_Variables)
        
     def show_frame(self, cont, delete=False, cont_to_del = None):
@@ -60,14 +60,14 @@ class GUI(Tk):
             self.frames[cont] = frame
             frame.grid(row=0, column=0, sticky='nsew')
             
-        Tk.geometry(self, self.shapes[cont])        
+        tk.Tk.geometry(self, self.shapes[cont])        
         frame = self.frames[cont]
         frame.tkraise() 
         
         if delete:
             del self.frames[cont_to_del]
         
-class Page_Variables(Frame):
+class Page_Variables(tk.Frame):
     
     COMMON = 0
     PART = 1
@@ -155,7 +155,7 @@ class Page_Variables(Frame):
     OUTPUTSUBDIRECTORY = 'outputSubDirectory'
     
     def __init__(self, parent, controller):
-        Frame.__init__(self, parent)
+        tk.Frame.__init__(self, parent)
         self.controller = controller
         
         self.filename = ''
@@ -234,7 +234,7 @@ class Page_Variables(Frame):
         for x, param in enumerate(self.parameters):
             x += 1+len(self.dropdowns)
             curr_label = ttk.Label(self, text= param.label + ' - ' + param.data_type)
-            curr_text_variable = StringVar(self, value=self.defaults[param.label])
+            curr_text_variable = tk.StringVar(self, value=self.defaults[param.label])
             curr_entry = ttk.Entry(self, textvariable=curr_text_variable)
             self.elements[param.label] = self.Elem(curr_label, curr_entry, curr_text_variable)
             self.elements[param.label].label.grid(row=x,column=0)
@@ -247,13 +247,13 @@ class Page_Variables(Frame):
         for x, dropdown in enumerate(self.dropdowns):
             self.var_text[x] = {}
             self.var_labels[x] = {}
-            self.var_overall_label[x] = Label(self, text=dropdown.label)
+            self.var_overall_label[x] = ttk.Label(self, text=dropdown.label)
             for key_or_value in (self.KEYS, self.VALUES):
-                self.var_text[x][key_or_value] = StringVar(self)
-                self.var_labels[x][key_or_value] = Label(self, 
+                self.var_text[x][key_or_value] = tk.StringVar(self)
+                self.var_labels[x][key_or_value] = ttk.Label(self, 
                                 textvariable=self.var_text[x][key_or_value])
         
-        self.elements[c.STL_FLAG].entry.config(state=DISABLED)
+        self.elements[c.STL_FLAG].entry.config(state=tk.DISABLED)
     
     #creates menu of the different possible shapes from the doneshapes class        
     def doneshapes_menu(self):
@@ -267,7 +267,7 @@ class Page_Variables(Frame):
                     doneshape.append(member[0]) #uses member[0] because member is a list of 2 things, and we want the first one
         
             curr_label = ttk.Label(self, text= dropdown.label + ' - ' + dropdown.data_type)
-            curr_text_variable = StringVar(self, value=self.defaults[dropdown.label])
+            curr_text_variable = tk.StringVar(self, value=self.defaults[dropdown.label])
             curr_entry = ttk.OptionMenu(self,
                                         curr_text_variable,
                                         self.defaults[dropdown.label],
@@ -314,7 +314,7 @@ class Page_Variables(Frame):
     #create radiobutton to switch between gcode and robotcode
     def g_robot(self):
         
-        self.g_robot_var = IntVar()
+        self.g_robot_var = tk.IntVar()
         if self.G_ROBOT_VAR in self.defaults:
             self.g_robot_var.set(self.defaults[self.G_ROBOT_VAR])
         else:
@@ -436,7 +436,7 @@ class Page_Variables(Frame):
             
             self.regrid()            
             
-            var_window = Tk()
+            var_window = tk.Tk()
             var_window.title(var)
             var_window.geometry('+650+100')  
             
@@ -449,7 +449,7 @@ class Page_Variables(Frame):
                     self.all_vars[dropdown_index][self.KEYS].append(key)
                     self.all_vars[dropdown_index][self.TYPES][key] = value
                     new_value = str(value).split('\'')[1]
-                    self.all_vars[dropdown_index][self.STRINGVARS][key] = StringVar(var_window)
+                    self.all_vars[dropdown_index][self.STRINGVARS][key] = tk.StringVar(var_window)
                     if len(self.all_vars[dropdown_index][self.SAVED]) > 0:
                         self.all_vars[dropdown_index][self.STRINGVARS][key].set(self.all_vars[dropdown_index][self.SAVED][key])
                     else:
@@ -467,7 +467,7 @@ class Page_Variables(Frame):
             def default(event):
                 current = event.widget
                 if current.get() == self.all_vars[dropdown_index][self.VALUES][current]:
-                    current.delete(0, END)
+                    current.delete(0, tk.END)
                 elif current.get() == '':
                     current.insert(0, self.all_vars[dropdown_index][self.VALUES][current]) 
                 quicksave(False)
@@ -497,7 +497,7 @@ class Page_Variables(Frame):
     #creates error popup message        
     def popup(self, msg, title, size):
         
-        popup = Tk()
+        popup = tk.Tk()
         
         popup.title(title)
         popup.geometry(size)
@@ -707,10 +707,10 @@ class Page_Variables(Frame):
             self.controller.show_frame(Page_Model)
             os.remove(self.GCODEPATH + 'temp.gcode')
 
-class Page_Model(Frame):    
+class Page_Model(tk.Frame):    
     
     def __init__(self, parent, controller):
-        Frame.__init__(self, parent)
+        tk.Frame.__init__(self, parent)
         self.controller = controller
         
         self.get_data()
@@ -759,10 +759,10 @@ class Page_Model(Frame):
         
     def show_scales(self):
         
-        self.scaleStart = Scale(self, from_=0, to=len(self.xar), length=500, orient=HORIZONTAL)
+        self.scaleStart = tk.Scale(self, from_=0, to=len(self.xar), length=500, orient=tk.HORIZONTAL)
         self.scaleStart.grid(row=1,column=1)
         
-        self.scaleEnd = Scale(self, from_=0, to=len(self.xar), length=500, tickinterval=5000, orient=HORIZONTAL)
+        self.scaleEnd = tk.Scale(self, from_=0, to=len(self.xar), length=500, tickinterval=5000, orient=tk.HORIZONTAL)
         self.scaleEnd.grid(row=2,column=1)
         
     def show_buttons(self):
@@ -779,11 +779,11 @@ class Page_Model(Frame):
         
         self.mb = ttk.Menubutton(self, text='Layers')
         self.mb.grid()
-        self.mb.menu = Menu (self.mb, tearoff=1)
+        self.mb.menu = tk.Menu(self.mb, tearoff=1)
         self.mb['menu'] = self.mb.menu
         
         for id_array in self.layer_part:
-            self.intvar_layerparts[str(id_array)] = IntVar()
+            self.intvar_layerparts[str(id_array)] = tk.IntVar()
             self.rb_text = 'Part:' + str(id_array[1] + ' Layer:' + str(id_array[0]))
             self.mb.menu.add_checkbutton(label=self.rb_text, onvalue=1, offvalue=0, variable=self.intvar_layerparts[str(id_array)])
         
