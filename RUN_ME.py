@@ -785,19 +785,19 @@ class Page_Model(Frame):
         print('new edges')
         print(type(edges))
 #        print(edges)
-#        pv = ProjectionViewer(400, 300)
-#
-#        cube = wireframe.Wireframe()
-#        cube.addNodes(nodes)
-#        cube.addEdges(edges)
-#        count = 0
-#        for line in self.data:
-#            cube.addNodes([(x,y,z) for x in (line[0][0], line[1][0]) for y in (line[0][1], line[1][1]) for z in (line[0][2], line[1][2])])
-#            cube.addEdges([(count,count+1)])
-#            count += 2
-#            
-#        pv.addWireframe('cube', cube)
-#        pv.run()
+        pv = ProjectionViewer(400, 300)
+
+        cube = wireframe.Wireframe()
+        cube.addNodes(nodes)
+        cube.addEdges(edges)
+        count = 0
+        for line in self.data:
+            cube.addNodes(nodes)
+            cube.addEdges(edges)
+            count += 2
+            
+        pv.addWireframe('cube', cube)
+        pv.run()
         
 #    def make_model(self):
 #        
