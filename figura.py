@@ -176,6 +176,7 @@ class Figura:
                 self.data_points.append([(','.join(str(i) for i in line.start.normalVector[:3])+',')+
                                         (','.join(str(i) for i in line.end.normalVector[:3])),
                                         ('layer_number:' + str(layerNumber) + ':  part_number:' + str(self.partCount) + ':')])
+            self.data_points.append(['end'])
             yield self.gc.retractLayer(totalExtrusion, layer[-1].end)
             yield '\n'
             layerNumber += 1

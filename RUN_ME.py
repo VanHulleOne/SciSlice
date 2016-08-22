@@ -719,22 +719,22 @@ class Page_Model(Frame):
         global data_points
         
         data = []
+        start = 0
+        counter = 0
         counter = 0
         self.xar = []
         self.yar = []
         self.zar = []
         self.layer_part = []
-        curr_layer = None
-        curr_part = None
         
         for line in data_points:
-            if 'start' in line:
+            if 'start' in line:                
                 start = counter
+            elif 'end' in line:
+                self.layer_part.append([curr_layer, curr_part, start, counter])
             else:
-                if curr_layer != line[1].split(':')[1] and curr_part != line[1].split(':')[3]:
-                    self.layer_part.append([line[1].split(':')[1], line[1].split(':')[3], start, counter]) 
-                    curr_layer = line[1].split(':')[1]
-                    curr_part = line[1].split(':')[3]
+                curr_layer = line[1].split(':')[1]
+                curr_part = line[1].split(':')[3]
                 data.append(line[0])      
                 data[counter] = data[counter].split(',')
                 for y in range(0,len(data[counter])):
@@ -743,7 +743,7 @@ class Page_Model(Frame):
                 self.yar.append([data[counter][1], data[counter][4]])
                 self.zar.append([data[counter][2], data[counter][5]])     
                 counter += 1
-                    
+  
         self.setup()
     
     def show_labels(self):
@@ -806,7 +806,7 @@ class Page_Model(Frame):
         self.ax = self.fig.add_subplot(111, projection='3d')
 
         self.colors = []
-        
+
         color_num = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F']
         color_num2 = ['0','8']
         for one in color_num:
@@ -817,7 +817,7 @@ class Page_Model(Frame):
                             for six in color_num:
                                 curr_color = '#' + one + two + three + four + five + six
                                 self.colors.append(curr_color)
-
+                        
         if end:      
             for num in range(start, end):
                 num_color = num%len(self.colors)
