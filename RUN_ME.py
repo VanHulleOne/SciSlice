@@ -764,18 +764,38 @@ class Page_Model(Frame):
         buttonMakeModel.pack(anchor=CENTER)
         
     def make_model(self):
+        
+        print('orginal nodes')
+        print(type([(x,y,z) for x in (50,250) for y in (50,250) for z in (50,250)]))
+        print([(x,y,z) for x in (50,250) for y in (50,250) for z in (50,250)])
+        print('original edges')  
+        print(type([(n,n+4) for n in range(0,4)]+[(n,n+1) for n in range(0,8,2)]+[(n,n+2) for n in (0,1,4,5)]))
+        print([(n,n+4) for n in range(0,4)]+[(n,n+1) for n in range(0,8,2)]+[(n,n+2) for n in (0,1,4,5)])
         count = 0
+        nodes = []
+        edges = []
         for line in self.data:
-            cube.addNodes([(x,y,z) for x in (line[0][0], line[1][0]) for y in (line[0][1], line[1][1]) for z in (line[0][2], line[1][2])])
-            cube.addEdges([(count,count+1)])
+            for point in line:
+                nodes.append(point) 
+            edges.append((count,count+1))
             count += 2
-            
+        print('new nodes')
+        print(type(nodes))
+#        print(nodes)
+        print('new edges')
+        print(type(edges))
+#        print(edges)
 #        pv = ProjectionViewer(400, 300)
 #
 #        cube = wireframe.Wireframe()
-#        cube.addNodes([(x,y,z) for line in self.data])
-#        cube.addEdges([(n,n+4) for n in range(0,4)]+[(n,n+1) for n in range(0,8,2)]+[(n,n+2) for n in (0,1,4,5)])
-#        
+#        cube.addNodes(nodes)
+#        cube.addEdges(edges)
+#        count = 0
+#        for line in self.data:
+#            cube.addNodes([(x,y,z) for x in (line[0][0], line[1][0]) for y in (line[0][1], line[1][1]) for z in (line[0][2], line[1][2])])
+#            cube.addEdges([(count,count+1)])
+#            count += 2
+#            
 #        pv.addWireframe('cube', cube)
 #        pv.run()
         
