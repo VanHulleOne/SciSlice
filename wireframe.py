@@ -5,6 +5,9 @@ Created on Mon Aug 22 13:56:44 2016
 @author: adiebold
 """
 
+import pygame
+import pickle
+
 class Node:
     def __init__(self, coordinates):
         self.x = coordinates[0]
@@ -30,12 +33,27 @@ class Wireframe:
             self.edges.append(Edge(self.nodes[start], self.nodes[stop]))
 
     def outputNodes(self):
-        print ("\n --- Nodes --- ")
+        print("\n --- Nodes --- ")
         for i, node in enumerate(self.nodes):
-            print (" %d: (%.2f, %.2f, %.2f)") % (i, node.x, node.y, node.z)
+            print(" %d: (%.2f, %.2f, %.2f)" % (i, node.x, node.y, node.z))
             
     def outputEdges(self):
-        print ("\n --- Edges --- ")
+        print("\n --- Edges --- ")
         for i, edge in enumerate(self.edges):
-            print (" %d: (%.2f, %.2f, %.2f)") % (i, edge.start.x, edge.start.y, edge.start.z),
-            print ("to (%.2f, %.2f, %.2f)") % (edge.stop.x,  edge.stop.y,  edge.stop.z)
+            print(" %d: (%.2f, %.2f, %.2f)" % (i, edge.start.x, edge.start.y, edge.start.z),)
+            print("to (%.2f, %.2f, %.2f)" % (edge.stop.x,  edge.stop.y,  edge.stop.z))
+
+    def translate(self, axis, d):
+        """ Add constant 'd' to the coordinate 'axis' of each node of a wireframe """
+        
+        if axis in ['x', 'y', 'z']:
+            for node in self.nodes:
+                setattr(node, axis, getattr(node, axis) + d)
+
+    def scale(self, centre_x, centre_y, scale):
+        """ Scale the wireframe from the centre of the screen """
+
+        for node in self.nodes:
+            node.x = centre_x + scale * (node.x - centre_x)
+            node.y = centre_y + scale * (node.y - centre_y)
+            node.z *= scale

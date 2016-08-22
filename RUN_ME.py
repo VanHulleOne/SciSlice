@@ -33,6 +33,8 @@ from OpenGL.GLU import *
 
 import wireframe
 
+import pickle
+
 class GUI(Tk):
 
     def __init__(self, *args, **kwargs):
@@ -749,6 +751,11 @@ class Page_Model(Frame):
                     self.data[counter][y] = float(self.data[counter][y])
                 self.data[counter] = [tuple(self.data[counter][0:3]), tuple(self.data[counter][3:])]
                 counter += 1
+                
+        with open('data_points', 'wb') as f:
+            pickle.dump(self.data,f)
+                
+        
         
     def model(self):
         
