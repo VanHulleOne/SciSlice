@@ -41,7 +41,7 @@ class GUI(tk.Tk):
         
         self.frames = {}
         
-        self.shapes = {Page_Variables : '475x750+150+100',       
+        self.shapes = {Page_Variables : '475x850+150+100',       
                        Page_Model : '600x500+150+100'}
         
         for F in (Page_Variables,):        
@@ -160,7 +160,7 @@ class Page_Variables(tk.Frame):
         
         self.filename = ''
         self.elements = {}  
-        self.numRows = len(self.parameters)
+        self.numRows = len(self.dropdowns + self.parameters)
                
         self.fields = []
         for menu in self.menus:
@@ -302,14 +302,14 @@ class Page_Variables(tk.Frame):
     def gcode(self):
         
         self.buttonGcode = ttk.Button(self,text='Generate Code',command=lambda: self.convert())
-        self.buttonGcode.grid(row=len(self.parameters)+1,column=1)
+        self.buttonGcode.grid(row=self.numRows+1+self.shift,column=1)
         
     #create button to switch to 3D model page
     def model_page(self):  
         
         #button to switch to 3D model page
         self.buttonModel = ttk.Button(self, text='3D Model', command=lambda: self.to_model())
-        self.buttonModel.grid(row=self.numRows+1, column=0)
+        self.buttonModel.grid(row=self.numRows+1+self.shift, column=0)
         
     #create radiobutton to switch between gcode and robotcode
     def g_robot(self):
@@ -321,14 +321,14 @@ class Page_Variables(tk.Frame):
             self.g_robot_var.set(c.GCODE)
         
         self.buttonChooseGcode = ttk.Radiobutton(self, text='Gcode', variable=self.g_robot_var, value=c.GCODE)
-        self.buttonChooseGcode.grid(row=self.numRows+2,column=0)
+        self.buttonChooseGcode.grid(row=self.numRows+2+self.shift,column=0)
         self.buttonChooseRobot = ttk.Radiobutton(self, text='RobotCode', variable=self.g_robot_var, value=c.ROBOTCODE)
-        self.buttonChooseRobot.grid(row=self.numRows+2,column=1)
+        self.buttonChooseRobot.grid(row=self.numRows+2+self.shift,column=1)
        
     def version_num(self):
         
         self.labelVersion = ttk.Label(self, text='Version ' + parameters.__version__)
-        self.labelVersion.grid(row=self.numRows+3,column=0)
+        self.labelVersion.grid(row=self.numRows+3+self.shift,column=0)
     
     #moves labels and entries up or down depending on the self.shift value    
     def regrid(self):
