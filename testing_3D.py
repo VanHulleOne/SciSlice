@@ -134,7 +134,15 @@ class ProjectionViewer:
 
     def run(self):
         """ Create a pygame screen until it is closed. """
-
+        pygame.init()
+        self.myfont = pygame.font.SysFont("monospace", 15)
+        
+        print(self.wireframes['cube'].findCentre())        
+        
+        self.translateAll('x', self.wireframes['cube'].findCentre()[0])
+        self.translateAll('y', self.wireframes['cube'].findCentre()[1])
+        self.translateAll('z', self.wireframes['cube'].findCentre()[2])
+        
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -146,17 +154,20 @@ class ProjectionViewer:
                         key_to_function[event.key](self)
                     
             self.display()  
-            pygame.display.flip()
+            pygame.display.flip()        
         
     def display(self):
         """ Draw the wireframes on the screen. """
 
         self.screen.fill(self.background)
 
+        label = self.myfont.render("Some text!", 1, (255,255,0))
+        self.screen.blit(label, (0, 0))
+
         for wireframe in self.wireframes.values():
             if self.displayEdges:
                 for edge in wireframe.edges:
-                    pygame.draw.aaline(self.screen, self.edgeColour, (edge.start.x, edge.start.y), (edge.stop.x, edge.stop.y), 1)
+                    pygame.draw.line(self.screen, self.edgeColour, (edge.start.x, edge.start.y), (edge.stop.x, edge.stop.y), 1)#width
 
 #            if self.displayNodes:
 #                for node in wireframe.nodes:
