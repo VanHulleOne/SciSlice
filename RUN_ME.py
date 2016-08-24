@@ -744,24 +744,19 @@ class Page_Model(Frame):
                 curr_layer = line[1].split(':')[1]
                 curr_part = line[1].split(':')[3]
                 self.data.append(line[0]) 
-#                print('line: ', line)
-#                print(self.data[counter])
                 self.data[counter] = self.data[counter].split(',')
                 for y in range(0,len(self.data[counter])):
                     self.data[counter][y] = float(self.data[counter][y])
                 self.data[counter] = [tuple(self.data[counter][0:3]), tuple(self.data[counter][3:])]
                 counter += 1
                 
-        print('data: ', self.data[0])
-        print('layer_part: ', layer_part[0])
+#        print('data: ', self.data[0])
+#        print('layer_part: ', layer_part[0])
+                
+        print(data_points[1])
                 
         with open('data_points', 'wb') as f:
-            pickle.dump(self.data, f)
-            
-        with open('layer_parts', 'wb') as f:
-            pickle.dump(layer_part, f)
-                
-        
+            pickle.dump(data_points, f)                     
         
     def model(self):
         

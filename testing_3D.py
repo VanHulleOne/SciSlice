@@ -134,10 +134,10 @@ class ProjectionViewer:
         self.edgeColour = (200,200,200)
         self.nodeRadius = 1
         
+        self.layer_part = pickle.load(open('layer_parts', 'rb'))
         self.MODEL = 'model'
         self.start = 0
-        self.end = 0
-        self.first = True
+        self.end = len(self.layer_part)
 
     def addWireframe(self, name, wireframe):
         """ Add a named wireframe object. """
@@ -178,13 +178,7 @@ class ProjectionViewer:
 
         wireframe = self.wireframes[self.MODEL]
         if self.displayEdges:
-            if self.first:
-                self.end = len(wireframe.edges)
-                self.first = False
-            print('start: ', self.start)
-            print('end: ', self.end)
-#            print(wireframe.edges[self.start:self.end])
-            for edge in wireframe.edges[self.start:self.end]:
+            for edge in wireframe.edges[self.layer_part[self.start][2]:self.layer_part[self.end][3]]:
                 pygame.draw.line(self.screen, self.edgeColour, (edge.start.x, edge.start.y), (edge.stop.x, edge.stop.y), 1)#width
                     
     def translateAll(self, axis, d):
@@ -214,7 +208,7 @@ class ProjectionViewer:
     def add(self):
         """ Increases the amount of layers shown. """
         
-        if self.end < len(self.wireframes[self.MODEL]):
+        if self.end < len(self.layer_part):
             self.end += 1
         elif self.start > 0:
             self.start -= 1  
@@ -232,7 +226,7 @@ class ProjectionViewer:
     def shift_up(self):
         """ Shifts the layers being viewed up by one. """
         
-        if self.end < len(self.wireframes[self.MODEL]):
+        if self.end < len(self.layer_part):
             self.start += 1
             self.end += 1
         else:
@@ -254,6 +248,24 @@ if __name__ == '__main__':
     xar = []
     yar = []
     zar = []
+    self.data = []
+    counter = 0
+    layer_part = []
+    
+    for line in data_points:
+        if 'start' in line:
+            start = counter
+        elif 'end' in line:
+            layer_part.append([curr_layer, curr_part, start, counter])
+        else:
+            curr_layer = line[1].split(':')[1]
+            curr_part = line[1].split(':')[3]
+            self.data.append(line[0]) 
+            self.data[counter] = self.data[counter].split(',')
+            for y in range(0,len(self.data[counter])):
+                self.data[counter][y] = float(self.data[counter][y])
+            self.data[counter] = [tuple(self.data[counter][0:3]), tuple(self.data[counter][3:])]
+            counter += 1
     for line in data:
         for point in line:
             xar.append(point[0])
