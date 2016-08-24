@@ -752,14 +752,8 @@ class Page_Model(Frame):
                 self.data[counter] = [tuple(self.data[counter][0:3]), tuple(self.data[counter][3:])]
                 counter += 1
                 
-        print('data: ', self.data[0])
-        print('layer_part: ', layer_part[0])
-                
         with open('data_points', 'wb') as f:
-            pickle.dump(self.data, f)
-            
-        with open('layer_parts', 'wb') as f:
-            pickle.dump(layer_part, f)
+            pickle.dump(self.data,f)
                 
         
         
