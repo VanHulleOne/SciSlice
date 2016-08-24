@@ -226,6 +226,7 @@ class ProjectionViewer:
         
         if self.end > (self.start + 1):
             self.end -= 1
+            
         else:
             print('Showing one layer of one part already.')
             
