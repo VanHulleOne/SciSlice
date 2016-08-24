@@ -8,7 +8,6 @@ Created on Mon Aug 22 16:11:01 2016
 import math
 import pygame
 import pickle
-from collections import namedtuple
 
 class Node:
     def __init__(self, coordinates):
@@ -97,25 +96,19 @@ class Wireframe:
             node.x = cx + d * math.cos(theta)
             node.y = cy + d * math.sin(theta)
 
-
 key_to_function = {
     pygame.K_LEFT:   (lambda x: x.translateAll('x',  20)),
     pygame.K_RIGHT:  (lambda x: x.translateAll('x', -20)),
     pygame.K_DOWN:   (lambda x: x.translateAll('y', -20)),
     pygame.K_UP:     (lambda x: x.translateAll('y',  20)),
-    pygame.K_2:      (lambda x: x.scaleAll(1.25)),
-    pygame.K_1:      (lambda x: x.scaleAll( 0.8)),
+    pygame.K_EQUALS: (lambda x: x.scaleAll(1.25)),
+    pygame.K_MINUS:  (lambda x: x.scaleAll( 0.8)),
     pygame.K_q:      (lambda x: x.rotateAll('X',  0.1)),
     pygame.K_w:      (lambda x: x.rotateAll('X', -0.1)),
     pygame.K_a:      (lambda x: x.rotateAll('Y',  0.1)),
     pygame.K_s:      (lambda x: x.rotateAll('Y', -0.1)),
     pygame.K_z:      (lambda x: x.rotateAll('Z',  0.1)),
-    pygame.K_x:      (lambda x: x.rotateAll('Z', -0.1)),
-    pygame.K_3:      (lambda x: x.shift_up()),
-    pygame.K_e:      (lambda x: x.add()),
-    pygame.K_d:      (lambda x: x.subtract()),
-    pygame.K_c:      (lambda x: x.shift_down()),}
-    
+    pygame.K_x:      (lambda x: x.rotateAll('Z', -0.1))}
             
 class ProjectionViewer:
     """ Displays 3D objects on a Pygame screen """
@@ -133,11 +126,6 @@ class ProjectionViewer:
         self.nodeColour = (255,255,255)
         self.edgeColour = (200,200,200)
         self.nodeRadius = 1
-        
-        self.layer_part = pickle.load(open('layer_parts', 'rb'))
-        self.MODEL = 'model'
-        self.start = 0
-        self.end = len(self.layer_part)
 
     def addWireframe(self, name, wireframe):
         """ Add a named wireframe object. """
@@ -149,11 +137,10 @@ class ProjectionViewer:
         pygame.init()
         self.myfont = pygame.font.SysFont("monospace", 15)
         
-        print(self.wireframes['model'].findCentre())        
+        print(self.wireframes['cube'].findCentre())        
         
-        self.translateAll('x', (400-self.wireframes['model'].findCentre()[0]))
-        self.translateAll('y', (300-self.wireframes['model'].findCentre()[1]))
-        self.scaleAll(2.5)
+        self.translateAll('x', (400-self.wireframes['cube'].findCentre()[0]))
+        self.translateAll('y', (300-self.wireframes['cube'].findCentre()[1]))
         
         while True:
             for event in pygame.event.get():
@@ -176,16 +163,16 @@ class ProjectionViewer:
         label = self.myfont.render("Some text!", 1, (255,255,0))
         self.screen.blit(label, (0, 0))
 
-        wireframe = self.wireframes[self.MODEL]
-        if self.displayEdges:
-            for edge in wireframe.edges[self.layer_part[self.start][2]:self.layer_part[self.end][3]]:
-                pygame.draw.line(self.screen, self.edgeColour, (edge.start.x, edge.start.y), (edge.stop.x, edge.stop.y), 1)#width
+        for wireframe in self.wireframes.values():
+            if self.displayEdges:
+                for edge in wireframe.edges:
+                    pygame.draw.line(self.screen, self.edgeColour, (edge.start.x, edge.start.y), (edge.stop.x, edge.stop.y), 1)#width
                     
     def translateAll(self, axis, d):
         """ Translate all wireframes along a given axis by d units. """
 
-        wireframe = self.wireframes[self.MODEL]
-        wireframe.translate(axis, d)
+        for wireframe in self.wireframes.values():
+            wireframe.translate(axis, d)
 
     def scaleAll(self, scale):
         """ Scale all wireframes by a given scale, centred on the centre of the screen. """
@@ -193,54 +180,17 @@ class ProjectionViewer:
         centre_x = self.width/2
         centre_y = self.height/2
 
-        wireframe = self.wireframes[self.MODEL]
-        wireframe.scale(centre_x, centre_y, scale)
+        for wireframe in self.wireframes.values():
+            wireframe.scale(centre_x, centre_y, scale)
             
     def rotateAll(self, axis, theta):
         """ Rotate all wireframe about their centre, along a given axis by a given angle. """
 
         rotateFunction = 'rotate' + axis
 
-        wireframe = self.wireframes[self.MODEL]
-        centre = wireframe.findCentre()
-        getattr(wireframe, rotateFunction)(centre[0], centre[1], centre[2], theta)
-            
-    def add(self):
-        """ Increases the amount of layers shown. """
-        
-        if self.end < len(self.layer_part):
-            self.end += 1
-        elif self.start > 0:
-            self.start -= 1  
-        else:
-            print('Showing all parts and layers.')
-            
-    def subtract(self):
-        """ Decreases the amount of layers shown. """
-        
-        if self.end > (self.start + 1):
-            self.end -= 1
-        else:
-            print('Showing one layer of one part already.')
-            
-    def shift_up(self):
-        """ Shifts the layers being viewed up by one. """
-        
-        if self.end < len(self.layer_part):
-            self.start += 1
-            self.end += 1
-        else:
-            print('Showing the topmost layers already.')
-            
-    def shift_down(self):
-        """ Shifts the layers being viewed down by one. """
-        
-        if self.start > 0:
-            self.start -= 1
-            self.end -= 1
-        else:
-            print('Showing the lowest layers already.')
-        
+        for wireframe in self.wireframes.values():
+            centre = wireframe.findCentre()
+            getattr(wireframe, rotateFunction)(centre[0], centre[1], centre[2], theta)
     
 if __name__ == '__main__':
     
@@ -248,24 +198,7 @@ if __name__ == '__main__':
     xar = []
     yar = []
     zar = []
-    self.data = []
-    counter = 0
-    layer_part = []
     
-    for line in data_points:
-        if 'start' in line:
-            start = counter
-        elif 'end' in line:
-            layer_part.append([curr_layer, curr_part, start, counter])
-        else:
-            curr_layer = line[1].split(':')[1]
-            curr_part = line[1].split(':')[3]
-            self.data.append(line[0]) 
-            self.data[counter] = self.data[counter].split(',')
-            for y in range(0,len(self.data[counter])):
-                self.data[counter][y] = float(self.data[counter][y])
-            self.data[counter] = [tuple(self.data[counter][0:3]), tuple(self.data[counter][3:])]
-            counter += 1
     for line in data:
         for point in line:
             xar.append(point[0])
@@ -273,11 +206,14 @@ if __name__ == '__main__':
             zar.append(point[2])
     
     pv = ProjectionViewer(800, 600)
-    model = Wireframe()
+    cube = Wireframe()
     
-    model.addNodes([(xar[c],yar[c],zar[c]) for c in range(len(xar))])
-    model.addEdges([(n,n+1) for n in range(0,len(xar),2)])
+    cube.addNodes([(xar[c],yar[c],zar[c]) for c in range(len(xar))])
+    cube.addEdges([(n,n+1) for n in range(0,len(xar),2)])
     
-    pv.addWireframe('model', model)
+    pv.addWireframe('cube', cube)
     pv.run()
     
+    
+    
+#    
