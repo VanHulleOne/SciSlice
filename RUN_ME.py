@@ -754,6 +754,9 @@ class Page_Model(Frame):
                 
         with open('data_points', 'wb') as f:
             pickle.dump(self.data,f)
+            
+        with open('layer_part', 'wb') as f:
+            pickle.dump(layer_part,f)
                 
         
         

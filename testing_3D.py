@@ -134,6 +134,10 @@ class ProjectionViewer:
         self.edgeColour = (200,200,200)
         self.nodeRadius = 1
         
+        self.layer_part = pickle.load(open('layer_part', 'rb'))
+        print(self.layer_part[0])
+        print(self.layer_part[len(self.layer_part)-1])
+        
         self.MODEL = 'model'
         self.start = 0
         self.end = 0
@@ -148,8 +152,6 @@ class ProjectionViewer:
         """ Create a pygame screen until it is closed. """
         pygame.init()
         self.myfont = pygame.font.SysFont("monospace", 15)
-        
-        print(self.wireframes['model'].findCentre())        
         
         self.translateAll('x', (400-self.wireframes['model'].findCentre()[0]))
         self.translateAll('y', (300-self.wireframes['model'].findCentre()[1]))
@@ -179,12 +181,12 @@ class ProjectionViewer:
         wireframe = self.wireframes[self.MODEL]
         if self.displayEdges:
             if self.first:
-                self.end = len(wireframe.edges)
+                self.end = len(self.layer_part)-1
                 self.first = False
-            print('start: ', self.start)
-            print('end: ', self.end)
-#            print(wireframe.edges[self.start:self.end])
-            for edge in wireframe.edges[self.start:self.end]:
+                print(len(self.wireframes[self.MODEL].edges))
+                print(self.layer_part[self.start][2])
+                print(self.layer_part[self.end][3])
+            for edge in wireframe.edges[self.layer_part[self.start][2]:self.layer_part[self.end][3]]:
                 pygame.draw.line(self.screen, self.edgeColour, (edge.start.x, edge.start.y), (edge.stop.x, edge.stop.y), 1)#width
                     
     def translateAll(self, axis, d):
@@ -214,7 +216,7 @@ class ProjectionViewer:
     def add(self):
         """ Increases the amount of layers shown. """
         
-        if self.end < len(self.wireframes[self.MODEL]):
+        if self.end < (len(self.layer_part)-1):
             self.end += 1
         elif self.start > 0:
             self.start -= 1  
@@ -233,7 +235,7 @@ class ProjectionViewer:
     def shift_up(self):
         """ Shifts the layers being viewed up by one. """
         
-        if self.end < len(self.wireframes[self.MODEL]):
+        if self.end < (len(self.layer_part)-1):
             self.start += 1
             self.end += 1
         else:
