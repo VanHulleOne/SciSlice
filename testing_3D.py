@@ -175,7 +175,10 @@ class ProjectionViewer:
 
         self.screen.fill(self.background)
 
-        label = self.myfont.render("Some text!", 1, (255,255,0))
+        text = "Showing Part " + self.layer_part[self.start][1] + " Layer " + self.layer_part[self.start][0]
+        text += " through Part " + self.layer_part[self.end][1] + " Layer " + self.layer_part[self.end][0]
+
+        label = self.myfont.render(text, 1, (255,255,0))
         self.screen.blit(label, (0, 0))
 
         wireframe = self.wireframes[self.MODEL]
