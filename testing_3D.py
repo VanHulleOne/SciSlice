@@ -226,11 +226,13 @@ class ProjectionViewer:
     def subtract(self):
         """ Decreases the amount of layers shown. """
         
-        if self.end > (self.start + 1):
+        if self.end > (self.start):
             self.end -= 1
             
         else:
             print('Showing one layer of one part already.')
+            print(self.start)
+            print(self.end)
             
     def shift_up(self):
         """ Shifts the layers being viewed up by one. """
