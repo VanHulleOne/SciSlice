@@ -184,9 +184,19 @@ class ProjectionViewer:
         text = "Showing Part " + self.layer_part[self.start][1] + " Layer " + self.layer_part[self.start][0]
         text += " through Part " + self.layer_part[self.end][1] + " Layer " + self.layer_part[self.end][0]
         text += "  (" + str(self.end - self.start + 1) + " layers total)"
-
         label = self.myfont.render(text, 1, (255,255,0))
         self.screen.blit(label, (0, 0))
+        
+        instructions = []
+        instruct_label = []
+        
+        instructions.append("1/2 = zoom in/out | q/w = rotate X-axis | a/s = rotate Y-axis | z/x = rotate Z-axis")
+        instruct_label.append(self.myfont.render(instructions[0], 1, (255,255,0)))
+        self.screen.blit(instruct_label[0], (0, 25))
+        
+        instructions.append("e/d = add/subtract layers | 3/c = shift layers up/down")
+        instruct_label.append(self.myfont.render(instructions[1], 1, (255,255,0)))
+        self.screen.blit(instruct_label[1], (0,50))
         
         wireframe = self.wireframes[self.MODEL]
         if self.displayEdges:
