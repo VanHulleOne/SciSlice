@@ -166,6 +166,12 @@ class ProjectionViewer:
                 elif event.type == pygame.KEYDOWN:
                     if event.key in key_to_function:
                         key_to_function[event.key](self)
+                        
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if event.button == 4:
+                        self.scaleAll(1.25)
+                    if event.button == 5:
+                        self.scaleAll(0.8)
                     
             self.display()  
             pygame.display.flip()        
