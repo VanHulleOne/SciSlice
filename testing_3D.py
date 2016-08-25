@@ -177,10 +177,11 @@ class ProjectionViewer:
 
         text = "Showing Part " + self.layer_part[self.start][1] + " Layer " + self.layer_part[self.start][0]
         text += " through Part " + self.layer_part[self.end][1] + " Layer " + self.layer_part[self.end][0]
+        text += "  (" + str(self.end - self.start + 1) + " layers total)"
 
         label = self.myfont.render(text, 1, (255,255,0))
         self.screen.blit(label, (0, 0))
-
+        
         wireframe = self.wireframes[self.MODEL]
         if self.displayEdges:
             if self.first:
