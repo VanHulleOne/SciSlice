@@ -24,8 +24,6 @@ import pygame
 
 from wireframe import Wireframe
 
-import pickle
-
 class GUI(tk.Tk):
 
     def __init__(self, *args, **kwargs):
@@ -45,7 +43,7 @@ class GUI(tk.Tk):
         
         self.frames = {}
         
-        self.shapes = {Page_Variables : '475x750+150+100',}
+        self.shapes = {Page_Variables : '475x850+150+100',}
         
         for F in (Page_Variables,):        
             frame = F(self.container, self)            
