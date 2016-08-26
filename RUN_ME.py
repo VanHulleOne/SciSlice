@@ -6,14 +6,8 @@ Created on Sat May 28 16:39:58 2016
 
 import os
 
-import constants as c
-import matplotlib                  
+import constants as c               
 from collections import namedtuple
-
-#when using Spyder, to make a pop-up interactive plot, go to 
-#tools > preferences > IPython console > Graphics > change "Backend" to "Automatic" > restart Spyder
-from mpl_toolkits.mplot3d import axes3d
-import matplotlib.pyplot as plt
 
 import tkinter as tk                #GUI module
 from tkinter import ttk             #for styling purposing
@@ -25,6 +19,11 @@ import doneshapes as ds
 import inspect
 data_points = []
 
+import pygame
+#from pygame.locals import *
+
+from wireframe import Wireframe
+
 class GUI(tk.Tk):
 
     def __init__(self, *args, **kwargs):
@@ -35,14 +34,16 @@ class GUI(tk.Tk):
         #format window size -- width=450, height=475, 100px from left of screen, 100px from top of screen
         #tk.Tk.geometry(self, '450x475+100+100')
         
+        #set where the 3D model page opens
+        os.environ['SDL_VIDEO_WINDOWS_POS'] = '%d%d' % (300,100)
+        
         self.container = tk.Frame(self)
         self.container.pack(side='top', fill='both', expand=True)
         self.container.grid(row=0,column=0)
         
         self.frames = {}
         
-        self.shapes = {Page_Variables : '475x850+150+100',       
-                       Page_Model : '600x500+150+100'}
+        self.shapes = {Page_Variables : '475x850+150+100',}
         
         for F in (Page_Variables,):        
             frame = F(self.container, self)            
@@ -279,11 +280,13 @@ class Page_Variables(tk.Frame):
         
     def save_option(self): 
         
-        buttonSave = ttk.Button(self,text='Save',command=lambda: self.save()).grid(row=0,column=1)
+        buttonSave = ttk.Button(self,text='Save',command=lambda: self.save())
+        buttonSave.grid(row=0,column=1)
       
     def upload_option(self):   
         
-        buttonUpload = ttk.Button(self,text='Upload',command=lambda: self.upload()).grid(row=0,column=0)
+        buttonUpload = ttk.Button(self,text='Upload',command=lambda: self.upload())
+        buttonUpload.grid(row=0,column=0)
         
     #create menu of label and buttons to switch between tabs
     def tab_buttons(self):
@@ -305,10 +308,10 @@ class Page_Variables(tk.Frame):
         self.buttonGcode.grid(row=self.numRows+1+self.shift,column=1)
         
     #create button to switch to 3D model page
-    def model_page(self):  
+    def model_creation(self):  
         
         #button to switch to 3D model page
-        self.buttonModel = ttk.Button(self, text='3D Model', command=lambda: self.to_model())
+        self.buttonModel = ttk.Button(self, text='Create 3D Model', command=lambda: self.gen_model())
         self.buttonModel.grid(row=self.numRows+1+self.shift, column=0)
         
     #create radiobutton to switch between gcode and robotcode
@@ -424,8 +427,7 @@ class Page_Variables(tk.Frame):
             if label == 'outline':
                 self.stl_path = ''
                 self.elements[c.STL_FLAG].text_variable.set(self.stl_path)
-            
-         #TODO change this to for self.doneshapes   
+               
         self.shift = 0
         for x, dropdown in enumerate(self.dropdowns):
             if len(self.all_vars[x][self.SAVED]) > 0 and label != dropdown.label:
@@ -486,7 +488,7 @@ class Page_Variables(tk.Frame):
             buttonDestroy = ttk.Button(var_window, text='OK', command=quicksave)
             buttonDestroy.grid(row=len(self.annot.items())+1, column=1)
 
-            var_window.protocol("WM_DELETE_WINDOW", quicksave)
+            var_window.protocol('WM_DELETE_WINDOW', quicksave)
             var_window.mainloop()
             
         else:
@@ -516,7 +518,7 @@ class Page_Variables(tk.Frame):
         self.upload_option()
         self.tab_buttons()
         self.gcode()
-        self.model_page()
+        self.model_creation()
         self.g_robot()
         self.version_num()      
         self.regrid()
@@ -690,10 +692,10 @@ class Page_Variables(tk.Frame):
         if self.savePath:
             conversion = Runner(self.filename, self.g_robot_var.get())
             data_points = conversion.run()
-            os.remove(self.filename)        
+            os.remove(self.filename)    
     
     #convert to gcode, switch to Page_Model        
-    def to_model(self):
+    def gen_model(self):
         
         try:
             self.convert('temp')
@@ -701,141 +703,270 @@ class Page_Variables(tk.Frame):
         except Exception as e:
             print('Error during Gcode conversion')
             print(e)
-            self.controller.show_frame(Page_Variables)
             
         else:
-            self.controller.show_frame(Page_Model)
             os.remove(self.GCODEPATH + 'temp.gcode')
-
-class Page_Model(tk.Frame):    
+            pv = ProjectionViewer(1000, 750)
+            model = Wireframe()
+            
+            data = pv.parse_data()
+            xar = []
+            yar = []
+            zar = []
+            for line in data:
+                for point in line:
+                    xar.append(point[0])
+                    yar.append(point[1])
+                    zar.append(point[2])
+                    
+            model.addNodes([(xar[c],yar[c],zar[c]) for c in range(len(xar))])
+            model.addEdges([(n,n+1) for n in range(0,len(xar),2)])
+            
+            pv.addWireframe(c.MODEL, model)
+            try:
+                pv.run()
+            except Exception as e:
+                if str(e) == 'display Surface quit':
+                    print('You have closed the 3D model.')
+                else:
+                    print(e)
+            
+key_to_function = {
+    pygame.K_LEFT:   (lambda x: x.translateAll('x',  20)),
+    pygame.K_RIGHT:  (lambda x: x.translateAll('x', -20)),
+    pygame.K_DOWN:   (lambda x: x.translateAll('y', -20)),
+    pygame.K_UP:     (lambda x: x.translateAll('y',  20)),
+    pygame.K_2:      (lambda x: x.scaleAll(1.25)),
+    pygame.K_1:      (lambda x: x.scaleAll( 0.8)),
+    pygame.K_q:      (lambda x: x.rotateAll('X',  0.1)),
+    pygame.K_w:      (lambda x: x.rotateAll('X', -0.1)),
+    pygame.K_a:      (lambda x: x.rotateAll('Y',  0.1)),
+    pygame.K_s:      (lambda x: x.rotateAll('Y', -0.1)),
+    pygame.K_z:      (lambda x: x.rotateAll('Z',  0.1)),
+    pygame.K_x:      (lambda x: x.rotateAll('Z', -0.1)),
+    pygame.K_3:      (lambda x: x.shift_up()),
+    pygame.K_e:      (lambda x: x.add()),
+    pygame.K_d:      (lambda x: x.subtract()),
+    pygame.K_c:      (lambda x: x.shift_down()),
+    pygame.K_r:      (lambda x: x.max_layers()),
+    pygame.K_f:      (lambda x: x.one_layer()),}
     
-    def __init__(self, parent, controller):
-        tk.Frame.__init__(self, parent)
-        self.controller = controller
+            
+class ProjectionViewer:
+    ''' Displays 3D objects on a Pygame screen '''
+
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
+        self.screen = pygame.display.set_mode((width, height))
+        pygame.display.set_caption('Wireframe Display')
+        self.background = (255,255,255)
+
+        self.wireframes = {}
+        self.displayEdges = True
+        self.label_color = (0,0,0)
+        self.color_increment = 50
+        self.color_cap = 220 - self.color_increment
         
-        self.get_data()
-       
-    def get_data(self):
-        global data_points
+        self.start = 0
+        self.end = 0
+        self.first = True
+        
+    def parse_data(self):
         
         data = []
-        start = 0
         counter = 0
-        counter = 0
-        self.xar = []
-        self.yar = []
-        self.zar = []
         self.layer_part = []
+        curr_layer = 0
+        curr_part = 0
         
         for line in data_points:
-            if 'start' in line:                
+            if 'start' in line:
                 start = counter
             elif 'end' in line:
                 self.layer_part.append([curr_layer, curr_part, start, counter])
             else:
                 curr_layer = line[1].split(':')[1]
                 curr_part = line[1].split(':')[3]
-                data.append(line[0])      
+                data.append(line[0]) 
                 data[counter] = data[counter].split(',')
                 for y in range(0,len(data[counter])):
                     data[counter][y] = float(data[counter][y])
-                self.xar.append([data[counter][0], data[counter][3]])
-                self.yar.append([data[counter][1], data[counter][4]])
-                self.zar.append([data[counter][2], data[counter][5]])     
+                data[counter] = [tuple(data[counter][0:3]), tuple(data[counter][3:])]
                 counter += 1
-  
-        self.setup()
-    
-    def show_labels(self):
-        
-        labelIntro = ttk.Label(self, text='Choose the start and end layers of the model:')
-        labelIntro.grid(row=0,column=1)
-        
-        labelStart = ttk.Label(self, text='Start')
-        labelStart.grid(row=1,column=0)
-        
-        labelEnd = ttk.Label(self, text='End')
-        labelEnd.grid(row=2,column=0)
-        
-    def show_scales(self):
-        
-        self.scaleStart = tk.Scale(self, from_=0, to=len(self.xar), length=500, orient=tk.HORIZONTAL)
-        self.scaleStart.grid(row=1,column=1)
-        
-        self.scaleEnd = tk.Scale(self, from_=0, to=len(self.xar), length=500, tickinterval=5000, orient=tk.HORIZONTAL)
-        self.scaleEnd.grid(row=2,column=1)
-        
-    def show_buttons(self):
-        
-        buttonSubmit = ttk.Button(self, text='Create Model', command=lambda: 
-            self.make_graph(self.scaleStart.get(), self.scaleEnd.get()))
-        buttonSubmit.grid(row=3,column=1)
-        
-        buttonVariables = ttk.Button(self, text='Variables', 
-                                 command=lambda: self.to_variables())
-        buttonVariables.grid(row=0,column=0)
-
-        self.intvar_layerparts = {}
-        
-        self.mb = ttk.Menubutton(self, text='Layers')
-        self.mb.grid()
-        self.mb.menu = tk.Menu(self.mb, tearoff=1)
-        self.mb['menu'] = self.mb.menu
-        
-        for id_array in self.layer_part:
-            self.intvar_layerparts[str(id_array)] = tk.IntVar()
-            self.rb_text = 'Part:' + str(id_array[1] + ' Layer:' + str(id_array[0]))
-            self.mb.menu.add_checkbutton(label=self.rb_text, onvalue=1, offvalue=0, variable=self.intvar_layerparts[str(id_array)])
-        
-        self.mb.grid(row=5,column=1)
-        
-        buttonModel = ttk.Button(self, text='Create Model',
-                                 command=lambda: self.make_graph())
-        buttonModel.grid(row=6,column=1)
-        
-
-    def setup(self):
-
-        self.show_labels()
-        self.show_scales()
-        self.show_buttons()                
-   
-    def make_graph(self, start = False, end = False):
                 
-        self.fig = plt.figure()
-        self.ax = self.fig.add_subplot(111, projection='3d')
+        return data
 
-        self.colors = []
+    def addWireframe(self, name, wireframe):
+        ''' Add a named wireframe object. '''
 
-        color_num = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F']
-        color_num2 = ['0','8']
-        for one in color_num:
-            for two in color_num2:
-                for three in color_num2:
-                    for four in color_num2:
-                        for five in color_num2:
-                            for six in color_num:
-                                curr_color = '#' + one + two + three + four + five + six
-                                self.colors.append(curr_color)
+        self.wireframes[name] = wireframe
+
+    def run(self):
+        ''' Create a pygame screen until it is closed. '''
+        pygame.init()
+        self.myfont = pygame.font.SysFont('monospace', 15)
+        
+        x, y = self.screen.get_size()
+        self.translateAll('x', (x/2-self.wireframes[c.MODEL].findcenter()[0]))
+        self.translateAll('y', (y/2-self.wireframes[c.MODEL].findcenter()[1]))
+        self.scaleAll(4)
+        
+        while True:
+            self.r = 0
+            self.b = 0
+            self.g = 0
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+#                    pygame.display.quit()
+                    pygame.quit()
+                    
+                elif event.type == pygame.KEYDOWN:
+                    if event.key in key_to_function:
+                        key_to_function[event.key](self)
                         
-        if end:      
-            for num in range(start, end):
-                num_color = num%len(self.colors)
-                self.ax.plot_wireframe(self.xar[num], self.yar[num], self.zar[num], color=self.colors[num_color])
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if event.button == 4:
+                        self.scaleAll(1.25)
+                    if event.button == 5:
+                        self.scaleAll(0.8)
+                    
+            self.display()  
+            pygame.display.flip()        
+        
+    def display(self):
+        ''' Draw the wireframes on the screen. '''
+
+        self.screen.fill(self.background)
+
+        #creates labels
+        text = 'Showing Part ' + self.layer_part[self.start][1] + ' Layer ' + self.layer_part[self.start][0]
+        text += ' through Part ' + self.layer_part[self.end][1] + ' Layer ' + self.layer_part[self.end][0]
+        text += '  (' + str(self.end - self.start + 1) + ' layers total)'
+        label = self.myfont.render(text, 1, self.label_color)
+        self.screen.blit(label, (0, 0))
+        
+        instructions = []
+        instruct_label = []
+        color_text = []
+        color_label = []
+        
+        instructions.append('1/2 = zoom in/out | q/w = rotate X-axis | a/s = rotate Y-axis | z/x = rotate Z-axis')        
+        instructions.append('e/d = add/subtract layers | 3/c = shift layers up/down | r/f = show all/one layer(s)')        
+        color_text.append('Line color changes from black > red > yellow > gray in the order printed')
+        color_text.append('Line colors will repeat the cycle in the middle of shapes if there are a lot of lines')
+        
+        for x in range(2):
+            instruct_label.append(self.myfont.render(instructions[x], 1, self.label_color))
+            color_label.append(self.myfont.render(color_text[x], 1, self.label_color))
+            self.screen.blit(instruct_label[x], (0,(25*(x+1))))
+            self.screen.blit(color_label[x], (0,(25*(x+1)+50)))
                 
-        else:
-            counting = 0                       
-            for id_array in self.layer_part:
-                if self.intvar_layerparts[str(id_array)].get() == 1:
-                    for c in range(int(id_array[2]), int(id_array[3])):
-                        num_color=c%len(self.colors)
-                        self.ax.plot_wireframe(self.xar[c], self.yar[c], self.zar[c], color=self.colors[num_color])
+        #creates 3D model
+        wireframe = self.wireframes[c.MODEL]
+        if self.displayEdges:
+            if self.first:
+                self.end = len(self.layer_part)-1
+                self.first = False
             
-        plt.show()
+            self.color_increment = int(255 * 3 / len(wireframe.edges[self.layer_part[self.start][2]:self.layer_part[self.end][3]]))
+            if self.color_increment > 219:
+                self.color_increment = 219
+            elif self.color_increment == 0:
+                self.color_increment = 1
+            self.color_cap = 220 - self.color_increment     #220 is used so lines never get too light of a color            
+            
+            for edge in wireframe.edges[self.layer_part[self.start][2]:self.layer_part[self.end][3]]:
+                if self.r < self.color_cap:
+                    self.r += self.color_increment
+                elif self.g < self.color_cap:
+                    self.g += self.color_increment
+                elif self.b < self.color_cap:
+                    self.b += self.color_increment
+                else:
+                    self.r = 0
+                    self.g = 0
+                    self.b = 0
+                color = (self.r, self.g, self.b)
+                pygame.draw.line(self.screen, color, (edge.start.x, edge.start.y), (edge.stop.x, edge.stop.y), 4)#width
+                    
+    def translateAll(self, axis, d):
+        ''' Translate all wireframes along a given axis by d units. '''
+
+        wireframe = self.wireframes[c.MODEL]
+        wireframe.translate(axis, d)
+
+    def scaleAll(self, scale):
+        ''' Scale all wireframes by a given scale, centerd on the center of the screen. '''
+
+        center_x = self.width/2
+        center_y = self.height/2
+
+        wireframe = self.wireframes[c.MODEL]
+        wireframe.scale(center_x, center_y, scale)
+            
+    def rotateAll(self, axis, theta):
+        ''' Rotate all wireframe about their center, along a given axis by a given angle. '''
+
+        rotateFunction = 'rotate' + axis
+
+        wireframe = self.wireframes[c.MODEL]
+        center = wireframe.findcenter()
+        getattr(wireframe, rotateFunction)(center[0], center[1], center[2], theta)
+            
+    def add(self):
+        ''' Increases the amount of layers shown. '''
         
-    def to_variables(self):
+        if self.end < (len(self.layer_part)-1):
+            self.end += 1
+        elif self.start > 0:
+            self.start -= 1  
+        else:
+            print('Showing all parts and layers.')
+            
+    def subtract(self):
+        ''' Decreases the amount of layers shown. '''
         
-        self.controller.show_frame(Page_Variables, True, Page_Model)
+        if self.end > (self.start):
+            self.end -= 1
+            
+        else:
+            print('Showing one layer of one part already.')
+            
+    def shift_up(self):
+        ''' Shifts the layers being viewed up by one. '''
+        
+        if self.end < (len(self.layer_part)-1):
+            self.start += 1
+            self.end += 1
+        else:
+            print('Showing the topmost layers already.')
+            
+    def shift_down(self):
+        ''' Shifts the layers being viewed down by one. '''
+        
+        if self.start > 0:
+            self.start -= 1
+            self.end -= 1
+        else:
+            print('Showing the lowest layers already.')
+            
+    def one_layer(self):
+        ''' Decreases amount of layers shown to one. '''
+        
+        if self.end != self.start:
+            self.end = self.start
+        else:
+            print('Already showing only one layer.')
+        
+    def max_layers(self):
+        ''' Increases the amount of layers shown to the maximum. '''
+        
+        if self.end == len(self.layer_part) and self.start == 0:
+            print('All layers already being shown.')
+        else:
+            self.end = len(self.layer_part)-1
+            self.start = 0
     
 #only works if program is used as the main program, not as a module    
 if __name__ == '__main__': 
