@@ -811,8 +811,9 @@ class ProjectionViewer:
         pygame.init()
         self.myfont = pygame.font.SysFont('monospace', 15)
         
-        self.translateAll('x', (400-self.wireframes[c.MODEL].findcenter()[0]))
-        self.translateAll('y', (300-self.wireframes[c.MODEL].findcenter()[1]))
+        x, y = self.screen.get_size()
+        self.translateAll('x', (x/2-self.wireframes[c.MODEL].findcenter()[0]))
+        self.translateAll('y', (y/2-self.wireframes[c.MODEL].findcenter()[1]))
         self.scaleAll(2.5)
         
         while True:
@@ -851,15 +852,20 @@ class ProjectionViewer:
         
         instructions = []
         instruct_label = []
+        color_text = []
+        color_label = []
         
-        instructions.append('1/2 = zoom in/out | q/w = rotate X-axis | a/s = rotate Y-axis | z/x = rotate Z-axis')
-        instruct_label.append(self.myfont.render(instructions[0], 1, self.label_color))
-        self.screen.blit(instruct_label[0], (0,25))
+        instructions.append('1/2 = zoom in/out | q/w = rotate X-axis | a/s = rotate Y-axis | z/x = rotate Z-axis')        
+        instructions.append('e/d = add/subtract layers | 3/c = shift layers up/down | r/f = show all/one layer(s)')        
+        color_text.append('Line color changes from black > red > yellow > gray in the order printed')
+        color_text.append('Line colors will repeat the cycle in the middle of shapes if there are a lot of lines')
         
-        instructions.append('e/d = add/subtract layers | 3/c = shift layers up/down | r/f = show all/one layer(s)')
-        instruct_label.append(self.myfont.render(instructions[1], 1, self.label_color))
-        self.screen.blit(instruct_label[1], (0,50))
-        
+        for x in range(2):
+            instruct_label.append(self.myfont.render(instructions[x], 1, self.label_color))
+            color_label.append(self.myfont.render(color_text[x], 1, self.label_color))
+            self.screen.blit(instruct_label[x], (0,(25*(x+1))))
+            self.screen.blit(color_label[x], (0,(25*(x+1)+50)))
+                
         #creates 3D model
         wireframe = self.wireframes[c.MODEL]
         if self.displayEdges:
@@ -871,7 +877,7 @@ class ProjectionViewer:
             if self.color_increment > 219:
                 self.color_increment = 219
             elif self.color_increment == 0:
-                self.color_increment =1
+                self.color_increment = 1
             self.color_cap = 220 - self.color_increment     #220 is used so lines never get too light of a color            
             
             for edge in wireframe.edges[self.layer_part[self.start][2]:self.layer_part[self.end][3]]:
