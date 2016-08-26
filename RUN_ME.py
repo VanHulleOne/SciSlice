@@ -28,10 +28,7 @@ data_points = []
 import pygame
 from pygame.locals import *
 
-from OpenGL.GL import *
-from OpenGL.GLU import *
-
-import wireframe
+from wireframe import Wireframe
 
 import pickle
 
@@ -45,14 +42,16 @@ class GUI(Tk):
         #format window size -- width=450, height=475, 100px from left of screen, 100px from top of screen
         #Tk.geometry(self, '450x475+100+100')
         
+        #set where the 3D model page opens
+        os.environ['SDL_VIDEO_WINDOWS_POS'] = '%d%d' % (300,100)
+        
         self.container = Frame(self)
         self.container.pack(side='top', fill='both', expand=True)
         self.container.grid(row=0,column=0)
         
         self.frames = {}
         
-        self.shapes = {Page_Variables : '475x750+150+100',       
-                       Page_Model : '600x500+150+100'}
+        self.shapes = {Page_Variables : '475x750+150+100',}
         
         for F in (Page_Variables,):        
             frame = F(self.container, self)            
@@ -315,10 +314,10 @@ class Page_Variables(Frame):
         self.buttonGcode.grid(row=len(self.parameters)+1,column=1)
         
     #create button to switch to 3D model page
-    def model_page(self):  
+    def model_creation(self):  
         
         #button to switch to 3D model page
-        self.buttonModel = ttk.Button(self, text='3D Model', command=lambda: self.to_model())
+        self.buttonModel = ttk.Button(self, text='Create 3D Model', command=lambda: self.gen_model())
         self.buttonModel.grid(row=self.numRows+1, column=0)
         
     #create radiobutton to switch between gcode and robotcode
@@ -526,7 +525,7 @@ class Page_Variables(Frame):
         self.upload_option()
         self.tab_buttons()
         self.gcode()
-        self.model_page()
+        self.model_creation()
         self.g_robot()
         self.version_num()      
         self.regrid()
@@ -700,10 +699,10 @@ class Page_Variables(Frame):
         if self.savePath:
             conversion = Runner(self.filename, self.g_robot_var.get())
             data_points = conversion.run()
-            os.remove(self.filename)        
+            os.remove(self.filename)    
     
     #convert to gcode, switch to Page_Model        
-    def to_model(self):
+    def gen_model(self):
         
         try:
             self.convert('temp')
@@ -711,193 +710,55 @@ class Page_Variables(Frame):
         except Exception as e:
             print('Error during Gcode conversion')
             print(e)
-            self.controller.show_frame(Page_Variables)
             
         else:
-            self.controller.show_frame(Page_Model)
             os.remove(self.GCODEPATH + 'temp.gcode')
+            pv = ProjectionViewer(800, 600)
+            model = Wireframe()
             
-class Page_Model(Frame):    
+            data = pv.parse_data()
+            xar = []
+            yar = []
+            zar = []
+            for line in data:
+                for point in line:
+                    xar.append(point[0])
+                    yar.append(point[1])
+                    zar.append(point[2])
+                    
+            model.addNodes([(xar[c],yar[c],zar[c]) for c in range(len(xar))])
+            model.addEdges([(n,n+1) for n in range(0,len(xar),2)])
+            
+            pv.addWireframe(c.MODEL, model)
+            try:
+                pv.run()
+            except Exception as e:
+                if str(e) == 'display Surface quit':
+                    print('You have closed the 3D model.')
+                else:
+                    print(e)
+            
+key_to_function = {
+    pygame.K_LEFT:   (lambda x: x.translateAll('x',  20)),
+    pygame.K_RIGHT:  (lambda x: x.translateAll('x', -20)),
+    pygame.K_DOWN:   (lambda x: x.translateAll('y', -20)),
+    pygame.K_UP:     (lambda x: x.translateAll('y',  20)),
+    pygame.K_2:      (lambda x: x.scaleAll(1.25)),
+    pygame.K_1:      (lambda x: x.scaleAll( 0.8)),
+    pygame.K_q:      (lambda x: x.rotateAll('X',  0.1)),
+    pygame.K_w:      (lambda x: x.rotateAll('X', -0.1)),
+    pygame.K_a:      (lambda x: x.rotateAll('Y',  0.1)),
+    pygame.K_s:      (lambda x: x.rotateAll('Y', -0.1)),
+    pygame.K_z:      (lambda x: x.rotateAll('Z',  0.1)),
+    pygame.K_x:      (lambda x: x.rotateAll('Z', -0.1)),
+    pygame.K_3:      (lambda x: x.shift_up()),
+    pygame.K_e:      (lambda x: x.add()),
+    pygame.K_d:      (lambda x: x.subtract()),
+    pygame.K_c:      (lambda x: x.shift_down()),
+    pygame.K_r:      (lambda x: x.max_layers()),
+    pygame.K_f:      (lambda x: x.one_layer()),}
     
-    def __init__ (self, parent, controller):
-        Frame.__init__(self, parent)
-        self.controller = controller
-        
-        buttonVariables = ttk.Button(self, text='Variables', command=self.to_variables)
-        buttonVariables.pack()
-        
-        self.get_data()
-        self.model()
-        
-    def get_data(self):
-        
-        self.data = []
-        counter = 0
-        layer_part = []
-        
-        for line in data_points:
-            if 'start' in line:
-                start = counter
-            elif 'end' in line:
-                layer_part.append([curr_layer, curr_part, start, counter])
-            else:
-                curr_layer = line[1].split(':')[1]
-                curr_part = line[1].split(':')[3]
-                self.data.append(line[0]) 
-#                print('line: ', line)
-#                print(self.data[counter])
-                self.data[counter] = self.data[counter].split(',')
-                for y in range(0,len(self.data[counter])):
-                    self.data[counter][y] = float(self.data[counter][y])
-                self.data[counter] = [tuple(self.data[counter][0:3]), tuple(self.data[counter][3:])]
-                counter += 1
-                
-        with open('data_points', 'wb') as f:
-            pickle.dump(self.data,f)
             
-        with open('layer_part', 'wb') as f:
-            pickle.dump(layer_part,f)
-                
-        
-        
-    def model(self):
-        
-        the_text = ["arrow keys = up/down/left/right translations", "a/d for rotation along y-axis", 
-                    "w/s for rotation along x-axis", "q/e for rotation along z-axis",
-                    "mousewheel to zoom",
-                    "be warned: once things get rotated, the arrow key translations won't look the same. be flexible.",
-                    "also, heads up, closing the model will crash the GUI", 
-                    "note: make sure the window for the model, not the GUI, is selected when pressing keys"] 
-        for words in the_text:
-            Label(self, text=words).pack(anchor=CENTER)
-        buttonMakeModel = ttk.Button(self, text='Make Model', command=self.make_model)
-        buttonMakeModel.pack(anchor=CENTER)
-        
-    def make_model(self):
-        
-        print('orginal nodes')
-        print(type([(x,y,z) for x in (50,250) for y in (50,250) for z in (50,250)]))
-        print([(x,y,z) for x in (50,250) for y in (50,250) for z in (50,250)])
-        print('original edges')  
-        print(type([(n,n+4) for n in range(0,4)]+[(n,n+1) for n in range(0,8,2)]+[(n,n+2) for n in (0,1,4,5)]))
-        print([(n,n+4) for n in range(0,4)]+[(n,n+1) for n in range(0,8,2)]+[(n,n+2) for n in (0,1,4,5)])
-        count = 0
-        nodes = []
-        edges = []
-        for line in self.data:
-            for point in line:
-                nodes.append(point) 
-            edges.append((count,count+1))
-            count += 2
-        print('new nodes')
-        print(type(nodes))
-#        print(nodes)
-        print('new edges')
-        print(type(edges))
-#        print(edges)
-        pv = ProjectionViewer(400, 300)
-
-        cube = wireframe.Wireframe()
-        cube.addNodes(nodes)
-        cube.addEdges(edges)
-        count = 0
-        for line in self.data:
-            cube.addNodes(nodes)
-            cube.addEdges(edges)
-            count += 2
-            
-        pv.addWireframe('cube', cube)
-        pv.run()
-        
-#    def make_model(self):
-#        
-#        def Cube():
-#            x=0
-##            glBegin(GL_QUADS)
-##            for line in self.data:
-##                
-##                for point in line:
-##                    glColor3fv((0.1,0.2,0))
-##                    glVertex3fv(point)
-##                    num = 1.0/len(self.data)
-##                    x += num
-##                    
-##            glEnd()
-#        #    
-#            glBegin(GL_LINES)
-#        #    for edge in edges:
-#        #        print('line')
-#        #        for vertex in edge:
-#        #            glVertex3fv(vertices[vertex])
-#        #            print(vertices[vertex])
-##            print(self.data)
-#            for line in self.data:
-##                print('line')
-##                print(line)
-#                for point in line:
-##                    print('point')
-##                    print(point)
-#                    glVertex3fv(point)
-#                    
-#            glEnd()
-#            
-#        def main():
-#            pygame.init()
-#            display = (800,600)
-#            pygame.display.set_mode(display, DOUBLEBUF|OPENGL)
-#            
-#            gluPerspective(45, (display[0]/display[1]), 0.1, 1000.0) #187
-#            
-#            glTranslatef(-112.0,-40.0, -500)
-#            
-#            glRotatef(0, 0, 0, 0)
-#            
-#            while True:
-#                for event in pygame.event.get():
-#                    if event.type == pygame.QUIT:
-#                        pygame.quit()
-#                        quit()
-#                        
-#                    if event.type == pygame.KEYDOWN:
-#                        if event.key == pygame.K_LEFT:
-#                            glTranslatef(-10,0,0)
-#                        if event.key == pygame.K_RIGHT:
-#                            glTranslatef(10,0,0)
-#                        if event.key == pygame.K_UP:
-#                            glTranslatef(0,10,0)
-#                        if event.key == pygame.K_DOWN:
-#                            glTranslatef(0,-10,0)
-#                        if event.key == pygame.K_a:
-#                            glRotatef(10,0,1,0)
-#                        if event.key == pygame.K_d:
-#                            glRotatef(-10,0,1,0)
-#                        if event.key == pygame.K_w:
-#                            glRotatef(10,1,0,0)
-#                        if event.key == pygame.K_s:
-#                            glRotatef(-10,1,0,0)
-#                        if event.key == pygame.K_q:
-#                            glRotatef(10,0,0,1)
-#                        if event.key == pygame.K_e:
-#                            glRotatef(-10,0,0,1)
-#                            
-#                    if event.type == pygame.MOUSEBUTTONDOWN:
-#                        if event.button == 4:
-#                            glTranslatef(0,0,10.0)
-#                        if event.button == 5:
-#                            glTranslatef(0,0,-10.0)
-#                
-#                glRotatef(0,0,0,0)        
-#                glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
-#                Cube()
-#                pygame.display.flip()
-#                pygame.time.wait(10)
-#                
-#        main()
-        
-    def to_variables(self):
-        
-        self.controller.show_frame(Page_Variables, True, Page_Model)
-        
 class ProjectionViewer:
     """ Displays 3D objects on a Pygame screen """
 
@@ -906,14 +767,42 @@ class ProjectionViewer:
         self.height = height
         self.screen = pygame.display.set_mode((width, height))
         pygame.display.set_caption('Wireframe Display')
-        self.background = (10,10,50)
+        self.background = (255,255,255)
 
         self.wireframes = {}
-        self.displayNodes = True
         self.displayEdges = True
-        self.nodeColour = (255,255,255)
-        self.edgeColour = (200,200,200)
-        self.nodeRadius = 4
+        self.label_color = (0,0,0)
+        self.color_increment = 50
+        self.color_cap = 220 - self.color_increment
+        
+        self.layer_part = pickle.load(open('layer_part', 'rb'))
+        
+        self.start = 0
+        self.end = 0
+        self.first = True
+        
+    def parse_data(self):
+        
+        data = []
+        counter = 0
+        self.layer_part = []
+        
+        for line in data_points:
+            if 'start' in line:
+                start = counter
+            elif 'end' in line:
+                self.layer_part.append([curr_layer, curr_part, start, counter])
+            else:
+                curr_layer = line[1].split(':')[1]
+                curr_part = line[1].split(':')[3]
+                data.append(line[0]) 
+                data[counter] = data[counter].split(',')
+                for y in range(0,len(data[counter])):
+                    data[counter][y] = float(data[counter][y])
+                data[counter] = [tuple(data[counter][0:3]), tuple(data[counter][3:])]
+                counter += 1
+                
+        return data
 
     def addWireframe(self, name, wireframe):
         """ Add a named wireframe object. """
@@ -922,57 +811,160 @@ class ProjectionViewer:
 
     def run(self):
         """ Create a pygame screen until it is closed. """
-
-        running = True
-        while running:
+        pygame.init()
+        self.myfont = pygame.font.SysFont("monospace", 15)
+        
+        self.translateAll('x', (400-self.wireframes[c.MODEL].findcenter()[0]))
+        self.translateAll('y', (300-self.wireframes[c.MODEL].findcenter()[1]))
+        self.scaleAll(2.5)
+        
+        while True:
+            self.r = 0
+            self.b = 0
+            self.g = 0
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    running = False
+#                    pygame.display.quit()
+                    pygame.quit()
                     
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_LEFT:
-                        glTranslatef(-10,0,0)
-                    if event.key == pygame.K_RIGHT:
-                        glTranslatef(10,0,0)
-                    if event.key == pygame.K_UP:
-                        glTranslatef(0,10,0)
-                    if event.key == pygame.K_DOWN:
-                        glTranslatef(0,-10,0)
-                    if event.key == pygame.K_a:
-                        glRotatef(10,0,1,0)
-                    if event.key == pygame.K_d:
-                        glRotatef(-10,0,1,0)
-                    if event.key == pygame.K_w:
-                        glRotatef(10,1,0,0)
-                    if event.key == pygame.K_s:
-                        glRotatef(-10,1,0,0)
-                    if event.key == pygame.K_q:
-                        glRotatef(10,0,0,1)
-                    if event.key == pygame.K_e:
-                        glRotatef(-10,0,0,1)
+                elif event.type == pygame.KEYDOWN:
+                    if event.key in key_to_function:
+                        key_to_function[event.key](self)
                         
-                if event.type == pygame.MOUSEBUTTONDOWN:
+                elif event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 4:
-                        glTranslatef(0,0,10.0)
+                        self.scaleAll(1.25)
                     if event.button == 5:
-                        glTranslatef(0,0,-10.0)
+                        self.scaleAll(0.8)
                     
             self.display()  
-            pygame.display.flip()
+            pygame.display.flip()        
         
     def display(self):
         """ Draw the wireframes on the screen. """
 
         self.screen.fill(self.background)
 
-        for wireframe in self.wireframes.values():
-            if self.displayEdges:
-                for edge in wireframe.edges:
-                    pygame.draw.aaline(self.screen, self.edgeColour, (edge.start.x, edge.start.y), (edge.stop.x, edge.stop.y), 1)
+        #creates labels
+        text = "Showing Part " + self.layer_part[self.start][1] + " Layer " + self.layer_part[self.start][0]
+        text += " through Part " + self.layer_part[self.end][1] + " Layer " + self.layer_part[self.end][0]
+        text += "  (" + str(self.end - self.start + 1) + " layers total)"
+        label = self.myfont.render(text, 1, self.label_color)
+        self.screen.blit(label, (0, 0))
+        
+        instructions = []
+        instruct_label = []
+        
+        instructions.append("1/2 = zoom in/out | q/w = rotate X-axis | a/s = rotate Y-axis | z/x = rotate Z-axis")
+        instruct_label.append(self.myfont.render(instructions[0], 1, self.label_color))
+        self.screen.blit(instruct_label[0], (0, 25))
+        
+        instructions.append("e/d = add/subtract layers | 3/c = shift layers up/down | r/f = show all/one layer(s)")
+        instruct_label.append(self.myfont.render(instructions[1], 1, self.label_color))
+        self.screen.blit(instruct_label[1], (0,50))
+        
+        #creates 3D model
+        wireframe = self.wireframes[c.MODEL]
+        if self.displayEdges:
+            if self.first:
+                self.end = len(self.layer_part)-1
+                self.first = False
+            
+            
+            for edge in wireframe.edges[self.layer_part[self.start][2]:self.layer_part[self.end][3]]:
+                if self.r < self.color_cap:
+                    self.r += self.color_increment
+                elif self.g < self.color_cap:
+                    self.g += self.color_increment
+                elif self.b < self.color_cap:
+                    self.b += self.color_increment
+                else:
+                    self.r = 0
+                    self.g = 0
+                    self.b = 0
+                color = (self.r, self.g, self.b)
+                print(edge.stop.y)
+                pygame.draw.line(self.screen, color, (edge.start.x, edge.start.y), (edge.stop.x, edge.stop.y), 2)#width
+                    
+    def translateAll(self, axis, d):
+        """ Translate all wireframes along a given axis by d units. """
 
-            if self.displayNodes:
-                for node in wireframe.nodes:
-                    pygame.draw.circle(self.screen, self.nodeColour, (int(node.x), int(node.y)), self.nodeRadius, 0)
+        wireframe = self.wireframes[c.MODEL]
+        wireframe.translate(axis, d)
+
+    def scaleAll(self, scale):
+        """ Scale all wireframes by a given scale, centerd on the center of the screen. """
+
+        center_x = self.width/2
+        center_y = self.height/2
+
+        wireframe = self.wireframes[c.MODEL]
+        wireframe.scale(center_x, center_y, scale)
+            
+    def rotateAll(self, axis, theta):
+        """ Rotate all wireframe about their center, along a given axis by a given angle. """
+
+        rotateFunction = 'rotate' + axis
+
+        wireframe = self.wireframes[c.MODEL]
+        center = wireframe.findcenter()
+        getattr(wireframe, rotateFunction)(center[0], center[1], center[2], theta)
+            
+    def add(self):
+        """ Increases the amount of layers shown. """
+        
+        if self.end < (len(self.layer_part)-1):
+            self.end += 1
+        elif self.start > 0:
+            self.start -= 1  
+        else:
+            print('Showing all parts and layers.')
+            
+    def subtract(self):
+        """ Decreases the amount of layers shown. """
+        
+        if self.end > (self.start):
+            self.end -= 1
+            
+        else:
+            print('Showing one layer of one part already.')
+            print(self.start)
+            print(self.end)
+            
+    def shift_up(self):
+        """ Shifts the layers being viewed up by one. """
+        
+        if self.end < (len(self.layer_part)-1):
+            self.start += 1
+            self.end += 1
+        else:
+            print('Showing the topmost layers already.')
+            
+    def shift_down(self):
+        """ Shifts the layers being viewed down by one. """
+        
+        if self.start > 0:
+            self.start -= 1
+            self.end -= 1
+        else:
+            print('Showing the lowest layers already.')
+            
+    def one_layer(self):
+        """ Decreases amount of layers shown to one. """
+        
+        if self.end != self.start:
+            self.end = self.start
+        else:
+            print('Already showing only one layer.')
+        
+    def max_layers(self):
+        """ Increases the amount of layers shown to the maximum. """
+        
+        if self.end == len(self.layer_part) and self.start == 0:
+            print('All layers already being shown.')
+        else:
+            self.end = len(self.layer_part)-1
+            self.start = 0
     
 #only works if program is used as the main program, not as a module    
 if __name__ == '__main__': 

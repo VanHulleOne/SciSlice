@@ -5,8 +5,7 @@ Created on Mon Aug 22 13:56:44 2016
 @author: adiebold
 """
 
-import pygame
-import pickle
+import math
 
 class Node:
     def __init__(self, coordinates):
@@ -50,10 +49,47 @@ class Wireframe:
             for node in self.nodes:
                 setattr(node, axis, getattr(node, axis) + d)
 
-    def scale(self, centre_x, centre_y, scale):
-        """ Scale the wireframe from the centre of the screen """
+    def scale(self, center_x, center_y, scale):
+        """ Scale the wireframe from the center of the screen """
 
         for node in self.nodes:
-            node.x = centre_x + scale * (node.x - centre_x)
-            node.y = centre_y + scale * (node.y - centre_y)
+            node.x = center_x + scale * (node.x - center_x)
+            node.y = center_y + scale * (node.y - center_y)
             node.z *= scale
+            
+    def findcenter(self):
+        """ Find the center of the wireframe. """
+
+        num_nodes = len(self.nodes)
+        meanX = sum([node.x for node in self.nodes]) / num_nodes
+        meanY = sum([node.y for node in self.nodes]) / num_nodes
+        meanZ = sum([node.z for node in self.nodes]) / num_nodes
+
+        return (meanX, meanY, meanZ)
+
+    def rotateX(self, cx,cy,cz, radians):
+        for node in self.nodes:
+            y      = node.y - cy
+            z      = node.z - cz
+            d      = math.hypot(y, z)
+            theta  = math.atan2(y, z) + radians
+            node.z = cz + d * math.cos(theta)
+            node.y = cy + d * math.sin(theta)
+
+    def rotateY(self, cx,cy,cz, radians):
+        for node in self.nodes:
+            x      = node.x - cx
+            z      = node.z - cz
+            d      = math.hypot(x, z)
+            theta  = math.atan2(x, z) + radians
+            node.z = cz + d * math.cos(theta)
+            node.x = cx + d * math.sin(theta)
+
+    def rotateZ(self, cx,cy,cz, radians):        
+        for node in self.nodes:
+            x      = node.x - cx
+            y      = node.y - cy
+            d      = math.hypot(y, x)
+            theta  = math.atan2(y, x) + radians
+            node.x = cx + d * math.cos(theta)
+            node.y = cy + d * math.sin(theta)

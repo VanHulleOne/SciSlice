@@ -8,7 +8,6 @@ Created on Mon Aug 22 16:11:01 2016
 import math
 import pygame
 import pickle
-from collections import namedtuple
 
 class Node:
     def __init__(self, coordinates):
