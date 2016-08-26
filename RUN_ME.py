@@ -708,7 +708,7 @@ class Page_Variables(tk.Frame):
             
         else:
             os.remove(self.GCODEPATH + 'temp.gcode')
-            pv = ProjectionViewer(800, 600)
+            pv = ProjectionViewer(1000, 750)
             model = Wireframe()
             
             data = pv.parse_data()
@@ -814,7 +814,7 @@ class ProjectionViewer:
         x, y = self.screen.get_size()
         self.translateAll('x', (x/2-self.wireframes[c.MODEL].findcenter()[0]))
         self.translateAll('y', (y/2-self.wireframes[c.MODEL].findcenter()[1]))
-        self.scaleAll(2.5)
+        self.scaleAll(4)
         
         while True:
             self.r = 0
