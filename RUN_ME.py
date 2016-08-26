@@ -35,7 +35,7 @@ class GUI(tk.Tk):
         #tk.Tk.geometry(self, '450x475+100+100')
         
         #set where the 3D model page opens
-        os.environ['SDL_VIDEO_WINDOWS_POS'] = '%d%d' % (300,100)
+        os.environ['SDL_VIDEO_WINDOW_POS'] = '700,200'
         
         self.container = tk.Frame(self)
         self.container.pack(side='top', fill='both', expand=True)
