@@ -20,7 +20,7 @@ import inspect
 data_points = []
 
 import pygame
-from pygame.locals import *
+#from pygame.locals import *
 
 from wireframe import Wireframe
 
@@ -867,6 +867,10 @@ class ProjectionViewer:
                 self.end = len(self.layer_part)-1
                 self.first = False
             
+            self.color_increment = int(255 * 3 / len(wireframe.edges[self.layer_part[self.start][2]:self.layer_part[self.end][3]]))
+            if self.color_increment > 219:
+                self.color_increment = 219
+            self.color_cap = 220 - self.color_increment     #220 is used so lines never get too light of a color            
             
             for edge in wireframe.edges[self.layer_part[self.start][2]:self.layer_part[self.end][3]]:
                 if self.r < self.color_cap:
