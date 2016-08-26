@@ -490,7 +490,7 @@ class Page_Variables(tk.Frame):
             buttonDestroy = ttk.Button(var_window, text='OK', command=quicksave)
             buttonDestroy.grid(row=len(self.annot.items())+1, column=1)
 
-            var_window.protocol("WM_DELETE_WINDOW", quicksave)
+            var_window.protocol('WM_DELETE_WINDOW', quicksave)
             var_window.mainloop()
             
         else:
@@ -755,7 +755,7 @@ key_to_function = {
     
             
 class ProjectionViewer:
-    """ Displays 3D objects on a Pygame screen """
+    ''' Displays 3D objects on a Pygame screen '''
 
     def __init__(self, width, height):
         self.width = width
@@ -802,14 +802,14 @@ class ProjectionViewer:
         return data
 
     def addWireframe(self, name, wireframe):
-        """ Add a named wireframe object. """
+        ''' Add a named wireframe object. '''
 
         self.wireframes[name] = wireframe
 
     def run(self):
-        """ Create a pygame screen until it is closed. """
+        ''' Create a pygame screen until it is closed. '''
         pygame.init()
-        self.myfont = pygame.font.SysFont("monospace", 15)
+        self.myfont = pygame.font.SysFont('monospace', 15)
         
         self.translateAll('x', (400-self.wireframes[c.MODEL].findcenter()[0]))
         self.translateAll('y', (300-self.wireframes[c.MODEL].findcenter()[1]))
@@ -838,25 +838,25 @@ class ProjectionViewer:
             pygame.display.flip()        
         
     def display(self):
-        """ Draw the wireframes on the screen. """
+        ''' Draw the wireframes on the screen. '''
 
         self.screen.fill(self.background)
 
         #creates labels
-        text = "Showing Part " + self.layer_part[self.start][1] + " Layer " + self.layer_part[self.start][0]
-        text += " through Part " + self.layer_part[self.end][1] + " Layer " + self.layer_part[self.end][0]
-        text += "  (" + str(self.end - self.start + 1) + " layers total)"
+        text = 'Showing Part ' + self.layer_part[self.start][1] + ' Layer ' + self.layer_part[self.start][0]
+        text += ' through Part ' + self.layer_part[self.end][1] + ' Layer ' + self.layer_part[self.end][0]
+        text += '  (' + str(self.end - self.start + 1) + ' layers total)'
         label = self.myfont.render(text, 1, self.label_color)
         self.screen.blit(label, (0, 0))
         
         instructions = []
         instruct_label = []
         
-        instructions.append("1/2 = zoom in/out | q/w = rotate X-axis | a/s = rotate Y-axis | z/x = rotate Z-axis")
+        instructions.append('1/2 = zoom in/out | q/w = rotate X-axis | a/s = rotate Y-axis | z/x = rotate Z-axis')
         instruct_label.append(self.myfont.render(instructions[0], 1, self.label_color))
-        self.screen.blit(instruct_label[0], (0, 25))
+        self.screen.blit(instruct_label[0], (0,25))
         
-        instructions.append("e/d = add/subtract layers | 3/c = shift layers up/down | r/f = show all/one layer(s)")
+        instructions.append('e/d = add/subtract layers | 3/c = shift layers up/down | r/f = show all/one layer(s)')
         instruct_label.append(self.myfont.render(instructions[1], 1, self.label_color))
         self.screen.blit(instruct_label[1], (0,50))
         
@@ -870,6 +870,8 @@ class ProjectionViewer:
             self.color_increment = int(255 * 3 / len(wireframe.edges[self.layer_part[self.start][2]:self.layer_part[self.end][3]]))
             if self.color_increment > 219:
                 self.color_increment = 219
+            elif self.color_increment == 0:
+                self.color_increment =1
             self.color_cap = 220 - self.color_increment     #220 is used so lines never get too light of a color            
             
             for edge in wireframe.edges[self.layer_part[self.start][2]:self.layer_part[self.end][3]]:
@@ -887,13 +889,13 @@ class ProjectionViewer:
                 pygame.draw.line(self.screen, color, (edge.start.x, edge.start.y), (edge.stop.x, edge.stop.y), 2)#width
                     
     def translateAll(self, axis, d):
-        """ Translate all wireframes along a given axis by d units. """
+        ''' Translate all wireframes along a given axis by d units. '''
 
         wireframe = self.wireframes[c.MODEL]
         wireframe.translate(axis, d)
 
     def scaleAll(self, scale):
-        """ Scale all wireframes by a given scale, centerd on the center of the screen. """
+        ''' Scale all wireframes by a given scale, centerd on the center of the screen. '''
 
         center_x = self.width/2
         center_y = self.height/2
@@ -902,7 +904,7 @@ class ProjectionViewer:
         wireframe.scale(center_x, center_y, scale)
             
     def rotateAll(self, axis, theta):
-        """ Rotate all wireframe about their center, along a given axis by a given angle. """
+        ''' Rotate all wireframe about their center, along a given axis by a given angle. '''
 
         rotateFunction = 'rotate' + axis
 
@@ -911,7 +913,7 @@ class ProjectionViewer:
         getattr(wireframe, rotateFunction)(center[0], center[1], center[2], theta)
             
     def add(self):
-        """ Increases the amount of layers shown. """
+        ''' Increases the amount of layers shown. '''
         
         if self.end < (len(self.layer_part)-1):
             self.end += 1
@@ -921,7 +923,7 @@ class ProjectionViewer:
             print('Showing all parts and layers.')
             
     def subtract(self):
-        """ Decreases the amount of layers shown. """
+        ''' Decreases the amount of layers shown. '''
         
         if self.end > (self.start):
             self.end -= 1
@@ -932,7 +934,7 @@ class ProjectionViewer:
             print(self.end)
             
     def shift_up(self):
-        """ Shifts the layers being viewed up by one. """
+        ''' Shifts the layers being viewed up by one. '''
         
         if self.end < (len(self.layer_part)-1):
             self.start += 1
@@ -941,7 +943,7 @@ class ProjectionViewer:
             print('Showing the topmost layers already.')
             
     def shift_down(self):
-        """ Shifts the layers being viewed down by one. """
+        ''' Shifts the layers being viewed down by one. '''
         
         if self.start > 0:
             self.start -= 1
@@ -950,7 +952,7 @@ class ProjectionViewer:
             print('Showing the lowest layers already.')
             
     def one_layer(self):
-        """ Decreases amount of layers shown to one. """
+        ''' Decreases amount of layers shown to one. '''
         
         if self.end != self.start:
             self.end = self.start
@@ -958,7 +960,7 @@ class ProjectionViewer:
             print('Already showing only one layer.')
         
     def max_layers(self):
-        """ Increases the amount of layers shown to the maximum. """
+        ''' Increases the amount of layers shown to the maximum. '''
         
         if self.end == len(self.layer_part) and self.start == 0:
             print('All layers already being shown.')
