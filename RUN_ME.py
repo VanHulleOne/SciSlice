@@ -698,14 +698,14 @@ class Page_Variables(tk.Frame):
     def gen_model(self):
         
         try:
-            self.convert('temp')
+            self.convert('_temp')
             
         except Exception as e:
             print('Error during Gcode conversion')
             print(e)
             
         else:
-            os.remove(self.GCODEPATH + 'temp.gcode')
+            os.remove(self.GCODEPATH + '_temp.gcode')
             pv = ProjectionViewer(1000, 750)
             model = Wireframe()
             
