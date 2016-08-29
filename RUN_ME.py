@@ -232,6 +232,7 @@ class Page_Variables(tk.Frame):
     
         self.doneshapes_menu()
         
+        #creates a namedtuple with label, entry, and text_variables parameters; appends namedtuple to a list
         for x, param in enumerate(self.parameters):
             x += 1+len(self.dropdowns)
             curr_label = ttk.Label(self, text= param.label + ' - ' + param.data_type)
@@ -254,6 +255,7 @@ class Page_Variables(tk.Frame):
                 self.var_labels[x][key_or_value] = ttk.Label(self, 
                                 textvariable=self.var_text[x][key_or_value])
         
+        #so STL filename is only for display
         self.elements[c.STL_FLAG].entry.config(state=tk.DISABLED)
     
     #creates menu of the different possible shapes from the doneshapes class        
@@ -264,6 +266,7 @@ class Page_Variables(tk.Frame):
             if dropdown.label == 'outline':
                 doneshape.append(c.STL_FLAG)
             for member in inspect.getmembers(ds, inspect.isfunction):
+                #checks the return type of the dropdown menu and compares to the dropdown type of the downshape function
                 if dropdown.ds_return in str(inspect.getfullargspec(getattr(ds, member[0])).annotations['return']):
                     doneshape.append(member[0]) #uses member[0] because member is a list of 2 things, and we want the first one
         
@@ -358,6 +361,7 @@ class Page_Variables(tk.Frame):
         for x in range(len(self.dropdowns)):
             text_keys = ''        
             text_values = ''
+            #checks if any values are entered
             if len(self.all_vars[x][self.SAVED]) > 0:
                 self.var_overall_label[x].grid(row=1+extra_shift, column=0)
                 for key, value in self.all_vars[x][self.SAVED].items():
@@ -434,14 +438,15 @@ class Page_Variables(tk.Frame):
                 self.shift += 2
 
         if len(self.annot) > 1: 
-            self.shift += 2
             
+            self.shift += 2
             self.regrid()            
             
             var_window = tk.Tk()
             var_window.title(var)
             var_window.geometry('+650+100')  
             
+            #checks whether the option is the same as the one chosen last time
             if self.all_vars[dropdown_index][self.VAR] != var:
                 self.reset_certain_vars(dropdown_index)
                 self.all_vars[dropdown_index][self.VAR] = var
@@ -488,6 +493,7 @@ class Page_Variables(tk.Frame):
             buttonDestroy = ttk.Button(var_window, text='OK', command=quicksave)
             buttonDestroy.grid(row=len(self.annot.items())+1, column=1)
 
+            #quicksaves if the user closes the window using a method other than the "OK" button
             var_window.protocol('WM_DELETE_WINDOW', quicksave)
             var_window.mainloop()
             
@@ -527,6 +533,7 @@ class Page_Variables(tk.Frame):
     #   methods that are called from buttons    #
     #############################################
         
+    #called from within the "save" method to put a value or list of values into a dictionary
     def _save(self, dic, key, save_type, value, is_list = False):
         if value == '':
             dic[key] = value
@@ -591,6 +598,7 @@ class Page_Variables(tk.Frame):
                             self._save(dropdown_data[x], key, self.all_vars[x][self.TYPES][key], 
                                  self.all_vars[x][self.SAVED][key])
             
+            #saves the values entered into entry boxes
             for param in self.dropdowns + self.parameters:                   
                 if param.label == c.STL_FLAG:
                     data[param.label] = self.stl_path
@@ -627,6 +635,7 @@ class Page_Variables(tk.Frame):
         
         
         if uploadname != '':
+            #gives error messages if user tries to upload a filetype other than .json
             try:
                 with open(uploadname, 'r') as fp:
                     data, dropdown_data = json.load(fp)
@@ -689,7 +698,7 @@ class Page_Variables(tk.Frame):
         return inner_command
                     
     
-    #create Gcode file                    
+    #create Gcode file; creates temp JSON file then deletes it                    
     def convert(self, name = None):
         global data_points
         
@@ -703,18 +712,19 @@ class Page_Variables(tk.Frame):
             data_points = conversion.run()
             os.remove(self.filename)    
     
-    #convert to gcode, switch to Page_Model        
+    #create popup 3D model viewer; creates temp JSON and temp Gcode files then deletes both       
     def gen_model(self):
         
         try:
             self.convert('_temp')
             
         except Exception as e:
-            print('Error during Gcode conversion')
+            print('Error during Gcode conversion.')
             print(e)
             
         else:
             os.remove(self.GCODEPATH + '_temp.gcode')
+            #3D model data setup and creation
             pv = ProjectionViewer(1000, 750)
             model = Wireframe()
             
@@ -734,12 +744,14 @@ class Page_Variables(tk.Frame):
             pv.addWireframe(c.MODEL, model)
             try:
                 pv.run()
+            #needed become it always gives error message when 3D model page it closed
             except Exception as e:
                 if str(e) == 'display Surface quit':
                     print('You have closed the 3D model.')
                 else:
                     print(e)
-            
+
+#3D model controls            
 key_to_function = {
     pygame.K_LEFT:   (lambda x: x.translateAll('x',  20)),
     pygame.K_RIGHT:  (lambda x: x.translateAll('x', -20)),
@@ -818,6 +830,7 @@ class ProjectionViewer:
         pygame.init()
         self.myfont = pygame.font.SysFont('monospace', 15)
         
+        #automatically translates image to center of window
         x, y = self.screen.get_size()
         self.translateAll('x', (x/2-self.wireframes[c.MODEL].findcenter()[0]))
         self.translateAll('y', (y/2-self.wireframes[c.MODEL].findcenter()[1]))
@@ -851,6 +864,8 @@ class ProjectionViewer:
         self.screen.fill(self.background)
 
         #creates labels
+
+        #Part and Layer numbers change to accurately reflect the parts/layers being shown
         text = 'Showing Part ' + self.layer_part[self.start][1] + ' Layer ' + self.layer_part[self.start][0]
         text += ' through Part ' + self.layer_part[self.end][1] + ' Layer ' + self.layer_part[self.end][0]
         text += '  (' + str(self.end - self.start + 1) + ' layers total)'
@@ -864,9 +879,10 @@ class ProjectionViewer:
         
         instructions.append('1/2 = zoom in/out | q/w = rotate X-axis | a/s = rotate Y-axis | z/x = rotate Z-axis')        
         instructions.append('e/d = add/subtract layers | 3/c = shift layers up/down | r/f = show all/one layer(s)')        
-        color_text.append('Line color changes from black > red > yellow > gray in the order printed')
+        color_text.append('Line color gradually changes from BLK > RED > OR > YEL > GRY in the order printed')
         color_text.append('Line colors will repeat the cycle in the middle of shapes if there are a lot of lines')
         
+        #creates all instructoin/color labels at once
         for x in range(2):
             instruct_label.append(self.myfont.render(instructions[x], 1, self.label_color))
             color_label.append(self.myfont.render(color_text[x], 1, self.label_color))
@@ -883,6 +899,10 @@ class ProjectionViewer:
                 self.end = len(self.layer_part)-1
                 self.first = False
             
+            #adjusts color incrementation to the amount of lines being displayed
+            #tries to divide colors up evenly so it goes through one cycle of colors, but if there are
+            #so many lines that the incrementation would be 0, it defaults to 1 and just cycles through
+            #the colors multiples times
             self.color_increment = int(255 * 3 / len(wireframe.edges[self.layer_part[self.start][2]:self.layer_part[self.end][3]]))
             if self.color_increment > 219:
                 self.color_increment = 219
@@ -890,6 +910,7 @@ class ProjectionViewer:
                 self.color_increment = 1
             self.color_cap = 220 - self.color_increment     #220 is used so lines never get too light of a color            
             
+            #prints each edge, adjusts color for each line
             for edge in wireframe.edges[self.layer_part[self.start][2]:self.layer_part[self.end][3]]:
                 if self.r < self.color_cap:
                     self.r += self.color_increment
