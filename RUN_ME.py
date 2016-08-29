@@ -625,47 +625,56 @@ class Page_Variables(tk.Frame):
     def upload(self):
         uploadname = filedialog.askopenfilename()  
         
+        
         if uploadname != '':
-            with open(uploadname, 'r') as fp:
-                data, dropdown_data = json.load(fp)
+            try:
+                with open(uploadname, 'r') as fp:
+                    data, dropdown_data = json.load(fp)
+                    
+            except Exception as e:
+                if '.json' not in uploadname:
+                    print('Error: this is not a JSON file. Please upload a JSON file.')
+                else:
+                    print('Error uploading file.\n', e)
+                    
+            else:                
+                for x in range(len(self.dropdowns)):
+                    self.reset_certain_vars(x)
+                   
+                for key, value in data.items():    
+                    if data[key] == None:
+                        self.elements[key].text_variable.set('None') 
+                    elif key == self.SHIFT:
+                        self.shift = value
+                    elif key == self.G_ROBOT_VAR:
+                        self.g_robot_var.set(value)
+                    elif key == c.STL_FLAG:
+                        self.stl_path = value
+                        if self.stl_path:
+                            self.elements[key].text_variable.set(os.path.basename(os.path.normpath(self.stl_path)))
+                        else:
+                            self.elements[key].text_variable.set(self.stl_path)
+                    elif key in self.elements.keys():
+                        value = str(value)
+                        value = value.replace('[','').replace(']','')
+                        self.elements[key].text_variable.set(value)  
                 
-            for x in range(len(self.dropdowns)):
-                self.reset_certain_vars(x)
-               
-            for key, value in data.items():    
-                if data[key] == None:
-                    self.elements[key].text_variable.set('None') 
-                elif key == self.SHIFT:
-                    self.shift = value
-                elif key == self.G_ROBOT_VAR:
-                    self.g_robot_var.set(value)
-                elif key == c.STL_FLAG:
-                    self.stl_path = value
-                    if self.stl_path:
-                        self.elements[key].text_variable.set(os.path.basename(os.path.normpath(self.stl_path)))
-                    else:
-                        self.elements[key].text_variable.set(self.stl_path)
-                elif key in self.elements.keys():
-                    value = str(value)
-                    value = value.replace('[','').replace(']','')
-                    self.elements[key].text_variable.set(value)  
-            
-            #deletes the label entry so it doesn't show up in the value bar
-            #uploads all necessary dropdown menu data so dropdown menu
-            #functions can act appropriately
-            for x, dropdown in enumerate(self.dropdowns):
-                del dropdown_data[x][c.THE_LABEL]
-                if len(dropdown_data[x]) > 0:
-                    for key, value in dropdown_data[x].items():
-                        self.all_vars[x][self.KEYS].append(key)
-                        self.all_vars[x][self.SAVED][key] = value
-                        self.all_vars[x][self.TYPES][key] = type(value)
-                        self.all_vars[x][self.VAR] = self.elements[dropdown.label].text_variable.get()
-                        
-            self.shift = data[self.SHIFT]
-            
-            self.values_bar()
-            self.regrid()
+                #deletes the label entry so it doesn't show up in the value bar
+                #uploads all necessary dropdown menu data so dropdown menu
+                #functions can act appropriately
+                for x, dropdown in enumerate(self.dropdowns):
+                    del dropdown_data[x][c.THE_LABEL]
+                    if len(dropdown_data[x]) > 0:
+                        for key, value in dropdown_data[x].items():
+                            self.all_vars[x][self.KEYS].append(key)
+                            self.all_vars[x][self.SAVED][key] = value
+                            self.all_vars[x][self.TYPES][key] = type(value)
+                            self.all_vars[x][self.VAR] = self.elements[dropdown.label].text_variable.get()
+                            
+                self.shift = data[self.SHIFT]
+                
+                self.values_bar()
+                self.regrid()
             
     #swtiches between tabs        
     def command(self, params):
