@@ -558,13 +558,13 @@ class Page_Variables(tk.Frame):
         elif name == 'gcode':
             self.savePath = filedialog.asksaveasfilename()
             self.savePath = self.check_end(self.savePath)
-            self.filename = self.JSONPATH + self.savePath.split('/')[len(self.savePath.split('/'))-1] + '.json'
+            self.filename = self.JSONPATH + '_' + self.savePath.split('/')[len(self.savePath.split('/'))-1] + '.json'
             if self.g_robot_var.get() == c.GCODE:
                 gcodeName = self.savePath + '.gcode'
             elif self.g_robot_var.get() == c.ROBOTCODE:
                 gcodeName = self.savePath + '.mod'
             
-        #switching to 3D model page -- create temp json file
+        #switching to 3D model page -- create temp json file and temp gcode file
         else:
             self.savePath = 'blank'
             if self.g_robot_var.get() == c.GCODE:
