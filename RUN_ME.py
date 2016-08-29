@@ -781,6 +781,8 @@ class ProjectionViewer:
         self.end = 0
         self.first = True
         
+        self.error_text = ''
+        
     def parse_data(self):
         
         data = []
@@ -870,6 +872,9 @@ class ProjectionViewer:
             color_label.append(self.myfont.render(color_text[x], 1, self.label_color))
             self.screen.blit(instruct_label[x], (0,(25*(x+1))))
             self.screen.blit(color_label[x], (0,(25*(x+1)+50)))
+            
+        error_label = self.myfont.render(self.error_text, 1, self.label_color)
+        self.screen.blit(error_label, (25,self.screen.get_size()[1]-25))
                 
         #creates 3D model
         wireframe = self.wireframes[c.MODEL]
@@ -926,53 +931,63 @@ class ProjectionViewer:
     def add(self):
         ''' Increases the amount of layers shown. '''
         
+        self.error_text = ''
+        
         if self.end < (len(self.layer_part)-1):
             self.end += 1
         elif self.start > 0:
             self.start -= 1  
         else:
-            print('Showing all parts and layers.')
+            self.error_text = 'Showing all parts and layers.'
             
     def subtract(self):
         ''' Decreases the amount of layers shown. '''
         
+        self.error_text = ''
         if self.end > (self.start):
-            self.end -= 1
-            
+            self.end -= 1            
         else:
-            print('Showing one layer of one part already.')
+            self.error_text = 'Showing one layer of one part already.'
             
     def shift_up(self):
         ''' Shifts the layers being viewed up by one. '''
+        
+        self.error_text = ''
         
         if self.end < (len(self.layer_part)-1):
             self.start += 1
             self.end += 1
         else:
-            print('Showing the topmost layers already.')
+            self.error_text = 'Showing the topmost layers already.'
             
     def shift_down(self):
         ''' Shifts the layers being viewed down by one. '''
+        
+        self.error_text = ''
         
         if self.start > 0:
             self.start -= 1
             self.end -= 1
         else:
-            print('Showing the lowest layers already.')
+            self.error_text = 'Showing the lowest layers already.'
             
     def one_layer(self):
         ''' Decreases amount of layers shown to one. '''
         
+        self.error_text = ''
+        
         if self.end != self.start:
             self.end = self.start
         else:
-            print('Already showing only one layer.')
+            self.error_text = 'Showing the lowest layers already.'
         
     def max_layers(self):
         ''' Increases the amount of layers shown to the maximum. '''
         
+        self.error_text = ''
+        
         if self.end == len(self.layer_part) and self.start == 0:
-            print('All layers already being shown.')
+            self.error_text = 'All layers already being shown.'
         else:
             self.end = len(self.layer_part)-1
             self.start = 0
