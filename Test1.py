@@ -17,7 +17,7 @@ import parameters as pr
 import constants as c
 from infill import Infill
 from itertools import islice
-import LineGroup as lg
+import linegroup as lg
 import doneshapes as ds
 import itertools
 from operator import itemgetter
@@ -68,12 +68,9 @@ points = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11]
 
 lines = [Line(points[i], points[i+1]) for i in range(len(points)-1)]
 
-mesh1 = trimesh.load_mesh('Arch3.stl')
-sec = mesh1.section(plane_origin=[0,0,5], plane_normal=[0,0,1])
-
 sq = ds.squareWithHole()
 
-sec2 = s.Section(sq)
+
 
 
 """ An example of how to do other infills. """  
