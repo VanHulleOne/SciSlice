@@ -92,7 +92,7 @@ class Outline(LineGroup):
     
     def loop_gen(self):
         for subShape in self.subShape_gen():
-            yield [line.start.point for line in subShape] + subShape[-1].end.point
+            yield [line.start.point for line in subShape]  + [subShape[-1].end.point]
       
     def closeShape(self):
         if(self[0].start != self[-1].end):
