@@ -39,7 +39,10 @@ STL_FLAG = 'stl_file'
 THE_LABEL = 'the_label'
 MODEL = 'model'
 
-LOG_LEVEL = logging.INFO
+BED_TEMP_FLAG = '#BED_TEMP'
+EXTRUDER_TEMP_FLAG = '#EXTRUDER_TEMP'
+
+LOG_LEVEL = logging.WARN # logging.INFO
 importlib.reload(logging)
 logging.basicConfig(format='\n\nLog Message\n-----------\nModule: %(name)s\n' + 
                     'Log Level: %(levelname)s\nMsg: %(message)s', level=LOG_LEVEL)

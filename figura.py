@@ -51,7 +51,7 @@ class Figura:
         layer_gen(). """
 
     def masterGcode_gen(self):
-        yield self.gc.startGcode()
+        yield self.gc.startGcode(bed_temp = self.pr.bed_temp, extruder_temp = self.pr.extruder_temp)
         for partParams in self.pr.everyPartsParameters:
             """ pr.everyPartsParameters is a generator of the parameters for the parts.
             The generator stops yielding additional parameters when there are no

@@ -1,5 +1,5 @@
-M109 S250 ;print_temperature Abs-250 PLA-200
-M190 S110 ;print_bed_temperature Abs-110 PLA-60
+M109 #EXTRUDER_TEMP ;print_temperature Abs-250 PLA-200
+M190 #BED_TEMP ;print_bed_temperature Abs-110 PLA-60
 M82        ;set extruder to absolute mode
 M107       ;start with the fan off
 
