@@ -25,7 +25,7 @@ five sections:<br/>
 * [Part](#part-parameters)<br/>
 * [Layer](#layer-parameters)<br/>
 * [File](#file-parameters)<br/>
-* [Part](#part-parameters)<br/>
+* [Print](#print-parameters)<br/>
 * [Printer](#printer-parameters)<br/>
 
 Parameters types are indicated after the name of the parameter. Types [enclosed in square brackets]
