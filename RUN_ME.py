@@ -141,7 +141,7 @@ class Page_Variables(tk.Frame):
                 Par('RAPID', INT, (PRINTER,)),
                 Par('TRAVERSE_RETRACT', FLOAT, (PRINTER,)),
                 Par('MAX_FEED_TRAVERSE', FLOAT, (PRINTER,)),
-                Par('MAX_EXTRUDE_SPEED', INT, (PRINTER,)),
+ #               Par('MAX_EXTRUDE_SPEED', INT, (PRINTER,)), Not Yet Implimented
                 Par('Z_CLEARANCE', FLOAT, (PRINTER,)),
                 Par('APPROACH_FR', INT, (PRINTER,)),
                 Par('comment', STR, (PRINTER,)),
