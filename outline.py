@@ -199,7 +199,7 @@ class Outline(LineGroup):
         newOutline = Outline()
         for subShape in self.subShape_gen():
             try:
-                newShape.addLineGroup(self._offset(subShape, distance, desiredSide))
+                newOutline.addLineGroup(self._offset(subShape, distance, desiredSide))
             except Exception as e:
                 logger.info('One or more sub-shapes could not be offset. ' + str(e))
         return newOutline
@@ -438,7 +438,8 @@ class Section:
         outline = Outline()
         for sidedPolygon in self.sidedPolygons:
             for coords in self.polygonCoords(sidedPolygon.poly):
-                shape.addCoordLoop(coords)        
+                outline.addCoordLoop(coords)
+        return outline
     
     def re_union(self, polies):
         final = None
