@@ -25,7 +25,7 @@ five sections:<br/>
 * [Part](#part-parameters)<br/>
 * [Layer](#layer-parameters)<br/>
 * [File](#file-parameters)<br/>
-* [Misc](#misc-parameters)<br/>
+* [Part](#part-parameters)<br/>
 * [Printer](#printer-parameters)<br/>
 
 Parameters types are indicated after the name of the parameter. Types [enclosed in square brackets]
@@ -143,13 +143,25 @@ Gcode commands
 The program currently looks into the Start_End_Gcode folder when searching for
 these files.
 
-### Misc Parameters
-* filamentDiameter (mm)- The diameter of the incoming filament.
-* nozzleDiameter (mm) - Nozzle outlet diameter
+### Print Parameters
+* bed_temp (C) - flag = `#BED_TEMP`
+* extruder_temp (C) - flag = `#EXTRUDER_TEMP`
+
+To have the GUI set the bed and extruder temperatures you must provide the
+appropriate flags in the Start Gcode file. For the Taz5 or other printers using the
+Marlin firmware it would look as follows:
+
+```
+M109 #EXTRUDER_TEMP ; 
+M190 #BED_TEMP ;
+```
+
 
 ### Printer Parameters
-These are parameters used by the printer while not actually printing
+These are parameters related to the printer itself.
 
+* filamentDiameter (mm)- The diameter of the incoming filament.
+* nozzleDiameter (mm) - Nozzle outlet diameter
 * RAPID (mm/min) - How fast the printer should move when not printing<br/>
   * The [RepRap wiki (9 July 2016)](http://reprap.org/wiki/G-code#G0_.26_G1:_Move)
 says "The RepRap firmware spec treats G0 and G1 as the same command,
