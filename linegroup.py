@@ -81,8 +81,6 @@ class LineGroup(object):
         return self.transform(mt.mirrorMatrix(axis))
     
     def translate(self, xShift, yShift,zShift=0):
-        print('Linegroup translate')
-        print(xShift, yShift, zShift)
         return self.transform(mt.translateMatrix(xShift, yShift, zShift))      
         
     def rotate(self, angle, point=Point(0,0)):

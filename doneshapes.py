@@ -29,8 +29,6 @@ def regularDogBone() ->Outline:
     dogBone.addLineGroup(dogBone.mirror(c.X))
     dogBone = dogBone.translate(82.5, 9.5)
     dogBone.finishOutline()
-    for line in dogBone:
-        print(line)
     return dogBone
     
 def testSimpleDogBone() ->Outline:
@@ -116,8 +114,6 @@ def polygon(centerX: float, centerY: float, radius: float, numCorners: int) ->Ou
     poly.addLinesFromPoints(points)
     poly.closeShape()
     poly = poly.rotate(incAngle/2.0, Point(centerX, centerY))
-    for line in poly:
-        print(line)
     return poly
         
 def lineField(space: float, length: float, height: float) ->LineGroup:
