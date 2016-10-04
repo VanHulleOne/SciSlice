@@ -107,6 +107,14 @@ class Figura:
                 sec = Section(self.mesh.section(plane_origin=[0,0,currHeight],plane_normal=[0,0,1]))
 
             filledList = []
+            
+            if numLayers == 0 and self.pr.brims:
+                for brimNumber in self.pr.brims:
+                    offsetOutline = sec.offset((layerParam.pathWidth+1)*brimNumber, c.OUTSIDE)
+                    if offsetOutline is not None:
+                        filledList.append(offsetOutline)
+                    else:
+                        break
 
             for shellNumber in range(layerParam.numShells):
                 offsetOutline = sec.offset(layerParam.pathWidth*(shellNumber), c.INSIDE)

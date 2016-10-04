@@ -131,6 +131,7 @@ class Page_Variables(tk.Frame):
                 Par('infillShiftX', FLOAT_LIST, (LAYER,)),
                 Par('infillShiftY', FLOAT_LIST, (LAYER,)),
                 Par('numShells', INT_LIST, (COMMON, LAYER)),
+                Par('brims', INT, (COMMON, PART)),
                 Par('trimAdjust', FLOAT_LIST, (LAYER,)),
                 Par('start_Gcode_FileName', STR, (FILE,)),
                 Par('end_Gcode_FileName', STR, (FILE,)),
