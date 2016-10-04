@@ -45,6 +45,7 @@ determines how many parts will be created. The part parameters are:<br/>
 * shift X<br/>
 * shift Y<br/>
 * number of layers<br/>
+* brims<br/>
 
 #### Outline
 The outline of the part to be made. The drop down menu is populated by the functions
@@ -77,7 +78,13 @@ part parameters and determine how many parts are printed.
 #### Number of Layers
 How many layers are printed in the part. They layer parameters are continuously
 cycled until this number is reached for the part being printed. They are then reset
-for the next part.
+for the next part.  
+
+#### Brims
+The number of brims to place around the first layer. The brims will be printed
+around the exterior side of every loop on the part including internal holes
+at a distance of `pathWidth` between each brim. The brims are printed in order
+farthest from part to closest to part.
 
 ### Pattern and Design Type (Not yet implemented in V2)
 Custom infill patterns can be designed for the part. The pattern must be of

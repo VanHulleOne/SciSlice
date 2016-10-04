@@ -109,8 +109,8 @@ class Figura:
             filledList = []
             
             if numLayers == 0 and self.pr.brims:
-                for brimNumber in range(self.pr.brims):
-                    offsetOutline = sec.offset((layerParam.pathWidth+1)*brimNumber, c.OUTSIDE)
+                for brimNumber in range(self.pr.brims, 0, -1):
+                    offsetOutline = sec.offset(layerParam.pathWidth*brimNumber, c.OUTSIDE)
                     if offsetOutline is not None:
                         filledList.append(offsetOutline)
                     else:
