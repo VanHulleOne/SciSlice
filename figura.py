@@ -132,7 +132,7 @@ class Figura:
             trimOutline = sec.offset(layerParam.pathWidth * layerParam.numShells - 
                             layerParam.trimAdjust, c.INSIDE)
                             
-            if trimOutline is not None:
+            if trimOutline and self.pr.pattern: # If there is an outline to fill and we want an infill
                 infill = Infill(trimOutline,
                                     layerParam.pathWidth, layerParam.infillAngle,
                                     shiftX=layerParam.infillShiftX, shiftY=layerParam.infillShiftY,

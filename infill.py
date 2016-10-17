@@ -72,12 +72,12 @@ class Infill(LineGroup):
         self.operations = (self.extendDesign, self.createField,
                            self.centerAndRotateField, self.trimField)
         
-        if(design is None):
+        try:
 #            point1 = Point(-self.trimDiagonal-10, 0)
 #            point2 = Point(self.trimDiagonal+10, 0)
-            self.design = ds.lineField(self.pathWidth, self.trimDiagonal, self.trimDiagonal)#lg.LineGroup([Line(point1, point2)])
+            self.design = design(self.pathWidth, self.trimDiagonal, self.trimDiagonal) #ds.lineField(self.pathWidth, self.trimDiagonal, self.trimDiagonal)#lg.LineGroup([Line(point1, point2)])
             self.designType = c.FULL_FIELD
-        else:
+        except Exception:
             self.design = LineGroup(design)
         
 #        print('\nInfill times:')
