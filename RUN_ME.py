@@ -906,6 +906,7 @@ class ProjectionViewer:
         color_text = []
         color_label = []
         
+        instructions.append('Left click mouse to Pan | Scroll Wheel to Zoom | Right Click for rotate')
         instructions.append('1/2 = zoom in/out | q/w = rotate X-axis | a/s = rotate Y-axis | z/x = rotate Z-axis')        
         instructions.append('e/d = add/subtract layers | 3/c = shift layers up/down | r/f = show all/one layer(s)')        
         color_text.append('Line color gradually changes from BLK > RED > OR > YEL > GRY in the order printed')
