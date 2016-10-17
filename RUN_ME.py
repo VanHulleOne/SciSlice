@@ -18,6 +18,7 @@ import parameters
 import doneshapes as ds
 import inspect
 data_points = []
+import time
 
 import pygame
 #from pygame.locals import *
@@ -780,7 +781,7 @@ class ProjectionViewer:
     def __init__(self, width, height):
         self.width = width
         self.height = height
-        self.screen = pygame.display.set_mode((width, height))
+        self.screen = pygame.display.set_mode((width, height), pygame.RESIZABLE)
         pygame.display.set_caption('Wireframe Display')
         self.background = (255,255,255)
 
@@ -853,11 +854,38 @@ class ProjectionViewer:
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 4:
                         self.scaleAll(1.25)
-                    if event.button == 5:
+                    elif event.button == 5:
                         self.scaleAll(0.8)
+                elif event.type == pygame.MOUSEMOTION:
+                    if event.buttons[0]:
+                        shiftX, shiftY = event.rel
+                        self.translateAll('x', shiftX)
+                        self.translateAll('y', shiftY)
+                    elif event.buttons[2]:
+                        rotY, rotX = event.rel
+                        self.rotateAll('X', rotX/270)
+                        self.rotateAll('Y', rotY/270)
+                        
+                elif event.type == pygame.VIDEORESIZE:
+                    os.environ['SDL_VIDEO_WINDOW_POS'] = '' # Clears the default window location
+                    self.width, self.height = event.dict['size']
+                    self.screen = pygame.display.set_mode(event.dict['size'], pygame.RESIZABLE)
                     
             self.display()  
-            pygame.display.flip()        
+            pygame.display.flip()
+            
+    def mouseTranslate(self):
+        startX, startY = pygame.mouse.get_pos()
+        for event in pygame.event.get():
+            if event == pygame.MOUSEBUTTONUP:
+                break
+            print(startX, startY)
+            time.sleep(0.1)
+            currX, currY = pygame.mouse.get_pos()
+            self.translateAll('x', currX - startX)
+            self.translateAll('y', currY - startY)
+            startX, startY = currX, currY
+            
         
     def display(self):
         ''' Draw the wireframes on the screen. '''
