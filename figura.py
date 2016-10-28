@@ -140,6 +140,10 @@ class Figura:
     #                self.layers[layerParam] = self.organizedLayer(filledList + [infill])
                 filledList.append(infill)
             ol = self.organizedLayer(filledList)
+            if not ol:
+                raise(Exception('Parameter setting produced no tool path. \n' +
+                                'Ensure numLayers is >0 and there is at least one ' +
+                                'shell if no infill is used.'))
             """ a tuple of the organized LineGroup and the layer parameters. """
             yield (ol.translate(partParams.shiftX, partParams.shiftY,
                                 currHeight+self.pr.firstLayerShiftZ), layerParam)

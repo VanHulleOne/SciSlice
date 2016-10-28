@@ -721,7 +721,7 @@ class Page_Variables(tk.Frame):
             self.convert('_temp')
             
         except Exception as e:
-            print('Error during Gcode conversion.')
+            print('Error during calculations.')
             print(e)
             
         else:
