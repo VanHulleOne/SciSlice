@@ -155,8 +155,9 @@ def hexField(side: float, space: float, length: float, height: float) -> LineGro
     return field
     
 def straightLines()  -> LineGroup:
-    return lineField # a flag used to more efficiently generate a full field of lines
+    return lineField # return the lifeField method so the appropriate parameters
+                        # can be called to efficiently generate the line field
     
 def noInfill() -> LineGroup:
-    return False
+    return LineGroup()
     
