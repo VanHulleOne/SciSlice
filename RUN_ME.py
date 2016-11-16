@@ -911,13 +911,15 @@ class ProjectionViewer:
         instructions.append('e/d = add/subtract layers | 3/c = shift layers up/down | r/f = show all/one layer(s)')        
         color_text.append('Line color gradually changes from BLK > RED > OR > YEL > GRY in the order printed')
         color_text.append('Line colors will repeat the cycle in the middle of shapes if there are a lot of lines')
-        
+        color_text.append('')
+
+# TODO: Adjust this the dynamically handle additional instructions.        
         #creates all instructoin/color labels at once
-        for x in range(2):
+        for x in range(3):
             instruct_label.append(self.myfont.render(instructions[x], 1, self.label_color))
             color_label.append(self.myfont.render(color_text[x], 1, self.label_color))
             self.screen.blit(instruct_label[x], (0,(25*(x+1))))
-            self.screen.blit(color_label[x], (0,(25*(x+1)+50)))
+            self.screen.blit(color_label[x], (0,(25*(x+1)+75)))
             
         error_label = self.myfont.render(self.error_text, 1, self.label_color)
         self.screen.blit(error_label, (25,self.screen.get_size()[1]-25))
