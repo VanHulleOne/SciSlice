@@ -146,7 +146,7 @@ class Infill(LineGroup):
                 midPoints = (pointVectors[1:] + pointVectors[:-1])/2.0
                 for i in range(len(midPoints)):
                     if self.trimOutline.isInside(midPoints[i]):
-                        self.lines.append(Line(pointList[i], pointList[i+1]))
+                        self.append(Line(pointList[i], pointList[i+1]))
 
                 
                 
