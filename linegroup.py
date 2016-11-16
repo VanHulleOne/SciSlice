@@ -28,10 +28,13 @@ class LineGroup(object):
         self.__vectors = None
         
         try:
+            """ Test if the input is an iterable list. """
             self.lines = list(inGroup)
+                    
         except Exception:
             self.lines = []
         else:
+            """ If the inGroup was iterable update the minMax """
             for line in self:
                 self.updateMinMax(line)
 
@@ -99,6 +102,7 @@ class LineGroup(object):
         transShape.lines = lines
         transShape.minX, transShape.minY = np.amin(result[:,:2], axis=0)
         transShape.maxX, transShape.maxY = np.amax(result[:,:2], axis=0)
+        assert transShape.minX is not None
         return transShape
     
     def getMidPoint(self):

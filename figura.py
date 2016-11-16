@@ -94,7 +94,7 @@ class Figura:
         currHeight = layerParam.layerHeight
         numLayers = 0
         
-        if self.pr.outline == c.STL_FLAG:# and partParams.numLayers <= 0:
+        if self.pr.outline == c.STL_FLAG:
             maxZ = self.mesh.bounds[:,2:][1] - c.EPSILON
             maxLayers = float('inf')
         else:
@@ -137,7 +137,6 @@ class Figura:
                                     layerParam.pathWidth, layerParam.infillAngle,
                                     shiftX=layerParam.infillShiftX, shiftY=layerParam.infillShiftY,
                                     design=self.pr.pattern, designType=self.pr.designType)
-    #                self.layers[layerParam] = self.organizedLayer(filledList + [infill])
                 filledList.append(infill)
             ol = self.organizedLayer(filledList)
             if not ol:
@@ -226,9 +225,20 @@ class Figura:
         for coro in lineCoros.values():
             next(coro)
         
-        lastPoint = Point(0,0) # The starting point is the origin of the printer
+        for lineGroup in inOutlines:
+            if(lineGroup.minX is None and lineGroup):
+                print('Holy cow this has lines and no min value')
+                for line in lineGroup:
+                    print(line)
+        """
+        Find the lower left most point of the boudnding box which encloses
+        the layer and use that as the starting point for the sort.
+        """
+        minX = min(i.minX for i in inOutlines)
+        minY = min(i.minY for i in inOutlines)
+        lastPoint = Point(minX, minY) # The starting point for the sort
         indexOfClosest = -1 # A default value for the inital run
-        while 1:
+        while True:
             results = []
             for key in list(lineCoros.keys()):
                 try:
@@ -254,7 +264,7 @@ class Figura:
                 Plus if the outline was being used as a brim to help start a print
                 we would not want to stop partially way through the brim.
                 """
-                while 1:
+                while True:
                     try:
                         line = lineCoros[indexOfClosest].send((c.USED, lastPoint))[0]
                     except StopIteration:
