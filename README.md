@@ -1,4 +1,4 @@
-# DogBone v2.1
+# DogBone V2.x
 
 DogBone is a program that creates custom tool paths for Fused Filament Fabrication
 3D printers (also known by the trade marked term FDM). The motivation for creating
@@ -15,6 +15,7 @@ all of the parameters for printing.
 [NumPy](http://www.numpy.org/)<br/>
 [trimesh](https://pypi.python.org/pypi/trimesh/1.14.9)<br/>
 [Shapely](https://pypi.python.org/pypi/Shapely)<br/>
+[Pygame](https://pypi.python.org/pypi/Pygame/1.9.2b8)  
 
 
 ## Getting Started
@@ -159,7 +160,7 @@ appropriate flags in the Start Gcode file. For the Taz5 or other printers using 
 Marlin firmware it would look as follows:
 
 ```
-M109 #EXTRUDER_TEMP ; 
+M109 #EXTRUDER_TEMP ;
 M190 #BED_TEMP ;
 ```
 
@@ -191,6 +192,38 @@ traversing the part.
 * APPROACH_FR (mm/min) - Speed the printer should move when approaching the part.
 A slightly slower speed helps prevent hard crashes and allows the filament more
 time to move forward in the nozzle in preparation for printing.
+
+## Easy Getting Started Instructions  
+If you have no idea how to get started using DogDoneV2 hopefully these instructions will help. If you kind of know what you are doing then use this as an outline to really mess it all up.  
+
+### Installation  
+You will need Python 3.5+ and all of the required dependencies to run DogBoneV2.py. Downloading and
+installing Anaconda will get you Python and most of the needed libraries (dependencies). Anaconda can be
+found on the [Continuum](https://www.continuum.io/downloads) website. Choose the Python 3.5 version
+installer appropriate for your operating system. This is a pretty large installation so it will take a bit.
+
+### Dependencies
+Even though Anaconda comes with many libraries already installed I managed to design DogBoneV2 to need three libraries which are not included. Sorry about that. Luckily Anaconda comes with a program called Conda which makes this processes fairly easy. First you need to get to the Anaconda prompt. On my Windows machine I went to the Start Menu -> All Programs -> Anaconda3 -> Anaconda Prompt. Selecting Anaconda Prompt will pop up a black command line
+window. From this window you will be able to install the three missing libraries: Pygame, Shapely, and trimesh.
+In the command prompt type:  
+`conda install -c cogsci pygame`  
+This will install Pygame from the CogSci profile on anaconda.org.  
+Next install Shapely with the same process but from the IOOS channel.  
+`conda install -c IOOS shapely`  
+Finally we need trimesh. As of this writing there was not a Conda version of trimesh so we will use pip.  
+`pip install trimesh`  
+
+All in a row you will have typed into the command prompt (hitting enter after each line and waiting for each install):
+```
+conda install -c cogsci pygam  
+conda install -c ioos shapely  
+pip install trimesh  
+```
+
+Now you have the three additional libraries needed to run DogBoneV2.
+
+### Installing DogBoneV2  
+
 
 ## *Notepad++
 If you have Python and the appropriate dependencies installed you can use
