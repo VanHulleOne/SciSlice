@@ -215,7 +215,7 @@ Finally we need trimesh. As of this writing there was not a Conda version of tri
 
 All in a row you will have typed into the command prompt (hitting enter after each line and waiting for each install):
 ```
-conda install -c cogsci pygam  
+conda install -c cogsci pygame  
 conda install -c ioos shapely  
 pip install trimesh  
 ```
@@ -223,6 +223,21 @@ pip install trimesh
 Now you have the three additional libraries needed to run DogBoneV2.
 
 ### Installing DogBoneV2  
+The most up-to-date version of DogBoneV2 is located on GitHub in its
+[repository](https://github.com/VanHulleOne/DogBoneV2). Once there select the clone/download dropdown (a green button) and download the .zip file. Extract the file into whichever folder you like and you have it installed.  
+
+Since DogBoneV2 is not fully stable yet it may be worth while to download [Git Desktop](https://desktop.github.com/) so you can clone the repository to more easily and quickly download bug fixes.
+
+### Running the Program
+To run the program either cd into the folder in which you unzipped the program and then type in the
+Conda prompt `python RUN_ME.py` or open Spyder, which came with the Anaconda installation, open the RUN_ME.py
+and run the program from Spyder.
+
+### .json
+You can save your print parameters by clicking the Save button on top of the GUI. Previously
+saved .json files can be uploaded with the Upload button. When the program is first opened it uses the DEFAULT.json
+file. If you always use a similar parameter profile you can save over this file and your parameters will be
+loaded at startup.
 
 
 ## *Notepad++
