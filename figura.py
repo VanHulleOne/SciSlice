@@ -224,12 +224,7 @@ class Figura:
         
         for coro in lineCoros.values():
             next(coro)
-        
-        for lineGroup in inOutlines:
-            if(lineGroup.minX is None and lineGroup):
-                print('Holy cow this has lines and no min value')
-                for line in lineGroup:
-                    print(line)
+
         """
         Find the lower left most point of the boudnding box which encloses
         the layer and use that as the starting point for the sort.
@@ -274,17 +269,6 @@ class Figura:
                         """ A reminder than an else is run if there is no exception. """
                         lastPoint = line.end
                         layer.append(line)
-        """
-        #creats text file of all data points
-        data = []
-        for line in layer:
-            temp = []
-            temp.append(str(line.start).replace("X", "").replace("Y", "").replace("Z", "").split(" "))
-            temp.append(str(line.end).replace("X", "").replace("Y", "").replace("Z", "").split(" "))
-            data.append(temp)
-        for entry in data:
-            self.data_points.write(str(entry) + "\n")
-        """
         return layer
     
     def __str__(self):
