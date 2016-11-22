@@ -11,6 +11,7 @@ when entering parameters in the GUI.
 """
 
 import math
+from typing import Callable
 
 import arc as a
 import constants as c
@@ -116,47 +117,47 @@ def polygon(centerX: float, centerY: float, radius: float, numCorners: int) ->Ou
     poly = poly.rotate(incAngle/2.0, Point(centerX, centerY))
     return poly
         
-def lineField(space: float, length: float, height: float) ->LineGroup:
-    lines = []
-    currHeight = 0
-    while currHeight < height:
-        lines.append(Line(Point(0,currHeight), Point(length,currHeight)))
-        currHeight += space
-    group = LineGroup()
-    group.lines = lines
-    group.minX = 0
-    group.minY = 0
-    group.maxX = length
-    group.maxY = currHeight-space
-    return group
+def straightLines() -> Callable[[float, float, float], LineGroup]:
+    def _straightLines(*, space: float=0, length: float=0, height: float=0) -> LineGroup:
+        lines = []
+        currHeight = 0
+        while currHeight < height:
+            lines.append(Line(Point(0,currHeight), Point(length,currHeight)))
+            currHeight += space
+        group = LineGroup()
+        group.lines = lines
+        group.minX = 0
+        group.minY = 0
+        group.maxX = length
+        group.maxY = currHeight-space
+        return group
+    return _straightLines
     
 
-def hexField(side: float, space: float, length: float, height: float) -> LineGroup:
-    baseLine = LineGroup(None)
-    baseLine.addLinesFromCoordinateList([[0,0], [side, 0],
-             [side+math.cos(math.pi/4)*side, math.cos(math.pi/4)*side],
-              [side*2+math.cos(math.pi/4)*side, math.cos(math.pi/4)*side],
-               [2*(side+math.cos(math.pi/4)*side), 0]])
-    fullLine = LineGroup(baseLine)
-    
-    while fullLine.maxX - fullLine.minX < length:
-        baseLine = baseLine.translate(baseLine.maxX - baseLine.minX, 0)
-        fullLine.addLineGroup(baseLine)
+def hexagons(sideLength: float) -> Callable[[float, float, float], LineGroup]:
+    def _hexagons(*, space: float=0, length: float=0, height: float=0) -> LineGroup:
+        baseLine = LineGroup(None)
+        baseLine.addLinesFromCoordinateList([[0,0], [sideLength, 0],
+                 [sideLength+math.cos(math.pi/4)*sideLength, math.cos(math.pi/4)*sideLength],
+                  [sideLength*2+math.cos(math.pi/4)*sideLength, math.cos(math.pi/4)*sideLength],
+                   [2*(sideLength+math.cos(math.pi/4)*sideLength), 0]])
+        fullLine = LineGroup(baseLine)
         
-    mirrorLine = LineGroup(fullLine)
-    mirrorLine = mirrorLine.mirror(c.X)
-    mirrorLine = mirrorLine.translate(0, -space)
-    fullLine.addLineGroup(mirrorLine)
-    field = LineGroup(fullLine)
-    
-    while field.maxY - field.minY < height:
-        fullLine = fullLine.translate(0, fullLine.maxY-fullLine.minY+space)
-        field.addLineGroup(fullLine)
-    return field
-    
-def straightLines()  -> LineGroup:
-    return lineField # return the lineField method so the appropriate parameters
-                        # can be called to efficiently generate the line field
+        while fullLine.maxX - fullLine.minX < length:
+            baseLine = baseLine.translate(baseLine.maxX - baseLine.minX, 0)
+            fullLine.addLineGroup(baseLine)
+            
+        mirrorLine = LineGroup(fullLine)
+        mirrorLine = mirrorLine.mirror(c.X)
+        mirrorLine = mirrorLine.translate(0, -space)
+        fullLine.addLineGroup(mirrorLine)
+        field = LineGroup(fullLine)
+        
+        while field.maxY - field.minY < height:
+            fullLine = fullLine.translate(0, fullLine.maxY-fullLine.minY+space)
+            field.addLineGroup(fullLine)
+        return field
+    return _hexagons
     
 def noInfill() -> LineGroup:
     return LineGroup()

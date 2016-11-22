@@ -73,7 +73,10 @@ class Infill(LineGroup):
                            self.centerAndRotateField, self.trimField)
         
         try:
-            self.design = design(self.pathWidth, self.trimDiagonal, self.trimDiagonal) 
+            self.design = design(space = self.pathWidth,
+                                 length = self.trimDiagonal,
+                                 height = self.trimDiagonal,
+                                 ) 
             self.designType = c.FULL_FIELD
         except Exception:
             self.design = LineGroup(design)
