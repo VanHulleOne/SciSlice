@@ -73,15 +73,12 @@ class Infill(LineGroup):
                            self.centerAndRotateField, self.trimField)
         
         try:
-#            point1 = Point(-self.trimDiagonal-10, 0)
-#            point2 = Point(self.trimDiagonal+10, 0)
-            self.design = design(self.pathWidth, self.trimDiagonal, self.trimDiagonal) #ds.lineField(self.pathWidth, self.trimDiagonal, self.trimDiagonal)#lg.LineGroup([Line(point1, point2)])
+            self.design = design(self.pathWidth, self.trimDiagonal, self.trimDiagonal) 
             self.designType = c.FULL_FIELD
         except Exception:
             self.design = LineGroup(design)
         
-#        print('\nInfill times:')
-#        maxLength = max(len(f.__name__) for f in self.operations) + 2 
+#        print('\nInfill times:') 
         for i in range(self.designType, c.TRIMMED_FIELD):
             startTime = time.time()
             self.operations[i]();
