@@ -87,8 +87,14 @@ around the exterior side of every loop on the part including internal holes
 at a distance of `pathWidth` between each brim. The brims are printed in order
 farthest from part to closest to part.
 
-### Pattern and Design Type (Not yet implemented in V2)
-Custom infill patterns can be designed for the part. The pattern must be of
+#### Pattern
+Methods within doneshapes.py can also define custom patterns for a layer.
+Some require input parameters. If they do require additional parameters
+selecting them from the drop down menu will create a pop-up window.
+
+
+#### Design Type (Not yet implemented)
+Custom infill patterns can be designed for your part. The pattern must be of
 type LineGroup. The pattern is extended by copying the design and then
 connecting the start of the first line in the copy the end of the last of
 the original and saving that as the new original. This process is repeated
