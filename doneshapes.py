@@ -42,6 +42,7 @@ def testSimpleDogBone() ->Outline:
     return temp
     
 def wideDogBone() ->Outline:
+    # TODO: Make custom widths
     halfWidth = 5.0    
     wideDogBone = Outline(None)
     wideDogBone.addLinesFromCoordinateList([[82.5, 0], [82.5, 9.5 + halfWidth],
