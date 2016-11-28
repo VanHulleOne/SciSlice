@@ -2,10 +2,18 @@
 """
 Created on Thu Dec 03 16:30:08 2015
 
-Functions used to more quickly create commonly used shapes. Some of the functions
+Functions used to more quickly create commonly used shapes or infills. Some of the functions
 contain fully defined shapes while others allow parameter inputs to create a
-custom outline. Type hints have been included to provide the user extra information
-when entering parameters in the GUI.
+custom outline.
+
+Type hints have been used to determine whether a function returns an Outline or
+anything else.  Inside RUN_ME.py the doneshapes module is inspected. During the
+inspection the return type annotations for each function are read to determine
+which is the appropriate dropdown for the function. Any function with otu a
+return type annotation will not be added to the dropdown menu.
+
+Typehints must also be used for input parameters so that they can be displayed
+in the pop-up window which is created.
 
 @author: lvanhulle
 """
@@ -32,7 +40,7 @@ def regularDogBone() ->Outline:
     dogBone.finishOutline()
     return dogBone
     
-def testSimpleDogBone() ->Outline:
+def testSimpleDogBone():# ->Outline:
     temp = Outline(None)
     temp.addLinesFromCoordinateList([[82.5,0],[82.5,9.5],[49.642, 9.5], [28.5,6.5],[0,6.5]])
     temp.addLineGroup(temp.mirror(c.Y))
@@ -55,7 +63,7 @@ def wideDogBone(gageWidth: float) ->Outline:
     wideDogBone.addLineGroup(wideDogBone.mirror(c.X))
     return wideDogBone.translate(82.5, 9.5 + halfWidth)
    
-def rightGrip() ->Outline:
+def rightGrip():# ->Outline:
     outline = Outline(None)
     outline.addLinesFromCoordinateList([[82.5, 0], [82.5, 9.5], [49.642, 9.5]])
     arc = a.Arc(Point(49.642, 9.5), Point(28.5, 6.5), c.CW, Point(28.5, 82.5), 20)
@@ -64,18 +72,18 @@ def rightGrip() ->Outline:
     outline.addLineGroup(outline.mirror(c.X)) 
     return outline.translate(82.5, 9.5)
 
-def leftGrip() ->Outline:
+def leftGrip():# ->Outline:
     outline = rightGrip()
     outline = outline.translate(-82.5, -9.5)
     outline = outline.mirror(c.Y)
     return outline.translate(82.5, 9.5)
 
-def grips() ->Outline:
+def grips():# ->Outline:
     outline = leftGrip()
     outline.addLineGroup(rightGrip())
     return outline
 
-def center() ->Outline:
+def center():# ->Outline:
     outline = Outline(None)
     outline.addLinesFromCoordinateList([[28.5, 6.5], [-28.5, 6.5], [-28.5, -6.5],
                                       [28.5, -6.5], [28.5, 6.5]])
