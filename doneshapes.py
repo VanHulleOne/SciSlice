@@ -41,8 +41,8 @@ def testSimpleDogBone() ->Outline:
     temp.finishOutline()
     return temp
     
-def wideDogBone() ->Outline:
-    halfWidth = 5.0    
+def wideDogBone(gageWidth: float) ->Outline:
+    halfWidth = gageWidth / 2.0    
     wideDogBone = Outline(None)
     wideDogBone.addLinesFromCoordinateList([[82.5, 0], [82.5, 9.5 + halfWidth],
                                             [49.642, 9.5 + halfWidth]])
