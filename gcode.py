@@ -84,13 +84,15 @@ class RobotCode:
         self.BLR = "DO6_Between_Layer_Retract"
         self.program_feed = "DO5_Program_Feed"
         
-        
+    def setDO(name, value):
+        return '\t\tSetDO {}, {};\n'.format('name', value)
+    
     def feedMove(self, endPoint, omitZ, extrudeTo, printSpeed):
         #TODO: something for starting the extruder
-        moveString = 'SetDO ' + self.program_feed + ', 1;'
+        moveString = self.setDO(self.program_feed, 1)
         moveString += self._linearMove(endPoint, omitZ, printSpeed)
         #TODO: Something to stop extruder
-        moveString += 'SetDO ' + self.program_feed + ', 0' 
+        moveString += self.setDO(self.program_feed, 0) 
         return moveString                    
     
     def rapidMove(self, endPoint, omitZ):
@@ -109,7 +111,7 @@ class RobotCode:
     def retractLayer(self, currentE, currentPoint):
         #TODO: something to retract extruder
 #        tempString = 'G1 E{:.3f} F{:.0f}\n'.format(currentE-self.pr.TRAVERSE_RETRACT, self.pr.MAX_EXTRUDE_SPEED)
-        tempString = 'SetDO ' + self.BLR + ', 1'
+        tempString = self.setDO(self.BLR, 1)
         cpVect = currentPoint[:3]
         cpVect[c.Z] += self.pr.Z_CLEARANCE
         tempString += self._linearMove(cpVect, c.INCLUDE_Z, self.pr.RAPID)
@@ -117,17 +119,15 @@ class RobotCode:
         
     def approachLayer(self, lastE, startPoint):
         # TODO: something to prep extrude
-#        tempString = 'G1 Z{:.3f} F{:.0f} E{:.3f}\n'.format(startPoint.z+self.pr.Z_CLEARANCE/2.0,
-#                        self.pr.RAPID, lastE-self.pr.TRAVERSE_RETRACT*0.75)
-#        tempString += 'G1 Z{:.3f} F{:.0f} E{:.3f}\n'.format(startPoint.z,
-#                        self.pr.APPROACH_FR, lastE)
-        tempString = 'SetDO ' + self.BLR + ', 1'
+        tempString = self.setDO(self.BLR, 0)
         tempString += self._linearMove(startPoint, c.INCLUDE_Z, self.pr.APPROACH_FR)
         return tempString
     
     def firstApproach(self, lastE, startPoint):
         # TODO: Something to start extrusion
-        return self._linearMove(startPoint, c.INCLUDE_Z, self.pr.APPROACH_FR)
+        tempString = self._linearMove(startPoint, c.INCLUDE_Z, self.pr.APPROACH_FR)
+        tempString += self.setDO(self.BLR, 0)
+        return tempString
 #        return 'G1 Z{:.3f} F{:.0f} E{:.3f}\n'.format(startPoint.z, self.pr.APPROACH_FR, lastE)
         
     def newPart(self):
