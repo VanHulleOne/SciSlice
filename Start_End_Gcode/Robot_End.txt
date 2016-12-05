@@ -1,2 +1,11 @@
 	ENDPROC
+	PROC Heat()
+		SetDO DO4_Heat_Nozzle, 1;
+        SetDO DO3_Heat_Bed, 1;
+        TPWrite "Caution: Bed and Nozzle heating";
+        WaitDI DI3_Nozzle_At_Temp, 1;
+        TPWrite "Nozzle is at temperature";
+        WaitDI DI2_Bed_At_Temp, 1;
+        TPWrite "Bed at temp";
+	ENDPROC
 ENDMODULE

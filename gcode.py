@@ -81,11 +81,16 @@ class RobotCode:
         self.work = 'wobjPlatform'
         self.pZero = 'pZero'
         self.currZ = 50
+        self.BLR = "DO6_Between_Layer_Retract"
+        self.program_feed = "DO5_Program_Feed"
+        
         
     def feedMove(self, endPoint, omitZ, extrudeTo, printSpeed):
         #TODO: something for starting the extruder
-        moveString = self._linearMove(endPoint, omitZ, printSpeed)
+        moveString = 'SetDO ' + self.program_feed + ', 1;'
+        moveString += self._linearMove(endPoint, omitZ, printSpeed)
         #TODO: Something to stop extruder
+        moveString += 'SetDO ' + self.program_feed + ', 0' 
         return moveString                    
     
     def rapidMove(self, endPoint, omitZ):
@@ -104,9 +109,10 @@ class RobotCode:
     def retractLayer(self, currentE, currentPoint):
         #TODO: something to retract extruder
 #        tempString = 'G1 E{:.3f} F{:.0f}\n'.format(currentE-self.pr.TRAVERSE_RETRACT, self.pr.MAX_EXTRUDE_SPEED)
+        tempString = 'SetDO ' + self.BLR + ', 1'
         cpVect = currentPoint[:3]
         cpVect[c.Z] += self.pr.Z_CLEARANCE
-        tempString = self._linearMove(cpVect, c.INCLUDE_Z, self.pr.RAPID)
+        tempString += self._linearMove(cpVect, c.INCLUDE_Z, self.pr.RAPID)
         return tempString
         
     def approachLayer(self, lastE, startPoint):
@@ -115,7 +121,8 @@ class RobotCode:
 #                        self.pr.RAPID, lastE-self.pr.TRAVERSE_RETRACT*0.75)
 #        tempString += 'G1 Z{:.3f} F{:.0f} E{:.3f}\n'.format(startPoint.z,
 #                        self.pr.APPROACH_FR, lastE)
-        tempString = self._linearMove(startPoint, c.INCLUDE_Z, self.pr.APPROACH_FR)
+        tempString = 'SetDO ' + self.BLR + ', 1'
+        tempString += self._linearMove(startPoint, c.INCLUDE_Z, self.pr.APPROACH_FR)
         return tempString
     
     def firstApproach(self, lastE, startPoint):
