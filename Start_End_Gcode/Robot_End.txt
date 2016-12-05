@@ -1,3 +1,8 @@
+	SetDO DO1_Auto_Mode, 0;
+	SetD0 DO5_Program_Feed, 0;
+	SetD0 DO3_Heat_Bed, 0;
+	SetD0 DO4_Heat_Nozzle, 0;
+	SetD0 DO6_Between_Layer_Retract, 0;
 	ENDPROC
 	PROC Heat()
 		SetDO DO4_Heat_Nozzle, 1;
