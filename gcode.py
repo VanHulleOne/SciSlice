@@ -6,7 +6,9 @@ Used creating all of the lines of Gcode.
 
 @author: lvanhulle
 """
+from collections import defaultdict
 import constants as c
+
 class Gcode:
     
     def __init__(self, param):
@@ -75,6 +77,7 @@ class Gcode:
         return tempString
         
 class RobotCode:
+    
     def __init__(self, param):
         self.pr = param
         self.tool = 'tNozzle'
@@ -83,39 +86,42 @@ class RobotCode:
         self.currZ = 50
         self.BLR = "DO6_Between_Layer_Retract"
         self.program_feed = "DO5_Program_Feed"
-        self.printing = False
+        self.currOutputs = defaultdict(int)
+        self.currOutputs.setdefault(0)
         
-    def setDO(self, name, value):
-        tempString = '\t\tWaitRob \InPos;\n'
-        tempString += '\t\tSetDO {}, {};\n'.format(name, value)
-        return tempString
+    def setDO(self, name, value, *args):
+        tempList = []
+        iterator = iter((name, value) + args)
+        for _name, _value in zip(iterator, iterator):
+            if self.currOutputs[_name] != _value:
+                tempList.append('\t\tSetDO {}, {};\n'.format(_name, _value))
+                self.currOutputs[_name] = _value
+        if tempList:
+            return  '\t\tWaitRob \InPos;\n' + ''.join(tempList)              
+        return ''
     
     def feedMove(self, endPoint, omitZ, extrudeTo, printSpeed):
-        moveString = ''
-        if not self.printing:
-            moveString = self.setDO(self.program_feed, 1)
+        moveString = self.setDO(self.program_feed, 1)
         moveString += self._linearMove(endPoint, omitZ, printSpeed)
         return moveString                    
     
     def rapidMove(self, endPoint, omitZ):
-        tempString = ''
-        if self.printing:
-            tempString = self.setDO(self.program_feed, 0)
+        tempString = self.setDO(self.program_feed, 0)
         tempString += self._linearMove(endPoint, omitZ, self.pr.RAPID)
         return tempString
                     
     def _linearMove(self, endPoint, omitZ, speed):
         if omitZ:
-            tempString = ','.join(str(round(i,3)) for i in endPoint[:2]) + ', ' + str(self.currZ)
+            tempString = ', '.join(str(round(i,3)) for i in endPoint[:2]) + ', ' + str(self.currZ)
         else:
-            tempString = ','.join(str(round(i,3)) for i in endPoint[:3])
+            tempString = ', '.join(str(round(i,3)) for i in endPoint[:3])
             self.currZ = endPoint[c.Z]
     
         return ('\t\tMoveL Offs(' + self.pZero + ', ' + tempString +
                 '), v{:.0f}, z0, '.format(speed) + self.tool + ', \\Wobj := ' + self.work + ';\n')        
                     
     def retractLayer(self, currentE, currentPoint):
-        tempString = self.setDO(self.BLR, 1)
+        tempString = self.setDO(self.BLR, 1, self.program_feed, 0)
         cpVect = currentPoint[:3]
         cpVect[c.Z] += self.pr.Z_CLEARANCE
         tempString += self._linearMove(cpVect, c.INCLUDE_Z, self.pr.RAPID)
@@ -154,8 +160,4 @@ class RobotCode:
     def endGcode(self):
         with open(self.pr.startEndSubDirectory + '\\' + self.pr.end_Gcode_FileName) as endFile:
             return ''.join(endFile.readlines())
-#            lines = endFile.readlines()       
-#        tempString = ''
-#        for line in lines:
-#            tempString += str(line)
-#        return tempString
+
