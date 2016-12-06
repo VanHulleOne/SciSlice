@@ -153,8 +153,9 @@ class RobotCode:
     
     def endGcode(self):
         with open(self.pr.startEndSubDirectory + '\\' + self.pr.end_Gcode_FileName) as endFile:
-            lines = endFile.readlines()       
-        tempString = ''
-        for line in lines:
-            tempString += str(line)
-        return tempString
+            return ''.join(endFile.readlines())
+#            lines = endFile.readlines()       
+#        tempString = ''
+#        for line in lines:
+#            tempString += str(line)
+#        return tempString
