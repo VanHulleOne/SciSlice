@@ -8,7 +8,6 @@ Used creating all of the lines of Gcode.
 """
 from collections import defaultdict
 import constants as c
-from point import Point
 
 class Gcode:
     
