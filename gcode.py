@@ -83,6 +83,7 @@ class RobotCode:
         self.currZ = 50
         self.BLR = "DO6_Between_Layer_Retract"
         self.program_feed = "DO5_Program_Feed"
+        self.printing = False
         
     def setDO(self, name, value):
         tempString = '\t\tWaitRob \InPos;\n'
@@ -90,15 +91,18 @@ class RobotCode:
         return tempString
     
     def feedMove(self, endPoint, omitZ, extrudeTo, printSpeed):
-        #TODO: something for starting the extruder
-        moveString = self.setDO(self.program_feed, 1)
+        moveString = ''
+        if not self.printing:
+            moveString = self.setDO(self.program_feed, 1)
         moveString += self._linearMove(endPoint, omitZ, printSpeed)
-        #TODO: Something to stop extruder
-        moveString += self.setDO(self.program_feed, 0) 
         return moveString                    
     
     def rapidMove(self, endPoint, omitZ):
-        return self._linearMove(endPoint, omitZ, self.pr.RAPID)
+        tempString = ''
+        if self.printing:
+            tempString = self.setDO(self.program_feed, 0)
+        tempString += self._linearMove(endPoint, omitZ, self.pr.RAPID)
+        return tempString
                     
     def _linearMove(self, endPoint, omitZ, speed):
         if omitZ:
