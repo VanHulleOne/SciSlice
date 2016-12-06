@@ -115,8 +115,6 @@ class RobotCode:
                 '), v{:.0f}, z0, '.format(speed) + self.tool + ', \\Wobj := ' + self.work + ';\n')        
                     
     def retractLayer(self, currentE, currentPoint):
-        #TODO: something to retract extruder
-#        tempString = 'G1 E{:.3f} F{:.0f}\n'.format(currentE-self.pr.TRAVERSE_RETRACT, self.pr.MAX_EXTRUDE_SPEED)
         tempString = self.setDO(self.BLR, 1)
         cpVect = currentPoint[:3]
         cpVect[c.Z] += self.pr.Z_CLEARANCE
@@ -124,20 +122,17 @@ class RobotCode:
         return tempString
         
     def approachLayer(self, lastE, startPoint):
-        # TODO: something to prep extrude
         tempString = self.setDO(self.BLR, 0)
         tempString += self._linearMove(startPoint, c.INCLUDE_Z, self.pr.APPROACH_FR)
         return tempString
     
     def firstApproach(self, lastE, startPoint):
-        # TODO: Something to start extrusion
         tempString = self._linearMove(startPoint, c.INCLUDE_Z, self.pr.APPROACH_FR)
         tempString += self.setDO(self.BLR, 0)
         return tempString
 #        return 'G1 Z{:.3f} F{:.0f} E{:.3f}\n'.format(startPoint.z, self.pr.APPROACH_FR, lastE)
         
     def newPart(self):
-        # TODO: Maybe do something here.
         return '\n'#'G92 E0\n'
     
     def operatorMessage(self, *args, sep=' '):
@@ -163,9 +158,3 @@ class RobotCode:
         for line in lines:
             tempString += str(line)
         return tempString
-    
-#    def startGcode(self,*, extruder_temp=0, bed_temp=0):
-#        return 'MODULE MainModule\n\tPROC main()\n'
-#    
-#    def endGcode(self):
-#        return '\tENDPROC\nENDMODULE'
