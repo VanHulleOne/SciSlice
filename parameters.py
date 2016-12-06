@@ -6,7 +6,7 @@ Contains all of the print parameters
 @author: lvanhulle
 """
 """ Version Numbers Main Version.Feature Added.BugFixed """
-__version__ = '2.3.0'
+__version__ = '2.4.0'
 
 from collections import namedtuple
 import itertools
