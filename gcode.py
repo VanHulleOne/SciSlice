@@ -8,31 +8,23 @@ Used creating all of the lines of Gcode.
 """
 from collections import defaultdict
 import constants as c
+from point import Point
 
 class Gcode:
     
     def __init__(self, param):
         self.pr = param
 
-    def feedMove(self, endPoint, omitZ, extrudeTo, printSpeed):
-        if omitZ:
-            tempString = ('X{:.3f} Y{:.3f} E{:.3f}'.format(endPoint.x,
-                          endPoint.y, extrudeTo))
-        else:
-            tempString = ('X{:.3f} Y{:.3f} Z{:.3f} E{:.3f}\n'.format(endPoint.x,
-                          endPoint.y, endPoint.z, extrudeTo))
+    def feedMove(self, endPoint, extrudeTo, printSpeed):
+        tempString = ('X{:.3f} Y{:.3f} E{:.3f}'.format(endPoint.x,
+                      endPoint.y, extrudeTo))
+        return 'G01 ' + tempString + ' F{:.0f}\n'.format(printSpeed)                    
     
-        return 'G01 ' + tempString + ' F{:.0f}\n'.format(printSpeed)
-    
-                    
-    
-    def rapidMove(self, endPoint, omitZ):
-        if omitZ:
-            return ('G00 X{:.3f} Y{:.3f} F{:.0f}\n'.format(endPoint.x, endPoint.y,
-                    self.pr.RAPID))
-        else:
-            return ('G00 X{:.3f} Y{:.3f} Z{:.3f} F{:.3f}\n'.format(endPoint.x, endPoint.y, endPoint.z,
-                    self.pr.RAPID))
+    def rapidMove(self, endPoint, atClearance=False):
+        return ('G00 X{:.3f} Y{:.3f} Z{:.3f} F{:.3f}\n'.format(endPoint.x,
+                                                                endPoint.y,
+                                                                endPoint.z + atClearance*self.pr.Z_CLEARANCE,
+                                                                self.pr.RAPID))
                     
     def retractLayer(self, currentE, currentPoint):
         tempString = 'G1 E{:.3f} F{:.0f}\n'.format(currentE-self.pr.TRAVERSE_RETRACT, self.pr.MAX_EXTRUDE_SPEED)
@@ -79,7 +71,7 @@ class RobotCode:
         self.tool = 'tNozzle'
         self.work = 'wobjPlatform'
         self.pZero = 'pZero'
-        self.currZ = 50
+ #       self.currZ = 50
         self.BLR = "DO6_Between_Layer_Retract"
         self.program_feed = "DO5_Program_Feed"
         self.currOutputs = defaultdict(int)
@@ -96,43 +88,38 @@ class RobotCode:
             return  '\t\tWaitRob \InPos;\n' + ''.join(tempList)              
         return ''
     
-    def feedMove(self, endPoint, omitZ, extrudeTo, printSpeed):
+    def feedMove(self, endPoint, extrudeTo, printSpeed):
         moveString = self.setDO(self.program_feed, 1)
-        moveString += self._linearMove(endPoint, omitZ, printSpeed)
+        moveString += self._linearMove(endPoint, printSpeed)
         return moveString                    
     
-    def rapidMove(self, endPoint, omitZ):
+    def rapidMove(self, endPoint, *, atClearance=False):
         tempString = self.setDO(self.program_feed, 0)
-        tempString += self._linearMove(endPoint, omitZ, self.pr.RAPID)
+        tempString += self._linearMove(endPoint, self.pr.RAPID, atClearance=atClearance)
         return tempString
                     
-    def _linearMove(self, endPoint, omitZ, speed):
-        if omitZ:
-            tempString = ', '.join(str(round(i,3)) for i in endPoint[:2]) + ', ' + str(self.currZ)
-        else:
-            tempString = ', '.join(str(round(i,3)) for i in endPoint[:3])
-            self.currZ = endPoint[c.Z]
-    
+    def _linearMove(self, endPoint, speed, *, atClearance=False):
+        tempString = ', '.join(str(round(i,3)) for i in (endPoint.x,
+                                                         endPoint.y,
+                                                         endPoint.z + atClearance*self.pr.Z_CLEARANCE)) 
+        
         return ('\t\tMoveL Offs(' + self.pZero + ', ' + tempString +
                 '), v{:.0f}, z0, '.format(speed) + self.tool + ', \\Wobj := ' + self.work + ';\n')        
                     
     def retractLayer(self, currentE, currentPoint):
         tempString = self.setDO(self.BLR, 1, self.program_feed, 0)
-        cpVect = currentPoint[:3]
-        cpVect[c.Z] += self.pr.Z_CLEARANCE
-        tempString += self._linearMove(cpVect, c.INCLUDE_Z, self.pr.RAPID)
+        tempString += self._linearMove(currentPoint, self.pr.RAPID, atClearance=True)
         return tempString
         
     def approachLayer(self, lastE, startPoint):
         tempString = self.setDO(self.BLR, 0)
-        tempString += self._linearMove(startPoint, c.INCLUDE_Z, self.pr.APPROACH_FR)
+        tempString += self._linearMove(startPoint, self.pr.APPROACH_FR)
         return tempString
     
     def firstApproach(self, lastE, startPoint):
-        tempString = self._linearMove(startPoint, c.INCLUDE_Z, self.pr.APPROACH_FR)
+        tempString = self._linearMove(startPoint, self.pr.APPROACH_FR)
         tempString += self.setDO(self.BLR, 0)
         return tempString
-#        return 'G1 Z{:.3f} F{:.0f} E{:.3f}\n'.format(startPoint.z, self.pr.APPROACH_FR, lastE)
         
     def newPart(self):
         return '\n'#'G92 E0\n'

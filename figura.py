@@ -164,7 +164,7 @@ class Figura:
             yield self.gc.comment('T' + str(self.partCount) + str(layerNumber) + '\n')
             yield self.gc.comment('M6\n')
             yield self.gc.operatorMessage('Layer', layerNumber, 'of', partParams.numLayers)
-            yield self.gc.rapidMove(layer[0].start, c.OMIT_Z)
+            yield self.gc.rapidMove(layer[0].start, atClearance = True)
             yield self.gc.firstApproach(totalExtrusion, layer[0].start)
             
             prevLoc = layer[0].start
@@ -172,15 +172,15 @@ class Figura:
             for line in layer:
                 if prevLoc != line.start:
                     if (prevLoc - line.start) < self.pr.MAX_FEED_TRAVERSE:
-                        yield self.gc.rapidMove(line.start, c.OMIT_Z)
+                        yield self.gc.rapidMove(line.start)
                     else:
                         yield self.gc.retractLayer(totalExtrusion, prevLoc)
-                        yield self.gc.rapidMove(line.start, c.OMIT_Z)
+                        yield self.gc.rapidMove(line.start)
                         yield self.gc.approachLayer(totalExtrusion, line.start)
                         
                 line.extrusionRate = extrusionRate
                 totalExtrusion += line.length*line.extrusionRate
-                yield self.gc.feedMove(line.end, c.OMIT_Z, totalExtrusion,
+                yield self.gc.feedMove(line.end, totalExtrusion,
                                           partParams.printSpeed)
                 prevLoc = line.end
             
