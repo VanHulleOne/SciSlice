@@ -71,7 +71,6 @@ class RobotCode:
         self.tool = 'tNozzle'
         self.work = 'wobjPlatform'
         self.pZero = 'pZero'
- #       self.currZ = 50
         self.BLR = "DO6_Between_Layer_Retract"
         self.program_feed = "DO5_Program_Feed"
         self.currOutputs = defaultdict(int)
