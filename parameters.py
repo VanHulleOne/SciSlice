@@ -5,8 +5,8 @@ Contains all of the print parameters
 
 @author: lvanhulle
 """
-""" Version Numbers Main Version.Feature Added.BugFixed """
-__version__ = '2.4.0'
+""" Version Numbers: Main_Version.sub-version.Feature_Added.Bug_Fixed """
+__version__ = '0.2.4.0'
 
 from collections import namedtuple
 import itertools
