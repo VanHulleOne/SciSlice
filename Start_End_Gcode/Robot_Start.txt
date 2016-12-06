@@ -2,3 +2,5 @@ MODULE MainModule
 	PROC main()
 		Heat;
 		SetDO DO1_Auto_Mode, 1;
+
+		
