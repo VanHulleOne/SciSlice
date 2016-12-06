@@ -16,6 +16,7 @@ all of the parameters for printing.
 [trimesh](https://pypi.python.org/pypi/trimesh/1.14.9)<br/>
 [Shapely](https://pypi.python.org/pypi/Shapely)<br/>
 [Pygame](https://pypi.python.org/pypi/Pygame/1.9.2b8)  
+[Rtree](https://pypi.python.org/pypi/Rtree/0.8.2)  
 
 
 ## Getting Started
@@ -223,6 +224,7 @@ All in a row you will have typed into the command prompt (hitting enter after ea
 ```
 conda install -c cogsci pygame  
 conda install -c ioos shapely  
+conda install -c ioos rtree    
 pip install trimesh  
 ```
 
