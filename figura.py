@@ -107,7 +107,6 @@ class Figura:
                 sec = Section(self.mesh.section(plane_origin=[0,0,currHeight],plane_normal=[0,0,1]))
             
             layer = []
-            print('InfillAngle: ', layerParam.infillAngle)
             for angle, outline in layerParam.infillAngle:
                 filledList = []
                 sec = Section(outline)
