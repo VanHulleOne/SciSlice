@@ -20,7 +20,7 @@ class Gcode:
         return 'G01 ' + tempString + ' F{:.0f}\n'.format(printSpeed)                    
     
     def rapidMove(self, endPoint, atClearance=False):
-        return ('G00 X{:.3f} Y{:.3f} Z{:.3f} F{:.3f}\n'.format(endPoint.x,
+        return ('G00 X{:.3f} Y{:.3f} Z{:.3f} F{:.0f}\n'.format(endPoint.x,
                                                                 endPoint.y,
                                                                 endPoint.z + atClearance*self.pr.Z_CLEARANCE,
                                                                 self.pr.RAPID))
