@@ -46,14 +46,18 @@ class Parameters:
                         setattr(self, the_label, getattr(ds, getattr(self, the_label))())          
         
         self.LayerParams = namedtuple('LayerParams', 'infillShiftX infillShiftY infillAngle '
-                                            + 'numShells layerHeight pathWidth trimAdjust')            
-        self._layerParameters = self.LayerParams(self.infillShiftX, self.infillShiftY, self.infillAngleDegrees, 
-                                                 self.numShells, self.layerHeight, self.pathWidth, self.trimAdjust)
+                                            + 'numShells layerHeight pathWidth trimAdjust')
+        self._layerParameters = None
+        
         self.PartParams = namedtuple('PartParams', 'solidityRatio printSpeed shiftX shiftY numLayers')
         self.everyPartsParameters = self.zipVariables_gen(self.PartParams(
                               self.solidityRatio, self.printSpeed, self.shiftX, self.shiftY,
                               self.numLayers))                        
         
+    def setLayerParams(self):
+        self._layerParameters = self.LayerParams(self.infillShiftX, self.infillShiftY, self.infillAngleDegrees, 
+                                                 self.numShells, self.layerHeight, self.pathWidth, self.trimAdjust)
+    
     def zipVariables_gen(self, inputLists, repeat=False):
         if iter(inputLists) is iter(inputLists):
             # Tests if inputLists is a generator

@@ -39,11 +39,12 @@ for fname, color, angle in zip(fnames, colors, angles):
     loops = section.discrete
     for loop in loops:
         outline = Outline()
-        outline.addCoordLoop(loop)
+        outline.addCoordLoop(loop*1000)
         fakeAngles.append(FakeAngle(angle, outline))
         plt.plot(loop[:,0], loop[:,1], color)
 
 params.infillAngleDegrees = [tuple(fakeAngles)]
+params.setLayerParams()
 gCode = Gcode(params)
 
 plt.show()
@@ -51,7 +52,6 @@ plt.show()
 def run():
     startTime = time.time()
     print('\nGenerating code, please wait...')
-    print('Run: ', params.infillAngleDegrees)
     fig = fg.Figura(params, gCode)
 
     with open(params.outputFileName, 'w') as f:
@@ -62,3 +62,6 @@ def run():
     print('\nCode generated.')
     print('Done writting: ' + params.outputFileName + '\n')
     print('{:.2f} total time'.format(endTime - startTime)) 
+    
+if __name__ == '__main__':
+    run()
