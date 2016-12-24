@@ -32,24 +32,6 @@ with open(path + paramFile, 'r') as fp:
     data = json.load(fp)
     
 params = Parameters(data[0], data[1])
-gCode = Gcode(params)
-
-
-
-def run():
-    startTime = time.time()
-    print('\nGenerating code, please wait...')
-    
-    fig = fg.Figura(params, gCode)
-
-    with open(params.outputFileName, 'w') as f:
-        for string in fig.masterGcode_gen():
-            f.write(string)
-    
-    endTime = time.time()
-    print('\nCode generated.')
-    print('Done writting: ' + params.outputFileName + '\n')
-    print('{:.2f} total time'.format(endTime - startTime))
 
 for fname, color, angle in zip(fnames, colors, angles):
     mesh = trimesh.load_mesh(path+fname)
@@ -61,6 +43,22 @@ for fname, color, angle in zip(fnames, colors, angles):
         fakeAngles.append(FakeAngle(angle, outline))
         plt.plot(loop[:,0], loop[:,1], color)
 
-params.infillAngleDegrees = [fakeAngles]
+params.infillAngleDegrees = [tuple(fakeAngles)]
+gCode = Gcode(params)
 
-plt.show()   
+plt.show()
+
+def run():
+    startTime = time.time()
+    print('\nGenerating code, please wait...')
+    print('Run: ', params.infillAngleDegrees)
+    fig = fg.Figura(params, gCode)
+
+    with open(params.outputFileName, 'w') as f:
+        for string in fig.masterGcode_gen():
+            f.write(string)
+    
+    endTime = time.time()
+    print('\nCode generated.')
+    print('Done writting: ' + params.outputFileName + '\n')
+    print('{:.2f} total time'.format(endTime - startTime)) 
