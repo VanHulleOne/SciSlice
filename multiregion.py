@@ -33,13 +33,17 @@ with open(path + paramFile, 'r') as fp:
     
 params = Parameters(data[0], data[1])
 
+outlines = []
+
 for fname, color, angle in zip(fnames, colors, angles):
     mesh = trimesh.load_mesh(path+fname)
     section = mesh.section(plane_origin=[0,0,0.01],plane_normal=[0,0,1])
     loops = section.discrete
     for loop in loops:
         outline = Outline()
+        outline._name = fname
         outline.addCoordLoop(loop*1000)
+        outlines.append(outline)
         fakeAngles.append(FakeAngle(angle, outline))
         plt.plot(loop[:,0], loop[:,1], color)
 

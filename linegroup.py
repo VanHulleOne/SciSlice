@@ -26,6 +26,7 @@ class LineGroup(object):
         self.maxY = None
         self.__starts = None
         self.__vectors = None
+        self._name = str(id(self))
         
         try:
             """ Test if the input is an iterable list. """
@@ -181,6 +182,9 @@ class LineGroup(object):
         for line in self.lines:
             tempString = tempString + str(line) + '\n'
         return tempString
+        
+    def __repr__(self):
+        return self._name
         
     def CSVstr(self):
         """ Creates a comma seperated value string. """
