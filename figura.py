@@ -32,18 +32,6 @@ from outline import Outline, Section
 import trimesh
 import os
 
-def shell_gen(*, section, number, dist, side):
-    if side == c.OUTSIDE:
-        _range = range(number, 0, -1)
-    else:
-        _range = range(number)
-    for shellNumber in _range:
-        offsetOutline = section.offset(dist*shellNumber, side)
-        if offsetOutline is None:
-            return
-        else:
-            yield offsetOutline
-
 class Figura:  
     
     def __init__(self, param, g_code):
@@ -124,17 +112,15 @@ class Figura:
                 sec = Section(outline)
                 
                 if numLayers == 0 and self.pr.brims:
-                    filledList.extend(shell_gen(section=sec,
-                                                 number=self.pr.brims,
-                                                 dist = layerParam.pathWidth,
-                                                 side = c.OUTSIDE,
-                                                 ))
+                    filledList.extend(sec.shell_gen(number=self.pr.brims,
+                                                    dist = layerParam.pathWidth,
+                                                    side = c.OUTSIDE,
+                                                    ))
     
-                filledList.extend(shell_gen(section=sec,
-                                            number = layerParam.numShells,
-                                            dist = layerParam.pathWidth,
-                                            side = c.INSIDE,
-                                            ))
+                filledList.extend(sec.shell_gen(number = layerParam.numShells,
+                                                dist = layerParam.pathWidth,
+                                                side = c.INSIDE,
+                                                ))
                         
                 """
                 To help with problems that occur when an offset outline has its sides

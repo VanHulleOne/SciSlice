@@ -467,6 +467,18 @@ class Section:
                     outline.addCoordLoop(coords)
         return outline
         
+    def shell_gen(self, number, dist, side):
+        if side == c.OUTSIDE:
+            _range = range(number, 0, -1)
+        else:
+            _range = range(number)
+        for shellNumber in _range:
+            offsetOutline = self.offset(dist*shellNumber, side)
+            if offsetOutline is None:
+                return
+            else:
+                yield offsetOutline
+        
     def polygonCoords(self, polygon):
         yield polygon.exterior.coords
         for inner in polygon.interiors:
