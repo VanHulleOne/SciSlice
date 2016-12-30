@@ -159,10 +159,7 @@ class LineGroup(object):
     def __add__(self, other):
         cls = type(self)
         return cls(list(self)+list(other))
-        
-    def __radd__(self, other):
-        return self.__add__(other)
-    
+
     def iterPoints(self):
         for line in self:
             yield line.start
