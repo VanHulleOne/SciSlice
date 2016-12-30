@@ -42,7 +42,7 @@ for fname, color, angle in zip(fnames, colors, angles):
     for loop in loops:
         outline = Outline()
         outline._name = fname
-        outline.addCoordLoop(loop*1000)
+        outline.addCoordLoop(loop*1000) # 1000 to convert from meters to mm
         outlines.append(outline)
         fakeAngles.append(FakeAngle(angle, outline))
         plt.plot(loop[:,0], loop[:,1], color)
