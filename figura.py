@@ -125,10 +125,10 @@ class Figura:
                 
                 if numLayers == 0 and self.pr.brims:
                     filledList.extend(shell_gen(section=sec,
-                                                     number=self.pr.brims,
-                                                     dist = layerParam.pathWidth,
-                                                     side = c.OUTSIDE,
-                                                     ))
+                                                 number=self.pr.brims,
+                                                 dist = layerParam.pathWidth,
+                                                 side = c.OUTSIDE,
+                                                 ))
     
                 filledList.extend(shell_gen(section=sec,
                                             number = layerParam.numShells,
