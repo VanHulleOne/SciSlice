@@ -132,8 +132,9 @@ class Figura:
                     want to fudge the trimOutline outward just a little so that we end
                     up with the correct lines.
                     """
-                trimOutline = sec.offset(layerParam.pathWidth * layerParam.numShells - 
-                                layerParam.trimAdjust, c.INSIDE)
+                trimOutline = sec.offset(layerParam.trimAdjust
+                                         - layerParam.pathWidth * layerParam.numShells,
+                                         c.OUTSIDE)
                                 
                 if trimOutline and self.pr.pattern: # If there is an outline to fill and we want an infill
                     infill = Infill(trimOutline,
