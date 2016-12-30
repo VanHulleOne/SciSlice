@@ -32,6 +32,18 @@ from outline import Outline, Section
 import trimesh
 import os
 
+def shell_gen(*, section, number, dist, side):
+    if side == c.OUTSIDE:
+        _range = range(number, 0, -1)
+    else:
+        _range = range(number)
+    for shellNumber in _range:
+        offsetOutline = section.offset(dist*shellNumber, side)
+        if offsetOutline is None:
+            return
+        else:
+            yield offsetOutline
+
 class Figura:  
     
     def __init__(self, param, g_code):
@@ -68,7 +80,7 @@ class Figura:
             yield from self.partGcode_gen(partParams)
                 
             self.partCount += 1
-        yield self.gc.endGcode()
+        yield self.gc.endGcode()        
 
     def layer_gen(self, partParams):
         """ Creates and yields each organized layer for the part.
@@ -112,26 +124,24 @@ class Figura:
                 sec = Section(outline)
                 
                 if numLayers == 0 and self.pr.brims:
-                    for brimNumber in range(self.pr.brims, 0, -1):
-                        offsetOutline = sec.offset(layerParam.pathWidth*brimNumber, c.OUTSIDE)
-                        if offsetOutline is not None:
-                            filledList.append(offsetOutline)
-                        else:
-                            break
+                    filledList.extend(shell_gen(section=sec,
+                                                     number=self.pr.brims,
+                                                     dist = layerParam.pathWidth,
+                                                     side = c.OUTSIDE,
+                                                     ))
     
-                for shellNumber in range(layerParam.numShells):
-                    offsetOutline = sec.offset(layerParam.pathWidth*(shellNumber), c.INSIDE)
-                    if offsetOutline is not None:
-                        filledList.append(offsetOutline)
-                    else:
-                        break
+                filledList.extend(shell_gen(section=sec,
+                                            number = layerParam.numShells,
+                                            dist = layerParam.pathWidth,
+                                            side = c.INSIDE,
+                                            ))
                         
-                    """
-                    To help with problems that occur when an offset outline has its sides
-                    collide or if the infill lines are co-linear with the trim lines we
-                    want to fudge the trimOutline outward just a little so that we end
-                    up with the correct lines.
-                    """
+                """
+                To help with problems that occur when an offset outline has its sides
+                collide or if the infill lines are co-linear with the trim lines we
+                want to fudge the trimOutline outward just a little so that we end
+                up with the correct lines.
+                """
                 trimOutline = sec.offset(layerParam.trimAdjust
                                          - layerParam.pathWidth * layerParam.numShells,
                                          c.OUTSIDE)
