@@ -106,7 +106,7 @@ class Figura:
             if self.pr.outline == c.STL_FLAG:
                 sec = Section(self.mesh.section(plane_origin=[0,0,currHeight],plane_normal=[0,0,1]))
             
-            layer = []
+            layer = LineGroup()
             for angle, outline in layerParam.infillAngle:
                 filledList = []
                 sec = Section(outline)
@@ -146,12 +146,10 @@ class Figura:
                     raise(Exception('Parameter setting produced no tool path. \n' +
                                     'Ensure numLayers is >0 and there is at least one ' +
                                     'shell if no infill is used.'))
-                layer.append(ol)
-            """ a tuple of the organized LineGroup and the layer parameters. """
-            fullLayer = LineGroup()
-            for region in layer:
-                fullLayer += region
-            yield (fullLayer.translate(partParams.shiftX, partParams.shiftY,
+                layer += ol
+                
+            """ yield a tuple of the organized LineGroup and the layer parameters. """
+            yield (layer.translate(partParams.shiftX, partParams.shiftY,
                                 currHeight+self.pr.firstLayerShiftZ), layerParam)
             layerParam = next(layerParam_Gen)
             
