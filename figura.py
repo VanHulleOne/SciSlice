@@ -68,7 +68,40 @@ class Figura:
             yield from self.partGcode_gen(partParams)
                 
             self.partCount += 1
-        yield self.gc.endGcode()        
+        yield self.gc.endGcode()
+        
+    def section_gen(self, numLayers):
+        layerParam_Gen = self.pr.layerParameters()
+        layerParam = next(layerParam_Gen)
+        
+        currHeight = 0 #layerParam.layerHeight
+        currLayer = 0
+        if self.pr.outline == c.STL_FLAG:
+            maxZ = self.mesh.bounds[:,2:][1] - c.EPSILON
+            for layerParam in self.pr.layerParameters():
+                currHeight += layerParam.layerHeight
+                if currHeight > maxZ:
+                    return
+                yield ((Section(self.mesh.section(plane_origin=[0,0,currHeight],
+                                                 plane_normal=[0,0,1])),
+                        layerParam.infillAngle),)
+        if isinstance(self.pr.outline, LineGroup):          
+            for layerParam in self.pr.layerParameters():
+                if currLayer > numLayers:
+                    return
+                yield ((Section(self.pr.outline), layerParam.infillAngle),)
+                currLayer += 1
+        while True:
+            for layer in self.pr.outline:
+                """
+                A "layer" is a list of tuples each containing a Section and
+                the infill angle for that section.
+                """
+                if currLayer > numLayers:
+                    return
+                yield layer
+                currLayer += 1
+        
 
     def layer_gen(self, partParams):
         """ Creates and yields each organized layer for the part.
@@ -92,35 +125,22 @@ class Figura:
         layerParam = next(layerParam_Gen)
             
         currHeight = layerParam.layerHeight
-        numLayers = 0
-        
-        if self.pr.outline == c.STL_FLAG:
-            maxZ = self.mesh.bounds[:,2:][1] - c.EPSILON
-            maxLayers = float('inf')
-        else:
-            maxZ = float('inf')
-            maxLayers = partParams.numLayers
-            sec = Section(self.pr.outline)
-            
-        while currHeight <= maxZ and numLayers < maxLayers:
-            if self.pr.outline == c.STL_FLAG:
-                sec = Section(self.mesh.section(plane_origin=[0,0,currHeight],plane_normal=[0,0,1]))
-            
-            layer = LineGroup()
-            for angle, outline in layerParam.infillAngle:
+
+        for numLayers, layer in enumerate(self.section_gen(partParams.numLayers)):
+            fullLayer = LineGroup()
+            for section, angle in layer:
                 filledList = []
-                sec = Section(outline)
                 
                 if numLayers == 0 and self.pr.brims:
-                    filledList.extend(sec.shell_gen(number=self.pr.brims,
-                                                    dist = layerParam.pathWidth,
-                                                    side = c.OUTSIDE,
-                                                    ))
+                    filledList.extend(section.shell_gen(number=self.pr.brims,
+                                                        dist = layerParam.pathWidth,
+                                                        side = c.OUTSIDE,
+                                                        ))
     
-                filledList.extend(sec.shell_gen(number = layerParam.numShells,
-                                                dist = layerParam.pathWidth,
-                                                side = c.INSIDE,
-                                                ))
+                filledList.extend(section.shell_gen(number = layerParam.numShells,
+                                                    dist = layerParam.pathWidth,
+                                                    side = c.INSIDE,
+                                                    ))
                         
                 """
                 To help with problems that occur when an offset outline has its sides
@@ -128,9 +148,9 @@ class Figura:
                 want to fudge the trimOutline outward just a little so that we end
                 up with the correct lines.
                 """
-                trimOutline = sec.offset(layerParam.trimAdjust
-                                         - layerParam.pathWidth * layerParam.numShells,
-                                         c.OUTSIDE)
+                trimOutline = section.offset(layerParam.trimAdjust
+                                             - layerParam.pathWidth * layerParam.numShells,
+                                             c.OUTSIDE)
                                 
                 if trimOutline and self.pr.pattern: # If there is an outline to fill and we want an infill
                     infill = Infill(trimOutline,
@@ -138,20 +158,19 @@ class Figura:
                                         shiftX=layerParam.infillShiftX, shiftY=layerParam.infillShiftY,
                                         design=self.pr.pattern, designType=self.pr.designType)
                     filledList.append(infill)
-                ol = self.organizedLayer(filledList)
-                if not ol:
+                organizedLayer = self.organizedLayer(filledList)
+                if not organizedLayer:
                     raise(Exception('Parameter setting produced no tool path. \n' +
                                     'Ensure numLayers is >0 and there is at least one ' +
                                     'shell if no infill is used.'))
-                layer += ol
+                fullLayer += organizedLayer
                 
             """ yield a tuple of the organized LineGroup and the layer parameters. """
-            yield (layer.translate(partParams.shiftX, partParams.shiftY,
+            yield (fullLayer.translate(partParams.shiftX, partParams.shiftY,
                                 currHeight+self.pr.firstLayerShiftZ), layerParam)
             layerParam = next(layerParam_Gen)
             
             currHeight += layerParam.layerHeight
-            numLayers += 1
     
     def partGcode_gen(self, partParams):        
         layerNumber = 1

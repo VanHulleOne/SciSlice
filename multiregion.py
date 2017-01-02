@@ -13,7 +13,7 @@ from collections import namedtuple
 import figura as fg
 from gcode import Gcode
 import time
-from outline import Outline
+from outline import Outline, Section
 
 path = 'C:\\Users\\Myself\\Google Drive\\School\\Research\\Optimize\\volFrac0.5 3Directions\\'
 zero = 'C-Bracket_0.50_0.stl'
@@ -25,15 +25,15 @@ fnames = (zero, minus45, plus45)
 colors = 'rgb'
 angles = (0, -45, 45)
 
-FakeAngle = namedtuple('FakeAngle', 'angle outline')
-fakeAngles = []
+SecAng = namedtuple('SecAng', 'section angle')
+
+secAngs = []
 
 with open(path + paramFile, 'r') as fp:
     data = json.load(fp)
     
 params = Parameters(data[0], data[1])
 
-outlines = []
 
 for fname, color, angle in zip(fnames, colors, angles):
     mesh = trimesh.load_mesh(path+fname)
@@ -43,12 +43,10 @@ for fname, color, angle in zip(fnames, colors, angles):
         outline = Outline()
         outline._name = fname
         outline.addCoordLoop(loop*1000) # 1000 to convert from meters to mm
-        outlines.append(outline)
-        fakeAngles.append(FakeAngle(angle, outline))
+        secAngs.append(SecAng(Section(outline), angle))
         plt.plot(loop[:,0], loop[:,1], color)
 
-params.infillAngleDegrees = [tuple(fakeAngles)]
-params.setLayerParams()
+params.outline = [tuple(secAngs)]
 gCode = Gcode(params)
 
 plt.show()
