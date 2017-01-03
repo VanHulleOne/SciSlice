@@ -30,7 +30,6 @@ import collections as col
 from collections import namedtuple
 import sys
 import trimesh
-from stl import mesh
 from shapely.geometry.polygon import LinearRing, Polygon
 from shapely.geometry import *#MultiPolygon
 import matplotlib.pyplot as plt
@@ -70,7 +69,10 @@ lines = [Line(points[i], points[i+1]) for i in range(len(points)-1)]
 
 sq = ds.squareWithHole()
 
+path = 'C:\\Users\\lvanhulle\\Google Drive\\School\\Research\\Optimize\\volFrac0.5 pm45\\'
+file = 'C-IsoVonMises.STL'
 
+mesh = trimesh.load_mesh(path+file)
 
 
 """ An example of how to do other infills. """  
