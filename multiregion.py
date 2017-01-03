@@ -28,6 +28,7 @@ angles = (0, -45, 45)
 SecAng = namedtuple('SecAng', 'section angle')
 
 secAngs = []
+meshes = []
 
 with open(path + paramFile, 'r') as fp:
     data = json.load(fp)
@@ -37,14 +38,16 @@ params = Parameters(data[0], data[1])
 
 for fname, color, angle in zip(fnames, colors, angles):
     mesh = trimesh.load_mesh(path+fname)
+    meshes.append(mesh)
     section = mesh.section(plane_origin=[0,0,0.01],plane_normal=[0,0,1])
     loops = section.discrete
     for loop in loops:
         outline = Outline()
         outline._name = fname
         outline.addCoordLoop(loop*1000) # 1000 to convert from meters to mm
+        outline = outline.translate(-50, -12)
         secAngs.append(SecAng(Section(outline), angle))
-        plt.plot(loop[:,0], loop[:,1], color)
+        plt.plot(loop[:,0]-0.050, loop[:,1]-0.012, color)
 
 params.outline = [tuple(secAngs)]
 gCode = Gcode(params)
@@ -56,7 +59,7 @@ def run():
     print('\nGenerating code, please wait...')
     fig = fg.Figura(params, gCode)
 
-    with open(params.outputFileName, 'w') as f:
+    with open(path + params.outputFileName, 'w') as f:
         for string in fig.masterGcode_gen():
             f.write(string)
     
