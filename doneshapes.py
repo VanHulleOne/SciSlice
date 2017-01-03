@@ -40,6 +40,7 @@ def oneLevel(height: float, path: str, fname: str, change_units_from: str='mm') 
     for loop in section.discrete:
         outline.addCoordLoop(loop)
     outline = outline.translate(-outline.minX, -outline.minY)
+    outline._name = fname
     return outline
     
     
@@ -54,6 +55,7 @@ def regularDogBone() ->Outline:
     dogBone.addLineGroup(dogBone.mirror(c.X))
     dogBone = dogBone.translate(82.5, 9.5)
     dogBone.finishOutline()
+    dogBone._name = 'regularDogBone'
     return dogBone
     
 def testSimpleDogBone():# ->Outline:
