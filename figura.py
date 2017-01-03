@@ -43,7 +43,7 @@ class Figura:
         self.pr = param
         
         if self.pr.outline == c.STL_FLAG:
-            self.mesh = trimesh.load_mesh(self.pr.stl_file)          
+            self.mesh = trimesh.load_mesh(self.pr.stl_file)
         
         self.partCount = 1 # The current part number
 
@@ -79,18 +79,20 @@ class Figura:
         currLayer = 0
         if self.pr.outline == c.STL_FLAG:
             maxZ = self.mesh.bounds[:,2:][1] - c.EPSILON
+            minZ = self.mesh.bounds[:,2:][0] + c.EPSILON
             for layerParam in self.pr.layerParameters():
                 currHeight += layerParam.layerHeight
-                if currHeight > maxZ:
+                if currHeight > (maxZ-minZ):
                     return
-                yield ((Section(self.mesh.section(plane_origin=[0,0,currHeight],
+                yield ((Section(self.mesh.section(plane_origin=[0,0, currHeight+minZ],
                                                  plane_normal=[0,0,1])),
                         layerParam.infillAngle),)
-        if isinstance(self.pr.outline, LineGroup):          
+        if isinstance(self.pr.outline, LineGroup):
+            section = Section(self.pr.outline)
             for layerParam in self.pr.layerParameters():
                 if currLayer >= numLayers:
                     return
-                yield ((Section(self.pr.outline), layerParam.infillAngle),)
+                yield ((section, layerParam.infillAngle),)
                 currLayer += 1
         while True:
             for layer in self.pr.outline:
@@ -136,6 +138,7 @@ class Figura:
             layerParam = next(layerParam_Gen)
             
             currHeight += layerParam.layerHeight
+        print(self.make_layer.cache_info())
             
     @lru_cache(maxsize=16)
     def make_layer(self, layer, layerParam, firstLayer=False):
