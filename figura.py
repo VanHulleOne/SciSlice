@@ -87,7 +87,7 @@ class Figura:
                         layerParam.infillAngle),)
         if isinstance(self.pr.outline, LineGroup):          
             for layerParam in self.pr.layerParameters():
-                if currLayer > numLayers:
+                if currLayer >= numLayers:
                     return
                 yield ((Section(self.pr.outline), layerParam.infillAngle),)
                 currLayer += 1
@@ -97,7 +97,7 @@ class Figura:
                 A "layer" is a list of tuples each containing a Section and
                 the infill angle for that section.
                 """
-                if currLayer > numLayers:
+                if currLayer >= numLayers:
                     return
                 yield layer
                 currLayer += 1
