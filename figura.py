@@ -196,7 +196,7 @@ class Figura:
                         yield self.gc.rapidMove(line.start)
                     else:
                         yield self.gc.retractLayer(totalExtrusion, prevLoc)
-                        yield self.gc.rapidMove(line.start)
+                        yield self.gc.rapidMove(line.start, atClearance=True)
                         yield self.gc.approachLayer(totalExtrusion, line.start)
                         
                 line.extrusionRate = extrusionRate
