@@ -15,11 +15,11 @@ from gcode import Gcode
 import time
 from outline import Outline, Section
 
-path = 'C:\\Users\\Myself\\Google Drive\\School\\Research\\Optimize\\volFrac0.5 3Directions\\'
+path = 'C:\\Users\\lvanhulle\\Google Drive\\School\\Research\\Optimize\\volFrac0.5 3Directions\\'
 zero = 'C-Bracket_0.50_0.stl'
 minus45 = 'C-Bracket_0.50_minus45.stl'
 plus45 = 'C-Bracket_0.50_plus45WithPlate.STL'
-paramFile = 'parameters.json'
+paramFile = 'Print1.json'
 
 fnames = (zero, minus45, plus45)
 colors = 'rgb'
