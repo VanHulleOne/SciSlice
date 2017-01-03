@@ -27,6 +27,22 @@ from line import Line
 from linegroup import LineGroup
 from point import Point
 from outline import Outline
+import trimesh
+
+def oneLevel(height: float, path: str, fname: str, change_units_from: str='mm') ->Outline:
+    change_units_from = change_units_from.lower()
+    mesh = trimesh.load_mesh(path+fname)
+    if change_units_from is not 'mm':
+        mesh.units = change_units_from
+        mesh.convert_units('mm')
+    section = mesh.section(plane_origin=[0,0,height],plane_normal=[0,0,1])
+    outline = Outline()
+    for loop in section.discrete:
+        outline.addCoordLoop(loop)
+    outline = outline.translate(-outline.minX, -outline.minY)
+    return outline
+    
+    
 
 def regularDogBone() ->Outline:    
     dogBone = Outline(None)
