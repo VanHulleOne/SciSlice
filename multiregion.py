@@ -59,7 +59,7 @@ def run():
     print('\nGenerating code, please wait...')
     fig = fg.Figura(params, gCode)
 
-    with open(path + params.outputFileName, 'w') as f:
+    with open(params.outputFileName, 'w') as f:
         for string in fig.masterGcode_gen():
             f.write(string)
     

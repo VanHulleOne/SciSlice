@@ -30,6 +30,7 @@ from linegroup import LineGroup
 import constants as c
 from outline import Outline, Section
 import trimesh
+from functools import lru_cache
 import os
 
 class Figura:  
@@ -127,43 +128,7 @@ class Figura:
         currHeight = layerParam.layerHeight
 
         for numLayers, layer in enumerate(self.section_gen(partParams.numLayers)):
-            fullLayer = LineGroup()
-            for section, angle in layer:
-                filledList = []
-                
-                if numLayers == 0 and self.pr.brims:
-                    filledList.extend(section.shell_gen(number=self.pr.brims,
-                                                        dist = layerParam.pathWidth,
-                                                        side = c.OUTSIDE,
-                                                        ))
-    
-                filledList.extend(section.shell_gen(number = layerParam.numShells,
-                                                    dist = layerParam.pathWidth,
-                                                    side = c.INSIDE,
-                                                    ))
-                        
-                """
-                To help with problems that occur when an offset outline has its sides
-                collide or if the infill lines are co-linear with the trim lines we
-                want to fudge the trimOutline outward just a little so that we end
-                up with the correct lines.
-                """
-                trimOutline = section.offset(layerParam.trimAdjust
-                                             - layerParam.pathWidth * layerParam.numShells,
-                                             c.OUTSIDE)
-                                
-                if trimOutline and self.pr.pattern: # If there is an outline to fill and we want an infill
-                    infill = Infill(trimOutline,
-                                        layerParam.pathWidth, angle, #layerParam.infillAngle,
-                                        shiftX=layerParam.infillShiftX, shiftY=layerParam.infillShiftY,
-                                        design=self.pr.pattern, designType=self.pr.designType)
-                    filledList.append(infill)
-                organizedLayer = self.organizedLayer(filledList)
-                if not organizedLayer:
-                    raise(Exception('Parameter setting produced no tool path. \n' +
-                                    'Ensure numLayers is >0 and there is at least one ' +
-                                    'shell if no infill is used.'))
-                fullLayer += organizedLayer
+            fullLayer = self.make_layer(layer, layerParam, not bool(numLayers))
                 
             """ yield a tuple of the organized LineGroup and the layer parameters. """
             yield (fullLayer.translate(partParams.shiftX, partParams.shiftY,
@@ -171,6 +136,47 @@ class Figura:
             layerParam = next(layerParam_Gen)
             
             currHeight += layerParam.layerHeight
+            
+    @lru_cache(maxsize=16)
+    def make_layer(self, layer, layerParam, firstLayer=False):
+        fullLayer = LineGroup()
+        for section, angle in layer:
+            filledList = []
+            
+            if firstLayer and self.pr.brims:
+                filledList.extend(section.shell_gen(number=self.pr.brims,
+                                                    dist = layerParam.pathWidth,
+                                                    side = c.OUTSIDE,
+                                                    ))
+
+            filledList.extend(section.shell_gen(number = layerParam.numShells,
+                                                dist = layerParam.pathWidth,
+                                                side = c.INSIDE,
+                                                ))
+                    
+            """
+            To help with problems that occur when an offset outline has its sides
+            collide or if the infill lines are co-linear with the trim lines we
+            want to fudge the trimOutline outward just a little so that we end
+            up with the correct lines.
+            """
+            trimOutline = section.offset(layerParam.trimAdjust
+                                         - layerParam.pathWidth * layerParam.numShells,
+                                         c.OUTSIDE)
+                            
+            if trimOutline and self.pr.pattern: # If there is an outline to fill and we want an infill
+                infill = Infill(trimOutline,
+                                    layerParam.pathWidth, angle, #layerParam.infillAngle,
+                                    shiftX=layerParam.infillShiftX, shiftY=layerParam.infillShiftY,
+                                    design=self.pr.pattern, designType=self.pr.designType)
+                filledList.append(infill)
+            organizedLayer = self.organizedLayer(filledList)
+            if not organizedLayer:
+                raise(Exception('Parameter setting produced no tool path. \n' +
+                                'Ensure numLayers is >0 and there is at least one ' +
+                                'shell if no infill is used.'))
+            fullLayer += organizedLayer
+        return fullLayer
     
     def partGcode_gen(self, partParams):        
         layerNumber = 1
