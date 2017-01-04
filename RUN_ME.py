@@ -110,11 +110,11 @@ class Page_Variables(tk.Frame):
     menus.sort(key=lambda x : x.group)             
     
     Par = namedtuple('Parameter', 'label data_type groups')
-    Drop = namedtuple('Dropdown', Par._fields + ('return_type',))
+    Drop = namedtuple('Dropdown', Par._fields + ('list',))
     
     dropdowns = [
-                Drop('outline', STR, (COMMON, PART), 'outline'),
-                Drop('pattern', STR, (COMMON, PART,), 'linegroup'),
+                Drop('outline', STR, (COMMON, PART), ds.outlines),
+                Drop('pattern', STR, (COMMON, PART,), ds.infills),
                 ]
           
     parameters = [
@@ -263,37 +263,13 @@ class Page_Variables(tk.Frame):
     #creates menu of the different possible shapes from the doneshapes class        
     def doneshapes_menu(self):
         
-        for x, dropdown in enumerate(self.dropdowns):
-            doneshape = []
-            if dropdown.label == 'outline':
-                doneshape.append(c.STL_FLAG)
-            for func_name, _ in inspect.getmembers(ds, inspect.isfunction):
-                """ 
-                Iterate through all the functions in the doneshapes module
-                so we can put them into their appropriate dropdwon menu
-                """
-                try:
-                    """ check and see if the function has a return type annotation """ 
-                    return_type = str(inspect.getfullargspec(getattr(ds, func_name)).annotations['return'])
-                except Exception:
-                    pass
-                else:
-                    """ If the function does have a return type annotation"""                    
-                    if dropdown.return_type in return_type:
-                        """
-                        The return type for some of the infills is a long
-                        callable thing so instead of checking the type we
-                        just check if the str of the dropdown.return_type is in
-                        the return_type annotation, if it is add it to the dropdown.
-                        """
-                        doneshape.append(func_name)
-        
+        for x, dropdown in enumerate(self.dropdowns):        
             curr_label = ttk.Label(self, text= dropdown.label + ' - ' + dropdown.data_type)
             curr_text_variable = tk.StringVar(self, value=self.defaults[dropdown.label])
             curr_entry = ttk.OptionMenu(self,
                                         curr_text_variable,
                                         self.defaults[dropdown.label],
-                                        *doneshape,
+                                        *dropdown.list,
                                         command=self.set_var)
             self.elements[dropdown.label] = self.Elem(curr_label, curr_entry, curr_text_variable)
             self.elements[dropdown.label].label.grid(row=x+1,column=0)
@@ -446,7 +422,7 @@ class Page_Variables(tk.Frame):
             self.annot = inspect.getfullargspec(getattr(ds, var)).annotations
             #determines which dropdown menu is currently being used
             for x, dropdown in enumerate(self.dropdowns):
-                if dropdown.return_type in str(inspect.getfullargspec(getattr(ds, var)).annotations['return']):
+                if var in dropdown.list:
                     dropdown_index = x
                     label = dropdown.label
             if label == 'outline':
@@ -644,7 +620,7 @@ class Page_Variables(tk.Frame):
             if not os.path.isdir(self.JSONPATH):
                 os.makedirs(self.JSONPATH)
             with open(self.filename, 'w') as fp:
-                json.dump([data, dropdown_data], fp)   
+                json.dump([data, dropdown_data], fp, separators=(',\n',': '))   
     
     #accounts for file extensions
     def check_end(self, pathName):

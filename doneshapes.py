@@ -19,7 +19,7 @@ in the pop-up window which is created.
 """
 
 import math
-from typing import Callable
+from typing import Callable, List
 
 import arc as a
 import constants as c
@@ -30,8 +30,21 @@ from outline import Outline, Section
 import trimesh
 from collections import namedtuple
 
+outlines = []
+infills = []
 
-def _getOutline(height: float, path: str, fname: str, change_units_from: str='mm'):# ->Outline:
+SecAng = namedtuple('SecAng', 'section angle')
+
+def outline(func):
+    outlines.append(func.__name__)
+    return func
+    
+def infill(func):
+    infills.append(func.__name__)
+    return func
+
+
+def _getOutline(height: float, path: str, fname: str, change_units_from: str='mm') ->Outline:
     change_units_from = change_units_from.lower()
     mesh = trimesh.load_mesh(path+fname)
     if change_units_from is not 'mm':
@@ -43,15 +56,16 @@ def _getOutline(height: float, path: str, fname: str, change_units_from: str='mm
         outline.addCoordLoop(loop)
     outline._name = fname
     return outline
-    
+
+@outline    
 def oneLevel(height: float, path: str, fname: str, change_units_from: str='mm') ->Outline:
     outline = _getOutline(height, path, fname, change_units_from)
     outline = outline.translate(-outline.minX, -outline.minY)
     outline._name = fname
     return outline
-    
-def multiRegion(height: float, path: str, fname: str, change_units_from: str='mm') ->Outline:
-    SecAng = namedtuple('SecAng', 'section angle')
+
+@outline     
+def multiRegion(height: float, path: str, fname: str, change_units_from: str='mm') ->List[SecAng]:    
     outAngs = []
     with open(path + fname, 'r') as file:
         for line in file:
@@ -72,7 +86,7 @@ def multiRegion(height: float, path: str, fname: str, change_units_from: str='mm
     
     return [tuple(SecAng(Section(out[0].translate(-minX, -minY)), out[1]) for out in outAngs)]
         
-
+@outline
 def regularDogBone() ->Outline:    
     dogBone = Outline(None)
     dogBone.addLinesFromCoordinateList([[82.5, 0], [82.5, 9.5], [49.642, 9.5]])
@@ -86,7 +100,7 @@ def regularDogBone() ->Outline:
     dogBone._name = 'regularDogBone'
     return dogBone
     
-def testSimpleDogBone():# ->Outline:
+def testSimpleDogBone() ->Outline:
     temp = Outline(None)
     temp.addLinesFromCoordinateList([[82.5,0],[82.5,9.5],[49.642, 9.5], [28.5,6.5],[0,6.5]])
     temp.addLineGroup(temp.mirror(c.Y))
@@ -94,7 +108,8 @@ def testSimpleDogBone():# ->Outline:
     temp = temp.translate(82.5, 9.5)
     temp.finishOutline()
     return temp
-    
+
+@outline     
 def wideDogBone(gageWidth: float) ->Outline:
     halfWidth = gageWidth / 2.0    
     wideDogBone = Outline(None)
@@ -109,7 +124,7 @@ def wideDogBone(gageWidth: float) ->Outline:
     wideDogBone.addLineGroup(wideDogBone.mirror(c.X))
     return wideDogBone.translate(82.5, 9.5 + halfWidth)
    
-def rightGrip():# ->Outline:
+def rightGrip() ->Outline:
     outline = Outline(None)
     outline.addLinesFromCoordinateList([[82.5, 0], [82.5, 9.5], [49.642, 9.5]])
     arc = a.Arc(Point(49.642, 9.5), Point(28.5, 6.5), c.CW, Point(28.5, 82.5), 20)
@@ -118,18 +133,18 @@ def rightGrip():# ->Outline:
     outline.addLineGroup(outline.mirror(c.X)) 
     return outline.translate(82.5, 9.5)
 
-def leftGrip():# ->Outline:
+def leftGrip() ->Outline:
     outline = rightGrip()
     outline = outline.translate(-82.5, -9.5)
     outline = outline.mirror(c.Y)
     return outline.translate(82.5, 9.5)
 
-def grips():# ->Outline:
+def grips() ->Outline:
     outline = leftGrip()
     outline.addLineGroup(rightGrip())
     return outline
 
-def center():# ->Outline:
+def center() ->Outline:
     outline = Outline(None)
     outline.addLinesFromCoordinateList([[28.5, 6.5], [-28.5, 6.5], [-28.5, -6.5],
                                       [28.5, -6.5], [28.5, 6.5]])
@@ -146,7 +161,8 @@ def circle(centerX: float, centerY: float, radius: float) ->Outline:
     startPoint = Point(centerX+radius, centerY)
     center = Point(centerX, centerY)
     return Outline(a.Arc(startPoint, startPoint, c.CW, center))
-    
+
+@outline     
 def rect(lowerLeftX: float, lowerLeftY: float, width: float, height: float) ->Outline:
     rect = [Point(lowerLeftX, lowerLeftY)]
     rect.append(Point(lowerLeftX+width, lowerLeftY))
@@ -156,7 +172,8 @@ def rect(lowerLeftX: float, lowerLeftY: float, width: float, height: float) ->Ou
     rectLG.addLinesFromPoints(rect)
     rectLG.closeShape()
     return rectLG
-    
+
+@outline     
 def polygon(centerX: float, centerY: float, radius: float, numCorners: int) ->Outline:
     angle = 1.5*math.pi
     points = []
@@ -170,7 +187,8 @@ def polygon(centerX: float, centerY: float, radius: float, numCorners: int) ->Ou
     poly.closeShape()
     poly = poly.rotate(incAngle/2.0, Point(centerX, centerY))
     return poly
-        
+
+@infill        
 def straightLines() -> Callable[[float, float, float], LineGroup]:
     def _straightLines(*, space: float=0, length: float=0, height: float=0) -> LineGroup:
         lines = []
@@ -187,7 +205,7 @@ def straightLines() -> Callable[[float, float, float], LineGroup]:
         return group
     return _straightLines
     
-
+@infill
 def hexagons(sideLength: float) -> Callable[[float, float, float], LineGroup]:
     def _hexagons(*, space: float=0, length: float=0, height: float=0) -> LineGroup:
         baseLine = LineGroup(None)
@@ -212,7 +230,8 @@ def hexagons(sideLength: float) -> Callable[[float, float, float], LineGroup]:
             field.addLineGroup(fullLine)
         return field
     return _hexagons
-    
+
+@infill    
 def noInfill() -> LineGroup:
     return LineGroup()
     
