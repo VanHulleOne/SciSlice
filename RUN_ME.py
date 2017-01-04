@@ -738,7 +738,7 @@ class Page_Variables(tk.Frame):
             
         except Exception as e:
             print('Error during calculations.')
-            print(e)
+            raise(e)
             
         else:
             os.remove(self.GCODEPATH + '_temp.gcode')
