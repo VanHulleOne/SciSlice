@@ -15,11 +15,6 @@ goal is to allow easy adjustability when deciding how to organize a layer.
 Different organizedLayer() methods could be written calling different
 organizing coroutines in the LineGroups to create an ideal print order.
 
-The longest computation time is in creating the infill for the layers. As such
-the namedtuple layerParam which is used as a key for the self.layers{}
-dictionary. After the layer has been calculated it is stored in layers so that
-if another layer with the same parameters is used it does not need to be recalculated.
-
 
 @author: lvanhulle
 """
@@ -47,9 +42,6 @@ class Figura:
         
         self.partCount = 1 # The current part number
 
-        self.layers = {}
-        """ The dictionary which stores the computed layers. The key is created in
-        layer_gen(). """
 
     def masterGcode_gen(self):
         yield self.gc.startGcode(bed_temp = self.pr.bed_temp, extruder_temp = self.pr.extruder_temp)
@@ -107,12 +99,8 @@ class Figura:
         
 
     def layer_gen(self, partParams):
-        """ Creates and yields each organized layer for the part.
-        
-        The parameters for the part are sent in and the layer parameters
-        are called from parameters. If a layer is not in the self.layers dict
-        then create the layer and add it to the dictionary. Then yield the
-        layer.
+        """
+        Creates and yields each organized layer for the part.
         
         Parameters
         ----------
@@ -301,12 +289,12 @@ class Figura:
                         layer.append(line)
         return layer
     
-    def __str__(self):
-        tempString = ''
-        layerNumber = 1
-        for layer in self.layers:
-            tempString += self.pr.comment + 'T' + str(layerNumber) + '\n'
-            tempString += self.pr.comment + 'M6\n'
-            tempString += str(layer)
-            layerNumber += 1
-        return tempString
+#    def __str__(self):
+#        tempString = ''
+#        layerNumber = 1
+#        for layer in self.layers:
+#            tempString += self.pr.comment + 'T' + str(layerNumber) + '\n'
+#            tempString += self.pr.comment + 'M6\n'
+#            tempString += str(layer)
+#            layerNumber += 1
+#        return tempString
