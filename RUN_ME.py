@@ -384,6 +384,9 @@ class Page_Variables(tk.Frame):
                 self.var_overall_label[x].grid(row=1+extra_shift, column=0)
                 for key, value in self.all_vars[x][self.SAVED].items():
                     text_keys += '%10s ' % (key)
+                    if len(str(value)) > 25:
+                        value = str(value)
+                        value = value[:10] + ' ... ' + value[-10::]
                     text_values += '%10s ' %(value)
                 self.var_text[x][self.KEYS].set(text_keys)
                 self.var_text[x][self.VALUES].set(text_values)
