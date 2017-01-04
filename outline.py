@@ -430,8 +430,10 @@ class Section:
     def __init__(self, section):
         if isinstance(section, Outline):
             self.sidedPolygons = self.createSided([Polygon(i) for i in section.loop_gen()])
+            self._name = section._name
         else:
             self.sidedPolygons = self.createSided([Polygon(i) for i in section.discrete])
+            self._name = str(id(self))
         
     @property
     def outline(self):
@@ -501,5 +503,8 @@ class Section:
             sidedPolygons.append(first)
             io(first)
         return sidedPolygons    
-        
+       
+    def __repr__(self):
+        return self._name
+   
 
