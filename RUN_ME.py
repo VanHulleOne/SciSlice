@@ -596,6 +596,7 @@ class Page_Variables(tk.Frame):
                                  self.all_vars[x][self.SAVED][key])
             
             #saves the values entered into entry boxes
+            # TODO: Clean up dropdowns, how they are stored here and called in Parameters
             for param in self.dropdowns + self.parameters:                   
                 if param.label == c.STL_FLAG:
                     data[param.label] = self.stl_path
@@ -609,7 +610,7 @@ class Page_Variables(tk.Frame):
                         self._save(data, param.label, save_type, '')
                     else:
                         self._save(data, param.label, save_type, 
-    self.elements[param.label].text_variable.get().replace(' ', ',').replace(',,', ',').replace('(', '').replace(')', ''), True)
+                                   self.elements[param.label].text_variable.get().replace(' ', ',').replace(',,', ',').replace('(', '').replace(')', ''), True)
                         
                 elif param.data_type in (self.STR, self.INT, self.FLOAT):
                     self._save(data, param.label, param.data_type, self.elements[param.label].text_variable.get())

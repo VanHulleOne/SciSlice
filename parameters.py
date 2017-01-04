@@ -54,11 +54,7 @@ class Parameters:
         self.everyPartsParameters = self.zipVariables_gen(self.PartParams(
                               self.solidityRatio, self.printSpeed, self.shiftX, self.shiftY,
                               self.numLayers))                        
-        
-#    def setLayerParams(self):
-#        self._layerParameters = self.LayerParams(self.infillShiftX, self.infillShiftY, self.infillAngleDegrees, 
-#                                                 self.numShells, self.layerHeight, self.pathWidth, self.trimAdjust)
-#    
+  
     def zipVariables_gen(self, inputLists, repeat=False):
         if iter(inputLists) is iter(inputLists):
             # Tests if inputLists is a generator
