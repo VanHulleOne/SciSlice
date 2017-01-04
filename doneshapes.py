@@ -30,7 +30,8 @@ from outline import Outline, Section
 import trimesh
 from collections import namedtuple
 
-def oneLevel(height: float, path: str, fname: str, change_units_from: str='mm') ->Outline:
+
+def _getOutline(height: float, path: str, fname: str, change_units_from: str='mm'):# ->Outline:
     change_units_from = change_units_from.lower()
     mesh = trimesh.load_mesh(path+fname)
     if change_units_from is not 'mm':
@@ -40,13 +41,18 @@ def oneLevel(height: float, path: str, fname: str, change_units_from: str='mm') 
     outline = Outline()
     for loop in section.discrete:
         outline.addCoordLoop(loop)
-#    outline = outline.translate(-outline.minX, -outline.minY)
+    outline._name = fname
+    return outline
+    
+def oneLevel(height: float, path: str, fname: str, change_units_from: str='mm') ->Outline:
+    outline = _getOutline(height, path, fname, change_units_from)
+    outline = outline.translate(-outline.minX, -outline.minY)
     outline._name = fname
     return outline
     
 def multiRegion(height: float, path: str, fname: str, change_units_from: str='mm') ->Outline:
     SecAng = namedtuple('SecAng', 'section angle')
-    secAngs = []
+    outAngs = []
     with open(path + fname, 'r') as file:
         for line in file:
             if line.isspace() or '#' in line:
@@ -59,9 +65,12 @@ def multiRegion(height: float, path: str, fname: str, change_units_from: str='mm
                 raise Exception('MultiRegion file format not correct.\n' +
                                 'Correct format is: FileName, angle\n' +
                                 str(e))
-            outline = oneLevel(height, path, stlName, change_units_from)
-            secAngs.append(SecAng(Section(outline), angle))
-    return [tuple(secAngs)]
+            outline = _getOutline(height, path, stlName, change_units_from)
+            outAngs.append((outline, angle))
+    minX = min(out[0].minX for out in outAngs)
+    minY = min(out[0].minY for out in outAngs)
+    
+    return [tuple(SecAng(Section(out[0].translate(-minX, -minY)), out[1]) for out in outAngs)]
         
 
 def regularDogBone() ->Outline:    
