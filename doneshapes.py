@@ -26,8 +26,9 @@ import constants as c
 from line import Line
 from linegroup import LineGroup
 from point import Point
-from outline import Outline
+from outline import Outline, Section
 import trimesh
+from collections import namedtuple
 
 def oneLevel(height: float, path: str, fname: str, change_units_from: str='mm') ->Outline:
     change_units_from = change_units_from.lower()
@@ -39,11 +40,29 @@ def oneLevel(height: float, path: str, fname: str, change_units_from: str='mm') 
     outline = Outline()
     for loop in section.discrete:
         outline.addCoordLoop(loop)
-    outline = outline.translate(-outline.minX, -outline.minY)
+#    outline = outline.translate(-outline.minX, -outline.minY)
     outline._name = fname
     return outline
     
-    
+def multiRegion(height: float, path: str, fname: str, change_units_from: str='mm') ->Outline:
+    SecAng = namedtuple('SecAng', 'section angle')
+    secAngs = []
+    with open(path + fname, 'r') as file:
+        for line in file:
+            if line.isspace() or '#' in line:
+                continue
+            try:
+                stlName, angle = line.split(',')
+                stlName = stlName.strip()
+                angle = int(angle.strip())
+            except Exception as e:
+                raise Exception('MultiRegion file format not correct.\n' +
+                                'Correct format is: FileName, angle\n' +
+                                str(e))
+            outline = oneLevel(height, path, stlName, change_units_from)
+            secAngs.append(SecAng(Section(outline), angle))
+    return [tuple(secAngs)]
+        
 
 def regularDogBone() ->Outline:    
     dogBone = Outline(None)
