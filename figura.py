@@ -69,6 +69,7 @@ class Figura:
         
         currHeight = 0 #layerParam.layerHeight
         currLayer = 0
+        isFirstLayer = True
         if self.pr.outline == c.STL_FLAG:
             maxZ = self.mesh.bounds[:,2:][1] - c.EPSILON
             minZ = self.mesh.bounds[:,2:][0] + c.EPSILON
@@ -78,14 +79,16 @@ class Figura:
                     return
                 yield ((Section(self.mesh.section(plane_origin=[0,0, currHeight+minZ],
                                                  plane_normal=[0,0,1])),
-                        layerParam.infillAngle),)
+                        layerParam.infillAngle),), isFirstLayer
+                isFirstLayer = False
         if isinstance(self.pr.outline, LineGroup):
             section = Section(self.pr.outline)
             for layerParam in self.pr.layerParameters():
                 if currLayer >= numLayers:
                     return
-                yield ((section, layerParam.infillAngle),)
+                yield ((section, layerParam.infillAngle),), isFirstLayer
                 currLayer += 1
+                isFirstLayer = False
         while True:
             for layer in self.pr.outline:
                 """
@@ -94,8 +97,9 @@ class Figura:
                 """
                 if currLayer >= numLayers:
                     return
-                yield layer
+                yield layer, isFirstLayer
                 currLayer += 1
+                isFirstLayer = False
         
 
     def layer_gen(self, partParams):
@@ -117,8 +121,8 @@ class Figura:
             
         currHeight = layerParam.layerHeight
 
-        for numLayers, layer in enumerate(self.section_gen(partParams.numLayers)):
-            fullLayer = self.make_layer(layer, layerParam, not bool(numLayers))
+        for layer, isFirstLayer in self.section_gen(partParams.numLayers):
+            fullLayer = self.make_layer(layer, layerParam, isFirstLayer)
                 
             """ yield a tuple of the organized LineGroup and the layer parameters. """
             yield (fullLayer.translate(partParams.shiftX, partParams.shiftY,
@@ -126,15 +130,15 @@ class Figura:
             layerParam = next(layerParam_Gen)
             
             currHeight += layerParam.layerHeight
-        print(self.make_layer.cache_info())
+#        print(self.make_layer.cache_info())
             
     @lru_cache(maxsize=16)
-    def make_layer(self, layer, layerParam, firstLayer=False):
+    def make_layer(self, layer, layerParam, isFirstLayer):
         fullLayer = LineGroup()
         for section, angle in layer:
             filledList = []
             
-            if firstLayer and self.pr.brims:
+            if isFirstLayer and self.pr.brims:
                 filledList.extend(section.shell_gen(number=self.pr.brims,
                                                     dist = layerParam.pathWidth,
                                                     side = c.OUTSIDE,
