@@ -73,9 +73,13 @@ def multiRegion(fname: str, height: float, change_units_from: str='mm') ->List[S
             if line.isspace() or '#' in line:
                 continue
             try:
-                stlName, angle = line.split(',')
+                stlName, *angle = line.split(',')
                 stlName = stlName.strip()
-                angle = int(angle.strip())
+#                angle = int(angle.strip())
+                if angle:
+                    angle = int(angle[0].strip())
+                else:
+                    angle = None
             except Exception as e:
                 raise Exception('MultiRegion file format not correct.\n' +
                                 'Correct format is: FileName, angle\n' +
@@ -84,7 +88,7 @@ def multiRegion(fname: str, height: float, change_units_from: str='mm') ->List[S
             outAngs.append((outline, angle))
     minX = min(out[0].minX for out in outAngs)
     minY = min(out[0].minY for out in outAngs)
-    
+
     return tuple(SecAng(Section(outline.translate(-minX, -minY)), angle) for outline, angle in outAngs)
         
 @outline

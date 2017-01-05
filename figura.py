@@ -134,9 +134,12 @@ class Figura:
             
     @lru_cache(maxsize=16)
     def make_layer(self, layer, layerParam, isFirstLayer):
-        fullLayer = LineGroup()
+#        fullLayer = LineGroup()
+        filledList = []
         for section, angle in layer:
-            filledList = []
+#            filledList = []
+            if angle is None:
+                angle = layerParam.infillAngle
             
             if isFirstLayer and self.pr.brims:
                 filledList.extend(section.shell_gen(number=self.pr.brims,
@@ -165,13 +168,14 @@ class Figura:
                                     shiftX=layerParam.infillShiftX, shiftY=layerParam.infillShiftY,
                                     design=self.pr.pattern, designType=self.pr.designType)
                 filledList.append(infill)
-            organizedLayer = self.organizedLayer(filledList)
-            if not organizedLayer:
-                raise(Exception('Parameter setting produced no tool path. \n' +
-                                'Ensure numLayers is >0 and there is at least one ' +
-                                'shell if no infill is used.'))
-            fullLayer += organizedLayer
-        return fullLayer
+#            organizedLayer = self.organizedLayer(filledList)
+#            if not organizedLayer:
+#                raise(Exception('Parameter setting produced no tool path. \n' +
+#                                'Ensure numLayers is >0 and there is at least one ' +
+#                                'shell if no infill is used.'))
+#            fullLayer += organizedLayer
+
+        return self.organizedLayer(filledList)
     
     def partGcode_gen(self, partParams):        
         layerNumber = 1
