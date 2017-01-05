@@ -480,10 +480,13 @@ class Page_Variables(tk.Frame):
             #it's empty
             def default(event):
                 current = event.widget
-                if current.get() == self.all_vars[dropdown_index][self.VALUES][current]:
-                    current.delete(0, tk.END)
-                elif current.get() == '':
-                    current.insert(0, self.all_vars[dropdown_index][self.VALUES][current]) 
+                try:
+                    if current.get() == self.all_vars[dropdown_index][self.VALUES][current]:
+                        current.delete(0, tk.END)
+                    elif current.get() == '':
+                        current.insert(0, self.all_vars[dropdown_index][self.VALUES][current]) 
+                except Exception:
+                    pass
                 quicksave(False)
                     
             def quicksave(destroy = True):

@@ -90,16 +90,16 @@ class Figura:
                 currLayer += 1
                 isFirstLayer = False
         while True:
-            for layer in self.pr.outline:
-                """
-                A "layer" is a list of tuples each containing a Section and
-                the infill angle for that section.
-                """
-                if currLayer >= numLayers:
-                    return
-                yield layer, isFirstLayer
-                currLayer += 1
-                isFirstLayer = False
+#            for layer in self.pr.outline:
+            """
+            A "layer" is a list of tuples each containing a Section and
+            the infill angle for that section.
+            """
+            if currLayer >= numLayers:
+                return
+            yield self.pr.outline, isFirstLayer
+            currLayer += 1
+            isFirstLayer = False
         
 
     def layer_gen(self, partParams):

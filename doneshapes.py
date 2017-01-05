@@ -44,9 +44,9 @@ def infill(func):
     return func
 
 
-def _getOutline(height: float, path: str, fname: str, change_units_from: str='mm') ->Outline:
+def _getOutline(fname: str, height: float, change_units_from: str='mm') ->Outline:
     change_units_from = change_units_from.lower()
-    mesh = trimesh.load_mesh(path+fname)
+    mesh = trimesh.load_mesh(fname)
     if change_units_from is not 'mm':
         mesh.units = change_units_from
         mesh.convert_units('mm')
@@ -54,20 +54,21 @@ def _getOutline(height: float, path: str, fname: str, change_units_from: str='mm
     outline = Outline()
     for loop in section.discrete:
         outline.addCoordLoop(loop)
-    outline._name = fname
+    outline._name = fname.split('/')[-1]
     return outline
 
 @outline    
-def oneLevel(height: float, path: str, fname: str, change_units_from: str='mm') ->Outline:
-    outline = _getOutline(height, path, fname, change_units_from)
+def oneLevel(fname: str, height: float, change_units_from: str='mm') ->Outline:
+    outline = _getOutline(fname, height, change_units_from)
     outline = outline.translate(-outline.minX, -outline.minY)
     outline._name = fname
     return outline
 
 @outline     
-def multiRegion(height: float, path: str, fname: str, change_units_from: str='mm') ->List[SecAng]:    
+def multiRegion(fname: str, height: float, change_units_from: str='mm') ->List[SecAng]:    
     outAngs = []
-    with open(path + fname, 'r') as file:
+    path = '/'.join(fname.split('/')[:-1])+'/'
+    with open(fname, 'r') as file:
         for line in file:
             if line.isspace() or '#' in line:
                 continue
@@ -79,12 +80,12 @@ def multiRegion(height: float, path: str, fname: str, change_units_from: str='mm
                 raise Exception('MultiRegion file format not correct.\n' +
                                 'Correct format is: FileName, angle\n' +
                                 str(e))
-            outline = _getOutline(height, path, stlName, change_units_from)
+            outline = _getOutline(path+stlName, height, change_units_from)
             outAngs.append((outline, angle))
     minX = min(out[0].minX for out in outAngs)
     minY = min(out[0].minY for out in outAngs)
     
-    return [tuple(SecAng(Section(out[0].translate(-minX, -minY)), out[1]) for out in outAngs)]
+    return tuple(SecAng(Section(outline.translate(-minX, -minY)), angle) for outline, angle in outAngs)
         
 @outline
 def regularDogBone() ->Outline:    
