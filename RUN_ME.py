@@ -399,6 +399,11 @@ class Page_Variables(tk.Frame):
                 self.all_vars[vars_to_reset][key].clear()
             elif type(value) == list:
                 value[:] = []
+                
+    def save_fname(self, save_dict, key):
+        def command():
+            save_dict[key] = filedialog.askopenfilename()
+        return command
     
     #creates popup menu to set values for a doneshape function
     def set_var(self, var):
@@ -454,13 +459,18 @@ class Page_Variables(tk.Frame):
                     self.all_vars[dropdown_index][self.TYPES][key] = value
                     new_value = str(value).split('\'')[1]
                     self.all_vars[dropdown_index][self.STRINGVARS][key] = tk.StringVar(var_window)
-                    if len(self.all_vars[dropdown_index][self.SAVED]) > 0:
+                    if key in self.all_vars[dropdown_index][self.SAVED]:
                         self.all_vars[dropdown_index][self.STRINGVARS][key].set(self.all_vars[dropdown_index][self.SAVED][key])
                     else:
                         self.all_vars[dropdown_index][self.STRINGVARS][key].set(new_value)
                     self.all_vars[dropdown_index][self.LABELS][key] = ttk.Label(var_window, text=key)
                     self.all_vars[dropdown_index][self.LABELS][key].grid(row=x, column=0, padx=5)
-                    self.all_vars[dropdown_index][self.ENTRIES][key] = ttk.Entry(var_window, 
+                    if key == 'fname':
+                        self.all_vars[dropdown_index][self.ENTRIES][key] = ttk.Button(var_window,
+                                                                                      text='File',
+                                                                                      command=self.save_fname(self.all_vars[dropdown_index][self.SAVED], key))
+                    else:
+                        self.all_vars[dropdown_index][self.ENTRIES][key] = ttk.Entry(var_window, 
                                                                             textvariable=self.all_vars[dropdown_index][self.STRINGVARS][key])
                     self.all_vars[dropdown_index][self.ENTRIES][key].grid(row=x, column=1, padx=1, pady=1)
                     self.all_vars[dropdown_index][self.VALUES][self.all_vars[dropdown_index][self.ENTRIES][key]] = new_value  
@@ -478,6 +488,8 @@ class Page_Variables(tk.Frame):
                     
             def quicksave(destroy = True):
                 for key in self.all_vars[dropdown_index][self.KEYS]:
+                    if key == 'fname':
+                        continue
                     self.all_vars[dropdown_index][self.SAVED][key] = self.all_vars[dropdown_index][self.STRINGVARS][key].get()
                 self.values_bar()
                 if destroy:
@@ -669,6 +681,7 @@ class Page_Variables(tk.Frame):
                 #deletes the label entry so it doesn't show up in the value bar
                 #uploads all necessary dropdown menu data so dropdown menu
                 #functions can act appropriately
+                # FIXME: This will break when dropdowns are changed
                 for x, dropdown in enumerate(self.dropdowns):
                     del dropdown_data[x][c.THE_LABEL]
                     if len(dropdown_data[x]) > 0:
