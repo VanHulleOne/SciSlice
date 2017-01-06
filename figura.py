@@ -138,6 +138,8 @@ class Figura:
         filledList = []
         for section, angle in layer:
 #            filledList = []
+            if self.pr.nozzleOffset:
+                section = Section(section.offset(self.pr.nozzleOffset, c.INSIDE))
             if angle is None:
                 angle = layerParam.infillAngle
             
