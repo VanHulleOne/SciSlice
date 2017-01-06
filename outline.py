@@ -178,31 +178,34 @@ class Outline(LineGroup):
             return finishedOutline
         raise Exception('Outline not closed. There is a gap of {:0.5f} at point {}'.format(dist, testPoint))
 
-    @finishedOutline                                
+    @finishedOutline
     def offset(self, distance, desiredSide):
-        """ Offsets an outline by distance to the desired side.
-        
-        The main offset method which calls _offset on each sub-shape of itself.
-        If an error occurs while trying to offset a sub-shape the error is logged
-        and the next shape is tried.
-        
-        Parameters
-        ----------
-        distance - The amount to offset
-        desiredSide - either inside or outside
-        
-        Return
-        ------
-        newOutline - The newly offset outline.
-        
-        """
-        newOutline = Outline()
-        for subShape in self.subShape_gen():
-            try:
-                newOutline.addLineGroup(self._offset(subShape, distance, desiredSide))
-            except Exception as e:
-                logger.info('One or more sub-shapes could not be offset. ' + str(e))
-        return newOutline
+        return Section(self).offset(distance, desiredSide)
+#    @finishedOutline                                
+#    def offset(self, distance, desiredSide):
+#        """ Offsets an outline by distance to the desired side.
+#        
+#        The main offset method which calls _offset on each sub-shape of itself.
+#        If an error occurs while trying to offset a sub-shape the error is logged
+#        and the next shape is tried.
+#        
+#        Parameters
+#        ----------
+#        distance - The amount to offset
+#        desiredSide - either inside or outside
+#        
+#        Return
+#        ------
+#        newOutline - The newly offset outline.
+#        
+#        """
+#        newOutline = Outline()
+#        for subShape in self.subShape_gen():
+#            try:
+#                newOutline.addLineGroup(self._offset(subShape, distance, desiredSide))
+#            except Exception as e:
+#                logger.info('One or more sub-shapes could not be offset. ' + str(e))
+#        return newOutline
     
     def _offset(self, subShape, distance, desiredSide):
         """ A companion method for offset which actually does the offsetting.
