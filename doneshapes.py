@@ -29,6 +29,8 @@ from point import Point
 from outline import Outline, Section
 import trimesh
 from collections import namedtuple
+from functools import wraps
+import inspect
 
 outlines = []
 infills = []
@@ -37,12 +39,38 @@ SecAng = namedtuple('SecAng', 'section angle')
 
 def outline(func):
     outlines.append(func.__name__)
-    return func
+    
+    if inspect.isgeneratorfunction(func):
+        return func
+    
+    @wraps(func)
+    def inner(*args, **kwargs):
+        result = func(*args, **kwargs)
+        _ = yield
+        while True:
+            _ = yield result 
+    return inner
     
 def infill(func):
     infills.append(func.__name__)
     return func
 
+@outline
+def fromSTL(fname: str, change_units_from: str='mm'):
+    change_units_from = change_units_from.lower()
+    mesh = trimesh.load_mesh(fname)
+    if change_units_from is not 'mm':
+        mesh.units = change_units_from
+        mesh.convert_units('mm')
+    height = yield
+    while True:
+        try:
+            section = mesh.section(plane_origin=[0,0,height],plane_normal=[0,0,1])
+        except Exception:
+            return
+        else:
+            height = yield section
+        
 
 def _getOutline(fname: str, height: float, change_units_from: str='mm') ->Outline:
     change_units_from = change_units_from.lower()

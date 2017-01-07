@@ -64,42 +64,55 @@ class Figura:
         yield self.gc.endGcode()
         
     def section_gen(self, numLayers):
+        num = numLayers
         layerParam_Gen = self.pr.layerParameters()
         layerParam = next(layerParam_Gen)
         
         currHeight = 0 #layerParam.layerHeight
         currLayer = 0
         isFirstLayer = True
-        if self.pr.outline == c.STL_FLAG:
-            maxZ = self.mesh.bounds[:,2:][1] - c.EPSILON
-            minZ = self.mesh.bounds[:,2:][0] + c.EPSILON
-            for layerParam in self.pr.layerParameters():
-                currHeight += layerParam.layerHeight
-                if currHeight > (maxZ-minZ):
-                    return
-                yield ((Section(self.mesh.section(plane_origin=[0,0, currHeight+minZ],
-                                                 plane_normal=[0,0,1])),
-                        layerParam.infillAngle),), isFirstLayer
-                isFirstLayer = False
-        if isinstance(self.pr.outline, LineGroup):
-            section = Section(self.pr.outline)
-            for layerParam in self.pr.layerParameters():
-                if currLayer >= numLayers:
-                    return
-                yield ((section, layerParam.infillAngle),), isFirstLayer
-                currLayer += 1
-                isFirstLayer = False
-        while True:
-#            for layer in self.pr.outline:
-            """
-            A "layer" is a list of tuples each containing a Section and
-            the infill angle for that section.
-            """
-            if currLayer >= numLayers:
+        sec_gen = self.pr.secgen()
+        next(sec_gen)
+        for layerParam in self.pr.layerParameters():
+            if not num:
                 return
-            yield self.pr.outline, isFirstLayer
-            currLayer += 1
+            currHeight += layerParam.layerHeight
+            yield ((Section(sec_gen.send(currHeight)), layerParam.infillAngle),), isFirstLayer
+            num -= 1
             isFirstLayer = False
+#        if self.pr.outline == c.STL_FLAG:
+#            maxZ = self.mesh.bounds[:,2:][1] - c.EPSILON
+#            minZ = self.mesh.bounds[:,2:][0] + c.EPSILON
+#            for layerParam in self.pr.layerParameters():
+#                currHeight += layerParam.layerHeight
+#                if currHeight > (maxZ-minZ):
+#                    return
+#                yield ((Section(self.mesh.section(plane_origin=[0,0, currHeight+minZ],
+#                                                 plane_normal=[0,0,1])),
+#                        layerParam.infillAngle),), isFirstLayer
+#                isFirstLayer = False
+#        if isinstance(self.pr.outline, LineGroup):
+#            section = Section(self.pr.outline)
+#        for _, outline in zip(range(numLayers), self.pr.outline):
+#            yield ((Section(outline), layerParam.infillAngle),), isFirstLayer
+##            for layerParam in self.pr.layerParameters():
+##                if currLayer >= numLayers:
+##                    return
+##                yield ((section, layerParam.infillAngle),), isFirstLayer
+##                currLayer += 1
+#            isFirstLayer = False
+#        return
+#        while True:
+##            for layer in self.pr.outline:
+#            """
+#            A "layer" is a list of tuples each containing a Section and
+#            the infill angle for that section.
+#            """
+#            if currLayer >= numLayers:
+#                return
+#            yield self.pr.outline, isFirstLayer
+#            currLayer += 1
+#            isFirstLayer = False
         
 
     def layer_gen(self, partParams):

@@ -39,7 +39,11 @@ class Parameters:
                 if len(dropdown_data[x]) > 1:
                     if type(getattr(self, the_label)) == str:
                         del dropdown_data[x][c.THE_LABEL]
-                        setattr(self, the_label, getattr(ds, getattr(self, the_label))(**dropdown_data[x]))
+                        if the_label == 'outline':
+                            args = {key:value for key,value in dropdown_data[x].items()}
+                            setattr(self, 'secgen', lambda:getattr(ds, self.outline)(**args))
+                        else:
+                            setattr(self, the_label, getattr(ds, getattr(self, the_label))(**dropdown_data[x]))
 
                 else:
                     if getattr(self, the_label) != '':
