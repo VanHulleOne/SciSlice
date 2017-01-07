@@ -59,26 +59,6 @@ class Figura:
                 
             self.partCount += 1
         yield self.gc.endGcode()
-        
-    def section_gen(self, numLayers):
-        num = numLayers
-        layerParam_Gen = self.pr.layerParameters()
-        layerParam = next(layerParam_Gen)
-        
-        currHeight = 0 #layerParam.layerHeight
-        currLayer = 0
-        isFirstLayer = True
-        sec_gen = self.pr.secgen()
-        next(sec_gen)
-        for layerParam in self.pr.layerParameters():
-            if not num:
-                return
-            currHeight += layerParam.layerHeight
-            yield ((Section(sec_gen.send(currHeight)), layerParam.infillAngle),), isFirstLayer
-            num -= 1
-            isFirstLayer = False
-
-        
 
     def layer_gen(self, partParams):
         """
@@ -109,21 +89,6 @@ class Figura:
                                 currHeight+self.pr.firstLayerShiftZ), layerParam)
             layerCountdown -= 1
             isFirstLayer = False
-        
-#        layerParam_Gen = self.pr.layerParameters()
-#        layerParam = next(layerParam_Gen)
-#            
-#        currHeight = layerParam.layerHeight
-#
-#        for layer, isFirstLayer in self.section_gen(partParams.numLayers):
-#            fullLayer = self.make_layer(layer, layerParam, isFirstLayer)
-#                
-#            """ yield a tuple of the organized LineGroup and the layer parameters. """
-#            yield (fullLayer.translate(partParams.shiftX, partParams.shiftY,
-#                                currHeight+self.pr.firstLayerShiftZ), layerParam)
-#            layerParam = next(layerParam_Gen)
-#            
-#            currHeight += layerParam.layerHeight
         print(self.make_layer.cache_info())
             
     @lru_cache(maxsize=16)
