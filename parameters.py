@@ -33,22 +33,16 @@ class Parameters:
         #that has the dropdown.label as the value and using that value
         #along with setattr and getattr to set the appropriate variable
         #to the appropriate doneshape menu
-        for x in range(len(dropdown_data)):
-            the_label = dropdown_data[x][c.THE_LABEL]
-            if getattr(self, the_label) != c.STL_FLAG:
-                if len(dropdown_data[x]) > 1:
-                    if type(getattr(self, the_label)) == str:
-                        del dropdown_data[x][c.THE_LABEL]
-                        if the_label == 'outline':
-                            args = {key:value for key,value in dropdown_data[x].items()}
-                            setattr(self, 'secgen', lambda:getattr(ds, self.outline)(**args))
-                        else:
-                            setattr(self, the_label, getattr(ds, getattr(self, the_label))(**dropdown_data[x]))
-
+        for data in dropdown_data: #x in range(len(dropdown_data)):
+            the_label = data[c.THE_LABEL]
+            if type(getattr(self, the_label)) == str:
+                del data[c.THE_LABEL]
+                if the_label == 'outline':
+                    args = {key:value for key,value in data.items()}
+                    setattr(self, 'secgen', lambda:getattr(ds, self.outline)(**args))
                 else:
-                    if getattr(self, the_label) != '':
-                        setattr(self, the_label, getattr(ds, getattr(self, the_label))())          
-        
+                    setattr(self, the_label, getattr(ds, getattr(self, the_label))(**data))
+
         self.LayerParams = namedtuple('LayerParams', 'infillShiftX infillShiftY infillAngle '
                                             + 'numShells layerHeight pathWidth trimAdjust')
         self._layerParameters = self.LayerParams(self.infillShiftX, self.infillShiftY, self.infillAngleDegrees, 

@@ -118,7 +118,6 @@ class Page_Variables(tk.Frame):
                 ]
           
     parameters = [
-                Par(c.STL_FLAG, STR, (COMMON, PART)),
                 Par('solidityRatio', FLOAT_LIST, (COMMON, PART)),
                 Par('printSpeed', INT_LIST, (COMMON, PART)),
                 Par('shiftX', FLOAT_LIST, (COMMON, PART)),
@@ -213,17 +212,10 @@ class Page_Variables(tk.Frame):
                         self.all_vars[x][self.TYPES][key] = type(value)
         
         #makes the default value of any parameter not found in the JSON be 
-        #an empty string and, if the STL outline option is picked, changes
-        #the value of the STL parameter to the full path of the STL
+        #an empty string
         for param in self.dropdowns + self.parameters:
             if param.label not in self.defaults:
-                self.defaults[param.label] = ''
-                if param.label == c.STL_FLAG:
-                    self.stl_path = ''
-            elif param.label == c.STL_FLAG:
-                self.stl_path = self.defaults[param.label]
-                if self.stl_path:
-                    self.defaults[param.label] = os.path.basename(os.path.normpath(self.stl_path))            
+                self.defaults[param.label] = ''           
         
         if self.SHIFT in self.defaults:            
             self.shift = self.defaults[self.SHIFT]
@@ -257,9 +249,6 @@ class Page_Variables(tk.Frame):
                 self.var_text[x][key_or_value] = tk.StringVar(self)
                 self.var_labels[x][key_or_value] = ttk.Label(self, 
                                 textvariable=self.var_text[x][key_or_value])
-        
-        #so STL filename is only for display
-        self.elements[c.STL_FLAG].entry.config(state=tk.DISABLED)
     
     #creates menu of the different possible shapes from the doneshapes class        
     def doneshapes_menu(self):
@@ -408,32 +397,12 @@ class Page_Variables(tk.Frame):
     
     #creates popup menu to set values for a doneshape function
     def set_var(self, var):
-        
-        #specific instructions solely for STL file option
-        if var == c.STL_FLAG:
-            self.stl_path = filedialog.askopenfilename()
-            if self.stl_path == '':
-                self.elements['outline'].text_variable.set(c.OUTLINE_NONE_CHOICE)
-            else:
-                self.elements[c.STL_FLAG].text_variable.set(os.path.basename(os.path.normpath(self.stl_path)))
-            self.annot = {}
-            #needed so the method knows it's currently using the outline dropdown menu
-            for x, dropdown in enumerate(self.dropdowns):
-                if dropdown.label == 'outline':
-                    dropdown_index = x
-                    label = dropdown.label
-                    break
-            
-        else:
-            self.annot = getattr(ds, var).__annotations__ #inspect.getfullargspec(getattr(ds, var)).annotations
-            #determines which dropdown menu is currently being used
-            for x, dropdown in enumerate(self.dropdowns):
-                if var in dropdown.list:
-                    dropdown_index = x
-                    label = dropdown.label
-            if label == 'outline':
-                self.stl_path = ''
-                self.elements[c.STL_FLAG].text_variable.set(self.stl_path)
+        self.annot = getattr(ds, var).__annotations__ #inspect.getfullargspec(getattr(ds, var)).annotations
+        #determines which dropdown menu is currently being used
+        for x, dropdown in enumerate(self.dropdowns):
+            if var in dropdown.list:
+                dropdown_index = x
+                label = dropdown.label
                
         self.shift = 0
         for x, dropdown in enumerate(self.dropdowns):
@@ -614,10 +583,8 @@ class Page_Variables(tk.Frame):
             #saves the values entered into entry boxes
             # TODO: Clean up dropdowns, how they are stored here and called in Parameters
             for param in self.dropdowns + self.parameters:                   
-                if param.label == c.STL_FLAG:
-                    data[param.label] = self.stl_path
                     
-                elif param.data_type == self.INT_LIST or param.data_type == self.FLOAT_LIST:
+                if param.data_type == self.INT_LIST or param.data_type == self.FLOAT_LIST:
                     if param.data_type == self.INT_LIST:
                         save_type = int
                     else:
@@ -671,12 +638,6 @@ class Page_Variables(tk.Frame):
                         self.shift = value
                     elif key == self.G_ROBOT_VAR:
                         self.g_robot_var.set(value)
-                    elif key == c.STL_FLAG:
-                        self.stl_path = value
-                        if self.stl_path:
-                            self.elements[key].text_variable.set(os.path.basename(os.path.normpath(self.stl_path)))
-                        else:
-                            self.elements[key].text_variable.set(self.stl_path)
                     elif key in self.elements.keys():
                         value = str(value)
                         value = value.replace('[','').replace(']','')

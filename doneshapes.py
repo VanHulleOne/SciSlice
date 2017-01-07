@@ -54,14 +54,18 @@ def outline(func):
 def infill(func):
     infills.append(func.__name__)
     return func
-
-@outline
-def fromSTL(fname: str, change_units_from: str='mm'):
+    
+def _getmesh(fname, change_units_from='mm'):
     change_units_from = change_units_from.lower()
     mesh = trimesh.load_mesh(fname)
     if change_units_from is not 'mm':
         mesh.units = change_units_from
         mesh.convert_units('mm')
+    return mesh
+
+@outline
+def fromSTL(fname: str, change_units_from: str='mm'):
+    mesh = _getmesh(fname, change_units_from)
     height = yield
     while True:
         try:
@@ -73,11 +77,7 @@ def fromSTL(fname: str, change_units_from: str='mm'):
         
 
 def _getOutline(fname: str, height: float, change_units_from: str='mm') ->Outline:
-    change_units_from = change_units_from.lower()
-    mesh = trimesh.load_mesh(fname)
-    if change_units_from is not 'mm':
-        mesh.units = change_units_from
-        mesh.convert_units('mm')
+    mesh = _getmesh(fname, change_units_from)
     section = mesh.section(plane_origin=[0,0,height],plane_normal=[0,0,1])
     outline = Outline()
     for loop in section.discrete:
