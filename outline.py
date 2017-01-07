@@ -26,7 +26,7 @@ def finishedOutline(func):
     valid outline.
     """
     @wraps(func)
-    def checker(self, *args):            
+    def checker(self, *args, **kwargs):            
         if not self.outlineFinished:
             try:
                 self.finishOutline()
@@ -36,7 +36,7 @@ def finishedOutline(func):
                                 + func.__name__ + '()\n\t\t' + e.message)
                 except Exception as _:
                     raise e
-        return func(self, *args)
+        return func(self, *args, **kwargs)
     return checker
 
 class Outline(LineGroup):    
@@ -53,6 +53,10 @@ class Outline(LineGroup):
                 self.append(Line(prev,curr))
                 prev = curr
         self.outlineFinished = False
+        
+    def fromMeshSection(self, m_section):
+        for loop in m_section.discrete:
+            self.addCoordLoop(loop)
     
     @finishedOutline
     def addInternalShape(self, inShape):
@@ -181,6 +185,20 @@ class Outline(LineGroup):
     @finishedOutline
     def offset(self, distance, desiredSide):
         return Section(self).offset(distance, desiredSide)
+        
+    @finishedOutline
+    def shell_gen(self, number, dist, side):
+        section = Section(self)
+        if side == c.OUTSIDE:
+            _range = range(number, 0, -1)
+        else:
+            _range = range(number)
+        for shellNumber in _range:
+            offsetOutline = section.offset(dist*shellNumber, side)
+            if offsetOutline is None:
+                return
+            else:
+                yield offsetOutline
 #    @finishedOutline                                
 #    def offset(self, distance, desiredSide):
 #        """ Offsets an outline by distance to the desired side.
@@ -472,17 +490,17 @@ class Section:
                     outline.addCoordLoop(coords)
         return outline
         
-    def shell_gen(self, number, dist, side):
-        if side == c.OUTSIDE:
-            _range = range(number, 0, -1)
-        else:
-            _range = range(number)
-        for shellNumber in _range:
-            offsetOutline = self.offset(dist*shellNumber, side)
-            if offsetOutline is None:
-                return
-            else:
-                yield offsetOutline
+#    def shell_gen(self, number, dist, side):
+#        if side == c.OUTSIDE:
+#            _range = range(number, 0, -1)
+#        else:
+#            _range = range(number)
+#        for shellNumber in _range:
+#            offsetOutline = self.offset(dist*shellNumber, side)
+#            if offsetOutline is None:
+#                return
+#            else:
+#                yield offsetOutline
         
     def polygonCoords(self, polygon):
         yield polygon.exterior.coords
@@ -510,4 +528,8 @@ class Section:
     def __repr__(self):
         return self._name
    
-
+def fromMeshSection(m_section):
+    outline = Outline()
+    for loop in m_section.discrete:
+        outline.addCoordLoop(loop)
+    return outline

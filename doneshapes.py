@@ -26,6 +26,7 @@ import constants as c
 from line import Line
 from linegroup import LineGroup
 from point import Point
+import outline as _outline
 from outline import Outline, Section
 import trimesh
 from collections import namedtuple
@@ -35,7 +36,7 @@ import inspect
 outlines = []
 infills = []
 
-SecAng = namedtuple('SecAng', 'section angle')
+OutlineAngle = namedtuple('SecAng', 'outline angle')
 
 def outline(func):
     outlines.append(func.__name__)
@@ -43,12 +44,18 @@ def outline(func):
     if inspect.isgeneratorfunction(func):
         return func
     
+    result = None
+    
     @wraps(func)
     def inner(*args, **kwargs):
-        result = func(*args, **kwargs)
-        _ = yield
+        nonlocal result
+        if result is None:
+            result = func(*args, **kwargs)
+            if isinstance(result, Outline):
+                result = (OutlineAngle(result, None),)
+        yield
         while True:
-            _ = yield result 
+            yield result
     return inner
     
 def infill(func):
@@ -73,15 +80,13 @@ def fromSTL(fname: str, change_units_from: str='mm'):
         except Exception:
             return
         else:
-            height = yield section
+            height = yield (OutlineAngle(_outline.fromMeshSection(section), None),)
         
 
 def _getOutline(fname: str, height: float, change_units_from: str='mm') ->Outline:
     mesh = _getmesh(fname, change_units_from)
     section = mesh.section(plane_origin=[0,0,height],plane_normal=[0,0,1])
-    outline = Outline()
-    for loop in section.discrete:
-        outline.addCoordLoop(loop)
+    outline = _outline.fromMeshSection(section)
     outline._name = fname.split('/')[-1]
     return outline
 
@@ -93,7 +98,7 @@ def oneLevel(fname: str, height: float, change_units_from: str='mm') ->Outline:
     return outline
 
 @outline     
-def multiRegion(fname: str, height: float, change_units_from: str='mm') ->List[SecAng]:    
+def multiRegion(fname: str, height: float, change_units_from: str='mm') ->List[OutlineAngle]:    
     outAngs = []
     path = '/'.join(fname.split('/')[:-1])+'/'
     with open(fname, 'r') as file:
@@ -113,11 +118,14 @@ def multiRegion(fname: str, height: float, change_units_from: str='mm') ->List[S
                                 'Correct format is: FileName, angle\n' +
                                 str(e))
             outline = _getOutline(path+stlName, height, change_units_from)
-            outAngs.append((outline, angle))
-    minX = min(out[0].minX for out in outAngs)
-    minY = min(out[0].minY for out in outAngs)
+            outAngs.append(OutlineAngle(outline, angle))
+    minX = min(outline.minX for outline, _ in outAngs)
+    minY = min(outline.minY for outline, _ in outAngs)
+    
+    for outline, _ in outAngs:
+        outline.translate(-minX, -minY)
 
-    return tuple(SecAng(Section(outline.translate(-minX, -minY)), angle) for outline, angle in outAngs)
+    return tuple(outAngs)
         
 @outline
 def regularDogBone() ->Outline:    

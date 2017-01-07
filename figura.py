@@ -92,42 +92,58 @@ class Figura:
         ------
         tuple - (LineGroup of the layer ordered for printing, the namedtuple of
         the layer parameters so they can be printed in the gcode.)
-        """        
+        """  
         
-        layerParam_Gen = self.pr.layerParameters()
-        layerParam = next(layerParam_Gen)
-            
-        currHeight = layerParam.layerHeight
-
-        for layer, isFirstLayer in self.section_gen(partParams.numLayers):
-            fullLayer = self.make_layer(layer, layerParam, isFirstLayer)
-                
-            """ yield a tuple of the organized LineGroup and the layer parameters. """
+        currHeight = 0
+        layerCountdown = partParams.numLayers
+        isFirstLayer = True
+        sec_gen = self.pr.secgen()
+        next(sec_gen)
+        for layerParam in self.pr.layerParameters():
+            if not layerCountdown:
+                break
+            currHeight += layerParam.layerHeight
+            outlines_angles = sec_gen.send(currHeight)
+            fullLayer = self.make_layer(outlines_angles, layerParam, isFirstLayer)
             yield (fullLayer.translate(partParams.shiftX, partParams.shiftY,
                                 currHeight+self.pr.firstLayerShiftZ), layerParam)
-            layerParam = next(layerParam_Gen)
-            
-            currHeight += layerParam.layerHeight
-#        print(self.make_layer.cache_info())
+            layerCountdown -= 1
+            isFirstLayer = False
+        
+#        layerParam_Gen = self.pr.layerParameters()
+#        layerParam = next(layerParam_Gen)
+#            
+#        currHeight = layerParam.layerHeight
+#
+#        for layer, isFirstLayer in self.section_gen(partParams.numLayers):
+#            fullLayer = self.make_layer(layer, layerParam, isFirstLayer)
+#                
+#            """ yield a tuple of the organized LineGroup and the layer parameters. """
+#            yield (fullLayer.translate(partParams.shiftX, partParams.shiftY,
+#                                currHeight+self.pr.firstLayerShiftZ), layerParam)
+#            layerParam = next(layerParam_Gen)
+#            
+#            currHeight += layerParam.layerHeight
+        print(self.make_layer.cache_info())
             
     @lru_cache(maxsize=16)
-    def make_layer(self, layer, layerParam, isFirstLayer):
+    def make_layer(self, outlines_angles, layerParam, isFirstLayer):
 #        fullLayer = LineGroup()
         filledList = []
-        for section, angle in layer:
+        for outline, angle in outlines_angles:
 #            filledList = []
             if self.pr.nozzleOffset:
-                section = Section(section.offset(self.pr.nozzleOffset, c.INSIDE))
+                outline = outline.offset(self.pr.nozzleOffset, c.INSIDE)
             if angle is None:
                 angle = layerParam.infillAngle
             
             if isFirstLayer and self.pr.brims:
-                filledList.extend(section.shell_gen(number=self.pr.brims,
+                filledList.extend(outline.shell_gen(number=self.pr.brims,
                                                     dist = self.pr.nozzleDiameter,
                                                     side = c.OUTSIDE,
                                                     ))
 
-            filledList.extend(section.shell_gen(number = layerParam.numShells,
+            filledList.extend(outline.shell_gen(number = layerParam.numShells,
                                                 dist = self.pr.nozzleDiameter,
                                                 side = c.INSIDE,
                                                 ))
@@ -138,7 +154,7 @@ class Figura:
             want to fudge the trimOutline outward just a little so that we end
             up with the correct lines.
             """
-            trimOutline = section.offset(layerParam.trimAdjust
+            trimOutline = outline.offset(layerParam.trimAdjust
                                          - self.pr.nozzleDiameter * layerParam.numShells,
                                          c.OUTSIDE)
                             
