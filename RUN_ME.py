@@ -425,7 +425,7 @@ class Page_Variables(tk.Frame):
                     break
             
         else:
-            self.annot = inspect.getfullargspec(getattr(ds, var)).annotations
+            self.annot = getattr(ds, var).__annotations__ #inspect.getfullargspec(getattr(ds, var)).annotations
             #determines which dropdown menu is currently being used
             for x, dropdown in enumerate(self.dropdowns):
                 if var in dropdown.list:
