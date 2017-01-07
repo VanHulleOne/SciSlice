@@ -145,12 +145,12 @@ class Figura:
             
             if isFirstLayer and self.pr.brims:
                 filledList.extend(section.shell_gen(number=self.pr.brims,
-                                                    dist = layerParam.pathWidth,
+                                                    dist = self.pr.nozzleDiameter,
                                                     side = c.OUTSIDE,
                                                     ))
 
             filledList.extend(section.shell_gen(number = layerParam.numShells,
-                                                dist = layerParam.pathWidth,
+                                                dist = self.pr.nozzleDiameter,
                                                 side = c.INSIDE,
                                                 ))
                     
@@ -161,7 +161,7 @@ class Figura:
             up with the correct lines.
             """
             trimOutline = section.offset(layerParam.trimAdjust
-                                         - layerParam.pathWidth * layerParam.numShells,
+                                         - self.pr.nozzleDiameter * layerParam.numShells,
                                          c.OUTSIDE)
                             
             if trimOutline and self.pr.pattern: # If there is an outline to fill and we want an infill
