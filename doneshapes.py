@@ -121,11 +121,8 @@ def multiRegion(fname: str, height: float, change_units_from: str='mm') ->List[O
             outAngs.append(OutlineAngle(outline, angle))
     minX = min(outline.minX for outline, _ in outAngs)
     minY = min(outline.minY for outline, _ in outAngs)
-    
-    for outline, _ in outAngs:
-        outline.translate(-minX, -minY)
 
-    return tuple(outAngs)
+    return tuple(OutlineAngle(outline.translate(-minX, -minY), angle) for outline, angle in outAngs)
         
 @outline
 def regularDogBone() ->Outline:    
