@@ -252,6 +252,23 @@ class Outline(LineGroup):
         offsetLines.append(moveEnd)
         offsetLines[0] = Line(point, offsetLines[0].end, offsetLines[0])
         yield offsetLines
+        
+    def nearestLine_Coro(self, name=None):
+        used, testPoint = yield
+        normList = self.starts
+        while len(normList[(normList < np.inf)]) > 0:
+            """ Continue working until all items have been used/are set to infinity. """
+
+            distances = np.linalg.norm(normList-testPoint.get2DPoint(), None, 1)
+            index = np.argmin(distances)
+            nearestLine = self[index]
+    
+            used, testPoint = yield self.Result(nearestLine, name, distances[index])
+            if used:
+                """ Instead of deleting the points from the NumPy array, which
+                causes a new array to be made, we instead set the used points to
+                infinity which means they will never be a minimum distance. """
+                normList[[index]] = np.inf
     
     def isInside(self, point, ray=np.array([0.998, 0.067])):
         """
