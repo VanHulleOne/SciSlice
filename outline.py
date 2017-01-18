@@ -199,114 +199,6 @@ class Outline(LineGroup):
                 return
             else:
                 yield offsetOutline
-#    @finishedOutline                                
-#    def offset(self, distance, desiredSide):
-#        """ Offsets an outline by distance to the desired side.
-#        
-#        The main offset method which calls _offset on each sub-shape of itself.
-#        If an error occurs while trying to offset a sub-shape the error is logged
-#        and the next shape is tried.
-#        
-#        Parameters
-#        ----------
-#        distance - The amount to offset
-#        desiredSide - either inside or outside
-#        
-#        Return
-#        ------
-#        newOutline - The newly offset outline.
-#        
-#        """
-#        newOutline = Outline()
-#        for subShape in self.subShape_gen():
-#            try:
-#                newOutline.addLineGroup(self._offset(subShape, distance, desiredSide))
-#            except Exception as e:
-#                logger.info('One or more sub-shapes could not be offset. ' + str(e))
-#        return newOutline
-    
-#    def _offset(self, subShape, distance, desiredSide):
-#        """ A companion method for offset which actually does the offsetting.
-#        
-#        Each sub-shape of self is sent to this method. It currently works as follows:
-#        
-#        1) Runs through every line in the sub-shape, creating its offset, and
-#        trimming/joining the new lines as necessary.
-#        
-#        2) Tests every line against every other line to find intersections. If there
-#        are any intersections then the line is split at those points.
-#        
-#        3) Turns all of the split lines into a new Outline
-#        
-#        4) Checks all of the lines to see if their left side is still inside of the
-#        outline. If they are inside they are appended to a new list
-#        
-#        5) Turn the new list of lines into another Outline
-#        
-#        6) Finishes the new outline.
-#        
-#        Parameters
-#        ----------
-#        subShape - The sub-shape to be offset
-#        distance - The distance to offset
-#        desiredSide - The side (inside/outside) to offset
-#        
-#        Return
-#        ------
-#        offShape - The offset sub-shape.
-#        """
-#        points = []
-#        prevLine = subShape[-1].getOffsetLine(distance, desiredSide)
-#        for currLine in (line.getOffsetLine(distance, desiredSide)
-#                                for line in subShape):
-#            """ Offset all of the lines and trim/join their ends. """
-#            _, point = prevLine.segmentsIntersect(currLine, c.ALLOW_PROJECTION)
-#            if prevLine.calcT(point) > 0:
-#                """ Make sure the new point is ahead of the start of the prev line.
-#                If it is not we probably have two lines which have crossed the outline's
-#                medial axis and therefore their projected intersection is in a
-#                non-useful location.
-#                """
-#                points.append(point)
-#            else:
-#                points.append(prevLine.end)
-#                points.append(currLine.start)
-#            prevLine = currLine
-#            
-#        tempLines = [Line(p1, p2) for p1, p2 in self.pairwise_gen(points)]
-#        splitLines = []
-#        starts = np.array([line.start.get2DPoint() for line in tempLines])
-#        vectors = np.array([line.vector for line in tempLines])
-#        
-#        for iLine in tempLines:
-#            """ Find if the new lines cross eachother anywhere and if so split them. """
-#            pointSet = {iLine.start, iLine.end}
-#            Q_Less_P = iLine.start[:2] - starts
-#            denom = 1.0*np.cross(vectors, iLine.vector)
-#            all_t = np.cross(Q_Less_P, vectors)/denom
-#            all_u = np.cross(Q_Less_P, iLine.vector)/denom
-#            t = all_t[(0 <= all_u) & (all_u <= 1) & (0 <= all_t) & (all_t <= 1)]
-#
-#            if len(t):
-#                pointSet |= set(Point(iLine.start.x + iLine.vector[c.X]*value,
-#                                        iLine.start.y+iLine.vector[c.Y]*value)
-#                                        for value in t)
-#
-#            pointList = sorted(pointSet, key=iLine.calcT)
-#
-#            splitLines.extend(Line(pointList[i], pointList[i+1])
-#                                for i in range(len(pointList)-1))
-#
-#        tempOutline = Outline(splitLines)
-#        shapeLines = []
-#        for line in splitLines:
-#            """ Check each line to see if its left side is inside the new offset outline. """
-#            if(tempOutline.isInside(line.getOffsetLine(2*c.EPSILON, c.INSIDE).getMidPoint())):
-#                shapeLines.append(line)
-#
-#        offShape = Outline(shapeLines)
-#        offShape.finishOutline()
-#        return offShape
               
     def pairwise_gen(self, l1):
         """ A generator to turn a list into pairs so it can be made into lines.
@@ -420,6 +312,7 @@ class _SidedPolygon:
         self.poly = poly
         self.level = level
         self.isFeature = not level%2
+    
     def contains(self, other):
         return self.poly.contains(other)
 
@@ -489,18 +382,6 @@ class Section:
                 for coords in self.polygonCoords(polygon):
                     outline.addCoordLoop(coords)
         return outline
-        
-#    def shell_gen(self, number, dist, side):
-#        if side == c.OUTSIDE:
-#            _range = range(number, 0, -1)
-#        else:
-#            _range = range(number)
-#        for shellNumber in _range:
-#            offsetOutline = self.offset(dist*shellNumber, side)
-#            if offsetOutline is None:
-#                return
-#            else:
-#                yield offsetOutline
         
     def polygonCoords(self, polygon):
         yield polygon.exterior.coords
