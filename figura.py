@@ -24,7 +24,6 @@ from infill import Infill
 from linegroup import LineGroup
 import constants as c
 from outline import Outline, Section
-import trimesh
 from functools import lru_cache
 import os
 
@@ -89,7 +88,10 @@ class Figura:
                                 currHeight+self.pr.firstLayerShiftZ), layerParam)
             layerCountdown -= 1
             isFirstLayer = False
-        print(self.make_layer.cache_info())
+        try:
+            print(self.make_layer.cache_info())
+        except Exception:
+            pass
             
     @lru_cache(maxsize=16)
     def make_layer(self, outlines_angles, layerParam, isFirstLayer):
@@ -136,7 +138,7 @@ class Figura:
 #                                'shell if no infill is used.'))
 #            fullLayer += organizedLayer
 
-        return self.organizedLayer(filledList)
+        return organizedLayer(filledList)
     
     def partGcode_gen(self, partParams):        
         layerNumber = 1
@@ -181,82 +183,82 @@ class Figura:
         yield self.gc.comment('Extrusion amount for part is ({:.1f} mm)\n\n'.format(totalExtrusion))
 
             
-    def organizedLayer(self, inOutlines):
-        """ Takes in a list of LineGroup objects and returns them as an organized layer.
-        
-        A dictonary was used to hold the coroutines from linegroup since we
-        will want to delete keys, value pairs while iterating throught the dict.
-        
-        The coroutines yield in a boolean and a Point and then yield back out
-        the line which is 'closest' to the point. 'Closest' being in quotes
-        because we could use any number of parameters to decide which line is
-        closest from Euclidean distance of end points to time since its neighbor
-        was printed (for cooling purposes). The yielded in boolean is whether or
-        not the previous line was used.
-        
-        Currently if the LineGroup with the closest line is a outline then the
-        entire outline is printed before checking any other LineGroups again.
-        
-        Parameters
-        ----------
-        inOutlines - a list of LineGroups that make up the layer
-        
-        Return
-        ------
-        A single organized LineGroup 
-        """
-        layer = LineGroup()
-        
-        lineCoros = {i : inOutlines[i].nearestLine_Coro(i) for i in range(len(inOutlines))}
-        
-        for coro in lineCoros.values():
-            next(coro)
+def organizedLayer(inOutlines):
+    """ Takes in a list of LineGroup objects and returns them as an organized layer.
+    
+    A dictonary was used to hold the coroutines from linegroup since we
+    will want to delete keys, value pairs while iterating throught the dict.
+    
+    The coroutines yield in a boolean and a Point and then yield back out
+    the line which is 'closest' to the point. 'Closest' being in quotes
+    because we could use any number of parameters to decide which line is
+    closest from Euclidean distance of end points to time since its neighbor
+    was printed (for cooling purposes). The yielded in boolean is whether or
+    not the previous line was used.
+    
+    Currently if the LineGroup with the closest line is a outline then the
+    entire outline is printed before checking any other LineGroups again.
+    
+    Parameters
+    ----------
+    inOutlines - a list of LineGroups that make up the layer
+    
+    Return
+    ------
+    A single organized LineGroup 
+    """
+    layer = LineGroup()
+    
+    lineCoros = {i : inOutlines[i].nearestLine_Coro(i) for i in range(len(inOutlines))}
+    
+    for coro in lineCoros.values():
+        next(coro)
 
-        """
-        Find the lower left most point of the boudnding box which encloses
-        the layer and use that as the starting point for the sort.
-        """
-        minX = min(i.minX for i in inOutlines)
-        minY = min(i.minY for i in inOutlines)
-        lastPoint = Point(minX, minY) # The starting point for the sort
-        indexOfClosest = -1 # A default value for the inital run
-        while True:
-            results = []
-            for key in list(lineCoros.keys()):
+    """
+    Find the lower left most point of the boudnding box which encloses
+    the layer and use that as the starting point for the sort.
+    """
+    minX = min(i.minX for i in inOutlines)
+    minY = min(i.minY for i in inOutlines)
+    lastPoint = Point(minX, minY) # The starting point for the sort
+    indexOfClosest = -1 # A default value for the inital run
+    while True:
+        results = []
+        for key in list(lineCoros.keys()):
+            try:
+                results.append(lineCoros[key].send(
+                    (c.USED if key == indexOfClosest else c.NOT_USED, lastPoint)))
+            except StopIteration:
+                """ If we get a StopIteration exception from the coroutine
+                that means the LineGroup has no more Lines and we can remove
+                it from the dictionary. """                    
+                del lineCoros[key]
+                
+        if len(results) == 0: break # No more items in the dictionary
+        result = min(results, key=lambda x:x.distance)
+        line = result.line
+        indexOfClosest = result.name
+        lastPoint = line.end
+        layer.append(line)
+        if isinstance(inOutlines[indexOfClosest], Outline):
+            """ If the closest line was from an Outline then go around the whole
+            outline without checking any other LineGroup. Outlines are required
+            to be continuous contours (except if the have internal holes) so
+            there is no need to check any other LineGroup for a closer line.
+            Plus if the outline was being used as a brim to help start a print
+            we would not want to stop partially through the brim.
+            """
+            while True:
                 try:
-                    results.append(lineCoros[key].send(
-                        (c.USED if key == indexOfClosest else c.NOT_USED, lastPoint)))
+                    line = lineCoros[indexOfClosest].send((c.USED, lastPoint))[0]
                 except StopIteration:
-                    """ If we get a StopIteration exception from the coroutine
-                    that means the LineGroup has no more Lines and we can remove
-                    it from the dictionary. """                    
-                    del lineCoros[key]
-                    
-            if len(results) == 0: break # No more items in the dictionary
-            result = min(results, key=lambda x:x.distance)
-            line = result.line
-            indexOfClosest = result.name
-            lastPoint = line.end
-            layer.append(line)
-            if isinstance(inOutlines[indexOfClosest], Outline):
-                """ If the closest line was from a Outline then go around the whole
-                outline without checking any other LineGroup. Outlines are required
-                to be continuous contours (except if the have internal holes) so
-                there is no need to check any other LineGroup for a closer line.
-                Plus if the outline was being used as a brim to help start a print
-                we would not want to stop partially way through the brim.
-                """
-                while True:
-                    try:
-                        line = lineCoros[indexOfClosest].send((c.USED, lastPoint))[0]
-                    except StopIteration:
-                        del lineCoros[indexOfClosest]
-                        break
-                    else:
-                        """ A reminder than an else is run if there is no exception. """
-                        lastPoint = line.end
-                        layer.append(line)
-        return layer
+                    del lineCoros[indexOfClosest]
+                    break
+                else:
+                    """ A reminder than an else is run if there is no exception. """
+                    lastPoint = line.end
+                    layer.append(line)
+    return layer
     
 #    def __str__(self):
 #        tempString = ''
