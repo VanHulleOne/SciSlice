@@ -17,6 +17,11 @@ import inspect
 import constants as c
 import doneshapes as ds
 
+LayerParams = namedtuple('LayerParams', 'infillShiftX infillShiftY infillAngleDegrees '
+                         + 'numShells layerHeight pathWidth trimAdjust')
+
+PartParams = namedtuple('PartParams', 'solidityRatio printSpeed shiftX shiftY numLayers')
+
 class Parameters:
     
     def __init__(self, param_data, dropdown_data):
@@ -43,33 +48,29 @@ class Parameters:
                 else:
                     setattr(self, the_label, getattr(ds, getattr(self, the_label))(**data))
 
-        self.LayerParams = namedtuple('LayerParams', 'infillShiftX infillShiftY infillAngle '
-                                            + 'numShells layerHeight pathWidth trimAdjust')
-        self._layerParameters = self.LayerParams(self.infillShiftX, self.infillShiftY, self.infillAngleDegrees, 
-                                                 self.numShells, self.layerHeight, self.pathWidth, self.trimAdjust)
-        
-        self.PartParams = namedtuple('PartParams', 'solidityRatio printSpeed shiftX shiftY numLayers')
-        self.everyPartsParameters = self.zipVariables_gen(self.PartParams(
-                              self.solidityRatio, self.printSpeed, self.shiftX, self.shiftY,
-                              self.numLayers))                        
-  
-    def zipVariables_gen(self, inputLists, repeat=False):
-        if iter(inputLists) is iter(inputLists):
-            # Tests if inputLists is a generator
-            iterType = tuple
-        else:
-            iterType = type(inputLists)
-        variableGenerators = list(map(itertools.cycle, inputLists))
-            
-        while 1:
-            for _ in max(inputLists, key=len):
-                try:
-                     # This is the logic for a namedtuple
-                    yield iterType(*list(map(next, variableGenerators)))
-                except Exception:
-                    yield iterType(list(map(next, variableGenerators)))
-            if not repeat:
-                break    
+        # to prevent having to type variable names three times we read in the fields from the namedtuple templates
+        # and use them to generate the namedtuples
+        layerParamLists = LayerParams(*[getattr(self, field) for field in LayerParams._fields]) 
 
-    def layerParameters(self):
-        return self.zipVariables_gen(self._layerParameters, repeat=True)
+        self.layerParameters = lambda : zipVariables_gen(layerParamLists, repeat=True)
+        
+        self.everyPartsParameters = zipVariables_gen(PartParams(*[getattr(self, field) for field in PartParams._fields]))                     
+  
+def zipVariables_gen(inputLists, repeat=False):
+    if iter(inputLists) is iter(inputLists):
+        # Tests if inputLists is a generator
+        iterType = tuple
+    else:
+        iterType = type(inputLists)
+    variableGenerators = list(map(itertools.cycle, inputLists))
+        
+    while True:
+        for _ in max(inputLists, key=len):
+            try:
+                 # This is the logic for a namedtuple
+                yield iterType(*list(map(next, variableGenerators)))
+            except Exception:
+                yield iterType(list(map(next, variableGenerators)))
+        if not repeat:
+            break    
+

@@ -84,6 +84,7 @@ class Figura:
             currHeight += layerParam.layerHeight
             outlines_angles = sec_gen.send(currHeight)
             fullLayer = self.make_layer(outlines_angles, layerParam, isFirstLayer)
+            
             yield (fullLayer.translate(partParams.shiftX, partParams.shiftY,
                                 currHeight+self.pr.firstLayerShiftZ), layerParam)
             layerCountdown -= 1
@@ -102,7 +103,7 @@ class Figura:
             if self.pr.nozzleOffset:
                 outline = outline.offset(self.pr.nozzleOffset, c.INSIDE)
             if angle is None:
-                angle = layerParam.infillAngle
+                angle = layerParam.infillAngleDegrees
             
             if isFirstLayer and self.pr.brims:
                 filledList.extend(outline.shell_gen(number=self.pr.brims,
