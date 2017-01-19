@@ -32,6 +32,9 @@ import trimesh
 from collections import namedtuple
 from functools import wraps
 import inspect
+import json
+from parameters import zipVariables_gen, LayerParams
+import itertools
 
 outlines = []
 infills = []
@@ -69,6 +72,17 @@ def _getmesh(fname, change_units_from='mm'):
         mesh.units = change_units_from
         mesh.convert_units('mm')
     return mesh
+    
+def readFile(fname):
+    with open(fname, 'r') as file:
+        bigList = json.load(file)
+    names = []
+    paramLists = []
+    for region in bigList:
+        names.append(region[c.FILENAME])
+        del region[c.FILENAME]
+        paramLists.append(region)
+    return names, paramLists
 
 @outline
 def fromSTL(fname: str, change_units_from: str='mm'):
@@ -97,6 +111,23 @@ def oneLevel(fname: str, height: float, change_units_from: str='mm') ->Outline:
     outline._name = fname
     return outline
 
+def multiRegion_oneLayer(fname: str, height: float, change_units_from: str='mm') ->List[int]:
+    stl_names, paramLists = readFile(fname)
+    path = '/'.join(fname.split('/')[:-1])+'/'
+    outlines = tuple(_getOutline(path+name, height, change_units_from) for name in stl_names)
+    
+    def mr_ol_coro():
+        global_params = yield
+        paramCycles = [{key : itertools.cycle(value) for key, value in dicts.items()} for dicts in paramLists]
+        while True:
+            paramDicts = []
+            for regionCycle in paramCycles:
+                paramDicts.append({key: next(value) for key, value in regionCycle.items()})
+                
+            global_params = yield outlines, tuple(global_params._replace(**one_region_params) for one_region_params in paramDicts)
+            
+    return mr_ol_coro
+    
 @outline     
 def multiRegion(fname: str, height: float, change_units_from: str='mm') ->List[OutlineAngle]:    
     outAngs = []

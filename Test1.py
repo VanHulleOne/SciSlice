@@ -63,16 +63,27 @@ p22 = Point(51.550318, 9.528728)
 p23 = Point(51.550318, 9.471272)
 p24 = Point(50.326152, 9.516701)
 
-points = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11]
+fname = 'C:/Users/lvanhulle/Google Drive/School/Research/Optimize/volFrac0.5 3Directions/Test3Dir.json'
+m1 = ds.multiRegion_oneLayer(fname, 10, 'm')
 
-lines = [Line(points[i], points[i+1]) for i in range(len(points)-1)]
+mg = m1()
 
-sq = ds.squareWithHole()
+next(mg)
 
-path = 'C:\\Users\\lvanhulle\\Google Drive\\School\\Research\\Optimize\\volFrac0.5 pm45\\'
-file = 'C-IsoVonMises.STL'
+g_para = pr.LayerParams(1,2,3,4,5,6,7,8)
 
-mesh = trimesh.load_mesh(path+file)
+mg.send(g_para)
+
+#points = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11]
+#
+#lines = [Line(points[i], points[i+1]) for i in range(len(points)-1)]
+#
+#sq = ds.squareWithHole()
+#
+#path = 'C:\\Users\\lvanhulle\\Google Drive\\School\\Research\\Optimize\\volFrac0.5 pm45\\'
+#file = 'C-IsoVonMises.STL'
+#
+#mesh = trimesh.load_mesh(path+file)
 
 
 """ An example of how to do other infills. """  

@@ -38,6 +38,7 @@ ROBOTCODE = 1
 #STL_FLAG = 'stl_file'
 THE_LABEL = 'the_label'
 MODEL = 'model'
+FILENAME = 'fileName'
 
 BED_TEMP_FLAG = '#BED_TEMP'
 EXTRUDER_TEMP_FLAG = '#EXTRUDER_TEMP'
