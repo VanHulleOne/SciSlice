@@ -126,11 +126,11 @@ class Figura:
                                          - self.pr.nozzleDiameter * layerParam.numShells,
                                          c.OUTSIDE)
                             
-            if trimOutline and self.pr.pattern: # If there is an outline to fill and we want an infill
+            if trimOutline and layerParam.pattern: # If there is an outline to fill and we want an infill
                 infill = Infill(trimOutline,
                                     layerParam.pathWidth, angle, #layerParam.infillAngle,
                                     shiftX=layerParam.infillShiftX, shiftY=layerParam.infillShiftY,
-                                    design=self.pr.pattern, designType=self.pr.designType)
+                                    design=layerParam.pattern, designType=self.pr.designType)
                 filledList.append(infill)
 #            organizedLayer = self.organizedLayer(filledList)
 #            if not organizedLayer:

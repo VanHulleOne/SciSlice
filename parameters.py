@@ -18,7 +18,7 @@ import constants as c
 import doneshapes as ds
 
 LayerParams = namedtuple('LayerParams', 'infillShiftX infillShiftY infillAngleDegrees '
-                         + 'numShells layerHeight pathWidth trimAdjust')
+                         + 'numShells layerHeight pathWidth trimAdjust pattern')
 
 PartParams = namedtuple('PartParams', 'solidityRatio printSpeed shiftX shiftY numLayers')
 
@@ -46,7 +46,7 @@ class Parameters:
                     args = {key:value for key,value in data.items()}
                     setattr(self, 'secgen', lambda:getattr(ds, self.outline)(**args))
                 else:
-                    setattr(self, the_label, getattr(ds, getattr(self, the_label))(**data))
+                    setattr(self, the_label, [getattr(ds, getattr(self, the_label))(**data)])
 
         # to prevent having to type variable names three times we read in the fields from the namedtuple templates
         # and use them to generate the namedtuples
