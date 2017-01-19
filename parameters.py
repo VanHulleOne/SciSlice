@@ -73,7 +73,7 @@ def zipVariables_gen(inputLists, repeat=False):
                 """ If we get a TypeError then then we had a namedtuple but the fields
                 are inforrect for some reason.
                 """
-                message = 'In parameters namedtuple ' + iterType.__name__ + ' could not be created.'
+                message = 'In parameters.py namedtuple ' + iterType.__name__ + ' could not be created.'
                 if '' in inputLists:
                     missing = iterType._fields[inputLists.index('')]
                     message += ' Variable ' + missing + ' does not contain a value.'
