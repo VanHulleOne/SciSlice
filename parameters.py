@@ -78,7 +78,7 @@ def zipVariables_gen(inputLists, repeat=False):
                     missing = iterType._fields[inputLists.index('')]
                     message += ' Variable ' + missing + ' does not contain a value.'
                 else:
-                    message += ' Check spelling on field names.'
+                    message += ' Check spelling of field names.'
                 raise Exception(message)
                 
             except Exception:
