@@ -66,23 +66,24 @@ def zipVariables_gen(inputLists, repeat=False):
         
     while True:
         for _ in max(inputLists, key=len):
+            varList = list(map(next, variableGenerators))
             try:
                 """ This is the logic for a namedtuple. """
-                yield iterType(*list(map(next, variableGenerators)))
-            except TypeError:
-                """ If we get a TypeError then then we had a namedtuple but the fields
-                are inforrect for some reason.
-                """
-                message = 'In parameters.py namedtuple ' + iterType.__name__ + ' could not be created.'
-                if '' in inputLists:
-                    missing = iterType._fields[inputLists.index('')]
-                    message += ' Variable ' + missing + ' does not contain a value.'
-                else:
-                    message += ' Check spelling of field names.'
-                raise Exception(message)
+                yield iterType(*varList)
+#            except TypeError:
+#                """ If we get a TypeError then then we had a namedtuple but the fields
+#                are inforrect for some reason.
+#                """
+#                message = 'In parameters.py namedtuple ' + iterType.__name__ + ' could not be created.'
+#                if '' in inputLists:
+#                    missing = iterType._fields[inputLists.index('')]
+#                    message += ' Variable ' + missing + ' does not contain a value.'
+#                else:
+#                    message += ' Check spelling of field names.'
+#                raise Exception(message)
                 
             except Exception:
-                yield iterType(list(map(next, variableGenerators)))
+                yield iterType(varList)
         if not repeat:
             break    
 
