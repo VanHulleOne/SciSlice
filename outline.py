@@ -426,7 +426,7 @@ class Section:
     def __repr__(self):
         return self._name
    
-def fromMeshSection(m_section):
+def outlineFromMeshSection(m_section):
     outline = Outline()
     for loop in m_section.discrete:
         outline.addCoordLoop(loop)
