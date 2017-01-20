@@ -35,6 +35,7 @@ import inspect
 import json
 from parameters import zipVariables_gen, LayerParams
 import itertools
+import os
 
 outlines = []
 infills = []
@@ -73,16 +74,18 @@ def _getmesh(fname, change_units_from='mm'):
         mesh.convert_units('mm')
     return mesh
     
-def readFile(fname):
+def readMultiPartFile(fname):
     with open(fname, 'r') as file:
         bigList = json.load(file)
-    names = []
+    fileNames = []
+    paramNames = []
     paramLists = []
     for region in bigList:
-        names.append(region[c.FILENAME])
+        fileNames.append(region[c.FILENAME])
         del region[c.FILENAME]
-        paramLists.append(region)
-    return names, paramLists
+        paramNames.append(list(region.keys()))
+        paramLists.append(list(region.values()))
+    return fileNames, paramNames, paramLists
 
 @outline
 def fromSTL(fname: str, change_units_from: str='mm'):
@@ -112,21 +115,21 @@ def oneLevel(fname: str, height: float, change_units_from: str='mm') ->Outline:
     return outline
 
 def multiRegion_oneLayer(fname: str, height: float, change_units_from: str='mm') ->List[int]:
-    stl_names, paramLists = readFile(fname)
-    path = '/'.join(fname.split('/')[:-1])+'/'
+    stl_names, paramNames, paramLists = readMultiPartFile(fname)
+    path = os.path.dirname(fname) + '/'
     outlines = tuple(_getOutline(path+name, height, change_units_from) for name in stl_names)
     
-    def mr_ol_coro():
+    def multiRegion_oneLayer_coro():
         global_params = yield
-        paramCycles = [{key : itertools.cycle(value) for key, value in dicts.items()} for dicts in paramLists]
+        paramGens = [zipVariables_gen(params, repeat=True) for params in paramLists]
         while True:
             paramDicts = []
-            for regionCycle in paramCycles:
-                paramDicts.append({key: next(value) for key, value in regionCycle.items()})
+            for onePartParamNames, paramGen in zip(paramNames, paramGens):
+                paramDicts.append({paramName : param for paramName, param in zip(onePartParamNames, next(paramGen))})
                 
             global_params = yield outlines, tuple(global_params._replace(**one_region_params) for one_region_params in paramDicts)
             
-    return mr_ol_coro
+    return multiRegion_oneLayer_coro
     
 @outline     
 def multiRegion(fname: str, height: float, change_units_from: str='mm') ->List[OutlineAngle]:    
