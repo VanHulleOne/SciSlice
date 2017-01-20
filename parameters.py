@@ -20,7 +20,7 @@ import doneshapes as ds
 LayerParams = namedtuple('LayerParams', 'infillShiftX infillShiftY infillAngleDegrees '
                          + 'numShells layerHeight pathWidth trimAdjust pattern')
 
-PartParams = namedtuple('PartParams', 'solidityRatio printSpeed shiftX shiftY numLayers')
+PartParams = namedtuple('PartParams', 'solidityRatio printSpeed shiftX shiftY shiftZ')
 
 class Parameters:
     
@@ -44,7 +44,7 @@ class Parameters:
                 del data[c.THE_LABEL]
                 if the_label == 'outline':
                     args = {key:value for key,value in data.items()}
-                    setattr(self, 'secgen', lambda:getattr(ds, self.outline)(**args))
+                    setattr(self, 'outline_gen', getattr(ds, self.outline)(**args)) #lambda:getattr(ds, self.outline)(**args))
                 else:
                     setattr(self, the_label, [getattr(ds, getattr(self, the_label))(**data)])
 
