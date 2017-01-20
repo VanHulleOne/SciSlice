@@ -74,19 +74,19 @@ class Figura:
         """  
         
         currHeight = 0
-        layerCountdown = partParams.numLayers
+        layerCountdown = self.pr.numLayers
         isFirstLayer = True
-        sec_gen = self.pr.secgen()
-        next(sec_gen)
+
+        outline_gen = self.pr.outline_gen()
+        next(outline_gen)
         for layerParam in self.pr.layerParameters():
             if not layerCountdown:
                 break
             currHeight += layerParam.layerHeight
-            outlines_angles = sec_gen.send(currHeight)
-            fullLayer = self.make_layer(outlines_angles, layerParam, isFirstLayer)
+            fullLayer = self.make_layer(isFirstLayer, *outline_gen.send(layerParam))
             
             yield (fullLayer.translate(partParams.shiftX, partParams.shiftY,
-                                currHeight+self.pr.firstLayerShiftZ), layerParam)
+                                currHeight+partParams.shiftZ), layerParam)
             layerCountdown -= 1
             isFirstLayer = False
         try:
@@ -95,15 +95,13 @@ class Figura:
             pass
             
     @lru_cache(maxsize=16)
-    def make_layer(self, outlines_angles, layerParam, isFirstLayer):
+    def make_layer(self, isFirstLayer, outlines, layerParams):
 #        fullLayer = LineGroup()
         filledList = []
-        for outline, angle in outlines_angles:
+        for outline, layerParam in zip(outlines, layerParams):
 #            filledList = []
             if self.pr.nozzleOffset:
                 outline = outline.offset(self.pr.nozzleOffset, c.INSIDE)
-            if angle is None:
-                angle = layerParam.infillAngleDegrees
             
             if isFirstLayer and self.pr.brims:
                 filledList.extend(outline.shell_gen(number=self.pr.brims,
@@ -128,7 +126,7 @@ class Figura:
                             
             if trimOutline and layerParam.pattern: # If there is an outline to fill and we want an infill
                 infill = Infill(trimOutline,
-                                    layerParam.pathWidth, angle, #layerParam.infillAngle,
+                                    layerParam.pathWidth, layerParam.infillAngleDegrees,
                                     shiftX=layerParam.infillShiftX, shiftY=layerParam.infillShiftY,
                                     design=layerParam.pattern, designType=self.pr.designType)
                 filledList.append(infill)
@@ -153,7 +151,7 @@ class Figura:
             yield self.gc.comment(str(layerParam) + '\n')
             yield self.gc.comment('T' + str(self.partCount) + str(layerNumber) + '\n')
             yield self.gc.comment('M6\n')
-            yield self.gc.operatorMessage('Layer', layerNumber, 'of', partParams.numLayers)
+            yield self.gc.operatorMessage('Layer', layerNumber, 'of', self.pr.numLayers)
             yield self.gc.rapidMove(layer[0].start, atClearance = True)
             yield self.gc.firstApproach(totalExtrusion, layer[0].start)
             

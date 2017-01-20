@@ -26,7 +26,7 @@ import constants as c
 from line import Line
 from linegroup import LineGroup
 from point import Point
-import outline as _outline
+import outline as outline_module
 from outline import Outline, Section
 import trimesh
 from collections import namedtuple
@@ -36,6 +36,7 @@ import json
 from parameters import zipVariables_gen, LayerParams
 import itertools
 import os
+import numpy as np
 
 outlines = []
 infills = []
@@ -44,29 +45,24 @@ OutlineAngle = namedtuple('SecAng', 'outline angle')
 
 def outline(func):
     outlines.append(func.__name__)
+    return func  
     
-    if inspect.isgeneratorfunction(func):
-        return func
-    
-    result = None
-    
+def make_coro(func):
     @wraps(func)
     def inner(*args, **kwargs):
-        nonlocal result
-        if result is None:
-            result = func(*args, **kwargs)
-            if isinstance(result, Outline):
-                result = (OutlineAngle(result, None),)
-        yield
-        while True:
-            yield result
+        result = func(*args, **kwargs)
+        def doubleInner():
+            global_params = yield
+            while True:
+               global_params = yield (result,),(global_params,)
+        return doubleInner
     return inner
     
 def infill(func):
     infills.append(func.__name__)
     return func
     
-def _getmesh(fname, change_units_from='mm'):
+def _getMesh(fname, change_units_from='mm'):
     change_units_from = change_units_from.lower()
     mesh = trimesh.load_mesh(fname)
     if change_units_from is not 'mm':
@@ -89,37 +85,45 @@ def readMultiPartFile(fname):
 
 @outline
 def fromSTL(fname: str, change_units_from: str='mm'):
-    mesh = _getmesh(fname, change_units_from)
-    height = yield
+    mesh = _getMesh(fname, change_units_from)
+    minX, minY, minZ = mesh.bounding_box.bounds[0]
+    currHeight = minZ
+    global_params = yield
+    currHeight += global_params.layerHeight
     while True:
         try:
-            section = mesh.section(plane_origin=[0,0,height],plane_normal=[0,0,1])
+            section = mesh.section(plane_origin=[0,0,currHeight],plane_normal=[0,0,1])
         except Exception:
             return
         else:
-            height = yield (OutlineAngle(_outline.fromMeshSection(section), None),)
+            global_params = yield (outline_module.outlineFromMeshSection(section).translate(-minX, -minY),), (global_params,)
+            currHeight += global_params.layerHeight
         
 
 def _getOutline(fname: str, height: float, change_units_from: str='mm') ->Outline:
-    mesh = _getmesh(fname, change_units_from)
+    mesh = _getMesh(fname, change_units_from)
     section = mesh.section(plane_origin=[0,0,height],plane_normal=[0,0,1])
-    outline = _outline.fromMeshSection(section)
-    outline._name = fname.split('/')[-1]
+    outline = outline_module.outlineFromMeshSection(section)
+    outline._name = os.path.basename(fname)
     return outline
 
 @outline    
-def oneLevel(fname: str, height: float, change_units_from: str='mm') ->Outline:
+def fromSTL_oneLevel(fname: str, height: float, change_units_from: str='mm') ->Outline:
     outline = _getOutline(fname, height, change_units_from)
     outline = outline.translate(-outline.minX, -outline.minY)
     outline._name = fname
     return outline
 
-def multiRegion_oneLayer(fname: str, height: float, change_units_from: str='mm') ->List[int]:
+@outline
+def multiRegion_oneLevel(fname: str, height: float, change_units_from: str='mm'):
     stl_names, paramNames, paramLists = readMultiPartFile(fname)
     path = os.path.dirname(fname) + '/'
-    outlines = tuple(_getOutline(path+name, height, change_units_from) for name in stl_names)
+    meshes = [_getMesh(path+stl_name, change_units_from) for stl_name in stl_names]
+    bounds = np.array([mesh.bounding_box.bounds[0] for mesh in meshes])
+    minX, minY, minZ = np.amin(bounds, axis=0)
+    outlines = tuple(_getOutline(path+name, height+minZ, change_units_from).translate(-minX, -minY) for name in stl_names)
     
-    def multiRegion_oneLayer_coro():
+    def multiRegion_oneLevel_coro():
         global_params = yield
         paramGens = [zipVariables_gen(params, repeat=True) for params in paramLists]
         while True:
@@ -129,35 +133,55 @@ def multiRegion_oneLayer(fname: str, height: float, change_units_from: str='mm')
                 
             global_params = yield outlines, tuple(global_params._replace(**one_region_params) for one_region_params in paramDicts)
             
-    return multiRegion_oneLayer_coro
+    return multiRegion_oneLevel_coro
+
+def _getSectionFromMesh(mesh, height):
+    return mesh.section(plane_origin=[0,0,height],plane_normal=[0,0,1])
+    
+def _outlineFromMesh_coro(mesh, zOffset):
+    currHeight = zOffset
+    currHeight += yield
+    while True:
+        try:
+            section = _getSectionFromMesh(mesh, currHeight)#mesh.section(plane_origin=[0,0,currHeight],plane_normal=[0,0,1])
+        except Exception:
+            raise StopIteration
+        else:
+            currHeight += yield outline_module.outlineFromMeshSection(section)
     
 @outline     
-def multiRegion(fname: str, height: float, change_units_from: str='mm') ->List[OutlineAngle]:    
-    outAngs = []
-    path = '/'.join(fname.split('/')[:-1])+'/'
-    with open(fname, 'r') as file:
-        for line in file:
-            if line.isspace() or '#' in line:
-                continue
-            try:
-                stlName, *angle = line.split(',')
-                stlName = stlName.strip()
-#                angle = int(angle.strip())
-                if angle:
-                    angle = int(angle[0].strip())
+def multiRegion(fname: str, change_units_from: str='mm'):    
+    stl_names, paramNames, paramLists = readMultiPartFile(fname)
+    path = os.path.dirname(fname) + '/'
+    meshes = [_getMesh(path+stl_name, change_units_from) for stl_name in stl_names]
+    # TODO: Translate to origin
+    bounds = np.array([mesh.bounding_box.bounds[0] for mesh in meshes])
+    minX, minY, minZ = np.amin(bounds, axis=0)
+    def multiRegion_coro():
+        global_params = yield
+        paramGens = [zipVariables_gen(params, repeat=True) for params in paramLists]
+        outline_coros = [_outlineFromMesh_coro(mesh, minZ) for mesh in meshes]
+        for coro in outline_coros:
+            next(coro)
+        while True:
+            outlines = []
+            localParamNamedTuples = []
+            for outline_coro, onePartParamNames, paramGen in zip(outline_coros, paramNames, paramGens):
+                localParamDict = {paramName : param for paramName, param in zip(onePartParamNames, next(paramGen))}
+                localParams = global_params._replace(**localParamDict)
+                localParamNamedTuples.append(localParams)
+                try:
+                    outline = outline_coro.send(localParams.layerHeight)
+                except Exception:
+                    pass
                 else:
-                    angle = None
-            except Exception as e:
-                raise Exception('MultiRegion file format not correct.\n' +
-                                'Correct format is: FileName, angle\n' +
-                                str(e))
-            outline = _getOutline(path+stlName, height, change_units_from)
-            outAngs.append(OutlineAngle(outline, angle))
-    minX = min(outline.minX for outline, _ in outAngs)
-    minY = min(outline.minY for outline, _ in outAngs)
+                    outlines.append(outline.translate(-minX, -minY))
+            if not outlines:
+                return
+            global_params = yield tuple(outlines), tuple(localParamNamedTuples)
+    return multiRegion_coro
 
-    return tuple(OutlineAngle(outline.translate(-minX, -minY), angle) for outline, angle in outAngs)
-        
+@make_coro        
 @outline
 def regularDogBone() ->Outline:    
     dogBone = Outline(None)
@@ -181,6 +205,7 @@ def testSimpleDogBone() ->Outline:
     temp.finishOutline()
     return temp
 
+@make_coro 
 @outline     
 def wideDogBone(gageWidth: float) ->Outline:
     halfWidth = gageWidth / 2.0    
@@ -234,6 +259,7 @@ def circle(centerX: float, centerY: float, radius: float) ->Outline:
     center = Point(centerX, centerY)
     return Outline(a.Arc(startPoint, startPoint, c.CW, center))
 
+@make_coro     
 @outline     
 def rect(lowerLeftX: float, lowerLeftY: float, width: float, height: float) ->Outline:
     rect = [Point(lowerLeftX, lowerLeftY)]
@@ -245,6 +271,7 @@ def rect(lowerLeftX: float, lowerLeftY: float, width: float, height: float) ->Ou
     rectLG.closeShape()
     return rectLG
 
+@make_coro     
 @outline     
 def polygon(centerX: float, centerY: float, radius: float, numCorners: int) ->Outline:
     angle = 1.5*math.pi
