@@ -82,8 +82,14 @@ class Figura:
         for layerParam in self.pr.layerParameters():
             if not layerCountdown:
                 break
-            currHeight += layerParam.layerHeight
-            fullLayer = self.make_layer(isFirstLayer, *outline_gen.send(layerParam))
+            gen_tuple = outline_gen.send(layerParam)
+            try:
+                outlines, regionParams, currHeight = gen_tuple
+            except Exception:
+                currHeight += layerParam.layerHeight
+                outlines, regionParams = gen_tuple
+                    
+            fullLayer = self.make_layer(isFirstLayer, outlines, regionParams)
             
             yield (fullLayer.translate(partParams.shiftX, partParams.shiftY,
                                 currHeight+partParams.shiftZ), layerParam)

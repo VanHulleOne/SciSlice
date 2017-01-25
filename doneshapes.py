@@ -27,14 +27,12 @@ from line import Line
 from linegroup import LineGroup
 from point import Point
 import outline as outline_module
-from outline import Outline, Section
+from outline import Outline
 import trimesh
 from collections import namedtuple
 from functools import wraps
-import inspect
 import json
-from parameters import zipVariables_gen, LayerParams
-import itertools
+from parameters import zipVariables_gen
 import os
 import numpy as np
 
@@ -100,16 +98,16 @@ def fromSTL(fname: str, change_units_from: str='mm'):
             currHeight += global_params.layerHeight
         
 
-def _getOutline(fname: str, height: float, change_units_from: str='mm') ->Outline:
+def _getOutlineFromSTL(fname: str, height: float, change_units_from: str='mm') ->Outline:
     mesh = _getMesh(fname, change_units_from)
-    section = mesh.section(plane_origin=[0,0,height],plane_normal=[0,0,1])
+    section = _getSectionFromMesh(mesh, height)
     outline = outline_module.outlineFromMeshSection(section)
     outline._name = os.path.basename(fname)
     return outline
 
 @outline    
 def fromSTL_oneLevel(fname: str, height: float, change_units_from: str='mm') ->Outline:
-    outline = _getOutline(fname, height, change_units_from)
+    outline = _getOutlineFromSTL(fname, height, change_units_from)
     outline = outline.translate(-outline.minX, -outline.minY)
     outline._name = fname
     return outline
@@ -121,7 +119,7 @@ def multiRegion_oneLevel(fname: str, height: float, change_units_from: str='mm')
     meshes = [_getMesh(path+stl_name, change_units_from) for stl_name in stl_names]
     bounds = np.array([mesh.bounding_box.bounds[0] for mesh in meshes])
     minX, minY, minZ = np.amin(bounds, axis=0)
-    outlines = tuple(_getOutline(path+name, height+minZ, change_units_from).translate(-minX, -minY) for name in stl_names)
+    outlines = tuple(_getOutlineFromSTL(path+name, height+minZ, change_units_from).translate(-minX, -minY) for name in stl_names)
     
     def multiRegion_oneLevel_coro():
         global_params = yield
@@ -138,47 +136,45 @@ def multiRegion_oneLevel(fname: str, height: float, change_units_from: str='mm')
 def _getSectionFromMesh(mesh, height):
     return mesh.section(plane_origin=[0,0,height],plane_normal=[0,0,1])
     
-def _outlineFromMesh_coro(mesh, zOffset):
-    currHeight = zOffset
-    currHeight += yield
-    while True:
-        try:
-            section = _getSectionFromMesh(mesh, currHeight)#mesh.section(plane_origin=[0,0,currHeight],plane_normal=[0,0,1])
-        except Exception:
-            raise StopIteration
-        else:
-            currHeight += yield outline_module.outlineFromMeshSection(section)
+#def _outlineFromMesh_coro(mesh, zOffset):
+#    # TODO: test what happens for two body meshes with empty Z-heights
+#    currHeight = zOffset
+#    heightStep = yield
+#    currHeight += heightStep
+#    while True:
+#        try:
+#            section = _getSectionFromMesh(mesh, currHeight)
+#        except Exception:
+#            raise StopIteration
+#        else:
+#            heightStep = yield outline_module.outlineFromMeshSection(section), currHeight
+#            currHeight == heightStep
+                                                                     
     
 @outline     
 def multiRegion(fname: str, change_units_from: str='mm'):    
-    stl_names, paramNames, paramLists = readMultiPartFile(fname)
+    stl_names, eachPart_paramNames, eachPart_paramLists = readMultiPartFile(fname)
     path = os.path.dirname(fname) + '/'
     meshes = [_getMesh(path+stl_name, change_units_from) for stl_name in stl_names]
-    # TODO: Translate to origin
     bounds = np.array([mesh.bounding_box.bounds[0] for mesh in meshes])
-    minX, minY, minZ = np.amin(bounds, axis=0)
+    global_minXYZ = np.amin(bounds, axis=0)
     def multiRegion_coro():
         global_params = yield
-        paramGens = [zipVariables_gen(params, repeat=True) for params in paramLists]
-        outline_coros = [_outlineFromMesh_coro(mesh, minZ) for mesh in meshes]
-        for coro in outline_coros:
-            next(coro)
-        while True:
-            outlines = []
-            localParamNamedTuples = []
-            for outline_coro, onePartParamNames, paramGen in zip(outline_coros, paramNames, paramGens):
-                localParamDict = {paramName : param for paramName, param in zip(onePartParamNames, next(paramGen))}
-                localParams = global_params._replace(**localParamDict)
-                localParamNamedTuples.append(localParams)
-                try:
-                    outline = outline_coro.send(localParams.layerHeight)
-                except Exception:
-                    pass
-                else:
-                    outlines.append(outline.translate(-minX, -minY))
-            if not outlines:
-                return
-            global_params = yield tuple(outlines), tuple(localParamNamedTuples)
+        regions = [Region(name, mesh, paramNames, paramLists, global_minXYZ) 
+                    for name, mesh, paramNames, paramLists in
+                    zip(stl_names, meshes, eachPart_paramNames, eachPart_paramLists)]
+        for region in regions:
+            region.sendGlobal(global_params)
+
+        while any(region.outline for region in regions):
+            regions.sort(key = lambda x: x.currHeight)
+            used = [region for region in regions if region.currHeight == regions[0].currHeight]
+            outlines = tuple(region.outline for region in used)
+            localParamNamedTuples = tuple(region.localParams for region in used)
+
+            global_params = yield outlines, localParamNamedTuples, used[0].currHeight
+            for region in used:
+                region.sendGlobal(global_params)
     return multiRegion_coro
 
 @make_coro        
@@ -334,3 +330,67 @@ def hexagons(sideLength: float) -> Callable[[float, float, float], LineGroup]:
 def noInfill() -> LineGroup:
     return LineGroup()
     
+class Region:
+    def __init__(self, name, mesh, paramNames, paramLists, global_minXYZ):
+        self.name = name
+        self.mesh = mesh
+        self.paramNames = paramNames
+        self.paramGen = zipVariables_gen(paramLists, repeat=True)
+        self.currHeight = 0
+        self.outline = None
+        self.localParams = None
+        self.global_minXYZ = global_minXYZ
+
+        
+    def sendGlobal(self, globalParams):
+        localParamDict = {paramName : param for paramName, param in
+                          zip(self.paramNames, next(self.paramGen))}
+        self.localParams = globalParams._replace(**localParamDict)
+        self.currHeight += self.localParams.layerHeight
+        try:
+            section = _getSectionFromMesh(self.mesh, self.currHeight+self.global_minXYZ[c.Z])
+        except Exception:
+            self.outline = None
+        else:
+            self.outline = outline_module.outlineFromMeshSection(section).translate(-self.global_minXYZ[c.X],
+                                                                                    -self.global_minXYZ[c.Y])
+    
+#    def __lt__(self, other):
+#        return self.currHeight < other.currHeight
+    
+    def __repr__(self):
+        return self.name
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
