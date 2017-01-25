@@ -169,12 +169,17 @@ def multiRegion(fname: str, change_units_from: str='mm'):
         while any(region.outline for region in regions):
             regions.sort(key = lambda x: x.currHeight)
             used = [region for region in regions if region.currHeight == regions[0].currHeight]
-            outlines = tuple(region.outline for region in used)
-            localParamNamedTuples = tuple(region.localParams for region in used)
+            print('curr Height:', regions[0].currHeight)
+            outlines = tuple(region.outline for region in used if region.outline is not None)
+            localParamNamedTuples = tuple(region.localParams for region in used if region.outline is not None)
 
-            global_params = yield outlines, localParamNamedTuples, used[0].currHeight
+            if outlines:
+                global_params = yield outlines, localParamNamedTuples, used[0].currHeight
             for region in used:
                 region.sendGlobal(global_params)
+#            for region in regions:
+#                if region.outline is None:
+#                    region.sendGlobal(global_params)
     return multiRegion_coro
 
 @make_coro        
@@ -350,6 +355,7 @@ class Region:
         try:
             section = _getSectionFromMesh(self.mesh, self.currHeight+self.global_minXYZ[c.Z])
         except Exception:
+            print('Exception. currHeight:', self.currHeight)
             self.outline = None
         else:
             self.outline = outline_module.outlineFromMeshSection(section).translate(-self.global_minXYZ[c.X],
