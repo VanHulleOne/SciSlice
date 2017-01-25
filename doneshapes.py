@@ -114,6 +114,7 @@ def fromSTL_oneLevel(fname: str, height: float, change_units_from: str='mm') ->O
 
 @outline
 def multiRegion_oneLevel(fname: str, height: float, change_units_from: str='mm'):
+    # TODO: enable this one to handle different layer height between regions
     stl_names, paramNames, paramLists = readMultiPartFile(fname)
     path = os.path.dirname(fname) + '/'
     meshes = [_getMesh(path+stl_name, change_units_from) for stl_name in stl_names]
@@ -134,22 +135,7 @@ def multiRegion_oneLevel(fname: str, height: float, change_units_from: str='mm')
     return multiRegion_oneLevel_coro
 
 def _getSectionFromMesh(mesh, height):
-    return mesh.section(plane_origin=[0,0,height],plane_normal=[0,0,1])
-    
-#def _outlineFromMesh_coro(mesh, zOffset):
-#    # TODO: test what happens for two body meshes with empty Z-heights
-#    currHeight = zOffset
-#    heightStep = yield
-#    currHeight += heightStep
-#    while True:
-#        try:
-#            section = _getSectionFromMesh(mesh, currHeight)
-#        except Exception:
-#            raise StopIteration
-#        else:
-#            heightStep = yield outline_module.outlineFromMeshSection(section), currHeight
-#            currHeight == heightStep
-                                                                     
+    return mesh.section(plane_origin=[0,0,height],plane_normal=[0,0,1])                        
     
 @outline     
 def multiRegion(fname: str, change_units_from: str='mm'):    
@@ -177,9 +163,7 @@ def multiRegion(fname: str, change_units_from: str='mm'):
                 global_params = yield outlines, localParamNamedTuples, used[0].currHeight
             for region in used:
                 region.sendGlobal(global_params)
-#            for region in regions:
-#                if region.outline is None:
-#                    region.sendGlobal(global_params)
+
     return multiRegion_coro
 
 @make_coro        
