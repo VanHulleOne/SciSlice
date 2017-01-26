@@ -673,7 +673,7 @@ class Page_Variables(tk.Frame):
                 self.elements[param.label].entry.grid(row=x+1+self.shift, column=1, sticky='ew')
         return inner_command
                     
-    
+# TODO: Save gcode during 3D model creation so it doesn't have to be re-run if converted    
     #create Gcode file; creates temp JSON file then deletes it                    
     def convert(self, name = None):
         global data_points
