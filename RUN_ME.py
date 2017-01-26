@@ -929,7 +929,11 @@ class ProjectionViewer:
                     self.g = 0
                     self.b = 0
                 color = (self.r, self.g, self.b)
-                pygame.draw.line(self.screen, color, (edge.start.x, edge.start.y), (edge.stop.x, edge.stop.y), 4)#width
+                pygame.draw.line(self.screen,
+                                 color,
+                                 (edge.start.x, self.height-edge.start.y),
+                                 (edge.stop.x, self.height-edge.stop.y),
+                                 4) # Line Width
                     
     def translateAll(self, axis, d):
         ''' Translate all wireframes along a given axis by d units. '''
