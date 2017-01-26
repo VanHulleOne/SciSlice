@@ -81,6 +81,44 @@ def readMultiPartFile(fname):
         paramLists.append(list(region.values()))
     return fileNames, paramNames, paramLists
 
+def _getSectionFromMesh(mesh, height):
+    return mesh.section(plane_origin=[0,0,height],plane_normal=[0,0,1])          
+
+def _getOutlineFromSTL(fname: str, height: float, change_units_from: str='mm') ->Outline:
+    mesh = _getMesh(fname, change_units_from)
+    section = _getSectionFromMesh(mesh, height)
+    outline = outline_module.outlineFromMeshSection(section)
+    outline._name = os.path.basename(fname)
+    return outline
+
+def _multiRegionHandler(fname, change_units_from, height=None):
+    stl_names, eachPart_paramNames, eachPart_paramLists = readMultiPartFile(fname)
+    path = os.path.dirname(fname) + '/'
+    meshes = [_getMesh(path+stl_name, change_units_from) for stl_name in stl_names]
+    bounds = np.array([mesh.bounding_box.bounds[0] for mesh in meshes])
+    global_minXYZ = np.amin(bounds, axis=0)
+    def multiRegion_coro():
+        global_params = yield
+        regions = [Region(name, mesh, paramNames, paramLists, global_minXYZ, height) 
+                    for name, mesh, paramNames, paramLists in
+                    zip(stl_names, meshes, eachPart_paramNames, eachPart_paramLists)]
+        for region in regions:
+            region.sendGlobal(global_params)
+
+        while any(region.outline for region in regions):
+            regions.sort(key = lambda x: x.currHeight)
+            used = [region for region in regions if region.currHeight == regions[0].currHeight]
+#            print('curr Height:', regions[0].currHeight)
+            outlines = tuple(region.outline for region in used if region.outline is not None)
+            localParamNamedTuples = tuple(region.localParams for region in used if region.outline is not None)
+
+            if outlines:
+                global_params = yield outlines, localParamNamedTuples, used[0].currHeight
+            for region in used:
+                region.sendGlobal(global_params)
+
+    return multiRegion_coro
+
 @outline
 def fromSTL(fname: str, change_units_from: str='mm'):
     mesh = _getMesh(fname, change_units_from)
@@ -96,14 +134,6 @@ def fromSTL(fname: str, change_units_from: str='mm'):
         else:
             global_params = yield (outline_module.outlineFromMeshSection(section).translate(-minX, -minY),), (global_params,)
             currHeight += global_params.layerHeight
-        
-
-def _getOutlineFromSTL(fname: str, height: float, change_units_from: str='mm') ->Outline:
-    mesh = _getMesh(fname, change_units_from)
-    section = _getSectionFromMesh(mesh, height)
-    outline = outline_module.outlineFromMeshSection(section)
-    outline._name = os.path.basename(fname)
-    return outline
 
 @outline    
 def fromSTL_oneLevel(fname: str, height: float, change_units_from: str='mm') ->Outline:
@@ -113,58 +143,12 @@ def fromSTL_oneLevel(fname: str, height: float, change_units_from: str='mm') ->O
     return outline
 
 @outline
-def multiRegion_oneLevel(fname: str, height: float, change_units_from: str='mm'):
-    # TODO: enable this one to handle different layer height between regions
-    stl_names, paramNames, paramLists = readMultiPartFile(fname)
-    path = os.path.dirname(fname) + '/'
-    meshes = [_getMesh(path+stl_name, change_units_from) for stl_name in stl_names]
-    bounds = np.array([mesh.bounding_box.bounds[0] for mesh in meshes])
-    minX, minY, minZ = np.amin(bounds, axis=0)
-    outlines = tuple(_getOutlineFromSTL(path+name, height+minZ, change_units_from).translate(-minX, -minY) for name in stl_names)
-    
-    def multiRegion_oneLevel_coro():
-        global_params = yield
-        paramGens = [zipVariables_gen(params, repeat=True) for params in paramLists]
-        while True:
-            paramDicts = []
-            for onePartParamNames, paramGen in zip(paramNames, paramGens):
-                paramDicts.append({paramName : param for paramName, param in zip(onePartParamNames, next(paramGen))})
-                
-            global_params = yield outlines, tuple(global_params._replace(**one_region_params) for one_region_params in paramDicts)
-            
-    return multiRegion_oneLevel_coro
-
-def _getSectionFromMesh(mesh, height):
-    return mesh.section(plane_origin=[0,0,height],plane_normal=[0,0,1])                        
+def multiRegion_oneLevel(fname: str, change_units_from: str, height: float):
+    return _multiRegionHandler(fname, change_units_from, height)                      
     
 @outline     
-def multiRegion(fname: str, change_units_from: str='mm'):    
-    stl_names, eachPart_paramNames, eachPart_paramLists = readMultiPartFile(fname)
-    path = os.path.dirname(fname) + '/'
-    meshes = [_getMesh(path+stl_name, change_units_from) for stl_name in stl_names]
-    bounds = np.array([mesh.bounding_box.bounds[0] for mesh in meshes])
-    global_minXYZ = np.amin(bounds, axis=0)
-    def multiRegion_coro():
-        global_params = yield
-        regions = [Region(name, mesh, paramNames, paramLists, global_minXYZ) 
-                    for name, mesh, paramNames, paramLists in
-                    zip(stl_names, meshes, eachPart_paramNames, eachPart_paramLists)]
-        for region in regions:
-            region.sendGlobal(global_params)
-
-        while any(region.outline for region in regions):
-            regions.sort(key = lambda x: x.currHeight)
-            used = [region for region in regions if region.currHeight == regions[0].currHeight]
-            print('curr Height:', regions[0].currHeight)
-            outlines = tuple(region.outline for region in used if region.outline is not None)
-            localParamNamedTuples = tuple(region.localParams for region in used if region.outline is not None)
-
-            if outlines:
-                global_params = yield outlines, localParamNamedTuples, used[0].currHeight
-            for region in used:
-                region.sendGlobal(global_params)
-
-    return multiRegion_coro
+def multiRegion(fname: str, change_units_from: str='mm'):  
+    return _multiRegionHandler(fname, change_units_from)
 
 @make_coro        
 @outline
@@ -320,7 +304,7 @@ def noInfill() -> LineGroup:
     return LineGroup()
     
 class Region:
-    def __init__(self, name, mesh, paramNames, paramLists, global_minXYZ):
+    def __init__(self, name, mesh, paramNames, paramLists, global_minXYZ, height=None):
         self.name = name
         self.mesh = mesh
         self.paramNames = paramNames
@@ -329,27 +313,42 @@ class Region:
         self.outline = None
         self.localParams = None
         self.global_minXYZ = global_minXYZ
+        
+        if height is not None:
+            try:
+                section = _getSectionFromMesh(self.mesh, height + self.global_minXYZ[c.Z])
+            except Exception as e:
+                raise Exception('Height for .STL slice did not intersect .STL\n' + str(e))
+            else:
+                self.outline = outline_module.outlineFromMeshSection(section).translate(-self.global_minXYZ[c.X],
+                                                                                        -self.global_minXYZ[c.Y])
+                self.oneLevel = True
+        else:
+            self.oneLevel = False
 
         
     def sendGlobal(self, globalParams):
         localParamDict = {paramName : param for paramName, param in
                           zip(self.paramNames, next(self.paramGen))}
         self.localParams = globalParams._replace(**localParamDict)
+        
         self.currHeight += self.localParams.layerHeight
+        if not self.oneLevel:
+            self.setNextOutline()
+            
+    def setNextOutline(self):
         try:
             section = _getSectionFromMesh(self.mesh, self.currHeight+self.global_minXYZ[c.Z])
         except Exception:
-            print('Exception. currHeight:', self.currHeight)
+#            print('Exception. currHeight:', self.currHeight)
             self.outline = None
         else:
             self.outline = outline_module.outlineFromMeshSection(section).translate(-self.global_minXYZ[c.X],
                                                                                     -self.global_minXYZ[c.Y])
     
-#    def __lt__(self, other):
-#        return self.currHeight < other.currHeight
     
     def __repr__(self):
-        return self.name
+        return 'Region-> ' + str(self.name)
         
         
         
