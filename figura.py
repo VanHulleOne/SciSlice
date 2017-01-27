@@ -106,8 +106,8 @@ class Figura:
         filledList = []
         for outline, layerParam in zip(outlines, layerParams):
 #            filledList = []
-            if self.pr.nozzleOffset:
-                outline = outline.offset(self.pr.nozzleOffset, c.INSIDE)
+            if self.pr.horizontalExpansion:
+                outline = outline.offset(self.pr.horizontalExpansion, c.INSIDE)
             
             if isFirstLayer and self.pr.brims:
                 filledList.extend(outline.shell_gen(number=self.pr.brims,
@@ -126,7 +126,7 @@ class Figura:
             want to fudge the trimOutline outward just a little so that we end
             up with the correct lines.
             """
-            trimOutline = outline.offset(layerParam.trimAdjust
+            trimOutline = outline.offset(layerParam.infillOverlap
                                          - self.pr.nozzleDiameter * layerParam.numShells,
                                          c.OUTSIDE)
                             
@@ -151,7 +151,7 @@ class Figura:
         totalExtrusion = 0
         
         for layer, layerParam in self.layer_gen(partParams):
-            extrusionRate = (partParams.solidityRatio*layerParam.layerHeight*
+            extrusionRate = (partParams.extrusionFactor*layerParam.layerHeight*
                             self.pr.nozzleDiameter/self.pr.filamentArea)
             yield self.gc.comment('Layer: ' + str(layerNumber) + '\n')
             yield self.gc.comment(str(layerParam) + '\n')
@@ -165,7 +165,7 @@ class Figura:
             self.data_points.append(['start'])
             for line in layer:
                 if prevLoc != line.start:
-                    if (prevLoc - line.start) < self.pr.MAX_FEED_TRAVERSE:
+                    if (prevLoc - line.start) < self.pr.retractMinTravel:
                         yield self.gc.rapidMove(line.start)
                     else:
                         yield self.gc.retractLayer(totalExtrusion, prevLoc)

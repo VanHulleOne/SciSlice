@@ -22,17 +22,17 @@ class Gcode:
     def rapidMove(self, endPoint, atClearance=False):
         return ('G00 X{:.3f} Y{:.3f} Z{:.3f} F{:.0f}\n'.format(endPoint.x,
                                                                 endPoint.y,
-                                                                endPoint.z + atClearance*self.pr.Z_CLEARANCE,
+                                                                endPoint.z + atClearance*self.pr.ZHopHeight,
                                                                 self.pr.RAPID))
                     
     def retractLayer(self, currentE, currentPoint):
-        tempString = 'G1 E{:.3f} F{:.0f}\n'.format(currentE-self.pr.TRAVERSE_RETRACT, self.pr.MAX_EXTRUDE_SPEED)
-        tempString += 'G00 Z{:.3f} F{:.0f}\n'.format(currentPoint.z+self.pr.Z_CLEARANCE, self.pr.RAPID)
+        tempString = 'G1 E{:.3f} F{:.0f}\n'.format(currentE-self.pr.retractDistance, self.pr.retractSpeed)
+        tempString += 'G00 Z{:.3f} F{:.0f}\n'.format(currentPoint.z+self.pr.ZHopHeight, self.pr.RAPID)
         return tempString
         
     def approachLayer(self, lastE, startPoint):
-        tempString = 'G1 Z{:.3f} F{:.0f} E{:.3f}\n'.format(startPoint.z+self.pr.Z_CLEARANCE/2.0,
-                        self.pr.RAPID, lastE-self.pr.TRAVERSE_RETRACT*0.75)
+        tempString = 'G1 Z{:.3f} F{:.0f} E{:.3f}\n'.format(startPoint.z+self.pr.ZHopHeight/2.0,
+                        self.pr.RAPID, lastE-self.pr.retractDistance*0.75)
         tempString += 'G1 Z{:.3f} F{:.0f} E{:.3f}\n'.format(startPoint.z,
                         self.pr.APPROACH_FR, lastE)
         return tempString
@@ -99,7 +99,7 @@ class RobotCode:
     def _linearMove(self, endPoint, speed, *, atClearance=False):
         tempString = ', '.join(str(round(i,3)) for i in (endPoint.x,
                                                          endPoint.y,
-                                                         endPoint.z + atClearance*self.pr.Z_CLEARANCE)) 
+                                                         endPoint.z + atClearance*self.pr.ZHopHeight)) 
         
         return ('\t\tMoveL Offs(' + self.pZero + ', ' + tempString +
                 '), v{:.0f}, z0, '.format(speed) + self.tool + ', \\Wobj := ' + self.work + ';\n')        

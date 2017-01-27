@@ -18,9 +18,9 @@ import constants as c
 import doneshapes as ds
 
 LayerParams = namedtuple('LayerParams', 'infillShiftX infillShiftY infillAngleDegrees '
-                         + 'numShells layerHeight pathWidth trimAdjust pattern')
+                         + 'numShells layerHeight pathWidth infillOverlap pattern')
 
-PartParams = namedtuple('PartParams', 'solidityRatio printSpeed shiftX shiftY shiftZ')
+PartParams = namedtuple('PartParams', 'extrusionFactor printSpeed shiftX shiftY shiftZ')
 
 class Parameters:
     
