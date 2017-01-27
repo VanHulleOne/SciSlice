@@ -38,7 +38,7 @@ def makeParamObj(param_data, dropdown_data, layerParamLabels, partParamLabels):
                 del data[c.THE_LABEL]
                 if the_label == 'outline':
                     args = {key:value for key,value in data.items()}
-                    paramDict['outline_gen'] = getattr(ds, paramDict['outline'])(**args)
+                    paramDict['_outline_gen'] = getattr(ds, paramDict['outline'])(**args)
                 else:
                     paramDict[the_label] = [getattr(ds, paramDict[the_label])(**data)]
                     
@@ -60,6 +60,8 @@ class Parameters:
         self.partLists = [paramDict[label] for label in partParamLabels]
         self.layerLists = [paramDict[label] for label in layerParamLabels]
         self.layerParamGen = None
+        self.outline_gen = None
+        self.currHeight = 0
         
         self.LayerParams = namedtuple('LayerParams', self.layerParamLabels)
         self.PartParams = namedtuple('PartParams', self.partParamLabels)
@@ -84,7 +86,7 @@ class Parameters:
     def params(self):
         return self.Params(self.__dict__[label] for label in self.Params._fields)
         
-    def partNumbers(self):
+    def parts(self):
         partParamGen = zipVariables_gen(self.partLists)
         
         partNum = 1
@@ -92,16 +94,36 @@ class Parameters:
             self.layerParamGen = zipVariables_gen(self.layerLists, repeat=True)
             for label, param in zip(self.partParamLabels, nextPartParams):
                 setattr(self, label, param)
-            yield partNum
+            yield self.layers()
             partNum += 1
             
-    def layerNumbers(self):
+    def layers(self):
+        self.outline_gen = self._outline_gen()
+        next(self.outline_gen)
         layerNum = 1
         for nextLayerParam in self.layerParamGen:
             for label, param in zip(self.layerParamLabels, nextLayerParam):
                 setattr(self, label, param)
-            yield layerNum
+            yield self.regions(next(self.outline_gen(self.params)))
             layerNum += 1
+            
+    def region_gen(self, regions):
+        global_params = self.params
+        
+        try:
+            outlines, regionParams, self.currHeight = regions
+        except Exception:
+            outlines, regionParams = regions
+            self.currHeight += self.layerHeight
+        
+        for outline, params in zip(outlines, regionParams):
+            self._updateAttributes(params)
+            yield outline
+            self._updateAttributes(global_params)
+    
+    def _updateAttributes(self, namedTuple):
+        for key, value in namedTuple._asdict().items():
+                setattr(self, key, value)
     
     
     
