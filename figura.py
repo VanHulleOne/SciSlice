@@ -42,7 +42,7 @@ class Figura:
 
     def masterGcode_gen(self):
         yield self.gc.startGcode(bed_temp = self.pr.bed_temp, extruder_temp = self.pr.extruder_temp)
-        for partParams in self.pr.everyPartsParameters:
+        for layers in self.pr.parts():
             """ pr.everyPartsParameters is a generator of the parameters for the parts.
             The generator stops yielding additional parameters when there are no
             more parts left to print. The parameters are sent to layer_gen() which
@@ -50,17 +50,17 @@ class Figura:
             along with the partParameters (for printing in the gcode).
             """
             print('\nPart number: ' + str(self.partCount))            
-            print(partParams)
+            print(self.pr.partParams)
            
             yield '\n\n' + self.gc.comment('Part number: ' + str(self.partCount) + '\n')
-            yield self.gc.comment(str(partParams) + '\n')
+            yield self.gc.comment(str(self.pr.partParams) + '\n')
             
-            yield from self.partGcode_gen(partParams)
+            yield from self.partGcode_gen(layers)
                 
             self.partCount += 1
         yield self.gc.endGcode()
 
-    def layer_gen(self, partParams):
+    def layer_gen(self, layers):
         """
         Creates and yields each organized layer for the part.
         
@@ -73,27 +73,17 @@ class Figura:
         tuple - (LineGroup of the layer ordered for printing, the namedtuple of
         the layer parameters so they can be printed in the gcode.)
         """  
-        
-        currHeight = 0
         layerCountdown = self.pr.numLayers
         isFirstLayer = True
 
-        outline_gen = self.pr.outline_gen()
-        next(outline_gen)
-        for layerParam in self.pr.layerParameters():
+        for regions in layers:
             if not layerCountdown:
                 break
-            gen_tuple = outline_gen.send(layerParam)
-            try:
-                outlines, regionParams, currHeight = gen_tuple
-            except Exception:
-                currHeight += layerParam.layerHeight
-                outlines, regionParams = gen_tuple
                     
-            fullLayer = self.make_layer(isFirstLayer, outlines, regionParams)
+            fullLayer = self.make_layer(isFirstLayer, regions)
             
-            yield (fullLayer.translate(partParams.shiftX, partParams.shiftY,
-                                currHeight+partParams.shiftZ), layerParam)
+            yield fullLayer.translate(self.pr.shiftX, self.pr.shiftY,
+                                self.pr.currHeight+self.pr.shiftZ)
             layerCountdown -= 1
             isFirstLayer = False
         try:
@@ -101,11 +91,11 @@ class Figura:
         except Exception:
             pass
             
-    @lru_cache(maxsize=16)
-    def make_layer(self, isFirstLayer, outlines, layerParams):
+#    @lru_cache(maxsize=16)
+    def make_layer(self, isFirstLayer, regions):
 #        fullLayer = LineGroup()
         filledList = []
-        for outline, layerParam in zip(outlines, layerParams):
+        for outline in regions:
 #            filledList = []
             outline = outline.offset(self.pr.horizontalExpansion-self.pr.nozzleDiameter/2.0, c.OUTSIDE)
             
@@ -115,7 +105,7 @@ class Figura:
                                                     side = c.OUTSIDE,
                                                     ))
 
-            filledList.extend(outline.shell_gen(number = layerParam.numShells,
+            filledList.extend(outline.shell_gen(number = self.pr.numShells,
                                                 dist = self.pr.nozzleDiameter,
                                                 side = c.INSIDE,
                                                 ))
@@ -126,15 +116,15 @@ class Figura:
             want to fudge the trimOutline outward just a little so that we end
             up with the correct lines.
             """
-            trimOutline = outline.offset(layerParam.infillOverlap
-                                         - self.pr.nozzleDiameter * layerParam.numShells,
+            trimOutline = outline.offset(self.pr.infillOverlap
+                                         - self.pr.nozzleDiameter * self.pr.numShells,
                                          c.OUTSIDE)
                             
-            if trimOutline and layerParam.pattern: # If there is an outline to fill and we want an infill
+            if trimOutline and self.pr.pattern: # If there is an outline to fill and we want an infill
                 infill = Infill(trimOutline,
-                                    layerParam.pathWidth, layerParam.infillAngleDegrees,
-                                    shiftX=layerParam.infillShiftX, shiftY=layerParam.infillShiftY,
-                                    design=layerParam.pattern, designType=self.pr.designType)
+                                    self.pr.pathWidth, self.pr.infillAngleDegrees,
+                                    shiftX=self.pr.infillShiftX, shiftY=self.pr.infillShiftY,
+                                    design=self.pr.pattern, designType=self.pr.designType)
                 filledList.append(infill)
 #            organizedLayer = self.organizedLayer(filledList)
 #            if not organizedLayer:
@@ -145,16 +135,16 @@ class Figura:
 
         return organizedLayer(filledList)
     
-    def partGcode_gen(self, partParams):        
+    def partGcode_gen(self, layers):        
         layerNumber = 1
         yield self.gc.newPart()
         totalExtrusion = 0
         
-        for layer, layerParam in self.layer_gen(partParams):
-            extrusionRate = (partParams.extrusionFactor*layerParam.layerHeight*
+        for layer in self.layer_gen(layers):
+            extrusionRate = (self.pr.extrusionFactor*self.pr.layerHeight*
                             self.pr.nozzleDiameter/(math.pi * self.pr.filamentDiameter**2/4.0))
             yield self.gc.comment('Layer: ' + str(layerNumber) + '\n')
-            yield self.gc.comment(str(layerParam) + '\n')
+            yield self.gc.comment(str(self.pr.layerParams) + '\n')
             yield self.gc.comment('T' + str(self.partCount) + str(layerNumber) + '\n')
             yield self.gc.comment('M6\n')
             yield self.gc.operatorMessage('Layer', layerNumber, 'of', self.pr.numLayers)
@@ -175,7 +165,7 @@ class Figura:
                 line.extrusionRate = extrusionRate
                 totalExtrusion += line.length*line.extrusionRate
                 yield self.gc.feedMove(line.end, totalExtrusion,
-                                          partParams.printSpeed)
+                                          self.pr.printSpeed)
                 prevLoc = line.end
             
                 self.data_points.append([(','.join(str(i) for i in line.start.normalVector[:3])+',')+
