@@ -50,7 +50,7 @@ class Figura:
             along with the partParameters (for printing in the gcode).
             """
             print('\nPart number: ' + str(self.partCount))            
-            print(self.pr.partParams)
+            print('Part Params: ', self.pr.partParams)
            
             yield '\n\n' + self.gc.comment('Part number: ' + str(self.partCount) + '\n')
             yield self.gc.comment(str(self.pr.partParams) + '\n')
@@ -80,7 +80,7 @@ class Figura:
             if not layerCountdown:
                 break
                     
-            fullLayer = self.make_layer(isFirstLayer, regions)
+            fullLayer = self.make_layer(isFirstLayer, regions, self.pr.LayerParams)
             
             yield fullLayer.translate(self.pr.shiftX, self.pr.shiftY,
                                 self.pr.currHeight+self.pr.shiftZ)
@@ -91,7 +91,7 @@ class Figura:
         except Exception:
             pass
             
-#    @lru_cache(maxsize=16)
+    @lru_cache(maxsize=16)
     def make_layer(self, isFirstLayer, regions):
 #        fullLayer = LineGroup()
         filledList = []

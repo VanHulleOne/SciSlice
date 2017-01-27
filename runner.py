@@ -7,7 +7,7 @@ Created on Thu Jun  9 13:12:35 2016
 import figura as fg
 from gcode import Gcode, RobotCode
 import time
-from parameters import Parameters
+from parameters import makeParamObj
 import json
 import constants as c
 
@@ -17,7 +17,7 @@ class Runner:
         with open(name, 'r') as fp:
             data = json.load(fp)
 
-        self.pr = Parameters(data[0], data[1], layerParamLabels, partParamLabels)
+        self.pr = makeParamObj(data[0], data[1], layerParamLabels, partParamLabels)
         if gRobot == c.GCODE:
             self.gc = Gcode(self.pr)
         elif gRobot == c.ROBOTCODE:

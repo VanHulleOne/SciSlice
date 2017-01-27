@@ -124,14 +124,14 @@ class Page_Variables(tk.Frame):
                 Par('shiftY', FLOAT_LIST, (COMMON, PART)),
                 Par('shiftZ', FLOAT_LIST, (PART,)),
                 Par('numLayers', INT, (COMMON,)),
-                Par('designType', INT, (PART,)),
+                Par('designType', INT_LIST, (PART,)),
                 Par('infillAngleDegrees', FLOAT_LIST, (COMMON, LAYER)),
                 Par('pathWidth', FLOAT_LIST, (LAYER,)),
                 Par('layerHeight', FLOAT_LIST, (LAYER,)),
                 Par('infillShiftX', FLOAT_LIST, (LAYER,)),
                 Par('infillShiftY', FLOAT_LIST, (LAYER,)),
                 Par('numShells', INT_LIST, (COMMON, LAYER)),
-                Par('brims', INT, (COMMON, PART)),
+                Par('brims', INT_LIST, (COMMON, PART)),
                 Par('infillOverlap', FLOAT_LIST, (LAYER,)),
                 Par('start_Gcode_FileName', STR, (FILE,)),
                 Par('end_Gcode_FileName', STR, (FILE,)),
@@ -733,7 +733,7 @@ class Page_Variables(tk.Frame):
                 if str(e) == 'display Surface quit':
                     print('You have closed the 3D model.')
                 else:
-                    print(e)
+                    print('Flag this message in RUN_ME.py\n' + str(e))
 
 #3D model controls            
 key_to_function = {
@@ -861,7 +861,7 @@ class ProjectionViewer:
         for event in pygame.event.get():
             if event == pygame.MOUSEBUTTONUP:
                 break
-            print(startX, startY)
+            print('Another Flag: ', startX, startY)
             time.sleep(0.1)
             currX, currY = pygame.mouse.get_pos()
             self.translateAll('x', currX - startX)
