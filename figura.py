@@ -80,7 +80,7 @@ class Figura:
             if not layerCountdown:
                 break
                     
-            fullLayer = self.make_layer(isFirstLayer, regions, self.pr.LayerParams)
+            fullLayer = self.make_layer(isFirstLayer, regions)
             
             yield fullLayer.translate(self.pr.shiftX, self.pr.shiftY,
                                 self.pr.currHeight+self.pr.shiftZ)
@@ -91,7 +91,7 @@ class Figura:
         except Exception:
             pass
             
-    @lru_cache(maxsize=16)
+#    @lru_cache(maxsize=16)
     def make_layer(self, isFirstLayer, regions):
 #        fullLayer = LineGroup()
         filledList = []
