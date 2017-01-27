@@ -106,8 +106,7 @@ class Figura:
         filledList = []
         for outline, layerParam in zip(outlines, layerParams):
 #            filledList = []
-            if self.pr.horizontalExpansion:
-                outline = outline.offset(self.pr.horizontalExpansion, c.INSIDE)
+            outline = outline.offset(self.pr.horizontalExpansion-self.pr.nozzleDiameter/2, c.OUTSIDE)
             
             if isFirstLayer and self.pr.brims:
                 filledList.extend(outline.shell_gen(number=self.pr.brims,
