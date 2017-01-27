@@ -842,11 +842,11 @@ class ProjectionViewer:
                     if event.buttons[0]:
                         shiftX, shiftY = event.rel
                         self.translateAll('x', shiftX)
-                        self.translateAll('y', shiftY)
+                        self.translateAll('y', -shiftY)
                     elif event.buttons[2]:
                         rotY, rotX = event.rel
                         self.rotateAll('X', rotX/270)
-                        self.rotateAll('Y', rotY/270)
+                        self.rotateAll('Y', -rotY/270)
                         
                 elif event.type == pygame.VIDEORESIZE:
                     os.environ['SDL_VIDEO_WINDOW_POS'] = '' # Clears the default window location
@@ -855,20 +855,7 @@ class ProjectionViewer:
                     
             self.display()  
             pygame.display.flip()
-            
-    def mouseTranslate(self):
-        startX, startY = pygame.mouse.get_pos()
-        for event in pygame.event.get():
-            if event == pygame.MOUSEBUTTONUP:
-                break
-            print('Another Flag: ', startX, startY)
-            time.sleep(0.1)
-            currX, currY = pygame.mouse.get_pos()
-            self.translateAll('x', currX - startX)
-            self.translateAll('y', currY - startY)
-            startX, startY = currX, currY
-            
-        
+
     def display(self):
         ''' Draw the wireframes on the screen. '''
 
