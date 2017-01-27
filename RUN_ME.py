@@ -684,7 +684,15 @@ class Page_Variables(tk.Frame):
             self.save(name)
         
         if self.savePath:
-            conversion = Runner(self.filename, self.g_robot_var.get())
+            layerParamsLabels = []
+            partParamsLabels = []
+            for param in self.parameters:
+                if self.LAYER in param.groups:
+                    layerParamsLabels.append(param.label)
+                elif self.PART in param.groups:
+                    partParamsLabels.append(param.label)
+                    
+            conversion = Runner(self.filename, self.g_robot_var.get(), layerParamsLabels, partParamsLabels)
             data_points = conversion.run()
             os.remove(self.filename)    
     

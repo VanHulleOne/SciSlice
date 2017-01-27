@@ -25,6 +25,7 @@ from linegroup import LineGroup
 import constants as c
 from outline import Outline, Section
 from functools import lru_cache
+import math
 import os
 
 class Figura:  
@@ -106,7 +107,7 @@ class Figura:
         filledList = []
         for outline, layerParam in zip(outlines, layerParams):
 #            filledList = []
-            outline = outline.offset(self.pr.horizontalExpansion-self.pr.nozzleDiameter/2, c.OUTSIDE)
+            outline = outline.offset(self.pr.horizontalExpansion-self.pr.nozzleDiameter/2.0, c.OUTSIDE)
             
             if isFirstLayer and self.pr.brims:
                 filledList.extend(outline.shell_gen(number=self.pr.brims,
@@ -151,7 +152,7 @@ class Figura:
         
         for layer, layerParam in self.layer_gen(partParams):
             extrusionRate = (partParams.extrusionFactor*layerParam.layerHeight*
-                            self.pr.nozzleDiameter/self.pr.filamentArea)
+                            self.pr.nozzleDiameter/(math.pi * self.pr.filamentDiameter**2/4.0))
             yield self.gc.comment('Layer: ' + str(layerNumber) + '\n')
             yield self.gc.comment(str(layerParam) + '\n')
             yield self.gc.comment('T' + str(self.partCount) + str(layerNumber) + '\n')

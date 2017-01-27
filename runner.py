@@ -13,11 +13,11 @@ import constants as c
 
 class Runner:
     
-    def __init__(self, name, gRobot):
+    def __init__(self, name, gRobot, layerParamLabels, partParamLabels):
         with open(name, 'r') as fp:
             data = json.load(fp)
 
-        self.pr = Parameters(data[0], data[1])
+        self.pr = Parameters(data[0], data[1], layerParamLabels, partParamLabels)
         if gRobot == c.GCODE:
             self.gc = Gcode(self.pr)
         elif gRobot == c.ROBOTCODE:

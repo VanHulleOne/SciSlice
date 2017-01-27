@@ -22,9 +22,93 @@ LayerParams = namedtuple('LayerParams', 'infillShiftX infillShiftY infillAngleDe
 
 PartParams = namedtuple('PartParams', 'extrusionFactor printSpeed shiftX shiftY shiftZ')
 
-class Parameters:
+paramDict = {}
+
+def makeParamObj(param_data, dropdown_data, layerParamLabels, partParamLabels):
+    for key, value in param_data.items():
+        paramDict[key] = value
     
-    def __init__(self, param_data, dropdown_data):
+    currPath = os.path.dirname(os.path.realpath(__file__))
+        
+    paramDict['startEndSubDirectory'] = currPath + '\\Start_End_Gcode'
+             
+    for data in dropdown_data: #x in range(len(dropdown_data)):
+            the_label = data[c.THE_LABEL]
+            if type(paramDict[the_label]) == str:
+                del data[c.THE_LABEL]
+                if the_label == 'outline':
+                    args = {key:value for key,value in data.items()}
+                    paramDict['outline_gen'] = getattr(ds, paramDict['outline'])(**args)
+                else:
+                    paramDict[the_label] = [getattr(ds, paramDict[the_label])(**data)]
+                    
+    return Parameters(layerParamLabels, partParamLabels)
+
+class Parameters:
+    def __init__(self, layerParamLabels, partParamLabels):
+        self.layerParamLabels = layerParamLabels
+        self.partParamLabels = partParamLabels
+        self.globalParamLabels = []
+        nonGlobalLabels = set(layerParamLabels + partParamLabels)
+        for key, value in paramDict.items():
+            if key not in nonGlobalLabels:
+                setattr(self, key, value)
+                self.globalParamLabels.append(key)
+                
+        self.globalParamLabels.sort()
+                
+        self.partLists = [paramDict[label] for label in partParamLabels]
+        self.layerLists = [paramDict[label] for label in layerParamLabels]
+        self.layerParamGen = None
+        
+        self.LayerParams = namedtuple('LayerParams', self.layerParamLabels)
+        self.PartParams = namedtuple('PartParams', self.partParamLabels)
+        self.GlobalParams = namedtuple('GlobalParams', self.globalParamLabels)
+        self.Params = namedtuple('Params', self.globalParamLabels,
+                                           self.partParamLabels,
+                                           self.layerParamLabels)
+        
+    @property
+    def layerParams(self):
+        return self.LayerParams(*[self.__dict__[label] for label in self.layerParamLabels])
+    
+    @property
+    def partParams(self):
+        return self.PartParams(*[self.__dict__[label] for label in self.partParamLabels])
+    
+    @property
+    def globalParams(self):
+        return self.GlobalParams(*[self.__dict__[label] for label in self.globalParamLabels])
+    
+    @property
+    def params(self):
+        return self.Params(self.__dict__[label] for label in self.Params._fields)
+        
+    def partNumbers(self):
+        partParamGen = zipVariables_gen(self.partLists)
+        
+        partNum = 1
+        for nextPartParams in partParamGen:
+            self.layerParamGen = zipVariables_gen(self.layerLists, repeat=True)
+            for label, param in zip(self.partParamLabels, nextPartParams):
+                setattr(self, label, param)
+            yield partNum
+            partNum += 1
+            
+    def layerNumbers(self):
+        layerNum = 1
+        for nextLayerParam in self.layerParamGen:
+            for label, param in zip(self.layerParamLabels, nextLayerParam):
+                setattr(self, label, param)
+            yield layerNum
+            layerNum += 1
+    
+    
+    
+
+class Parameters2:
+    
+    def __init__(self, param_data, dropdown_data, layerParamLabels, partParamLabels):
         
         for key, value in param_data.items():
             setattr(self, key, value)
