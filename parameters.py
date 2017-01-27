@@ -34,14 +34,9 @@ def makeParamObj(param_data, dropdown_data, layerParamLabels, partParamLabels):
              
     for data in dropdown_data: #x in range(len(dropdown_data)):
             the_label = data[c.THE_LABEL]
-            if type(paramDict[the_label]) == str:
-                del data[c.THE_LABEL]
-                if the_label == 'outline':
-                    args = {key:value for key,value in data.items()}
-                    paramDict['outline_gen_maker'] = getattr(ds, paramDict['outline'])(**args)
-                else:
-                    paramDict[the_label] = getattr(ds, paramDict[the_label])(**data)
-                    
+            del data[c.THE_LABEL]
+            paramDict[the_label] = getattr(ds, paramDict[the_label])(**data)
+            
     return Parameters(layerParamLabels, partParamLabels)
 
 class Parameters:
@@ -49,7 +44,9 @@ class Parameters:
         self.layerParamLabels = layerParamLabels
         self.partParamLabels = partParamLabels
         self.globalParamLabels = []
+        
         nonGlobalLabels = set(layerParamLabels + partParamLabels)
+        
         for key, value in paramDict.items():
             if key not in nonGlobalLabels:
                 setattr(self, key, value)
@@ -98,7 +95,7 @@ class Parameters:
             partNum += 1
             
     def layers(self):
-        self.outline_gen = self.outline_gen_maker()
+        self.outline_gen = self.outline()
         next(self.outline_gen)
         layerNum = 1
         for nextLayerParam in self.layerParamGen:
