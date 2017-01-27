@@ -17,11 +17,6 @@ import inspect
 import constants as c
 import doneshapes as ds
 
-#LayerParams = namedtuple('LayerParams', 'infillShiftX infillShiftY infillAngleDegrees '
-#                         + 'numShells layerHeight pathWidth infillOverlap pattern')
-#
-#PartParams = namedtuple('PartParams', 'extrusionFactor printSpeed shiftX shiftY shiftZ')
-
 paramDict = {}
 
 def makeParamObj(param_data, dropdown_data, layerParamLabels, partParamLabels):
