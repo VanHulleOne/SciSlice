@@ -41,6 +41,8 @@ FILE_EXTENSIONS = ['.gcode', '.mod', '.json']
 THE_LABEL = 'the_label'
 MODEL = 'model'
 FILENAME = 'fileName'
+MACH_CODE = 0
+TEMP_FILE = '_temp'
 
 BED_TEMP_FLAG = '#BED_TEMP'
 EXTRUDER_TEMP_FLAG = '#EXTRUDER_TEMP'

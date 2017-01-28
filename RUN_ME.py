@@ -4,7 +4,7 @@ Created on Sat May 28 16:39:58 2016
 @author: Alex Diebold
 '''
 
-import os
+import os, shutil
 
 import constants as c               
 from collections import namedtuple
@@ -24,6 +24,8 @@ import pygame
 #from pygame.locals import *
 
 from wireframe import Wireframe
+
+machineCodePath = ''
 
 class GUI(tk.Tk):
 
@@ -50,13 +52,12 @@ class GUI(tk.Tk):
             frame = F(self.container, self)            
             self.frames[F] = frame            
             frame.grid(row=0, column=0, sticky='nsew')            
-        
+        self.protocol("WM_DELETE_WINDOW", self.on_closing)
         #show initial Frame
         tk.Tk.geometry(self, self.shapes[Page_Variables])
         self.show_frame(Page_Variables)
        
     def show_frame(self, cont, delete=False, cont_to_del = None):
-
         if cont not in self.frames:
             frame = cont(self.container, self)
             self.frames[cont] = frame
@@ -68,6 +69,15 @@ class GUI(tk.Tk):
         
         if delete:
             del self.frames[cont_to_del]
+            
+    def on_closing(self):
+        for extension in c.FILE_EXTENSIONS:
+            try:
+                os.remove(machineCodePath + c.TEMP_FILE + extension)
+            except Exception:
+                pass
+        self.destroy()
+        
         
 class Page_Variables(tk.Frame):
     
@@ -160,15 +170,21 @@ class Page_Variables(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
-        
-        self.filename = ''
+        self.machCodeName = ''        
+        self.jsonFileName = ''
+        self.savePath = ''
+        self.lastParameters = {}
         self.elements = {}  
         self.numRows = len(self.dropdowns + self.parameters)
+        
+        global machineCodePath
+        
+        machineCodePath = self.GCODEPATH
                
         self.fields = []
         for menu in self.menus:
             self.fields.append([par for par in (self.dropdowns + self.parameters) if menu.group in par.groups])
-           
+
         self.set_all_vars()
         self.set_defaults()
         
@@ -536,74 +552,78 @@ class Page_Variables(tk.Frame):
         #only saving JSON
         if name is None:
             self.savePath = filedialog.asksaveasfilename()
-            self.savePath = self.check_end(self.savePath)
-            gcodeName = self.savePath.split('/')[len(self.savePath.split('/'))-1]
-            self.filename = self.savePath + c.FILE_EXTENSIONS[c.JSON] 
+            self.savePath = self.removeExtension(self.savePath)
+            self.machCodeName = self.savePath.split('/')[len(self.savePath.split('/'))-1]
+            self.jsonFileName = self.savePath + c.FILE_EXTENSIONS[c.JSON] 
         
         #converting to gcode -- create temp json file with same name as gcode file
-        elif name == 'gcode':
+        elif name == c.MACH_CODE:
             self.savePath = filedialog.asksaveasfilename()
-            self.savePath = self.check_end(self.savePath)
-            self.filename = (self.JSONPATH + '_'
+            self.savePath = self.removeExtension(self.savePath)
+            self.jsonFileName = (self.JSONPATH + '_'
                             + self.savePath.split('/')[len(self.savePath.split('/'))-1]
                             + c.FILE_EXTENSIONS[c.JSON])
-            gcodeName = self.savePath
+            self.machCodeName = self.savePath
             
         #switching to 3D model page -- create temp json file and temp gcode file
         else:
             self.savePath = 'blank'
-            gcodeName = self.GCODEPATH + name
-            self.filename = self.JSONPATH + name + c.FILE_EXTENSIONS[c.JSON]          
+            self.machCodeName = self.GCODEPATH + name
+            self.jsonFileName = self.JSONPATH + name + c.FILE_EXTENSIONS[c.JSON]          
         
-        gcodeName += c.FILE_EXTENSIONS[self.g_robot_var.get()]
+        self.machCodeName += c.FILE_EXTENSIONS[self.g_robot_var.get()]
         
-        data = {}              
-        dropdown_data = []
+        
         
         # if the dialog winow is closed without selecting a file we have no path
-        if self.savePath:                                                       
-            data[self.OUTPUTFILENAME] = gcodeName
-            data[self.OUTPUTSUBDIRECTORY] = self.savePath
-            data[self.G_ROBOT_VAR] = self.g_robot_var.get()
-            data[self.SHIFT] = self.shift
-            
-            #saves the extra dropdown menu data
-            for x, dropdown in enumerate(self.dropdowns):
-                dropdown_data.append({c.THE_LABEL : dropdown.label})
-                if len(self.all_vars[x][self.KEYS]) > 0:
-                    for key in self.all_vars[x][self.KEYS]:
-                        if self.all_vars[x][self.TYPES][key] in (float, int, str):
-                            self._save(dropdown_data[x], key, self.all_vars[x][self.TYPES][key], 
-                                 self.all_vars[x][self.SAVED][key])
-            
-            #saves the values entered into entry boxes
-            for param in self.dropdowns + self.parameters:                   
-                    
-                if param.data_type == self.INT_LIST or param.data_type == self.FLOAT_LIST:
-                    if param.data_type == self.INT_LIST:
-                        save_type = int
-                    else:
-                        save_type = float
-                    if self.elements[param.label].text_variable.get() == '':
-                        self._save(data, param.label, save_type, '')
-                    else:
-                        self._save(data, param.label, save_type, 
-                                   self.elements[param.label].text_variable.get().replace(' ', ',').replace(',,', ',').replace('(', '').replace(')', ''), True)
-                        
-                elif param.data_type in (self.STR, self.INT, self.FLOAT):
-                    self._save(data, param.label, param.data_type, self.elements[param.label].text_variable.get())
-                    
-                elif param.data_type == self.NONE:
-                    data[param.label] = None
-            
+        if self.savePath: 
+            self.lastParameters = self.collectParameters()
             if not os.path.isdir(self.JSONPATH):
                 os.makedirs(self.JSONPATH)
-            with open(self.filename, 'w') as fp:
-                json.dump([data, dropdown_data], fp, separators=(',\n',': '))   
+            with open(self.jsonFileName, 'w') as fp:
+                json.dump(self.lastParameters, fp, separators=(',\n',': '))   
+    
+    def collectParameters(self):
+        data = {}              
+        dropdown_data = []
+        data[self.OUTPUTFILENAME] = self.machCodeName
+        data[self.OUTPUTSUBDIRECTORY] = self.savePath
+        data[self.G_ROBOT_VAR] = self.g_robot_var.get()
+        data[self.SHIFT] = self.shift
+        
+        #saves the extra dropdown menu data
+        for x, dropdown in enumerate(self.dropdowns):
+            dropdown_data.append({c.THE_LABEL : dropdown.label})
+            if len(self.all_vars[x][self.KEYS]) > 0:
+                for key in self.all_vars[x][self.KEYS]:
+                    if self.all_vars[x][self.TYPES][key] in (float, int, str):
+                        self._save(dropdown_data[x], key, self.all_vars[x][self.TYPES][key], 
+                             self.all_vars[x][self.SAVED][key])
+        
+        #saves the values entered into entry boxes
+        for param in self.dropdowns + self.parameters:                   
+                
+            if param.data_type == self.INT_LIST or param.data_type == self.FLOAT_LIST:
+                if param.data_type == self.INT_LIST:
+                    save_type = int
+                else:
+                    save_type = float
+                if self.elements[param.label].text_variable.get() == '':
+                    self._save(data, param.label, save_type, '')
+                else:
+                    self._save(data, param.label, save_type, 
+                               self.elements[param.label].text_variable.get().replace(' ', ',').replace(',,', ',').replace('(', '').replace(')', ''), True)
+                    
+            elif param.data_type in (self.STR, self.INT, self.FLOAT):
+                self._save(data, param.label, param.data_type, self.elements[param.label].text_variable.get())
+                
+            elif param.data_type == self.NONE:
+                data[param.label] = None
+                    
+        return [data, dropdown_data]
     
     #accounts for file extensions
-    def check_end(self, pathName):
-        
+    def removeExtension(self, pathName):        
         return os.path.splitext(pathName)[0]
         
     def upload(self):
@@ -666,42 +686,74 @@ class Page_Variables(tk.Frame):
                 self.elements[param.label].label.grid(row=x+1+self.shift, column=0)
                 self.elements[param.label].entry.grid(row=x+1+self.shift, column=1, sticky='ew')
         return inner_command
+
+    def compareParameters(self, old, new):
+        for key, value in new[0].items():
+            try:
+                if old[0][key] != value:
+                    if key == 'outputFileName' or key == 'outputSubDirectory':
+                        pass
+                    else:
+                        return False
+            except Exception:
+                return False
+        if old[1] != new[1]:
+            return False
+        return True
+            
                     
 # TODO: Save gcode during 3D model creation so it doesn't have to be re-run if converted    
     #create Gcode file; creates temp JSON file then deletes it                    
     def convert(self, name = None):
-        global data_points
-        
-        if name == None:
-            self.save('gcode')
+        global data_points  
+
+        if self.compareParameters(self.lastParameters, self.collectParameters()):
+            self.savePath = filedialog.asksaveasfilename()
+            self.savePath = self.removeExtension(self.savePath)
+            self.jsonFileName = (self.JSONPATH + '_'
+                            + self.savePath.split('/')[len(self.savePath.split('/'))-1]
+                            + c.FILE_EXTENSIONS[c.JSON])
+            self.machCodeName = self.savePath
+            self.machCodeName += c.FILE_EXTENSIONS[self.g_robot_var.get()]
+            
+            if self.savePath:
+                shutil.copyfile(self.GCODEPATH
+                                    + c.TEMP_FILE
+                                    + c.FILE_EXTENSIONS[self.g_robot_var.get()],
+                                    self.machCodeName)
+                print('Done writting:', self.machCodeName)
+            
         else:
-            self.save(name)
-        
-        if self.savePath:
-            layerParamsLabels = []
-            partParamsLabels = []
-            for param in self.parameters:
-                if self.LAYER in param.groups:
-                    layerParamsLabels.append(param.label)
-                elif self.PART in param.groups:
-                    partParamsLabels.append(param.label)
-                    
-            conversion = Runner(self.filename, self.g_robot_var.get(), layerParamsLabels, partParamsLabels)
-            data_points = conversion.run()
-            os.remove(self.filename)    
+            if name == None:
+                self.save(c.MACH_CODE)
+            else:
+                self.save(name)
+            
+            if self.savePath:            
+                layerParamsLabels = []
+                partParamsLabels = []
+                for param in self.parameters:
+                    if self.LAYER in param.groups:
+                        layerParamsLabels.append(param.label)
+                    elif self.PART in param.groups:
+                        partParamsLabels.append(param.label)
+                        
+                conversion = Runner(self.jsonFileName, self.g_robot_var.get(), layerParamsLabels, partParamsLabels)
+                data_points = conversion.run()
+                os.remove(self.jsonFileName)    
     
     #create popup 3D model viewer; creates temp JSON and temp Gcode files then deletes both       
     def gen_model(self):
         
         try:
-            self.convert('_temp')
+            self.convert(c.TEMP_FILE)
             
         except Exception as e:
             print('Error during calculations.')
             raise(e)
             
         else:
-            os.remove(self.GCODEPATH + '_temp.gcode')
+#            os.remove(self.machCodeName)
             #3D model data setup and creation
             pv = ProjectionViewer(1000, 750)
             model = Wireframe()
@@ -803,7 +855,6 @@ class ProjectionViewer:
             self.g = 0
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-#                    pygame.display.quit()
                     pygame.quit()
                     
                 elif event.type == pygame.KEYDOWN:
