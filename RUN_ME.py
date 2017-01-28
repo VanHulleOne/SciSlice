@@ -848,36 +848,23 @@ class ProjectionViewer:
 
         self.screen.fill(self.background)
 
-        #creates labels
-
+        text = []
         #Part and Layer numbers change to accurately reflect the parts/layers being shown
-        text = ('Showing Part ' + str(self.layer_part[self.start].partNum)
+        text.append('Showing Part ' + str(self.layer_part[self.start].partNum)
                 + ' Layer ' + str(self.layer_part[self.start].layerNum)
                 + ' through Part ' + str(self.layer_part[self.end].partNum)
                 + ' Layer ' + str(self.layer_part[self.end].layerNum)
                 + '  (' + str(self.end - self.start + 1) + ' layers total)')
-        label = self.myfont.render(text, 1, self.label_color)
-        self.screen.blit(label, (0, 0))
         
-        instructions = []
-        instruct_label = []
-        color_text = []
-        color_label = []
-        
-        instructions.append('Left click mouse to Pan | Scroll Wheel to Zoom | Right Click for rotate')
-        instructions.append('1/2 = zoom in/out | q/w = rotate X-axis | a/s = rotate Y-axis | z/x = rotate Z-axis')        
-        instructions.append('e/d = add/subtract layers | 3/c = shift layers up/down | r/f = show all/one layer(s)')        
-        color_text.append('Line color gradually changes from BLK > RED > OR > YEL > GRY in the order printed')
-        color_text.append('Line colors will repeat the cycle in the middle of shapes if there are a lot of lines')
-        color_text.append('')
+        text.append('Left click mouse to Pan | Scroll Wheel to Zoom | Right Click for rotate')
+        text.append('1/2 = zoom in/out | q/w = rotate X-axis | a/s = rotate Y-axis | z/x = rotate Z-axis')        
+        text.append('e/d = add/subtract layers | 3/c = shift layers up/down | r/f = show all/one layer(s)')        
+        text.append('Line color gradually changes from BLK > RED > OR > YEL > GRY in the order printed')
+        text.append('Line colors will repeat the cycle in the middle of shapes if there are a lot of lines')
 
-# TODO: Adjust this the dynamically handle additional instructions.        
-        #creates all instructoin/color labels at once
-        for x in range(3):
-            instruct_label.append(self.myfont.render(instructions[x], 1, self.label_color))
-            color_label.append(self.myfont.render(color_text[x], 1, self.label_color))
-            self.screen.blit(instruct_label[x], (0,(25*(x+1))))
-            self.screen.blit(color_label[x], (0,(25*(x+1)+75)))
+        for x, words in enumerate(text):
+            label = self.myfont.render(words, 1, self.label_color)
+            self.screen.blit(label, (0, x*25))
             
         error_label = self.myfont.render(self.error_text, 1, self.label_color)
         self.screen.blit(error_label, (25,self.screen.get_size()[1]-25))
