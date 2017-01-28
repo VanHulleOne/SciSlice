@@ -577,7 +577,6 @@ class Page_Variables(tk.Frame):
                                  self.all_vars[x][self.SAVED][key])
             
             #saves the values entered into entry boxes
-            # TODO: Clean up dropdowns, how they are stored here and called in Parameters
             for param in self.dropdowns + self.parameters:                   
                     
                 if param.data_type == self.INT_LIST or param.data_type == self.FLOAT_LIST:
@@ -642,7 +641,6 @@ class Page_Variables(tk.Frame):
                 #deletes the label entry so it doesn't show up in the value bar
                 #uploads all necessary dropdown menu data so dropdown menu
                 #functions can act appropriately
-                # FIXME: This will break when dropdowns are changed
                 for x, dropdown in enumerate(self.dropdowns):
                     del dropdown_data[x][c.THE_LABEL]
                     if len(dropdown_data[x]) > 0:
@@ -709,22 +707,14 @@ class Page_Variables(tk.Frame):
             model = Wireframe()
             
             data = pv.parse_data()
-#            xar = []
-#            yar = []
-#            zar = []
-#            for line in data:
-#                for point in line:
-#                    xar.append(point[0])
-#                    yar.append(point[1])
-#                    zar.append(point[2])
-            model.addNodes([point for point in data])        
-#            model.addNodes([(xar[c],yar[c],zar[c]) for c in range(len(xar))])
+
+            model.addNodes([point for point in data])
             model.addEdges([(n,n+1) for n in range(0,len(data),2)])
             
             pv.addWireframe(c.MODEL, model)
             try:
                 pv.run()
-            #needed become it always gives error message when 3D model page it closed
+            #needed become it always gives error message when 3D model page is closed
             except Exception as e:
                 if str(e) == 'display Surface quit':
                     print('You have closed the 3D model.')
