@@ -537,34 +537,30 @@ class Page_Variables(tk.Frame):
         if name is None:
             self.savePath = filedialog.asksaveasfilename()
             self.savePath = self.check_end(self.savePath)
-            if self.g_robot_var.get() == c.GCODE:
-                gcodeName = self.savePath.split('/')[len(self.savePath.split('/'))-1] + '.gcode'
-            elif self.g_robot_var.get() == c.ROBOTCODE:
-                gcodeName = self.savePath.split('/')[len(self.savePath.split('/'))-1] + '.mod'
-            self.filename = self.savePath + '.json'  
+            gcodeName = self.savePath.split('/')[len(self.savePath.split('/'))-1]
+            self.filename = self.savePath + c.FILE_EXTENSIONS[c.JSON] 
         
         #converting to gcode -- create temp json file with same name as gcode file
         elif name == 'gcode':
             self.savePath = filedialog.asksaveasfilename()
             self.savePath = self.check_end(self.savePath)
-            self.filename = self.JSONPATH + '_' + self.savePath.split('/')[len(self.savePath.split('/'))-1] + '.json'
-            if self.g_robot_var.get() == c.GCODE:
-                gcodeName = self.savePath + '.gcode'
-            elif self.g_robot_var.get() == c.ROBOTCODE:
-                gcodeName = self.savePath + '.mod'
+            self.filename = (self.JSONPATH + '_'
+                            + self.savePath.split('/')[len(self.savePath.split('/'))-1]
+                            + c.FILE_EXTENSIONS[c.JSON])
+            gcodeName = self.savePath
             
         #switching to 3D model page -- create temp json file and temp gcode file
         else:
             self.savePath = 'blank'
-            if self.g_robot_var.get() == c.GCODE:
-                gcodeName = self.GCODEPATH + name + '.gcode'
-            elif self.g_robot_var.get() == c.ROBOTCODE:
-                gcodeName = self.GCODEPATH = name + '.mod'
-            self.filename = self.JSONPATH + name + '.json'          
+            gcodeName = self.GCODEPATH + name
+            self.filename = self.JSONPATH + name + c.FILE_EXTENSIONS[c.JSON]          
+        
+        gcodeName += c.FILE_EXTENSIONS[self.g_robot_var.get()]
         
         data = {}              
         dropdown_data = []
-            
+        
+        # if the dialog winow is closed without selecting a file we have no path
         if self.savePath:                                                       
             data[self.OUTPUTFILENAME] = gcodeName
             data[self.OUTPUTSUBDIRECTORY] = self.savePath

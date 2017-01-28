@@ -35,6 +35,8 @@ TRIMMED_FIELD = 4
 
 GCODE = 0
 ROBOTCODE = 1
+JSON = 2
+FILE_EXTENSIONS = ['.gcode', '.mod', '.json']
 #STL_FLAG = 'stl_file'
 THE_LABEL = 'the_label'
 MODEL = 'model'
