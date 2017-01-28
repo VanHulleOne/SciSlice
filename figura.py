@@ -139,8 +139,10 @@ class Figura:
         layerNumber = 1
         yield self.gc.newPart()
         totalExtrusion = 0
+        part = []
         
         for layer in self.layer_gen(layers):
+            layer_hold = []
             extrusionRate = (self.pr.extrusionFactor*self.pr.layerHeight*
                             self.pr.nozzleDiameter/(math.pi * self.pr.filamentDiameter**2/4.0))
             yield self.gc.comment('Layer: ' + str(layerNumber) + '\n')
@@ -152,8 +154,8 @@ class Figura:
             yield self.gc.firstApproach(totalExtrusion, layer[0].start)
             
             prevLoc = layer[0].start
-            self.data_points.append(['start'])
             for line in layer:
+                layer_hold.extend(point.point for point in line)
                 if prevLoc != line.start:
                     if (prevLoc - line.start) < self.pr.retractMinTravel:
                         yield self.gc.rapidMove(line.start)
@@ -167,16 +169,13 @@ class Figura:
                 yield self.gc.feedMove(line.end, totalExtrusion,
                                           self.pr.printSpeed)
                 prevLoc = line.end
-            
-                self.data_points.append([(','.join(str(i) for i in line.start.normalVector[:3])+',')+
-                                        (','.join(str(i) for i in line.end.normalVector[:3])),
-                                        ('layer_number:' + str(layerNumber) + ':  part_number:' + str(self.partCount) + ':')])
-            self.data_points.append(['end'])
+
+            part.append(layer_hold)
             yield self.gc.retractLayer(totalExtrusion, layer[-1].end)
             yield '\n'
             layerNumber += 1
         yield self.gc.comment('Extrusion amount for part is ({:.1f} mm)\n\n'.format(totalExtrusion))
-
+        self.data_points.append(part)
             
 def organizedLayer(inOutlines):
     """ Takes in a list of LineGroup objects and returns them as an organized layer.

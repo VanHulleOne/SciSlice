@@ -709,17 +709,17 @@ class Page_Variables(tk.Frame):
             model = Wireframe()
             
             data = pv.parse_data()
-            xar = []
-            yar = []
-            zar = []
-            for line in data:
-                for point in line:
-                    xar.append(point[0])
-                    yar.append(point[1])
-                    zar.append(point[2])
-                    
-            model.addNodes([(xar[c],yar[c],zar[c]) for c in range(len(xar))])
-            model.addEdges([(n,n+1) for n in range(0,len(xar),2)])
+#            xar = []
+#            yar = []
+#            zar = []
+#            for line in data:
+#                for point in line:
+#                    xar.append(point[0])
+#                    yar.append(point[1])
+#                    zar.append(point[2])
+            model.addNodes([point for point in data])        
+#            model.addNodes([(xar[c],yar[c],zar[c]) for c in range(len(xar))])
+            model.addEdges([(n,n+1) for n in range(0,len(data),2)])
             
             pv.addWireframe(c.MODEL, model)
             try:
@@ -730,6 +730,7 @@ class Page_Variables(tk.Frame):
                     print('You have closed the 3D model.')
                 else:
                     print('Flag this message in RUN_ME.py\n' + str(e))
+                    raise e
 
 #3D model controls            
 key_to_function = {
@@ -780,24 +781,14 @@ class ProjectionViewer:
         data = []
         counter = 0
         self.layer_part = []
-        curr_layer = 0
-        curr_part = 0
+        LayerIndexes = namedtuple('LayerIndexes', 'layerNum partNum startIndex endIndex')
         
-        for line in data_points:
-            if 'start' in line:
+        for partNum, part in enumerate(data_points):
+            for layerNum, layer in enumerate(part):
                 start = counter
-            elif 'end' in line:
-                self.layer_part.append([curr_layer, curr_part, start, counter])
-            else:
-                curr_layer = line[1].split(':')[1]
-                curr_part = line[1].split(':')[3]
-                data.append(line[0]) 
-                data[counter] = data[counter].split(',')
-                for y in range(0,len(data[counter])):
-                    data[counter][y] = float(data[counter][y])
-                data[counter] = [tuple(data[counter][0:3]), tuple(data[counter][3:])]
-                counter += 1
-                
+                data.extend(layer)
+                counter += len(layer)
+                self.layer_part.append(LayerIndexes(layerNum+1, partNum+1, start, counter))
         return data
 
     def addWireframe(self, name, wireframe):
@@ -860,9 +851,11 @@ class ProjectionViewer:
         #creates labels
 
         #Part and Layer numbers change to accurately reflect the parts/layers being shown
-        text = 'Showing Part ' + self.layer_part[self.start][1] + ' Layer ' + self.layer_part[self.start][0]
-        text += ' through Part ' + self.layer_part[self.end][1] + ' Layer ' + self.layer_part[self.end][0]
-        text += '  (' + str(self.end - self.start + 1) + ' layers total)'
+        text = ('Showing Part ' + str(self.layer_part[self.start].partNum)
+                + ' Layer ' + str(self.layer_part[self.start].layerNum)
+                + ' through Part ' + str(self.layer_part[self.end].partNum)
+                + ' Layer ' + str(self.layer_part[self.end].layerNum)
+                + '  (' + str(self.end - self.start + 1) + ' layers total)')
         label = self.myfont.render(text, 1, self.label_color)
         self.screen.blit(label, (0, 0))
         
@@ -900,7 +893,9 @@ class ProjectionViewer:
             #tries to divide colors up evenly so it goes through one cycle of colors, but if there are
             #so many lines that the incrementation would be 0, it defaults to 1 and just cycles through
             #the colors multiples times
-            self.color_increment = int(255 * 3 / len(wireframe.edges[self.layer_part[self.start][2]:self.layer_part[self.end][3]]))
+            self.color_increment = int(255 * 3
+                                       / len(wireframe.edges[self.layer_part[self.start].startIndex
+                                                             : self.layer_part[self.end].endIndex]))
             if self.color_increment > 219:
                 self.color_increment = 219
             elif self.color_increment == 0:
@@ -908,7 +903,8 @@ class ProjectionViewer:
             self.color_cap = 220 - self.color_increment     #220 is used so lines never get too light of a color            
             
             #prints each edge, adjusts color for each line
-            for edge in wireframe.edges[self.layer_part[self.start][2]:self.layer_part[self.end][3]]:
+            for edge in wireframe.edges[self.layer_part[self.start].startIndex
+                                        : self.layer_part[self.end].endIndex]:
                 if self.r < self.color_cap:
                     self.r += self.color_increment
                 elif self.g < self.color_cap:
