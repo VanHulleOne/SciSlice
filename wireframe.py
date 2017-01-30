@@ -72,7 +72,7 @@ class Wireframe:
             y      = node.y - cy
             z      = node.z - cz
             d      = math.hypot(y, z)
-            theta  = math.atan2(y, z) + radians
+            theta  = math.atan2(y, z) + -radians
             node.z = cz + d * math.cos(theta)
             node.y = cy + d * math.sin(theta)
 
@@ -90,6 +90,6 @@ class Wireframe:
             x      = node.x - cx
             y      = node.y - cy
             d      = math.hypot(y, x)
-            theta  = math.atan2(y, x) + radians
+            theta  = math.atan2(y, x) + -radians
             node.x = cx + d * math.cos(theta)
             node.y = cy + d * math.sin(theta)

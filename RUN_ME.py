@@ -852,7 +852,7 @@ class ProjectionViewer:
                     elif event.buttons[2]:
                         rotY, rotX = event.rel
                         self.rotateAll('X', rotX/270)
-                        self.rotateAll('Y', -rotY/270)
+                        self.rotateAll('Y', rotY/270)
                         
                 elif event.type == pygame.VIDEORESIZE:
                     os.environ['SDL_VIDEO_WINDOW_POS'] = '' # Clears the default window location
