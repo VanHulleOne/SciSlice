@@ -568,8 +568,38 @@ class Page_Variables(tk.Frame):
         if not os.path.isdir(self.JSONPATH):
             os.makedirs(self.JSONPATH)
         with open(jsonFileName, 'w') as fp:
-            json.dump(self.currentParameters(), fp, separators=(',\n',': '))  
+            cp = self.currentParameters()
+            fp.write('[')
+            self._writeDict(fp, cp[0])
+            fp.write('[')
+            for x, _dict in enumerate(cp[1]):
+                self._writeDict(fp, _dict, last = x == len(cp[1])-1)
+            fp.write('],\n')
+            for x, _dict in enumerate(cp[2:]):
+                self._writeDict(fp, _dict, last = x == len(cp[2:])-1)
+            fp.write('\n]')
+#            json.dump(self.currentParameters(), fp, separators=(',',': '))  
         return jsonFileName
+    
+    def _writeDict(self, file, _dict, last = False):
+        file.write('{')
+        for x, (key, value) in enumerate(_dict.items()):
+            if x:
+                file.write('\t')
+            file.write('"'+ key + '"')
+            file.write(': ')
+            if isinstance(value, str):
+                file.write('"'+ value + '"')
+            else:
+                file.write(str(value))
+            if x == len(_dict)-1:
+                if last:
+                    file.write('}\n')
+                else:
+                    file.write('},\n')
+            else:
+                file.write(',\n')
+        
     
     def currentParameters(self):
         data = {}              
