@@ -13,8 +13,9 @@ import constants as c
 
 class Runner:
     
-    def __init__(self, name, gRobot, layerParamLabels, partParamLabels):
-        with open(name, 'r') as fp:
+    def __init__(self, jsonName, outputFileName, gRobot, layerParamLabels, partParamLabels):
+        self.outputFileName = outputFileName
+        with open(jsonName, 'r') as fp:
             data = json.load(fp)
 
         self.pr = makeParamObj(data[0], data[1], layerParamLabels, partParamLabels)
@@ -29,13 +30,13 @@ class Runner:
         
         fig = fg.Figura(self.pr, self.gc)
 
-        with open(self.pr.outputFileName, 'w') as f:
+        with open(self.outputFileName, 'w') as f:
             for string in fig.masterGcode_gen():
                 f.write(string)
         
         endTime = time.time()
         print('\nCode generated.')
-        print('Done writting: ' + self.pr.outputFileName + '\n')
+        print('Done calculating: ' + self.outputFileName + '\n')
         print('{:.2f} total time'.format(endTime - startTime))
         return fig.data_points
         """
