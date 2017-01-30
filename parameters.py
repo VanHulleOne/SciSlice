@@ -18,8 +18,14 @@ import constants as c
 import doneshapes as ds
 
 paramDict = {}
+multiRegionParams = []
+path = ''
 
-def makeParamObj(param_data, dropdown_data, layerParamLabels, partParamLabels):
+def makeParamObj(param_data, dropdown_data, multiRegionData, jsonPath, layerParamLabels, partParamLabels):
+    global multiRegionParams
+    global path
+    multiRegionParams = multiRegionData
+    path = jsonPath
     for key, value in param_data.items():
         paramDict[key] = value
     

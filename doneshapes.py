@@ -33,6 +33,7 @@ from collections import namedtuple
 from functools import wraps
 import json
 from parameters import zipVariables_gen
+import parameters
 import os
 import numpy as np
 
@@ -68,9 +69,10 @@ def _getMesh(fname, change_units_from='mm'):
         mesh.convert_units('mm')
     return mesh
     
-def readMultiPartFile(fname):
-    with open(fname, 'r') as file:
-        bigList = json.load(file)
+def readMultiPartFile():
+#    with open(fname, 'r') as file:
+#        bigList = json.load(file)
+    bigList = parameters.multiRegionParams
     fileNames = []
     paramNames = []
     paramLists = []
@@ -91,10 +93,10 @@ def _getOutlineFromSTL(fname: str, height: float, change_units_from: str='mm') -
     outline._name = os.path.basename(fname)
     return outline
 
-def _multiRegionHandler(fname, change_units_from, height=None):
-    stl_names, eachPart_paramNames, eachPart_paramLists = readMultiPartFile(fname)
-    path = os.path.dirname(fname) + '/'
-    meshes = [_getMesh(path+stl_name, change_units_from) for stl_name in stl_names]
+def _multiRegionHandler(change_units_from, height=None):#fname, change_units_from, height=None):
+    stl_names, eachPart_paramNames, eachPart_paramLists = readMultiPartFile()
+#    path = os.path.dirname(fname) + '/'
+    meshes = [_getMesh(parameters.path + stl_name, change_units_from) for stl_name in stl_names]
     bounds = np.array([mesh.bounding_box.bounds[0] for mesh in meshes])
     global_minXYZ = np.amin(bounds, axis=0)
     def multiRegion_coro():
@@ -143,8 +145,8 @@ def fromSTL_oneLevel(fname: str, height: float, change_units_from: str='mm') ->O
     return outline
 
 @outline
-def multiRegion_oneLevel(fname: str, change_units_from: str, height: float):
-    return _multiRegionHandler(fname, change_units_from, height)                      
+def multiRegion_oneLevel(change_units_from: str, sliceHeight: float):
+    return _multiRegionHandler(change_units_from, sliceHeight)                      
     
 @outline     
 def multiRegion(fname: str, change_units_from: str='mm'):  

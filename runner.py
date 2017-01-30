@@ -10,15 +10,16 @@ import time
 from parameters import makeParamObj
 import json
 import constants as c
+import os
 
 class Runner:
     
-    def __init__(self, jsonName, outputFileName, gRobot, layerParamLabels, partParamLabels):
+    def __init__(self, jsonName, outputFileName, gRobot, jsonPath, layerParamLabels, partParamLabels):
         self.outputFileName = outputFileName
         with open(jsonName, 'r') as fp:
             data = json.load(fp)
 
-        self.pr = makeParamObj(data[0], data[1], layerParamLabels, partParamLabels)
+        self.pr = makeParamObj(data[0], data[1], data[2:], jsonPath, layerParamLabels, partParamLabels)
         if gRobot == c.GCODE:
             self.gc = Gcode(self.pr)
         elif gRobot == c.ROBOTCODE:
