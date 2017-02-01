@@ -77,7 +77,7 @@ class Figura:
         isFirstLayer = True
 
         for regions in layers:
-            if not layerCountdown:
+            if layerCountdown == 0:
                 break
                     
             fullLayer = self.make_layer(isFirstLayer, regions)
@@ -86,17 +86,10 @@ class Figura:
                                 self.pr.currHeight+self.pr.shiftZ)
             layerCountdown -= 1
             isFirstLayer = False
-        try:
-            print(self.make_layer.cache_info())
-        except Exception:
-            pass
-            
-#    @lru_cache(maxsize=16)
+
     def make_layer(self, isFirstLayer, regions):
-#        fullLayer = LineGroup()
         filledList = []
         for outline in regions:
-#            filledList = []
             region = make_region(outline, self.pr.horizontalExpansion, self.pr.nozzleDiameter,
                                           isFirstLayer, self.pr.brims, self.pr.numShells,
                                           self.pr.infillOverlap, self.pr.pattern, self.pr.pathWidth,
@@ -104,51 +97,13 @@ class Figura:
                                           self.pr.infillShiftY, self.pr.designType)
 
             filledList.extend(region)
-#            for lg in result:
-#                print('\tLayer Size:', len(lg))
-#            try:
-#                print(make_region.cache_info())
-#            except Exception:
-#                pass
-#""" ********* """
-#            outline = outline.offset(self.pr.horizontalExpansion-self.pr.nozzleDiameter/2.0, c.OUTSIDE)
-#            
-#            if isFirstLayer and self.pr.brims:
-#                filledList.extend(outline.shell_gen(number=self.pr.brims,
-#                                                    dist = self.pr.nozzleDiameter,
-#                                                    side = c.OUTSIDE,
-#                                                    ))
-#
-#            filledList.extend(outline.shell_gen(number = self.pr.numShells,
-#                                                dist = self.pr.nozzleDiameter,
-#                                                side = c.INSIDE,
-#                                                ))
-#                    
-#            """
-#            To help with problems that occur when an offset outline has its sides
-#            collide or if the infill lines are co-linear with the trim lines we
-#            want to fudge the trimOutline outward just a little so that we end
-#            up with the correct lines.
-#            """
-#            trimOutline = outline.offset(self.pr.infillOverlap
-#                                         - self.pr.nozzleDiameter * self.pr.numShells,
-#                                         c.OUTSIDE)
-#                            
-#            if trimOutline and self.pr.pattern: # If there is an outline to fill and we want an infill
-#                infill = Infill(trimOutline,
-#                                    self.pr.pathWidth, self.pr.infillAngleDegrees,
-#                                    shiftX=self.pr.infillShiftX, shiftY=self.pr.infillShiftY,
-#                                    design=self.pr.pattern, designType=self.pr.designType)
-#                filledList.append(infill)
-#""" *************** """
-#            organizedLayer = self.organizedLayer(filledList)
-#            if not organizedLayer:
-#                raise(Exception('Parameter setting produced no tool path. \n' +
-#                                'Ensure numLayers is >0 and there is at least one ' +
-#                                'shell if no infill is used.'))
-#            fullLayer += organizedLayer
 
-        return organizedLayer(tuple(filledList))
+        layer = organizedLayer(tuple(filledList))
+        if not layer:
+            raise(Exception('Parameter setting produced no tool path. \n' +
+                            'Ensure numLayers is >0 and there is at least one ' +
+                            'shell if no infill is used.'))
+        return layer
     
 
     
@@ -306,6 +261,8 @@ def make_region(outline, horizontalExpansion, nozzleDiameter, isFirstLayer, brim
                             design=pattern, designType=designType)
         region.append(infill)
     return region
+
+
 #    def __str__(self):
 #        tempString = ''
 #        layerNumber = 1

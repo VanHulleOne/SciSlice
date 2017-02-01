@@ -566,7 +566,7 @@ class Page_Variables(tk.Frame):
         if not os.path.isdir(self.JSONPATH):
             os.makedirs(self.JSONPATH)
         with open(jsonFileName, 'w') as fp:
-            json.dump(self.currentParameters(), fp, separators=(',\n',': '))  
+            json.dump(self.currentParameters(), fp, separators=(',\n',': ')) 
         return jsonFileName
     
     def currentParameters(self):
