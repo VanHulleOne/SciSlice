@@ -255,7 +255,7 @@ class Outline(LineGroup):
         
     def nearestLine_Coro(self, name=None):
         used, testPoint = yield
-        normList = self.starts
+        normList = np.array([line.start.get2DPoint() for line in self])
         while len(normList[(normList < np.inf)]) > 0:
             """ Continue working until all items have been used/are set to infinity. """
 

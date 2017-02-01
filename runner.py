@@ -40,25 +40,6 @@ class Runner:
         print('Done calculating: ' + self.outputFileName + '\n')
         print('{:.2f} total time'.format(endTime - startTime))
         return fig.data_points
-        """
-        if c.LOG_LEVEL < c.logging.WARN:
-            with open(self.outputSubDirectory+'\\'+self.outputFileName, 'r') as test,\
-                 open(self.outputSubDirectory+'\\SAVE_master.gcode') as master:
-                testLines = test.readlines()
-                masterLines = master.readlines()
-                i = 0
-                numDiffs = 0
-                for t,m in zip(testLines, masterLines):
-                    i += 1
-                    if t != m:
-                        numDiffs += 1
-                        if i%10**round(np.log10(i*2)-1)<1:
-                            print('Diff at line: ', i)
-                            print('Test: ' + t)
-                            print('Master: ' + m)
-                            print('---------------------------\n')
-            print('\nTotal number of differences: ', numDiffs)
-        """
 
 
            

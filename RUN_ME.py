@@ -568,17 +568,7 @@ class Page_Variables(tk.Frame):
         if not os.path.isdir(self.JSONPATH):
             os.makedirs(self.JSONPATH)
         with open(jsonFileName, 'w') as fp:
-            cp = self.currentParameters()
-            fp.write('[')
-            self._writeDict(fp, cp[0])
-            fp.write('[')
-            for x, _dict in enumerate(cp[1]):
-                self._writeDict(fp, _dict, last = x == len(cp[1])-1)
-            fp.write('],\n')
-            for x, _dict in enumerate(cp[2:]):
-                self._writeDict(fp, _dict, last = x == len(cp[2:])-1)
-            fp.write(']')
-#            json.dump(self.currentParameters(), fp, separators=(',',': '))  
+            json.dump(self.currentParameters(), fp, separators=(',\n',': ')) 
         return jsonFileName
     
     def _writeDict(self, file, _dict, last = False):
@@ -826,23 +816,23 @@ class ProjectionViewer:
         
         self.start = 0
         self.end = 0
-        self.first = True
         
         self.error_text = ''
         
     def parse_data(self):
         
         data = []
-        counter = 0
+#        counter = 0
         self.layer_part = []
         LayerIndexes = namedtuple('LayerIndexes', 'layerNum partNum startIndex endIndex')
         
         for partNum, part in enumerate(data_points):
             for layerNum, layer in enumerate(part):
-                start = counter
+                start = len(data)//2
                 data.extend(layer)
-                counter += len(layer)
-                self.layer_part.append(LayerIndexes(layerNum+1, partNum+1, start, counter))
+                end = len(data)//2
+                self.layer_part.append(LayerIndexes(layerNum+1, partNum+1, start, end))
+        self.end = len(self.layer_part)-1
         return data
 
     def addWireframe(self, name, wireframe):
@@ -924,11 +914,7 @@ class ProjectionViewer:
                 
         #creates 3D model
         wireframe = self.wireframes[c.MODEL]
-        if self.displayEdges:
-            if self.first:
-                self.end = len(self.layer_part)-1
-                self.first = False
-            
+        if self.displayEdges:            
             #adjusts color incrementation to the amount of lines being displayed
             #tries to divide colors up evenly so it goes through one cycle of colors, but if there are
             #so many lines that the incrementation would be 0, it defaults to 1 and just cycles through

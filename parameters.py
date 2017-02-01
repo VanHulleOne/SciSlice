@@ -102,7 +102,7 @@ class Parameters:
         for nextLayerParam in self.layerParamGen:
             for label, param in zip(self.layerParamLabels, nextLayerParam):
                 setattr(self, label, param)
-            yield self.regions(self.outline_gen.send(self.params))
+            yield self.regions(self.outline_gen.send(self.layerParams))
             layerNum += 1
             
     def regions(self, regions):
