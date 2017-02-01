@@ -97,35 +97,50 @@ class Figura:
         filledList = []
         for outline in regions:
 #            filledList = []
-            outline = outline.offset(self.pr.horizontalExpansion-self.pr.nozzleDiameter/2.0, c.OUTSIDE)
-            
-            if isFirstLayer and self.pr.brims:
-                filledList.extend(outline.shell_gen(number=self.pr.brims,
-                                                    dist = self.pr.nozzleDiameter,
-                                                    side = c.OUTSIDE,
-                                                    ))
+            region = make_region(outline, self.pr.horizontalExpansion, self.pr.nozzleDiameter,
+                                          isFirstLayer, self.pr.brims, self.pr.numShells,
+                                          self.pr.infillOverlap, self.pr.pattern, self.pr.pathWidth,
+                                          self.pr.infillAngleDegrees, self.pr.infillShiftX,
+                                          self.pr.infillShiftY, self.pr.designType)
 
-            filledList.extend(outline.shell_gen(number = self.pr.numShells,
-                                                dist = self.pr.nozzleDiameter,
-                                                side = c.INSIDE,
-                                                ))
-                    
-            """
-            To help with problems that occur when an offset outline has its sides
-            collide or if the infill lines are co-linear with the trim lines we
-            want to fudge the trimOutline outward just a little so that we end
-            up with the correct lines.
-            """
-            trimOutline = outline.offset(self.pr.infillOverlap
-                                         - self.pr.nozzleDiameter * self.pr.numShells,
-                                         c.OUTSIDE)
-                            
-            if trimOutline and self.pr.pattern: # If there is an outline to fill and we want an infill
-                infill = Infill(trimOutline,
-                                    self.pr.pathWidth, self.pr.infillAngleDegrees,
-                                    shiftX=self.pr.infillShiftX, shiftY=self.pr.infillShiftY,
-                                    design=self.pr.pattern, designType=self.pr.designType)
-                filledList.append(infill)
+            filledList.extend(region)
+#            for lg in result:
+#                print('\tLayer Size:', len(lg))
+#            try:
+#                print(make_region.cache_info())
+#            except Exception:
+#                pass
+#""" ********* """
+#            outline = outline.offset(self.pr.horizontalExpansion-self.pr.nozzleDiameter/2.0, c.OUTSIDE)
+#            
+#            if isFirstLayer and self.pr.brims:
+#                filledList.extend(outline.shell_gen(number=self.pr.brims,
+#                                                    dist = self.pr.nozzleDiameter,
+#                                                    side = c.OUTSIDE,
+#                                                    ))
+#
+#            filledList.extend(outline.shell_gen(number = self.pr.numShells,
+#                                                dist = self.pr.nozzleDiameter,
+#                                                side = c.INSIDE,
+#                                                ))
+#                    
+#            """
+#            To help with problems that occur when an offset outline has its sides
+#            collide or if the infill lines are co-linear with the trim lines we
+#            want to fudge the trimOutline outward just a little so that we end
+#            up with the correct lines.
+#            """
+#            trimOutline = outline.offset(self.pr.infillOverlap
+#                                         - self.pr.nozzleDiameter * self.pr.numShells,
+#                                         c.OUTSIDE)
+#                            
+#            if trimOutline and self.pr.pattern: # If there is an outline to fill and we want an infill
+#                infill = Infill(trimOutline,
+#                                    self.pr.pathWidth, self.pr.infillAngleDegrees,
+#                                    shiftX=self.pr.infillShiftX, shiftY=self.pr.infillShiftY,
+#                                    design=self.pr.pattern, designType=self.pr.designType)
+#                filledList.append(infill)
+#""" *************** """
 #            organizedLayer = self.organizedLayer(filledList)
 #            if not organizedLayer:
 #                raise(Exception('Parameter setting produced no tool path. \n' +
@@ -133,7 +148,9 @@ class Figura:
 #                                'shell if no infill is used.'))
 #            fullLayer += organizedLayer
 
-        return organizedLayer(filledList)
+        return organizedLayer(tuple(filledList))
+    
+
     
     def partGcode_gen(self, layers):        
         layerNumber = 1
@@ -176,7 +193,8 @@ class Figura:
             layerNumber += 1
         yield self.gc.comment('Extrusion amount for part is ({:.1f} mm)\n\n'.format(totalExtrusion))
         self.data_points.append(part)
-            
+
+@lru_cache(maxsize=16)            
 def organizedLayer(inOutlines):
     """ Takes in a list of LineGroup objects and returns them as an organized layer.
     
@@ -244,7 +262,7 @@ def organizedLayer(inOutlines):
             """
             while True:
                 try:
-                    line = lineCoros[indexOfClosest].send((c.USED, lastPoint))[0]
+                    line = lineCoros[indexOfClosest].send((c.USED, lastPoint)).line
                 except StopIteration:
                     del lineCoros[indexOfClosest]
                     break
@@ -253,7 +271,41 @@ def organizedLayer(inOutlines):
                     lastPoint = line.end
                     layer.append(line)
     return layer
-    
+
+@lru_cache(maxsize=16)
+def make_region(outline, horizontalExpansion, nozzleDiameter, isFirstLayer, brims, numShells,
+                infillOverlap, pattern, pathWidth, infillAngleDegrees, infillShiftX,
+                infillShiftY, designType):
+    region = []
+    new_outline = outline.offset(horizontalExpansion-nozzleDiameter/2.0, c.OUTSIDE) 
+    if isFirstLayer and brims:
+        region.extend(new_outline.shell_gen(number=brims,
+                                            dist = nozzleDiameter,
+                                            side = c.OUTSIDE,
+                                            ))
+
+    region.extend(new_outline.shell_gen(number = numShells,
+                                        dist = nozzleDiameter,
+                                        side = c.INSIDE,
+                                        ))
+            
+    """
+    To help with problems that occur when an offset outline has its sides
+    collide or if the infill lines are co-linear with the trim lines we
+    want to fudge the trimOutline outward just a little so that we end
+    up with the correct lines.
+    """
+    trimOutline = new_outline.offset(infillOverlap
+                                 - nozzleDiameter * numShells,
+                                 c.OUTSIDE)
+                    
+    if trimOutline and pattern: # If there is an outline to fill and we want an infill
+        infill = Infill(trimOutline,
+                            pathWidth, infillAngleDegrees,
+                            shiftX=infillShiftX, shiftY=infillShiftY,
+                            design=pattern, designType=designType)
+        region.append(infill)
+    return region
 #    def __str__(self):
 #        tempString = ''
 #        layerNumber = 1
