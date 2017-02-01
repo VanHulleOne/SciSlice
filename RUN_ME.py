@@ -577,7 +577,7 @@ class Page_Variables(tk.Frame):
             fp.write('],\n')
             for x, _dict in enumerate(cp[2:]):
                 self._writeDict(fp, _dict, last = x == len(cp[2:])-1)
-            fp.write('\n]')
+            fp.write(']')
 #            json.dump(self.currentParameters(), fp, separators=(',',': '))  
         return jsonFileName
     
