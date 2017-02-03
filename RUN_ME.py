@@ -132,7 +132,7 @@ class Page_Variables(tk.Frame):
                 Par('shiftX', FLOAT_LIST, (COMMON, PART)),
                 Par('shiftY', FLOAT_LIST, (COMMON, PART)),
                 Par('shiftZ', FLOAT_LIST, (PART,)),
-                Par('numLayers', INT, (COMMON,)),
+                Par('numLayers', INT_LIST, (COMMON, PART)),
                 Par('designType', INT_LIST, (PART,)),
                 Par('infillAngleDegrees', FLOAT_LIST, (COMMON, LAYER)),
                 Par('pathWidth', FLOAT_LIST, (LAYER,)),
