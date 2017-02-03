@@ -7,7 +7,7 @@ Created on Sat May 28 16:39:58 2016
 import os, shutil
 
 import constants as c               
-from collections import namedtuple
+from collections import namedtuple, OrderedDict
 
 import tkinter as tk                #GUI module
 from tkinter import ttk             #for styling purposing
@@ -173,6 +173,8 @@ class Page_Variables(tk.Frame):
         self.elements = {}  
         self.numRows = len(self.dropdowns + self.parameters)
         self.shift = 0
+        self.regionParams = None
+        self.currJsonPath = self.JSONPATH
         
         global machineCodePath
         
@@ -569,6 +571,26 @@ class Page_Variables(tk.Frame):
             json.dump(self.currentParameters(), fp, separators=(',\n',': ')) 
         return jsonFileName
     
+    def _writeDict(self, file, _dict, last = False):
+        file.write('{')
+        for x, (key, value) in enumerate(_dict.items()):
+            if x:
+                file.write('\t')
+            file.write('"'+ key + '"')
+            file.write(': ')
+            if isinstance(value, str):
+                file.write('"'+ value + '"')
+            else:
+                file.write(str(value))
+            if x == len(_dict)-1:
+                if last:
+                    file.write('}\n')
+                else:
+                    file.write('},\n')
+            else:
+                file.write(',\n')
+        
+    
     def currentParameters(self):
         data = {}              
         dropdown_data = []
@@ -603,7 +625,7 @@ class Page_Variables(tk.Frame):
             elif param.data_type == self.NONE:
                 data[param.label] = None
                     
-        return [data, dropdown_data]
+        return data, dropdown_data
     
     #accounts for file extensions
     def removeExtension(self, pathName):        
@@ -613,11 +635,11 @@ class Page_Variables(tk.Frame):
         uploadname = filedialog.askopenfilename()  
         
         
-        if uploadname != '':
+        if uploadname:
             #gives error messages if user tries to upload a filetype other than .json
             try:
                 with open(uploadname, 'r') as fp:
-                    data, dropdown_data = json.load(fp)
+                    data, dropdown_data, *self.regionParams = json.load(fp, object_pairs_hook=OrderedDict)
                     
             except Exception as e:
                 if '.json' not in uploadname:
@@ -625,7 +647,8 @@ class Page_Variables(tk.Frame):
                 else:
                     print('Error uploading file.\n', e)
                     
-            else:                
+            else:
+                self.currJsonPath = os.path.dirname(uploadname) + '/'                
                 for x in range(len(self.dropdowns)):
                     self.reset_certain_vars(x)
                    
