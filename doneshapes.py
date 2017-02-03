@@ -222,7 +222,8 @@ def squareWithHole() ->Outline:
     circle = a.Arc(Point(35,25), Point(35,25), c.CW, Point(25,25))
     outline.addLineGroup(circle)
     return outline
-    
+
+@outline    
 def circle(centerX: float, centerY: float, radius: float) ->Outline:
     startPoint = Point(centerX+radius, centerY)
     center = Point(centerX, centerY)
@@ -230,11 +231,11 @@ def circle(centerX: float, centerY: float, radius: float) ->Outline:
 
 @make_coro     
 @outline     
-def rect(lowerLeftX: float, lowerLeftY: float, width: float, height: float) ->Outline:
+def rect(lowerLeftX: float, lowerLeftY: float, X_width: float, Y_height: float) ->Outline:
     rect = [Point(lowerLeftX, lowerLeftY)]
-    rect.append(Point(lowerLeftX+width, lowerLeftY))
-    rect.append(Point(lowerLeftX+width, lowerLeftY+height))
-    rect.append(Point(lowerLeftX, lowerLeftY+height))
+    rect.append(Point(lowerLeftX+X_width, lowerLeftY))
+    rect.append(Point(lowerLeftX+X_width, lowerLeftY+Y_height))
+    rect.append(Point(lowerLeftX, lowerLeftY+Y_height))
     rectLG = Outline(None)
     rectLG.addLinesFromPoints(rect)
     rectLG.closeShape()
