@@ -1,12 +1,13 @@
-# DogBone V2.x
+# SciSlice - The Scientific Slicer
 
-DogBone is a program that creates custom tool paths for Fused Filament Fabrication
+SciSlice is a program that creates custom tool paths for Fused Filament Fabrication
 3D printers (also known by the trade marked term FDM). The motivation for creating
 this program was to allow the user to independently adjust as many printing
 parameters as possible for the purpose of researching and characterizing each
-parameter's effect on a part's properties.
+parameter's effect on a part's properties. These printing parameters can be changed
+between layers and even within sub-regions of a layer.
 
-Version 2 can tool path both STL files and pre-defined shapes.
+SciSlice can tool path both STL files and pre-defined shapes.
 Executing RUN_ME.py with Python 3+ will display a GUI through which you can enter
 all of the parameters for printing.
 
@@ -21,8 +22,9 @@ all of the parameters for printing.
 
 ## Getting Started
 After downloading the zip file and extracting it in an appropriate location and installing
-the dependencies simply run RUN_ME.py in your preferred Python IDE or with a text editor
-(I prefer Notepad++)*. The user adjustable printing parameters are broken into
+the dependencies simply run RUN_ME.py in your preferred Python IDE or from the command line. A GUI
+interface will be displayed which allows for either entering new parameters or for uploading previously
+defined parameter files (JSON files).  The user adjustable printing parameters are broken into
 five sections:<br/>
 * [Part](#part-parameters)<br/>
 * [Layer](#layer-parameters)<br/>
@@ -33,68 +35,79 @@ five sections:<br/>
 Parameters types are indicated after the name of the parameter. Types [enclosed in square brackets]
 can be lists, comma or space separated. For **_part parameters_** _the
 longest list determines_ **_how many_** _parts are printed_ all other
-parameters are cycled, one for each part, until the longest list is exhausted. For layer parameters
+parameters are repeated, one for each part, until the longest list is exhausted. For layer parameters
 the parameters are cycled layer by layer until the specified number of layers have been printed.
+
+The sorting of parameters displayed below into the categories: part, layer, print, printer; are the
+current division as downloaded. Most parameters can be switched into any other group by altering the parameters
+list in RUN_ME.py. See the advanced user section for more details.
+
+To know which parameters are in which group simply select the group from the right hand side buttons.
 
 ### Part Parameters
 Part parameters are parameters that are constant throughout a single part but can
 change between parts (except for outline). The longest list of part parameters
 determines how many parts will be created. The part parameters are:<br/>
 * outline<br/>
-* stl_file<br/>
-* solidity ratio<br/>
-* print speed (mm/min)<br/>
+* pattern<br/>
+* extrusion factor<br/>
+* print speed (mm/min*)<br/>
 * shift X<br/>
 * shift Y<br/>
+* shift Z<br/>
 * number of layers<br/>
+* design type<br/>
 * brims<br/>
 
 #### Outline
-The outline of the part to be made. The drop down menu is populated by the functions
-in the doneShapes module. An outline must be of type Shape. If an stl file is desired
-select `stl_file` from the drop down.
+The outline of the part to be made. The drop down menu is populated by the properly decorated
+functions in the doneshapes.py module. See [doneshapes](#doneshapes) for more information on
+the outline dropdown options.
 
-#### Stl File
-To slice an .stl file select `stl_file` from the **outline** drop down menu.
-From there a file chooser window will pop up allowing you to select an .stl file.
+#### Pattern
+This is the infill pattern which will be used to fill your part. If you choose `noInfill` remember
+to select at least one shell.
 
-#### Solidity Ratio
-Solidity ratio is used to calculate the extrusion rate for each layer.<br/>
-`extrusion_rate = solidity_ratio*layer_height*nozzle_diameter/filament_area`<br/>
-A solidity ratio of 1 should create a fully filled part, a theoretical minimum
-to have all beads in a square just touching is π/4.
+#### Extrusion Factor
+Extrusion factor is used to calculate the extrusion rate for each layer.<br/>
+`extrusion_rate = extrusionFactor*layer_height*nozzle_diameter/filament_area`<br/>
+Use this to determine how full of a bead area you want or to compensate for under/over filling
+cause by inaccurate feeding speeds (which should be fixed in your firmware) or
+manufacturing tolerances in your filament.
 
-#### Print Speed mm/min
-Print speed is how fast the print head moves while printing. The units will be
-dependent on the hardware you are using. It seems most slicing software uses
-mm/sec but the RepRap G-code they create and send to the printer
-is still defined in mm/min so that is the units used in the G-code.
+#### Print Speed (mm/min*)
+Print speed is how fast the print head moves while printing. 
 
-#### Shift X and Shift Y
+*The output is actually unit agnostic and will depend on how your firmware interrupts
+its feed rate commands. It seems most slicing software uses
+mm/sec at the GUI but the RepRap G-code they create and is sent to the printer
+is still defined in mm/min. So instead of asking you for units of mm/sec and then
+dividing by 60 behind the scenes SciSlice just asks for a number and writes it.
+Who chose to not ask for feed rate in the native machine units anyway?
+
+#### Shift X, Shift Y
 To print multiple parts without them attempting to occupy the same space you
 must use **shiftX** and **shiftY**. These shifts are absolute shifts (they are not relative
 to the previous shift). Since it does not make sense to have two parts printed in the
 same location at least one of these two parameters should be the longest list of
 part parameters and determine how many parts are printed.
 
+#### Shift Z
+Adjust parts in the Z direction. Mostly used for pragmatically accounting for an improperly
+leveled/zeroed bed.
+
 #### Number of Layers
 How many layers are printed in the part. They layer parameters are continuously
 cycled until this number is reached for the part being printed. They are then reset
-for the next part.  
+for the next part.
 
 #### Brims
 The number of brims to place around the first layer. The brims will be printed
 around the exterior side of every loop on the part including internal holes
-at a distance of `pathWidth` between each brim. The brims are printed in order
+at a distance of `nozzleDiameter` between each brim. The brims are printed in order
 farthest from part to closest to part.
 
-#### Pattern
-Methods within doneshapes.py can also define custom patterns for a layer.
-Some require input parameters. If they do require additional parameters
-selecting them from the drop down menu will create a pop-up window.
-
-
-#### Design Type (Not yet implemented)
+#### Design Type (Not yet implemented, just leave it at 0)
 Custom infill patterns can be designed for your part. The pattern must be of
 type LineGroup. The pattern is extended by copying the design and then
 connecting the start of the first line in the copy the end of the last of
