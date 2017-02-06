@@ -310,36 +310,40 @@ Same general shape as the ASTM D638 but allows you to specify a gage width, eith
 Both multiRegion allows the user to use multiple STL files in a single print and provide
 different parameters for each region. This is especially useful when a user wants to control the layer
 orientation in specific regions to ensure beads align with tensile forces.  
-To use multiRegion you must create an additional JSON file. The file must contain a list of
+To use multiRegion you must create an additional JSON file and place it in the same directory
+as the STL files it references. The file must contain a list of
 dictionaries, each dictionary containing the file name of the STL which should be used and the
 parameters for that file. Any parameter from the GUI can be specified in the JSON without
 receiving an error however not all of the parameters will actually work for each region. Currently all
 of the default Layer parameters plus horizontalExpansion and nozzleDiameter will work for each sub-region.
-An example JSON can be seen here:
+An example JSON is given below:
 ```
-[{"fileName": "C-Bracket_0.50_0.stl",
+[{"fileName": "C-Bracket_0_90.stl",
 "numShells": [0,1],
-"pathWidth": [0.5],
-"infillAngleDegrees": [90.0],
+"pathWidth": [0.5, 1.0],
+"infillAngleDegrees": [0, 90.0],
 "infillShiftX": [0.0],
 "infillShiftY": [0.0],
-"infillOverlap": [0.0002],
 "layerHeight": [0.1,0.2]},
-{"fileName": "C-Bracket_0.50_minus45.stl",
+{"fileName": "C-Bracket_minus45.stl",
 "numShells": [0],
 "pathWidth": [0.5],
-"infillAngleDegrees": [90.0,45,0],
+"infillAngleDegrees": [-45,0],
 "infillShiftX": [0.0],
 "infillShiftY": [0.0],
 "infillOverlap": [0.0002]},
-{"fileName": "C-Bracket_0.50_plus45WithPlate.STL",
+{"fileName": "C-Bracket_plus45.STL",
 "numShells": [0],
-"pathWidth": [0.5],
-"infillAngleDegrees": [90.0],
+"infillAngleDegrees": [45],
 "infillShiftX": [2,7],
 "infillShiftY": [0.0],
 "infillOverlap": [0.0002]}]
 ```
+The JSON format is a little particular so remember to not have any trailing commas. The parameter
+names can be in any order and each region does not need to specify the same parameters. Any parameter
+not listed will default to the parameter in the GUI. After each region has been made they will all be toolpathed together as a layer.
+To help prevent typos I like to save a parameters JSON and then copy the needed dictionary entries into
+my multiRegion file.
 
 ## Easy Getting Started Instructions  
 If you have no idea how to get started using SciSlice hopefully these instructions will help. If you kind of know what you are doing then use this as an outline to really mess it all up.  
