@@ -314,8 +314,9 @@ To use multiRegion you must create an additional JSON file and place it in the s
 as the STL files it references. The file must contain a list of
 dictionaries, each dictionary containing the file name of the STL which should be used and the
 parameters for that file. Any parameter from the GUI can be specified in the JSON without
-receiving an error however not all of the parameters will actually work for each region. Currently all
-of the default Layer parameters plus horizontalExpansion and nozzleDiameter will work for each sub-region.
+receiving an error however not all of the parameters will actually work for each region. Currently
+only the parameters used by the `make_region()` function in figura.py plus `layerHeight` (used by
+the `Region` class in doneshapes.py) will actually be affect each region.
 An example JSON is given below:
 ```
 [{"fileName": "C-Bracket_0_90.stl",
