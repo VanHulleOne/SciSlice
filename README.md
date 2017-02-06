@@ -5,7 +5,8 @@ SciSlice is a program that creates custom tool paths for Fused Filament Fabricat
 this program was to allow the user to independently adjust as many printing
 parameters as possible for the purpose of researching and characterizing each
 parameter's effect on a part's properties. These printing parameters can be changed
-between layers and even within sub-regions of a layer.
+between layers and even within sub-regions of a layer. The program cannot create
+support structure. 
 
 SciSlice can tool path both STL files and pre-defined shapes.
 Executing RUN_ME.py with Python 3+ will display a GUI through which you can enter
@@ -267,10 +268,78 @@ for UW-Madison PEC's IRB120 robot for full 5-axis 3D printing research.
 machine code file. If `Generate Code` is selected again and the parameters have not changed, this temporary
 file is copied to the desired location and name instead of re-calculating the tool path and machine code.
 This saves a lot of time on larger parts. However, the current parameter checking only checks the parameters
-from the gui, not any additional parameters from the multi-region file. If you are doing a lot of changes
-to these parameters you may wish to comment out the section of code responsible for the parameter checking.
-This code is in RUN_ME.py module inside the convert() method and is marked which a comment. (currently
-around line 720)
+from the gui, not any additional parameters from a multi-region file. To curcumvent this problem you can either comment out the section of code responsible for the parameter checking. This code is in RUN_ME.py
+module inside the convert() method and is marked which a comment. (currently around line 720) or make a small
+change to one parameter in the GUI such as a sub-micro change to `infillOverlap`. I hope to enable
+adding the multi-region parameters to the main parameter JSON file preventing this problem.
+
+### Doneshapes
+The doneshapes.py module contains all of the functions which generate the drop-down lists for
+outline and pattern. Outlines are marked with an `@outline` decorator and patterns are marked with
+an `@infill` decorator. Type hints are used in the functions to help the user know what information
+should be entered into the text field. File name parameters named `fname` will have a file chooser
+pop-up button created.
+#### Outline default options
+* fromSTL  
+* fromSTL_oneLevel  
+* multiRegion
+* multiRegion_oneLevel
+* regularDogBone
+* wideDogBone
+* circle
+* rectangle
+* polygon
+
+##### fromSTL and multiRegion
+Take in and tool path entire .STL files. They enable choosing a file (the STL for fromSTL and the 
+parameter file for multiRegion).
+The `change_units_from` parameter allows you to say in what
+units your STL(s) are in so they can be converted to millimeters. This conversion is done by Trimesh.
+The most common units are m, mm, and in. With a wide range of [units allowed](https://github.com/mikedh/trimesh/blob/master/trimesh/units.py). For both of these options `numLayers` is usually set to the flag -1.  
+Since SciSlice cannot create support structure the STL files are often extrusions.
+To make slicing faster and more repeatable both fromSTL and multiRegion have a `_oneLevel` counterpart that allows
+the user to specify a `sliceHeight`. A single outline will be created from the slice at that height which will be used to create the entire part. You are required to set `numLayers` if this option is used.
+
+##### regularDogBone
+An ASTM D-638 type 1 tensile specimen. 
+
+##### wideDogBone
+Same general shape as the ASTM D638 but allows you to specify a gage width, either wider or more narrow.
+
+### Multi Region
+Both multiRegion allows the user to use multiple STL files in a single print and provide
+different parameters for each region. This is especially useful when a user wants to control the layer
+orientation in specific regions to ensure beads align with tensile forces.  
+To use multiRegion you must create an additional JSON file. The file must contain a list of
+dictionaries, each dictionary containing the file name of the STL which should be used and the
+parameters for that file. Any parameter from the GUI can be specified in the JSON without
+receiving an error however not all of the parameters will actually work for each region. Currently all
+of the default Layer parameters plus horizontalExpansion and nozzleDiameter will work for each sub-region.
+An example JSON can be seen here:
+```
+[{"fileName": "C-Bracket_0.50_0.stl",
+"numShells": [0,1],
+"pathWidth": [0.5],
+"infillAngleDegrees": [90.0],
+"infillShiftX": [0.0],
+"infillShiftY": [0.0],
+"infillOverlap": [0.0002],
+"layerHeight": [0.1,0.2]},
+{"fileName": "C-Bracket_0.50_minus45.stl",
+"numShells": [0],
+"pathWidth": [0.5],
+"infillAngleDegrees": [90.0,45,0],
+"infillShiftX": [0.0],
+"infillShiftY": [0.0],
+"infillOverlap": [0.0002]},
+{"fileName": "C-Bracket_0.50_plus45WithPlate.STL",
+"numShells": [0],
+"pathWidth": [0.5],
+"infillAngleDegrees": [90.0],
+"infillShiftX": [2,7],
+"infillShiftY": [0.0],
+"infillOverlap": [0.0002]}]
+```
 
 ## Easy Getting Started Instructions  
 If you have no idea how to get started using SciSlice hopefully these instructions will help. If you kind of know what you are doing then use this as an outline to really mess it all up.  

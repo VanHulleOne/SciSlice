@@ -91,7 +91,7 @@ def _getOutlineFromSTL(fname: str, height: float, change_units_from: str='mm') -
     outline._name = os.path.basename(fname)
     return outline
 
-def _multiRegionHandler(fname, change_units_from, height=None):
+def _multiRegionHandler(fname, change_units_from, sliceHeight=None):
     stl_names, eachPart_paramNames, eachPart_paramLists = readMultiPartFile(fname)
     path = os.path.dirname(fname) + '/'
     meshes = [_getMesh(path+stl_name, change_units_from) for stl_name in stl_names]
@@ -99,7 +99,7 @@ def _multiRegionHandler(fname, change_units_from, height=None):
     global_minXYZ = np.amin(bounds, axis=0)
     def multiRegion_coro():
         global_params = yield
-        regions = [Region(name, mesh, paramNames, paramLists, global_minXYZ, height) 
+        regions = [Region(name, mesh, paramNames, paramLists, global_minXYZ, sliceHeight) 
                     for name, mesh, paramNames, paramLists in
                     zip(stl_names, meshes, eachPart_paramNames, eachPart_paramLists)]
         for region in regions:
@@ -136,15 +136,15 @@ def fromSTL(fname: str, change_units_from: str='mm'):
             currHeight += global_params.layerHeight
 
 @outline    
-def fromSTL_oneLevel(fname: str, height: float, change_units_from: str='mm') ->Outline:
-    outline = _getOutlineFromSTL(fname, height, change_units_from)
+def fromSTL_oneLevel(fname: str, sliceHeight: float, change_units_from: str='mm') ->Outline:
+    outline = _getOutlineFromSTL(fname, sliceHeight, change_units_from)
     outline = outline.translate(-outline.minX, -outline.minY)
     outline._name = fname
     return outline
 
 @outline
-def multiRegion_oneLevel(fname: str, change_units_from: str, height: float):
-    return _multiRegionHandler(fname, change_units_from, height)                      
+def multiRegion_oneLevel(fname: str, change_units_from: str, sliceHeight: float):
+    return _multiRegionHandler(fname, change_units_from, sliceHeight)                      
     
 @outline     
 def multiRegion(fname: str, change_units_from: str='mm'):  
@@ -231,7 +231,7 @@ def circle(centerX: float, centerY: float, radius: float) ->Outline:
 
 @make_coro     
 @outline     
-def rect(lowerLeftX: float, lowerLeftY: float, X_width: float, Y_height: float) ->Outline:
+def rectangle(lowerLeftX: float, lowerLeftY: float, X_width: float, Y_height: float) ->Outline:
     rect = [Point(lowerLeftX, lowerLeftY)]
     rect.append(Point(lowerLeftX+X_width, lowerLeftY))
     rect.append(Point(lowerLeftX+X_width, lowerLeftY+Y_height))
