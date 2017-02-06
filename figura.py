@@ -94,7 +94,8 @@ class Figura:
                                           isFirstLayer, self.pr.brims, self.pr.numShells,
                                           self.pr.infillOverlap, self.pr.pattern, self.pr.pathWidth,
                                           self.pr.infillAngleDegrees, self.pr.infillShiftX,
-                                          self.pr.infillShiftY, self.pr.designType)
+                                          self.pr.infillShiftY, self.pr.designType,
+                                          self.pr.extrusionFactor)
 
             filledList.extend(region)
 
@@ -115,7 +116,7 @@ class Figura:
         
         for layer in self.layer_gen(layers):
             layer_hold = []
-            extrusionRate = (self.pr.extrusionFactor*self.pr.layerHeight*
+            extrusionRate = (self.pr.layerHeight*
                             self.pr.nozzleDiameter/(math.pi * self.pr.filamentDiameter**2/4.0))
             yield self.gc.comment('Layer: ' + str(layerNumber) + '\n')
             yield self.gc.comment(str(self.pr.layerParams) + '\n')
@@ -136,8 +137,7 @@ class Figura:
                         yield self.gc.rapidMove(line.start, atClearance=True)
                         yield self.gc.approachLayer(totalExtrusion, line.start)
                         
-                line.extrusionRate = extrusionRate
-                totalExtrusion += line.length*line.extrusionRate
+                totalExtrusion += line.length*line.extrusionFactor*extrusionRate
                 yield self.gc.feedMove(line.end, totalExtrusion,
                                           self.pr.printSpeed)
                 prevLoc = line.end
@@ -230,7 +230,7 @@ def organizedLayer(inOutlines):
 @lru_cache(maxsize=16)
 def make_region(outline, horizontalExpansion, nozzleDiameter, isFirstLayer, brims, numShells,
                 infillOverlap, pattern, pathWidth, infillAngleDegrees, infillShiftX,
-                infillShiftY, designType):
+                infillShiftY, designType, extrusionFactor):
     region = []
     new_outline = outline.offset(horizontalExpansion-nozzleDiameter/2.0, c.OUTSIDE) 
     if isFirstLayer and brims:
@@ -260,6 +260,10 @@ def make_region(outline, horizontalExpansion, nozzleDiameter, isFirstLayer, brim
                             shiftX=infillShiftX, shiftY=infillShiftY,
                             design=pattern, designType=designType)
         region.append(infill)
+        
+    for group in region:
+        for line in group:
+            line.extrusionFactor = extrusionFactor
     return region
 
 

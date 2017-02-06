@@ -38,11 +38,12 @@ class Line(object):
         self.__upperLeft = None
         """ The Point of the lower right corner of the bounding box. """
         self.__lowerRight = None
-        self.__extrusionRate = 0
-        self.freezeExRate = False
+        
         if oldLine is not None:
-            self.__extrusionRate = oldLine.extrusionRate
-            self.freezeExRate = oldLine.freezeExRate
+            self.extrusionFactor = oldLine.extrusionFactor
+        else:
+            self.extrusionFactor = None
+
         self.vector = np.array([self.end.x-self.start.x,
                                 self.end.y-self.start.y])
                                 
@@ -81,17 +82,17 @@ class Line(object):
     def length(self):
         return self.start - self.end
         
-    @property
-    def extrusionRate(self):
-        return self.__extrusionRate
-        
-    @extrusionRate.setter
-    def extrusionRate(self, value):
-        """
-        If the extrusion rate is not frozen then change the extrusion rate
-        """
-        if (not self.freezeExRate):
-            self.__extrusionRate = value
+#    @property
+#    def extrusionRate(self):
+#        return self.__extrusionRate
+#        
+#    @extrusionRate.setter
+#    def extrusionRate(self, value):
+#        """
+#        If the extrusion rate is not frozen then change the extrusion rate
+#        """
+#        if (not self.freezeExRate):
+#            self.__extrusionRate = value
             
     def __iter__(self):
         yield self.start
