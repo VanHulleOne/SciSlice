@@ -711,6 +711,12 @@ class Page_Variables(tk.Frame):
         tempFileName = (self.GCODEPATH
                         + c.TEMP_FILE
                         + c.FILE_EXTENSIONS[self.g_robot_var.get()])
+        """
+        Comment out this next if block to always re-calculate the tool path.
+        This is necessary if changes are being made to the parameters
+        in a multiRegion file, since those parameters are not currently
+        checked in the self.currentParameters() method.
+        """
         if self.lastParameters == self.currentParameters():
             if temp:
                 return
