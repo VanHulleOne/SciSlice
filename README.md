@@ -238,6 +238,40 @@ time to move forward in the nozzle in preparation for printing.
 * comment - Every system seems to require a different comment character. Enter the required comment
 character here.
 
+### Parameter Files
+All of the parameters are saved in a JSON file. When the program is first loaded the parameters from
+the DEFAULT.json file in the JSON sub-directory are loaded into the GUI. After you have changed the parameters
+to your desired values you can save them by hitting the `Save` button at the top of the gui. A file navigation
+window should pop up. If you have saved parameters and wish to use them again select the `Upload` button
+and chose your desired parameter file. If you always use a similar parameter profile you can save over
+the DEFAULT.json file and your parameters will be loaded at startup. However, if you are using a git client
+to pull new changes you will have to make sure your default parameters are not changed during the next pull
+and merge.
+
+### Create 3D model
+The `Create 3D Model` button calculates the tool paths for your current parameters and generates
+a window showing you the printed tool path. Instructions are included on the window for how to navigate
+through the window and how to change which layers you are viewing. At this time the line thickness does not
+represent the actual thickness of the printed tool path. Also, there is a known issue when rotating the part
+more than 180 degrees. You don't actually see the bottom of the part but instead it is flipped and you see the
+top again. You are more then welcome to provide a patch which fixes either of the problems (or anything else
+for that matter)
+
+### Generate Code
+When the `Generate Code` button is selected a file chooser pop-up window is created. After the output file
+has been chosen the tool path is first calculated if needed* and then is converted into the desired machine
+language. Currently the default choices are Gcode or RobotCode. Gcode is RepRap G-code in the Marlin flavor and specifically set up for a Taz5 printer. RobotCode is in ABB's RAPID language and is currently being used
+for UW-Madison PEC's IRB120 robot for full 5-axis 3D printing research.
+
+\* "_if needed_": When either `Create 3D model` or `Generate Code` are selected the program creates a temporary 
+machine code file. If `Generate Code` is selected again and the parameters have not changed, this temporary
+file is copied to the desired location and name instead of re-calculating the tool path and machine code.
+This saves a lot of time on larger parts. However, the current parameter checking only checks the parameters
+from the gui, not any additional parameters from the multi-region file. If you are doing a lot of changes
+to these parameters you may wish to comment out the section of code responsible for the parameter checking.
+This code is in RUN_ME.py module inside the convert() method and is marked which a comment. (currently
+around line 720)
+
 ## Easy Getting Started Instructions  
 If you have no idea how to get started using SciSlice hopefully these instructions will help. If you kind of know what you are doing then use this as an outline to really mess it all up.  
 
@@ -280,13 +314,6 @@ Since SciSlice is not fully stable yet it may be worth while to download [Git De
 To run the program either cd into the folder in which you unzipped the program and then type in the
 Conda prompt `python RUN_ME.py` or open Spyder, which came with the Anaconda installation, open the RUN_ME.py
 and run the program from Spyder.
-
-### .json
-You can save your print parameters by clicking the Save button on top of the GUI. Previously
-saved .json files can be uploaded with the Upload button. When the program is first opened it uses the DEFAULT.json
-file. If you always use a similar parameter profile you can save over this file and your parameters will be
-loaded at startup.
-
 
 ## *Notepad++
 If you have Python and the appropriate dependencies installed you can use
