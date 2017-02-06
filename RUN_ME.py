@@ -81,6 +81,7 @@ class GUI(tk.Tk):
         
 class Page_Variables(tk.Frame):
     
+    """ Constants for the variable groups. Used for buttons. """
     COMMON = 0
     PART = 1
     LAYER = 2
@@ -88,6 +89,7 @@ class Page_Variables(tk.Frame):
     PRINT = 4
     PRINTER = 5
     
+    """ Parameter types for the GUI. """
     INT_LIST = '[int]'
     FLOAT_LIST = '[float]'
     STR = 'str'

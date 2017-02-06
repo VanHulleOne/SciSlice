@@ -345,6 +345,26 @@ not listed will default to the parameter in the GUI. After each region has been 
 To help prevent typos I like to save a parameters JSON and then copy the needed dictionary entries into
 my multiRegion file.
 
+### Changing Parameter Groups
+SciSlice enables a user to decide which parameters are for parts and which are for layers. If multiple
+parts are being printed and you want to change the layer height between parts but have it be constant within
+a part, you would have to change `layerHeight` into the `PART` group.  
+  
+Inside the RUN\_ME.py module in the Page_Variables class there is a list named `parameters`.
+`parameters` is a list of namedtuples, one for almost every parameter in the GUI.
+(The two dropdowns are in the `dropdowns` list, the radio buttons are handled elsewhere.)
+The first vlue in the namedtuple is the parameter name, next is what type of variable
+it accepts, declared from the constants provided above. All Layer and Part parameters must be lists so they
+can be properly handles by the `zipVariables_gen()` generator in parameters.py. The final field is a
+tuple containing the variable groups constants. If the tuple contains `PART` then the variable will
+be used as a part parameter. If it contains `LAYER` then it iwll be a layer parameter. If both `LAYER`
+and `PART` appear in the tuple, no error is thrown, the variable will appear under both buttons
+but `LAYER` will win for the actual tool path creation. Please note that in Python parentheses
+are used for tuples but if only one item is in the parentheses a tuple will not be created. It
+instead must have a trailing comma. `(42)` means simply fourty two. `(42,)` is a tuple of length one
+containing the number fourty two. Through this technique you can also change which parameters are
+in the `COMMON` group.
+
 ## Easy Getting Started Instructions  
 If you have no idea how to get started using SciSlice hopefully these instructions will help. If you kind of know what you are doing then use this as an outline to really mess it all up.  
 
