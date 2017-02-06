@@ -81,18 +81,6 @@ class Line(object):
     @property
     def length(self):
         return self.start - self.end
-        
-#    @property
-#    def extrusionRate(self):
-#        return self.__extrusionRate
-#        
-#    @extrusionRate.setter
-#    def extrusionRate(self, value):
-#        """
-#        If the extrusion rate is not frozen then change the extrusion rate
-#        """
-#        if (not self.freezeExRate):
-#            self.__extrusionRate = value
             
     def __iter__(self):
         yield self.start
