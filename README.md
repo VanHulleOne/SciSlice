@@ -48,16 +48,17 @@ To know which parameters are in which group simply select the group from the rig
 Part parameters are parameters that are constant throughout a single part but can
 change between parts (except for outline). The longest list of part parameters
 determines how many parts will be created. The part parameters are:<br/>
-* outline<br/>
-* pattern<br/>
-* extrusion factor<br/>
-* print speed (mm/min*)<br/>
-* shift X<br/>
-* shift Y<br/>
-* shift Z<br/>
-* number of layers<br/>
-* design type<br/>
-* brims<br/>
+* Outline<br/>
+* Pattern<br/>
+* Extrusion factor<br/>
+* Print Speed (mm/min*)<br/>
+* Shift X<br/>
+* Shift Y<br/>
+* Shift Z<br/>
+* Number of Layers<br/>
+* Design Type (not implemented)<br/>
+* Brims<br/>
+* Horizontal Expansion<br/>
 
 #### Outline
 The outline of the part to be made. The drop down menu is populated by the properly decorated
@@ -80,7 +81,7 @@ Print speed is how fast the print head moves while printing.
 
 *The output is actually unit agnostic and will depend on how your firmware interrupts
 its feed rate commands. It seems most slicing software uses
-mm/sec at the GUI but the RepRap G-code they create and is sent to the printer
+mm/sec at the GUI but the RepRap G-code they create and send to the printer
 is still defined in mm/min. So instead of asking you for units of mm/sec and then
 dividing by 60 behind the scenes SciSlice just asks for a number and writes it.
 Who chose to not ask for feed rate in the native machine units anyway?
@@ -97,9 +98,14 @@ Adjust parts in the Z direction. Mostly used for pragmatically accounting for an
 leveled/zeroed bed.
 
 #### Number of Layers
-How many layers are printed in the part. They layer parameters are continuously
+How many layers are printed in the part. The layer parameters are continuously
 cycled until this number is reached for the part being printed. They are then reset
-for the next part.
+for the next part. For Outlines which come from an STL, if you want to print all
+of their layers then you must enter the flag **-1** into `numLayers`. If you enter
+any number larger than zero for an STL then that number of layers will be printed.
+
+In the future I would like to implement slices in `numLayer` so you could easily print
+sub-slices of an STL. 
 
 #### Brims
 The number of brims to place around the first layer. The brims will be printed
@@ -118,6 +124,11 @@ field is created. Please read the comments in the
 [InFill](https://github.com/VanHulleOne/DogBoneV2/blob/master/InFill.py)
 module for more details.
 
+#### Horizontal Expansion
+If your prints are coming out incorrectly sized in the XY plane then you can use this value
+to adjust them. A positive value will offset the outer `outline` by that value making it larger
+(and holes smaller). A negative value will decrease the size of the part (and increase hole sizes).
+
 ### Layer Parameters
 Layer parameters are unique to each layer of a part. Each list of parameters is
 cycled until the value in **numLayers** for the part is met. The lists are then started
@@ -128,11 +139,11 @@ over at the start of the next part. The layer parameters are:<br/>
 * Infill Shift X (mm)<br/>
 * Infill Shift Y (mm)<br/>
 * Number of Shells <br/>
-* Trim Adjust (mm)<br/>
+* Infill Overlap (mm)<br/>
 
 #### Infill Angle degrees
 The angle of the infill for the part. Zero (0) degrees is in the positive X direction
-with the angles moving around counter clockwise.
+with the positive angles moving around counter clockwise.
 
 #### Path Width mm
 The distance between the centerlines of two adjacent passes. This is an orthogonal
@@ -163,8 +174,19 @@ to tool path the infill properly a trim shell is created by the program. For exa
 if three shells are prescribed a fourth trim shell is created inside the third 
 shell to properly trim the infill.
 
+#### Infill Overlap mm
+How much the infill should overlap with the inner most shell. To create the infill a `trimshape`
+must first be created offset inside the inner most shell by a distance of `nozzleDiameter`,
+or in the case of no shells offset from the defined outline. This shape is then used to trim the
+infill throwing away any new lines which do not lie inside the `trimshape`. If the infill is not bonding well
+to the shell `infillOverlap` can be increased making a `trimshape` which is closer to the inner most shell allowing
+the infill and shell to squish together more completely. If there is overfilling with the shell this value can be
+decreased. Due to computational uncertainties between lines in the `trimShape` and lines in the infill which are
+co-linear overlapping it is best to not set this value directly at zero. A value of 0.0002 has
+been found to produce the best results; including lines which we want to be included without
+over filling the shell-infill boundary.
+
 ### File Parameters
-* outputFileName - The name of the output Gcode file
 * start_Gcode_FileName - Name of the file which contains all of the starting
 Gcode commands
 * end_Gcode_FileName - File with end Gcode commands
@@ -175,9 +197,11 @@ these files.
 * bed_temp (C) - flag = `#BED_TEMP`
 * extruder_temp (C) - flag = `#EXTRUDER_TEMP`
 
-To have the GUI set the bed and extruder temperatures you must provide the
-appropriate flags in the Start Gcode file. For the Taz5 or other printers using the
-Marlin firmware it would look as follows:
+The start G-code file must be properly formatted in order to allow the bed and extruder temperatures
+to be set in the output machine code file. The constants.py module defines the two flags which must
+be used in the start file. They are `#BED_TEMP` and `#EXTRUDER_TEMP` placing these flags after
+the appropriate machine code will allow SciSlice to write the values into the output machine code file.
+For standard RepRap G-code the temperature section will look as follows:
 
 ```
 M109 #EXTRUDER_TEMP ;
@@ -188,8 +212,8 @@ M190 #BED_TEMP ;
 ### Printer Parameters
 These are parameters related to the printer itself.
 
-* filamentDiameter (mm)- The diameter of the incoming filament.
 * nozzleDiameter (mm) - Nozzle outlet diameter
+* filamentDiameter (mm)- The diameter of the incoming filament.
 * RAPID (mm/min) - How fast the printer should move when not printing<br/>
   * The [RepRap wiki (9 July 2016)](http://reprap.org/wiki/G-code#G0_.26_G1:_Move)
 says "The RepRap firmware spec treats G0 and G1 as the same command,
@@ -200,36 +224,39 @@ and therefore does not require an F feed rate. Because of the RepRap design choi
 needs a feed rate command requiring the programmer/operator to know each
 individual machine's max speed and creates larger programs by needing the
 additional text on every G00 line. How is that just as efficient?
-* TRAVERSE_RETRACT (mm) - how far to retract the filament to prevent nozzle
+* retractDistance (mm) - how far to retract the filament to prevent nozzle
 drool when traversing around the part.
-* MAX\_FEED\_TRAVERSE (mm) - if the move to the next printing position is less than
+* retractMinTravel - if the move to the next printing position is less than
 this value the head is not lifted up, no filament retract is performed, and it is moved
 at the print velocity. If the move to the next printing position is larger than
-this value the head is lifted by **Z_CLEARANCE** and the material is retracted
-by **TRAVERSE_RETRACT**
-* Z_CLEARANCE (mm) - Relative clearance height to which the head is moved when
-traversing the part.
+this value the head is lifted by `ZHopHeight` and the material is retracted
+by `retractDistance`
+* ZHopeHeight (mm) - Distance up the head is moved when traversing the part.
 * APPROACH_FR (mm/min) - Speed the printer should move when approaching the part.
 A slightly slower speed helps prevent hard crashes and allows the filament more
 time to move forward in the nozzle in preparation for printing.
+* comment - Every system seems to require a different comment character. Enter the required comment
+character here.
 
 ## Easy Getting Started Instructions  
-If you have no idea how to get started using DogDoneV2 hopefully these instructions will help. If you kind of know what you are doing then use this as an outline to really mess it all up.  
+If you have no idea how to get started using SciSlice hopefully these instructions will help. If you kind of know what you are doing then use this as an outline to really mess it all up.  
 
 ### Installation  
-You will need Python 3.5+ and all of the required dependencies to run DogBoneV2.py. Downloading and
+You will need Python 3.5+ and all of the required dependencies to run SciSlice.py. Downloading and
 installing Anaconda will get you Python and most of the needed libraries (dependencies). Anaconda can be
 found on the [Continuum](https://www.continuum.io/downloads) website. Choose the Python 3.5 version
 installer appropriate for your operating system. This is a pretty large installation so it will take a bit.
 
 ### Dependencies
-Even though Anaconda comes with many libraries already installed I managed to design DogBoneV2 to need three libraries which are not included. Sorry about that. Luckily Anaconda comes with a program called Conda which makes this processes fairly easy. First you need to get to the Anaconda prompt. On my Windows machine I went to the Start Menu -> All Programs -> Anaconda3 -> Anaconda Prompt. Selecting Anaconda Prompt will pop up a black command line
-window. From this window you will be able to install the three missing libraries: Pygame, Shapely, and trimesh.
+Even though Anaconda comes with many libraries already installed I managed to design SciSlice to need three libraries which are not included. Sorry about that. Luckily Anaconda comes with a program called Conda which makes this processes fairly easy. First you need to get to the Anaconda prompt. On my Windows machine I went to the Start Menu -> All Programs -> Anaconda3 -> Anaconda Prompt. Selecting Anaconda Prompt will pop up a black command line
+window. From this window you will be able to install the additional libraries: Pygame, Shapely, Rtree, and trimesh.
 In the command prompt type:  
 `conda install -c cogsci pygame`  
 This will install Pygame from the CogSci profile on anaconda.org.  
 Next install Shapely with the same process but from the IOOS channel.  
-`conda install -c IOOS shapely`  
+`conda install -c IOOS shapely` 
+Third, install Rtree also from the IOOS channel.
+`conda install -c IOOS rtree` 
 Finally we need trimesh. As of this writing there was not a Conda version of trimesh so we will use pip.  
 `pip install trimesh`  
 
@@ -241,13 +268,13 @@ conda install -c ioos rtree
 pip install trimesh  
 ```
 
-Now you have the three additional libraries needed to run DogBoneV2.
+Now you have the additional libraries needed to run SciSlice.
 
-### Installing DogBoneV2  
-The most up-to-date version of DogBoneV2 is located on GitHub in its
-[repository](https://github.com/VanHulleOne/DogBoneV2). Once there select the clone/download dropdown (a green button) and download the .zip file. Extract the file into whichever folder you like and you have it installed.  
+### Installing SciSlice  
+The most up-to-date version of SciSlice is located on GitHub in its
+[repository](https://github.com/VanHulleOne/SciSlice). Once there select the clone/download dropdown (a green button) and download the .zip file. Extract the file into whichever folder you like and you have it installed.  
 
-Since DogBoneV2 is not fully stable yet it may be worth while to download [Git Desktop](https://desktop.github.com/) so you can clone the repository to more easily and quickly download bug fixes.
+Since SciSlice is not fully stable yet it may be worth while to download [Git Desktop](https://desktop.github.com/) so you can clone the repository to more easily and quickly download bug fixes.
 
 ### Running the Program
 To run the program either cd into the folder in which you unzipped the program and then type in the
@@ -273,7 +300,5 @@ Anaconda3 folder. `FULL_CURRENT_PATH` is a variable in Notepad++ so type
 that exactly. On my computer the full command was: <br/>
 <br/>
 `C:\Anaconda3\python.exe -i "$(FULL_CURRENT_PATH)"`<br/><br/>
-Now select save. For a command I chose ctrl-r and hit ok. Now you can edit
-the parameters.py file, **save the changes** (if you do not save the changes
-then it will run the old changes, which can be confusing) and finally hit your
-hot keys (ctrl-r). Notepad++ will call Python and run your program.
+Now select save. For a command I chose ctrl-r and hit ok. Now you can hit your
+hot keys (ctrl-r) and Notepad++ will call Python and run your program.
