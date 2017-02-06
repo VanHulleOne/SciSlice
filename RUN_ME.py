@@ -147,7 +147,7 @@ class Page_Variables(tk.Frame):
                 Par('bed_temp', INT, (COMMON, PRINT)),
                 Par('extruder_temp', INT, (COMMON, PRINT)),
                 Par('nozzleDiameter', FLOAT, (PRINTER,)),
-                Par('horizontalExpansion', FLOAT, (PRINTER,)),
+                Par('horizontalExpansion', FLOAT, (PART,)),
                 Par('filamentDiameter', FLOAT, (PRINTER,)),
                 Par('RAPID', INT, (PRINTER,)),
                 Par('retractDistance', FLOAT, (PRINTER,)),
