@@ -40,7 +40,7 @@ class Line(object):
         self.__lowerRight = None
         self.__extrusionRate = 0
         self.freezeExRate = False
-        if not(oldLine is None):
+        if oldLine is not None:
             self.__extrusionRate = oldLine.extrusionRate
             self.freezeExRate = oldLine.freezeExRate
         self.vector = np.array([self.end.x-self.start.x,
