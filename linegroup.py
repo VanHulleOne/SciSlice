@@ -98,7 +98,7 @@ class LineGroup(object):
         for i in range(0,len(result),2):
             start = Point(result[i])
             end = Point(result[i+1])
-            lines.append(Line(start, end, self[i%2]))
+            lines.append(Line(start, end, self[i//2]))
         transShape = cls()
         transShape.lines = lines
         transShape.minX, transShape.minY = np.amin(result[:,:2], axis=0)
