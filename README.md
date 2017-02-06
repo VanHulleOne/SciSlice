@@ -254,9 +254,9 @@ In the command prompt type:
 `conda install -c cogsci pygame`  
 This will install Pygame from the CogSci profile on anaconda.org.  
 Next install Shapely with the same process but from the IOOS channel.  
-`conda install -c IOOS shapely` 
-Third, install Rtree also from the IOOS channel.
-`conda install -c IOOS rtree` 
+`conda install -c IOOS shapely`   
+Third, install Rtree also from the IOOS channel.  
+`conda install -c IOOS rtree`   
 Finally we need trimesh. As of this writing there was not a Conda version of trimesh so we will use pip.  
 `pip install trimesh`  
 
