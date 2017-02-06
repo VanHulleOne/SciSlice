@@ -1,8 +1,0 @@
-www.lfd.uci.edu/~gohlke/pythonlibs/#pygame
-scroll to Pygame
-choose version of python (cp) and bit (32/amd_64)
-download .whl
-put .whl in an easily reached folder
-open command line in Spyder
-navigate to directory with .whl
-pip install <.whl>
