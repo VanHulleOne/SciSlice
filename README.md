@@ -1,7 +1,7 @@
 # SciSlice - The Scientific Slicer
 
 SciSlice is a program that creates custom tool paths for Fused Filament Fabrication
-3D printers (also known by the trade marked term FDM). The motivation for creating
+3D printers (also known as FDM&trade;). The motivation for creating
 this program was to allow the user to independently adjust as many printing
 parameters as possible for the purpose of researching and characterizing each
 parameter's effect on a part's properties. These printing parameters can be changed
