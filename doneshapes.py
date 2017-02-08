@@ -123,23 +123,29 @@ def _multiRegionHandler(fname, change_units_from, sliceHeight=None):
 def fromSTL(fname: str, change_units_from: str='mm'):
     mesh = _getMesh(fname, change_units_from)
     minX, minY, minZ = mesh.bounding_box.bounds[0]
-    currHeight = minZ
-    global_params = yield
-    currHeight += global_params.layerHeight
-    while True:
-        try:
-            section = mesh.section(plane_origin=[0,0,currHeight],plane_normal=[0,0,1])
-        except Exception:
-            return
-        else:
-            global_params = yield (outline_module.outlineFromMeshSection(section).translate(-minX, -minY),), (global_params,)
-            currHeight += global_params.layerHeight
+    def fromSTL_coro():
+        currHeight = minZ
+        global_params = yield
+        currHeight += global_params.layerHeight
+        while True:
+            try:
+                section = mesh.section(plane_origin=[0,0,currHeight],plane_normal=[0,0,1])
+            except Exception:
+                return
+            else:
+                global_params = yield (outline_module.outlineFromMeshSection(section).translate(-minX, -minY),), (global_params,)
+                currHeight += global_params.layerHeight
+    return fromSTL_coro
 
+@make_coro
 @outline    
 def fromSTL_oneLevel(fname: str, sliceHeight: float, change_units_from: str='mm') ->Outline:
-    outline = _getOutlineFromSTL(fname, sliceHeight, change_units_from)
+    mesh = _getMesh(fname, change_units_from)
+    _, _, minZ = mesh.bounding_box.bounds[0]
+    section = _getSectionFromMesh(mesh, sliceHeight+minZ)
+    outline = outline_module.outlineFromMeshSection(section)
     outline = outline.translate(-outline.minX, -outline.minY)
-    outline._name = fname
+    outline._name = os.path.basename(fname)
     return outline
 
 @outline
