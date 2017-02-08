@@ -33,7 +33,7 @@ class GUI(tk.Tk):
         tk.Tk.__init__(self, *args, **kwargs)
         
         tk.Tk.iconbitmap(self, 'UW_Madison_icon.ico')
-        tk.Tk.title(self, '3D Printer Parameter Setter')
+        tk.Tk.title(self, 'SciSlice - The Scientific Slicer')
         #format window size -- width=450, height=475, 100px from left of screen, 100px from top of screen
         #tk.Tk.geometry(self, '450x475+100+100')
         
