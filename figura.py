@@ -27,6 +27,7 @@ from outline import Outline, Section
 from functools import lru_cache
 import math
 import os
+import random
 
 class Figura:  
     
@@ -38,6 +39,8 @@ class Figura:
         self.pr = param
         
         self.partCount = 1 # The current part number
+        
+        random.seed(1)
 
 
     def masterGcode_gen(self):
@@ -181,12 +184,20 @@ def organizedLayer(inOutlines):
     for coro in lineCoros.values():
         next(coro)
 
-    """
-    Find the lower left most point of the boudnding box which encloses
-    the layer and use that as the starting point for the sort.
-    """
-    minX = min(i.minX for i in inOutlines)
-    minY = min(i.minY for i in inOutlines)
+    if True:
+        rand = random.random()
+        print(rand)
+        angle = 2*math.pi*rand
+        minX = 100*math.cos(angle)
+        minY = 100*math.sin(angle)
+    else:    
+        """
+        Find the lower left most point of the boudnding box which encloses
+        the layer and use that as the starting point for the sort.
+        """
+        minX = min(i.minX for i in inOutlines)
+        minY = min(i.minY for i in inOutlines)
+        
     lastPoint = Point(minX, minY) # The starting point for the sort
     indexOfClosest = -1 # A default value for the inital run
     while True:

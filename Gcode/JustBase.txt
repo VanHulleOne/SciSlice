@@ -1,0 +1,159 @@
+MODULE MainModule
+	PROC main()
+		Heat;
+		SetDO DO1_Auto_Mode, 1;
+
+		
+
+		! Part number: 1
+		! PartParams(extrusionFactor=0.98, printSpeed=30, shiftX=-15.0, shiftY=-15.0, shiftZ=0.0, numLayers=-1, designType=0, brims=2, horizontalExpansion=0.0)
+
+		! Layer: 1
+		! LayerParams(infillAngleDegrees=45.0, pathWidth=3.0, layerHeight=0.3, infillShiftX=0.0, infillShiftY=0.0, numShells=1, infillOverlap=0.0002)
+		! T11
+		! M6
+		TPWRITE "Layer 1 of -1";
+		MoveL Offs(pZero, 11.061, 11.172, 10.3), v100, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 11.061, 11.172, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		WaitRob \InPos;
+		SetDO DO5_Program_Feed, 1;
+		MoveL Offs(pZero, 11.119, 11.119, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 11.172, 11.061, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 12.673, 9.304, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 12.721, 9.242, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 12.765, 9.177, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 13.972, 7.207, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 14.01, 7.139, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 14.043, 7.067, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 14.927, 4.933, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 14.955, 4.859, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 14.976, 4.783, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 15.515, 2.537, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 15.531, 2.46, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 15.54, 2.382, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 15.721, 0.078, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 15.724, -0.0, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 15.721, -0.078, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 15.54, -2.382, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 15.531, -2.46, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 15.515, -2.537, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 14.976, -4.783, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 14.955, -4.859, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 14.927, -4.933, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 14.043, -7.067, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 14.01, -7.139, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 13.972, -7.207, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 12.765, -9.177, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 12.721, -9.242, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 12.673, -9.304, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 11.172, -11.061, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 11.119, -11.119, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 11.061, -11.172, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 9.304, -12.673, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 9.242, -12.721, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 9.177, -12.765, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 7.207, -13.972, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 7.139, -14.01, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 7.067, -14.043, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 4.933, -14.927, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 4.859, -14.955, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 4.783, -14.976, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 2.537, -15.515, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 2.46, -15.531, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 2.382, -15.54, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 0.078, -15.721, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 0.0, -15.724, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -0.078, -15.721, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -2.382, -15.54, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -2.46, -15.531, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -2.537, -15.515, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -4.783, -14.976, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -4.859, -14.955, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -4.933, -14.927, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -7.067, -14.043, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -7.139, -14.01, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -7.207, -13.972, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -9.177, -12.765, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -9.242, -12.721, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -9.304, -12.673, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -11.061, -11.172, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -11.119, -11.119, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -11.172, -11.061, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -12.673, -9.304, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -12.721, -9.242, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -12.765, -9.177, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -13.972, -7.207, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -14.01, -7.139, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -14.043, -7.067, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -14.927, -4.933, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -14.955, -4.859, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -14.976, -4.783, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -15.515, -2.537, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -15.531, -2.46, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -15.54, -2.382, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -15.721, -0.078, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -15.724, -0.0, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -15.721, 0.078, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -15.54, 2.382, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -15.531, 2.46, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -15.515, 2.537, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -14.976, 4.783, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -14.955, 4.859, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -14.927, 4.933, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -14.043, 7.067, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -14.01, 7.139, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -13.972, 7.207, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -12.765, 9.177, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -12.721, 9.242, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -12.673, 9.304, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -11.172, 11.061, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -11.119, 11.119, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -11.061, 11.172, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -9.304, 12.673, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -9.242, 12.721, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -9.177, 12.765, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -7.207, 13.972, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -7.139, 14.01, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -7.067, 14.043, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -4.933, 14.927, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -4.859, 14.955, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -4.783, 14.976, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -2.537, 15.515, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -2.46, 15.531, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -2.382, 15.54, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, -0.078, 15.721, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 0.0, 15.724, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 0.078, 15.721, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 2.382, 15.54, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 2.46, 15.531, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 2.537, 15.515, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 4.783, 14.976, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 4.859, 14.955, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 4.933, 14.927, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 7.067, 14.043, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 7.139, 14.01, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 7.207, 13.972, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 9.177, 12.765, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 9.242, 12.721, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 9.304, 12.673, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		MoveL Offs(pZero, 11.061, 11.172, 0.3), v30, z0, tNozzle, \Wobj := wobjPlatform;
+		WaitRob \InPos;
+		SetDO DO5_Program_Feed, 0;
+		MoveL Offs(pZero, 10.736, 10.792, 0.3), v100, z0, tNozzle, \Wobj := wobjPlatform;
+		
+
+		! End Program codes
+		SetDO DO1_Auto_Mode, 0;
+		SetDO DO5_Program_Feed, 0;
+		SetDO DO6_Between_Layer_Retract, 0;
+	ENDPROC
+	PROC Heat()
+		SetDO DO4_Heat_Nozzle, 1;
+        SetDO DO3_Heat_Bed, 1;
+        TPWrite "Caution: Bed and Nozzle heating";
+        WaitDI DI3_Nozzle_At_Temp, 1;
+        TPWrite "Nozzle is at temperature";
+        WaitDI DI2_Bed_At_Temp, 1;
+        TPWrite "Bed at temp";
+	ENDPROC
+ENDMODULE
