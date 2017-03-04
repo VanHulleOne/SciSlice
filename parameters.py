@@ -6,7 +6,7 @@ Contains all of the print parameters
 @author: lvanhulle
 """
 """ Version Numbers: Main_Version.sub-version.Feature_Added.Bug_Fixed """
-__version__ = '0.3.0.1'
+__version__ = '0.3.0.2'
 
 from collections import namedtuple
 import itertools
@@ -83,6 +83,7 @@ class Parameters:
         
         partNum = 1
         for nextPartParams in partParamGen:
+            self.currHeight = 0
             self.layerParamGen = zipVariables_gen(self.layerLists, repeat=True)
             for label, param in zip(self.partParamLabels, nextPartParams):
                 setattr(self, label, param)
