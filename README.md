@@ -307,7 +307,7 @@ An ASTM D-638 type 1 tensile specimen.
 Same general shape as the ASTM D638 but allows you to specify a gage width, either wider or more narrow.
 
 ### Multi Region
-Both multiRegion allows the user to use multiple STL files in a single print and provide
+Both multiRegion options allow the user to use multiple STL files in a single print and provide
 different parameters for each region. This is especially useful when a user wants to control the layer
 orientation in specific regions to ensure beads align with tensile forces.  
 To use multiRegion you must create an additional JSON file and place it in the same directory
@@ -316,7 +316,7 @@ dictionaries, each dictionary containing the file name of the STL which should b
 parameters for that file. Any parameter from the GUI can be specified in the JSON without
 receiving an error however not all of the parameters will actually work for each region. Currently
 only the parameters used by the `make_region()` function in figura.py plus `layerHeight` (used by
-the `Region` class in doneshapes.py) will actually be affect each region.
+the `Region` class in doneshapes.py) will actually affect each region.
 An example JSON is given below:
 ```
 [{"fileName": "C-Bracket_0_90.stl",
@@ -370,13 +370,13 @@ in the `COMMON` group.
 If you have no idea how to get started using SciSlice hopefully these instructions will help. If you kind of know what you are doing then use this as an outline to really mess it all up.  
 
 ### Installation  
-You will need Python 3.5+ and all of the required dependencies to run SciSlice.py. Downloading and
+You will need Python 3.5+ and all of the required dependencies to run SciSlice. Downloading and
 installing Anaconda will get you Python and most of the needed libraries (dependencies). Anaconda can be
 found on the [Continuum](https://www.continuum.io/downloads) website. Choose the Python 3.5 version
 installer appropriate for your operating system. This is a pretty large installation so it will take a bit.
 
 ### Dependencies
-Even though Anaconda comes with many libraries already installed I managed to design SciSlice to need three libraries which are not included. Sorry about that. Luckily Anaconda comes with a program called Conda which makes this processes fairly easy. First you need to get to the Anaconda prompt. On my Windows machine I went to the Start Menu -> All Programs -> Anaconda3 -> Anaconda Prompt. Selecting Anaconda Prompt will pop up a black command line
+Even though Anaconda comes with many libraries already installed I managed to design SciSlice to need several libraries which are not included. Sorry about that. Luckily Anaconda comes with a program called Conda which makes this processes fairly easy. First you need to get to the Anaconda prompt. On my Windows machine I went to the Start Menu -> All Programs -> Anaconda3 -> Anaconda Prompt. Selecting Anaconda Prompt will pop up a black command line
 window. From this window you will be able to install the additional libraries: Pygame, Shapely, Rtree, and trimesh.
 In the command prompt type:  
 `conda install -c cogsci pygame`  
