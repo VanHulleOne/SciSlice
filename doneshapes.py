@@ -170,6 +170,21 @@ def regularDogBone() ->Outline:
     dogBone.finishOutline()
     dogBone._name = 'regularDogBone'
     return dogBone
+
+@make_coro        
+@outline    
+def typeVDogBone() ->Outline:
+    typeV = Outline(None)
+    typeV.addLinesFromCoordinateList([[31.75, 0], [31.75, 4.77], [10.26, 4.77]])
+    arc=a.Arc(Point(10.26, 4.77), Point(4.77, 1.59), c.CW, Point(4.77, 7.94))
+    typeV.addLineGroup(arc)
+    typeV.addLinesFromCoordinateList([[4.77,1.59], [0,1.59]])
+    typeV.addLineGroup(typeV.mirror(c.Y))
+    typeV.addLineGroup(typeV.mirror(c.X))
+    typeV= typeV.translate(31.75, 4.77)
+    typeV.finishOutline()
+    typeV._name= 'typeVDogBone'
+    return typeV
     
 def testSimpleDogBone() ->Outline:
     temp = Outline(None)
