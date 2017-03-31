@@ -152,6 +152,7 @@ class Page_Variables(tk.Frame):
                 Par('horizontalExpansion', FLOAT_LIST, (PART,)),
                 Par('filamentDiameter', FLOAT, (PRINTER,)),
                 Par('RAPID', INT, (PRINTER,)),
+                Par('randomStartLocation', INT_LIST, (COMMON, PART)),
                 Par('retractDistance', FLOAT, (PRINTER,)),
                 Par('retractMinTravel', FLOAT, (PRINTER,)),
                 Par('retractSpeed', INT, (PRINTER,)),

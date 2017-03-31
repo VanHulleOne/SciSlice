@@ -39,9 +39,6 @@ class Figura:
         self.pr = param
         
         self.partCount = 1 # The current part number
-        
-        random.seed(1)
-
 
     def masterGcode_gen(self):
         yield self.gc.startGcode(bed_temp = self.pr.bed_temp, extruder_temp = self.pr.extruder_temp)
@@ -78,6 +75,7 @@ class Figura:
         """  
         layerCountdown = self.pr.numLayers
         isFirstLayer = True
+        random.seed(self.pr.randomStartLocation) # Seed the random so the results are repeatable
 
         for regions in layers:
             if layerCountdown == 0:
@@ -102,7 +100,9 @@ class Figura:
 
             filledList.extend(region)
 
-        layer = organizedLayer(tuple(filledList))
+        layer = organizedLayer(tuple(filledList),
+                               random.random() if self.pr.randomStartLocation
+                                               else 0)
         if not layer:
             raise(Exception('Parameter setting produced no tool path. \n' +
                             'Ensure numLayers is >0 and there is at least one ' +
@@ -153,7 +153,7 @@ class Figura:
         self.data_points.append(part)
 
 @lru_cache(maxsize=16)            
-def organizedLayer(inOutlines):
+def organizedLayer(inOutlines, randStart):
     """ Takes in a list of LineGroup objects and returns them as an organized layer.
     
     A dictonary was used to hold the coroutines from linegroup since we
@@ -183,11 +183,9 @@ def organizedLayer(inOutlines):
     
     for coro in lineCoros.values():
         next(coro)
-
-    if True:
-        rand = random.random()
-        print(rand)
-        angle = 2*math.pi*rand
+        
+    if randStart:
+        angle = 2*math.pi*randStart
         minX = 100*math.cos(angle)
         minY = 100*math.sin(angle)
     else:    
