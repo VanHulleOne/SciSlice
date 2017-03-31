@@ -60,6 +60,7 @@ determines how many parts will be created. The part parameters are:<br/>
 * Design Type (not implemented)<br/>
 * Brims<br/>
 * Horizontal Expansion<br/>
+* randomStartLoc  
 
 #### Outline
 The outline of the part to be made. The drop down menu is populated by the properly decorated
@@ -129,6 +130,19 @@ module for more details.
 If your prints are coming out incorrectly sized in the XY plane then you can use this value
 to adjust them. A positive value will offset the outer `outline` by that value making it larger
 (and holes smaller). A negative value will decrease the size of the part (and increase hole sizes).
+
+#### Random Start Location  
+`randomStartLocation` allows the layers to be started at pseudo-random locations instead
+of always the minimum X and Y locations. If `randomStartLocation` is set to 0 then each layer
+will always start at the point closest to the point (minX, minY). Any other integer value will
+be used as the seed for the random number generation. Since this value is the seed, identical
+prints which are tool pathed at different times will still produce the same "random" starting
+locations. The starting locations are picked by drawing a circumscribing circle around the
+layer and choosing a random point on that circle to start the sort. This was done to ensure
+that the layer always starts with the outer most shell. This does mean that for non-convex
+shapes, there may be points along the external shell which may have uneven chances for being
+selected to start the layer. Some shapes may contain external points which will never be selected
+with this technique.
 
 ### Layer Parameters
 Layer parameters are unique to each layer of a part. Each list of parameters is
