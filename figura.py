@@ -22,6 +22,7 @@ organizing coroutines in the LineGroups to create an ideal print order.
 from point import Point
 from infill import Infill
 from linegroup import LineGroup
+from line import Line
 import constants as c
 from outline import Outline, Section
 from functools import lru_cache
@@ -183,20 +184,30 @@ def organizedLayer(inOutlines, randStart):
     
     for coro in lineCoros.values():
         next(coro)
-        
+    
+    """
+    Find the lower left most point of the boudnding box which encloses
+    the layer and use that as the starting point for the sort.
+    """
+    minX = min(i.minX for i in inOutlines)
+    minY = min(i.minY for i in inOutlines)    
+    
     if randStart:
-        angle = 2*math.pi*randStart
-        minX = 100*math.cos(angle)
-        minY = 100*math.sin(angle)
-    else:    
-        """
-        Find the lower left most point of the boudnding box which encloses
-        the layer and use that as the starting point for the sort.
-        """
-        minX = min(i.minX for i in inOutlines)
-        minY = min(i.minY for i in inOutlines)
         
-    lastPoint = Point(minX, minY) # The starting point for the sort
+        maxX = min(i.maxX for i in inOutlines)
+        maxY = min(i.maxY for i in inOutlines)
+        
+        line = Line(Point(minX, minY), Point(maxX, maxY))
+                          
+        angle = 2*math.pi*randStart
+        startX = line.getMidPoint().x + line.length/2*math.cos(angle)
+        startY = line.getMidPoint().y + line.length/2*math.sin(angle)
+        
+        startPoint = Point(startX, startY)
+    else:
+        startPoint = Point(minX, minY)
+        
+    lastPoint = startPoint # The starting point for the sort
     indexOfClosest = -1 # A default value for the inital run
     while True:
         results = []
