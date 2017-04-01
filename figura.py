@@ -193,17 +193,19 @@ def organizedLayer(inOutlines, randStart):
     minY = min(i.minY for i in inOutlines)    
     
     if randStart:
+        farthestLeftOutline = min(inOutlines, key=lambda x:x.minX)
+        startPoint = random.choice(farthestLeftOutline.lines).start
         
-        maxX = min(i.maxX for i in inOutlines)
-        maxY = min(i.maxY for i in inOutlines)
-        
-        line = Line(Point(minX, minY), Point(maxX, maxY))
-                          
-        angle = 2*math.pi*randStart
-        startX = line.getMidPoint().x + line.length/2*math.cos(angle)
-        startY = line.getMidPoint().y + line.length/2*math.sin(angle)
-        
-        startPoint = Point(startX, startY)
+#        maxX = min(i.maxX for i in inOutlines)
+#        maxY = min(i.maxY for i in inOutlines)
+#
+#        line = Line(Point(minX, minY), Point(maxX, maxY))
+#                          
+#        angle = 2*math.pi*randStart
+#        startX = line.getMidPoint().x + line.length/2*math.cos(angle)
+#        startY = line.getMidPoint().y + line.length/2*math.sin(angle)
+#        
+#        startPoint = Point(startX, startY)
     else:
         startPoint = Point(minX, minY)
         
