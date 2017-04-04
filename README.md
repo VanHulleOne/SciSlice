@@ -12,6 +12,29 @@ SciSlice can tool path both STL files and pre-defined shapes.
 Executing RUN_ME.py with Python 3+ will display a GUI through which you can enter
 all of the parameters for printing.
 
+## What it Does Well
+SciSlice is best at using its predefined outlines and varying many printing parameters.
+It tool paths these part in a reasonable amount of time and, through caching, can make
+multiple parts per print with little additional computation. If you want to print five
+tensile specimens in one print, possibly all the same, possibly all different, this is
+the program for you. SciSlice does this quickly with an easy method for adjusting parameters
+and saving those parameters for later use and reference.  
+
+SciSlice is reasonably good at slicing simple STL files, especially if you want to
+treat the STL as an extrusion and just extract a single "loop" from the STL and use
+that as the outline for your part. With a little extra effort creating a separate parameters
+JSON file it will also do multiple STL files at once, each with different layer parameters.
+
+If you want to slice a whole STL, you will find SciSlice to be a little slow. It also
+has difficulty handling more complex STLs, especially with thin features. Its weakness in
+this area is mostly from using Shapely to create offsets (shells). I would be interested
+in learning of other libraries which could handle offsets in a faster and more robust
+fashon. SciSlice cannot create support structure.
+
+If you want to create your own predefined outlines please look at the doneshapes.py
+module for examples. linegroup.py contains several helper methods to make creating outlines
+relatively easy with only a little Python programming experience.
+
 ## Dependencies
 [matplotlib](http://matplotlib.org/)<br/>
 [NumPy](http://www.numpy.org/)<br/>
