@@ -244,11 +244,12 @@ def squareWithHole() ->Outline:
     outline.addLineGroup(circle)
     return outline
 
+@make_coro
 @outline    
 def circle(centerX: float, centerY: float, radius: float) ->Outline:
     startPoint = Point(centerX+radius, centerY)
     center = Point(centerX, centerY)
-    return Outline(a.Arc(startPoint, startPoint, c.CW, center))
+    return Outline(a.Arc(startPoint, startPoint, c.CW, center, numPoints=40))
 
 @make_coro     
 @outline     
