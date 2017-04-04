@@ -134,15 +134,15 @@ to adjust them. A positive value will offset the outer `outline` by that value m
 #### Random Start Location  
 `randomStartLocation` allows the layers to be started at pseudo-random locations instead
 of always the minimum X and Y locations. If `randomStartLocation` is set to 0 then each layer
-will always start at the point closest to the point (minX, minY). Any other integer value will
+will always start at the point in the toolpath closest to the point (minX, minY). Any other integer value will
 be used as the seed for the random number generation. Since this value is the seed, identical
 prints which are tool pathed at different times will still produce the same "random" starting
-locations. The starting locations are picked by drawing a circumscribing circle around the
-layer and choosing a random point on that circle to start the sort. This was done to ensure
-that the layer always starts with the outer most shell. This does mean that for non-convex
-shapes, there may be points along the external shell which may have uneven chances for being
-selected to start the layer. Some shapes may contain external points which will never be selected
-with this technique.
+locations. The point is chosen by finding the LineGroup with the left most point, the minX,
+and then choosing a random point from that LineGroup. For single region shapes with at least one
+shell this will ensure that the random point is on the outer most shell, although it could start
+at the outer most shell of a hole. For shapes without a shell this will pick a random location
+from the infill. For multi-region parts this technique will cause the tool path to only start
+somewhere on the left most region and nowhere else. Hopefully this will be fixed. 
 
 ### Layer Parameters
 Layer parameters are unique to each layer of a part. Each list of parameters is
