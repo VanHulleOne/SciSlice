@@ -38,7 +38,7 @@ relatively easy with only a little Python programming experience.
 ## Easy Getting Started Instructions  
 If you have no idea how to get started using SciSlice hopefully these instructions will help. If you kind of know what you are doing then use this as an outline to really mess it all up.  
 
-**Note:** I would really like to get SciSlice onto Anaconda so it can be installed, with all
+> **Note:** I would really like to get SciSlice onto Anaconda so it can be installed, with all
 its dependencies, simply using:  
 `conda install -c vanhulleone SciSlice`  
 However, after many attempts
