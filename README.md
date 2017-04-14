@@ -42,8 +42,8 @@ If you have no idea how to get started using SciSlice hopefully these instructio
 its dependencies, simply using:  
 `conda install -c vanhulleone SciSlice`  
 However, after many attempts
-I can't seem to figure out how to get the directory structure correct. If anyone knows how I
-would appreciate assistance. It will make installation and updating much easier for the users. thanks.
+I can't seem to figure out how to get the directory structure correct. If anyone knows how to do this I
+would appreciate assistance. It will make installation and updating much easier for the users. Thanks.
 
 ### Installation  
 You will need Python 3.5+ and all of the required dependencies to run SciSlice. Downloading and
