@@ -1,0 +1,204 @@
+MODULE MainModule
+    VAR num layerMax:= 350;
+    VAR num zHeight;
+    
+	PROC main()
+		Heat;
+		SetDO DO1_Auto_Mode, 1;
+
+		
+
+		! Part number: 1
+		! PartParams(extrusionFactor=0.98, printSpeed=30, shiftX=0.0, shiftY=0.0, shiftZ=0.0, numLayers=2, designType=0, pathWidth=0.5, brims=0, horizontalExpansion=0.0, randomStartLocation=1)
+
+		! Layer: 1
+		! LayerParams(infillAngleDegrees=-45.0, layerHeight=0.2, infillShiftX=0.0, infillShiftY=0.0, numShells=1, infillOverlap=0.0002)
+		! T11
+		! M6
+		TPWRITE "Layer 1 of 2";
+		MoveL Offs(pZero, 0.865, 0.901, 5.2), v50, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, 0.865, 0.901, 0.2), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		WaitRob \InPos;
+		SetDO DO5_Program_Feed, 1;
+		MoveL Offs(pZero, 0.71, 1.028, 0.2), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, 0.536, 1.129, 0.2), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, 0.348, 1.2, 0.2), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, 0.151, 1.24, 0.2), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, -0.05, 1.248, 0.2), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, -0.25, 1.224, 0.2), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, -0.443, 1.168, 0.2), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, -0.625, 1.082, 0.2), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, -0.79, 0.968, 0.2), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, -0.935, 0.828, 0.2), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, -1.056, 0.668, 0.2), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, -1.149, 0.49, 0.2), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, -1.213, 0.299, 0.2), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, -1.245, 0.101, 0.2), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, -1.245, -0.101, 0.2), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, -1.213, -0.299, 0.2), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, -1.149, -0.49, 0.2), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, -1.056, -0.668, 0.2), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, -0.935, -0.828, 0.2), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, -0.79, -0.968, 0.2), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, -0.625, -1.082, 0.2), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, -0.443, -1.168, 0.2), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, -0.25, -1.224, 0.2), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, -0.05, -1.248, 0.2), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, 0.151, -1.24, 0.2), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, 0.348, -1.2, 0.2), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, 0.536, -1.129, 0.2), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, 0.71, -1.028, 0.2), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, 0.865, -0.901, 0.2), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, 0.999, -0.75, 0.2), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, 1.106, -0.581, 0.2), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, 1.185, -0.396, 0.2), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, 1.233, -0.2, 0.2), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, 1.249, -0.0, 0.2), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, 1.233, 0.2, 0.2), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, 1.185, 0.396, 0.2), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, 1.106, 0.581, 0.2), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, 0.999, 0.75, 0.2), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, 0.865, 0.901, 0.2), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		WaitRob \InPos;
+		SetDO DO5_Program_Feed, 0;
+		MoveL Offs(pZero, -0.038, 0.746, 0.2), v50, z0, tNozzle, \Wobj := wobjFlatPlat;
+		WaitRob \InPos;
+		SetDO DO5_Program_Feed, 1;
+		MoveL Offs(pZero, 0.745, -0.036, 0.2), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		WaitRob \InPos;
+		SetDO DO5_Program_Feed, 0;
+		MoveL Offs(pZero, 0.529, -0.527, 0.2), v50, z0, tNozzle, \Wobj := wobjFlatPlat;
+		WaitRob \InPos;
+		SetDO DO5_Program_Feed, 1;
+		MoveL Offs(pZero, -0.527, 0.528, 0.2), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		WaitRob \InPos;
+		SetDO DO5_Program_Feed, 0;
+		MoveL Offs(pZero, -0.745, 0.039, 0.2), v50, z0, tNozzle, \Wobj := wobjFlatPlat;
+		WaitRob \InPos;
+		SetDO DO5_Program_Feed, 1;
+		MoveL Offs(pZero, 0.038, -0.744, 0.2), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		WaitRob \InPos;
+		SetDO DO6_Between_Layer_Retract, 1;
+		SetDO DO5_Program_Feed, 0;
+		MoveL Offs(pZero, 0.038, -0.744, 5.2), v50, z0, tNozzle, \Wobj := wobjFlatPlat;
+
+		! Layer: 2
+		! LayerParams(infillAngleDegrees=45.0, layerHeight=0.2, infillShiftX=0.0, infillShiftY=0.0, numShells=1, infillOverlap=0.0002)
+		! T12
+		! M6
+		TPWRITE "Layer 2 of 2";
+		MoveL Offs(pZero, 0.536, -1.129, 5.4), v50, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, 0.536, -1.129, 0.4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		WaitRob \InPos;
+		SetDO DO6_Between_Layer_Retract, 0;
+		WaitRob \InPos;
+		SetDO DO5_Program_Feed, 1;
+		MoveL Offs(pZero, 0.71, -1.028, 0.4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, 0.865, -0.901, 0.4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, 0.999, -0.75, 0.4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, 1.106, -0.581, 0.4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, 1.185, -0.396, 0.4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, 1.233, -0.2, 0.4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, 1.249, -0.0, 0.4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, 1.233, 0.2, 0.4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, 1.185, 0.396, 0.4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, 1.106, 0.581, 0.4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, 0.999, 0.75, 0.4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, 0.865, 0.901, 0.4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, 0.71, 1.028, 0.4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, 0.536, 1.129, 0.4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, 0.348, 1.2, 0.4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, 0.151, 1.24, 0.4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, -0.05, 1.248, 0.4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, -0.25, 1.224, 0.4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, -0.443, 1.168, 0.4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, -0.625, 1.082, 0.4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, -0.79, 0.968, 0.4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, -0.935, 0.828, 0.4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, -1.056, 0.668, 0.4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, -1.149, 0.49, 0.4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, -1.213, 0.299, 0.4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, -1.245, 0.101, 0.4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, -1.245, -0.101, 0.4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, -1.213, -0.299, 0.4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, -1.149, -0.49, 0.4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, -1.056, -0.668, 0.4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, -0.935, -0.828, 0.4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, -0.79, -0.968, 0.4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, -0.625, -1.082, 0.4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, -0.443, -1.168, 0.4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, -0.25, -1.224, 0.4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, -0.05, -1.248, 0.4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, 0.151, -1.24, 0.4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, 0.348, -1.2, 0.4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		MoveL Offs(pZero, 0.536, -1.129, 0.4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		WaitRob \InPos;
+		SetDO DO5_Program_Feed, 0;
+		MoveL Offs(pZero, -0.038, -0.746, 0.4), v50, z0, tNozzle, \Wobj := wobjFlatPlat;
+		WaitRob \InPos;
+		SetDO DO5_Program_Feed, 1;
+		MoveL Offs(pZero, 0.745, 0.036, 0.4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		WaitRob \InPos;
+		SetDO DO5_Program_Feed, 0;
+		MoveL Offs(pZero, 0.529, 0.527, 0.4), v50, z0, tNozzle, \Wobj := wobjFlatPlat;
+		WaitRob \InPos;
+		SetDO DO5_Program_Feed, 1;
+		MoveL Offs(pZero, -0.527, -0.528, 0.4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		WaitRob \InPos;
+		SetDO DO5_Program_Feed, 0;
+		MoveL Offs(pZero, -0.745, -0.039, 0.4), v50, z0, tNozzle, \Wobj := wobjFlatPlat;
+		WaitRob \InPos;
+		SetDO DO5_Program_Feed, 1;
+		MoveL Offs(pZero, 0.038, 0.744, 0.4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+		WaitRob \InPos;
+		SetDO DO6_Between_Layer_Retract, 1;
+		SetDO DO5_Program_Feed, 0;
+		MoveL Offs(pZero, 0.038, 0.744, 5.4), v50, z0, tNozzle, \Wobj := wobjFlatPlat;
+
+		! Extrusion amount for part is (0.3 mm)
+
+
+		! Part number: 2
+		MoveL Offs(pZero, -1.0, 0.0, 5.4), v50, z0, tNozzle, \Wobj := wobjFlatPlat;
+        MoveL Offs(pZero, -1.0, 0.0, .4), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+        WaitRob \InPos;
+        
+        SetDO DO6_Between_Layer_Retract, 0;
+        SetDO DO5_Program_Feed, 1;
+        
+        zHeight:=.4;
+    
+        
+        FOR i FROM 1 TO layerMax DO
+            TPWRITE "Layer " \Num:=i;
+            
+            MoveC Offs(pZero, 0.0, 1.0, zHeight), Offs(pZero, 1.0, 0.0, zHeight+.05), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+            MoveC Offs(pZero, 0.0, -1.0, zHeight+.1), Offs(pZero, -1.0, 0.0, zHeight+.15), v5, z0, tNozzle, \Wobj := wobjFlatPlat;
+        
+            zHeight:= zHeight + .2;
+        
+        ENDFOR
+        
+        WaitRob \InPos;
+        SetDO DO5_Program_Feed, 0;
+        SetDO DO6_Between_Layer_Retract, 1;
+        zHeight:= zHeight + 25;
+        MoveL Offs(pZero, -1.0, -1.0, zHeight), v50, z0, tNozzle, \Wobj := wobjFlatPlat;
+
+		! End Program codes
+		SetDO DO1_Auto_Mode, 0;
+		SetDO DO5_Program_Feed, 0;
+		SetDO DO3_Heat_Bed, 0;
+		SetDO DO4_Heat_Nozzle, 0;
+		SetDO DO6_Between_Layer_Retract, 0;
+	ENDPROC
+	PROC Heat()
+		SetDO DO4_Heat_Nozzle, 1;
+!        SetDO DO3_Heat_Bed, 1;
+        TPWrite "Caution: Bed and Nozzle heating";
+        WaitDI DI3_Nozzle_At_Temp, 1;
+        TPWrite "Nozzle is at temperature";
+!        WaitDI DI2_Bed_At_Temp, 1;
+        TPWrite "Bed at temp";
+	ENDPROC
+ENDMODULE
