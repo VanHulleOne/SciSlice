@@ -89,6 +89,9 @@ class LineGroup(object):
         
     def rotate(self, angle, point=Point(0,0)):
         return self.transform(mt.rotateMatrix(angle, point))
+        
+    def scale(self, x,y=None):
+        return self.transform(mt.scale(x,y))
   
     def transform(self, transMatrix):
         cls = type(self)

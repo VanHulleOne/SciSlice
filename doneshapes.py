@@ -172,17 +172,39 @@ def regularDogBone() ->Outline:
     return dogBone
 
 @make_coro        
+@outline
+def regularDogBoneFillet() ->Outline:    
+    dogBoneF = Outline(None)
+    dogBoneF.addLinesFromCoordinateList([[82.5, 0], [82.5, 4.5]])
+    arc = a.Arc(Point(82.5, 4.5), Point(77.5, 9.5), c.CCW, Point(77.5, 4.5), 6) #5mm fillet
+    dogBoneF.addLineGroup(arc)
+    dogBoneF.addLinesFromCoordinateList([[77.5, 9.5], [49.642, 9.5]])
+    arc = a.Arc(Point(49.642, 9.5), Point(28.5, 6.5), c.CW, Point(28.5, 82.5), 20)
+    dogBoneF.addLineGroup(arc)
+    dogBoneF.addLinesFromCoordinateList([[28.5, 6.5], [0, 6.5]])
+    dogBoneF.addLineGroup(dogBoneF.mirror(c.Y))
+    dogBoneF.addLineGroup(dogBoneF.mirror(c.X))
+    dogBoneF = dogBoneF.translate(82.5, 9.5)
+    dogBoneF.finishOutline()
+    dogBoneF._name = 'regularDogBoneFillet'
+    return dogBoneF
+    
+@make_coro        
 @outline    
-def typeVDogBone() ->Outline:
+def typeVDogBone(scale: float) ->Outline:
     typeV = Outline(None)
-    typeV.addLinesFromCoordinateList([[31.75, 0], [31.75, 4.77], [10.26, 4.77]])
-    arc=a.Arc(Point(10.26, 4.77), Point(4.77, 1.59), c.CW, Point(4.77, 7.94))
+    typeV.addLinesFromCoordinateList([[31.75, 0], [31.75, 3.77]])
+    arc=a.Arc(Point(31.75,3.77), Point(30.75,4.77), c.CCW, Point(30.75,3.77),5) #1mm fillet
+    typeV.addLineGroup(arc)
+    typeV.addLinesFromCoordinateList([[30.75,4.77], [13.17, 4.77]])
+    arc=a.Arc(Point(13.17, 4.77), Point(4.77, 1.59), c.CW, Point(4.77, 14.29))
     typeV.addLineGroup(arc)
     typeV.addLinesFromCoordinateList([[4.77,1.59], [0,1.59]])
     typeV.addLineGroup(typeV.mirror(c.Y))
     typeV.addLineGroup(typeV.mirror(c.X))
     typeV= typeV.translate(31.75, 4.77)
     typeV.finishOutline()
+    typeV=typeV.scale(scale)
     typeV._name= 'typeVDogBone'
     return typeV
     
@@ -388,21 +410,4 @@ class Region:
         
         
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+       

@@ -61,4 +61,11 @@ def combineTransformations(matrixList):
     for matrix in matrixList:
         transMatrix = numpy.dot(matrix, transMatrix)
     return transMatrix
-        
+    
+def scale(x,y=None):
+    if y is None:
+        y=x
+    transMatrix = numpy.identity(4)
+    transMatrix[0,0]=x
+    transMatrix[1,1]=y
+    return transMatrix
