@@ -1,9 +1,5 @@
 		! End Program codes
-		SetDO DO1_Auto_Mode, 0;
-		SetDO DO5_Program_Feed, 0;
-		SetDO DO3_Heat_Bed, 0;
-		SetDO DO4_Heat_Nozzle, 0;
-		SetDO DO6_Between_Layer_Retract, 0;
+		ALL_STOP;
 	ENDPROC
 	PROC Heat()
 		SetDO DO4_Heat_Nozzle, 1;
@@ -13,5 +9,12 @@
         TPWrite "Nozzle is at temperature";
         WaitDI DI2_Bed_At_Temp, 1;
         TPWrite "Bed at temp";
+	ENDPROC
+	PROC ALL_STOP()
+		SetDO DO1_Auto_Mode, 0;
+		SetDO DO5_Program_Feed, 0;
+		SetDO DO3_Heat_Bed, 0;
+		SetDO DO4_Heat_Nozzle, 0;
+		SetDO DO6_Between_Layer_Retract, 0;
 	ENDPROC
 ENDMODULE
