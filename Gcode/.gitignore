@@ -5,6 +5,7 @@
 *.pyc
 *.mod
 *.json
+*.txt
 
 #Keep gcode files that start with SAVE
 !SAVE*.gcode
