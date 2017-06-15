@@ -173,7 +173,7 @@ def regularDogBone() ->Outline:
 
 @make_coro        
 @outline
-def regularDogBoneFillet() ->Outline:    
+def regularDogBoneFillet(scale: float) ->Outline:    
     dogBoneF = Outline(None)
     dogBoneF.addLinesFromCoordinateList([[82.5, 0], [82.5, 4.5]])
     arc = a.Arc(Point(82.5, 4.5), Point(77.5, 9.5), c.CCW, Point(77.5, 4.5), 6) #5mm fillet
@@ -186,6 +186,7 @@ def regularDogBoneFillet() ->Outline:
     dogBoneF.addLineGroup(dogBoneF.mirror(c.X))
     dogBoneF = dogBoneF.translate(82.5, 9.5)
     dogBoneF.finishOutline()
+    dogBoneF=dogBoneF.scale(scale)
     dogBoneF._name = 'regularDogBoneFillet'
     return dogBoneF
     
