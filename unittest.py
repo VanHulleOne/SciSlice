@@ -13,14 +13,16 @@ from line import Line
 
 p1 = Point(1.0, 2.0, 3.0)
 p2 = Point(2.0, 4.0, 6.0)
+p3 = Point(6.0, 12.0, 18.0)
+p4 = Point(8.0, 12.0, 14.0)
+
 l1 = Line(p1, p2)
-p3 = Point(1.0, 2.0, 3.0)
-p4 = Point(6.0, 12.0, 18.0)
-l2 = Line(p3, p4)
+l2 = Line(p1, p3)
+l3 = Line(p1, p2)
 
 class PointTestCase (unittest.TestCase):
    
-   
+   #def test_point_valid(self):
     
     def test_point_equal(self):
         """ check if point is equal to given point (__eq__) """ 
@@ -87,10 +89,10 @@ class LineTestCase(unittest.TestCase):
     
     def test_length(self):
         """ checks length of the line (length) """
-        self.assertAlmostEqual(p2 - p1, 3.74, places = 2)
+        self.assertAlmostEqual(p2 - p1, 3.7417, places = 4)
         
     def test_fliped(self):
-        """ check if line flips direction as expected """
+        """ check if line flips direction as expected (fliped) """
         self.assertEqual(l1.fliped(), Line(p2, p1))
         
     def test_on_line(self):
@@ -98,13 +100,79 @@ class LineTestCase(unittest.TestCase):
         self.assertTrue(l1.isOnLine(p2) == True)
 
     def test_mirror_line(self):
-        """ check if line mirrored correctly about given axis """
-        self.assertTrue(l1.mirror(c.X) == Line(Point(1.0, -2.0, 3.0), Point(2.0, -4.0, 6.0)))
+        """ check if line mirrored correctly about given axis (mirror) """
+        self.assertTrue(l1.mirror(c.X) == 
+                        Line(Point(1.0, -2.0, 3.0), Point(2.0, -4.0, 6.0)))
     
     def test_lines_parallel(self):
         """ checks if the lines are parallel (areParallel) """
         self.assertTrue(l1.areParallel(l2) == True)
-
+        
+    def test_line_start(self):
+        """ checks if starting point of line is correct """
+        self.assertTrue(l1.start == p1)
+        
+    def test_line_end(self):
+        """ checks if end point of line is correct """
+        self.assertTrue(l1.end == p2)
+        
+    def test_line_angle(self):
+        """ checks if line is oriented correctly by way of angle """
+        self.assertAlmostEqual(l1.angle, 1.1071, places = 4)
+        
+    def test_line_midpoint(self):
+        """ checks if midpoint of line is correct (getMidPoint) """
+        self.assertTrue(l1.getMidPoint() == Point(1.5, 3.0, 4.5))
+        
+    def test_line_equal(self):
+        ' checks if lines with same start and end points are equal (__eq__) '
+        self.assertTrue(l1 == l3)
+        self.assertFalse(l1 != l3)
+        
+    def test_line_lesser(self):
+        """ checks if line is less than other (__lt__) """
+        self.assertTrue(l1 < l2)
+        self.assertFalse(l2 < l1)
+        
+    def test_line_calcT(self):
+        """ checks if point located at correct distance from start (calcT) """
+        self.assertTrue(l1.calcT(p2) == 1.0)
+        
+    def test_line_translate(self):
+        """ checks if line is translated correctly (translate) """
+        self.assertTrue(l1.translate(1.0, 2.0, 1.0) ==
+                        Line(Point(2.0, 4.0, 4.0), Point(3.0, 6.0, 7.0)))
+        
+#    def test_line_rotate(self):    issue with decimals
+#        """ checks if line is rotated correctly (rotate) """
+#        self.assertTrue(l1.rotate(30, p1) == Line(Point(1.0, 2.0, 3.0), 
+#                                    Point(3.1303, 1.3205, 6.0)))
+        
+    def test_line_bounding_boxes(self):
+        """ checks if bounding boxes of two lines intersect """
+        self.assertTrue(l1.doBoundingBoxesIntersect(l2) == True)
+        self.assertFalse(l1.doBoundingBoxesIntersect(l2) != True)
+        
+    def test_line_point_to_line_distance(self):
+        """ checks the distance between point and line (pointToLineDist) """
+        self.assertAlmostEqual(l1.pointToLineDist(p4), 1.7889, places = 4)
+        
+#    def test_get_offset_line(self):    issue with decimals
+#        """ checks if correct offset line returned (getOffsetLine) """
+#        self.assertTrue(l1.getOffsetLine(5) == 
+#                Line(Point(-3.4721, 4.2361, 3.0), Point(-2.4721, 6.2361, 6.0)))
+        
+    def test_get_area(self):
+        """ checks if area of triangle is correct (getArea) """
+        self.assertAlmostEqual(l1.getArea(p1, p2, p4), 1.0000, places = 4)
+        
+    def test_are_colinear(self):
+        """ checks if two lines are colinear (areColinear) """
+        self.assertTrue(l1.areColinear(l2) == True)
+        self.assertFalse(l1.areColinear(l2) != True)
+    
+    
+        
 def main():
     unittest.main()
       
