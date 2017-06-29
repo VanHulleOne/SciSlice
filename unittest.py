@@ -9,6 +9,7 @@ import unittest
 from point import Point
 import constants as c
 from line import Line
+import numpy as np
 
 
 p1 = Point(1.0, 2.0, 3.0)
@@ -19,6 +20,8 @@ p4 = Point(8.0, 12.0, 14.0)
 l1 = Line(p1, p2)
 l2 = Line(p1, p3)
 l3 = Line(p1, p2)
+l4 = Line(Point(0,0), Point(0, 8, 0))
+l5 = Line(Point(4, 0, 0), Point(0, 6, 0))
 
 class PointTestCase (unittest.TestCase):
    
@@ -67,7 +70,10 @@ class PointTestCase (unittest.TestCase):
     def test_get_item(self):
         """ check if correct coordinate is returned and slice correctly""" 
         self.assertTrue(p1[0] == 1.0)
-        self.assertTrue(p1[1:2] == [2.0])
+        
+    def test_get_point2D(self):
+        """ check if x and y coordinates of point are correct """
+        self.assertTrue(tuple(p1[0:2]) == (1.0, 2.0))
       
     def test_squaredistance(self):
         """ check squared distance between two points (squaredDistance) """
@@ -143,10 +149,10 @@ class LineTestCase(unittest.TestCase):
         self.assertTrue(l1.translate(1.0, 2.0, 1.0) ==
                         Line(Point(2.0, 4.0, 4.0), Point(3.0, 6.0, 7.0)))
         
-#    def test_line_rotate(self):    issue with decimals
-#        """ checks if line is rotated correctly (rotate) """
-#        self.assertTrue(l1.rotate(30, p1) == Line(Point(1.0, 2.0, 3.0), 
-#                                    Point(3.1303, 1.3205, 6.0)))
+    def test_line_rotate(self):    
+        """ checks if line is rotated correctly (rotate) """
+        self.assertTrue(l1.rotate(np.pi/2, Point(0,0)) == 
+                        Line(Point(-2.0, 1.0, 3.0), Point(-4.0, 2.0, 6.0)))
         
     def test_line_bounding_boxes(self):
         """ checks if bounding boxes of two lines intersect """
@@ -157,10 +163,10 @@ class LineTestCase(unittest.TestCase):
         """ checks the distance between point and line (pointToLineDist) """
         self.assertAlmostEqual(l1.pointToLineDist(p4), 1.7889, places = 4)
         
-#    def test_get_offset_line(self):    issue with decimals
-#        """ checks if correct offset line returned (getOffsetLine) """
-#        self.assertTrue(l1.getOffsetLine(5) == 
-#                Line(Point(-3.4721, 4.2361, 3.0), Point(-2.4721, 6.2361, 6.0)))
+    def test_get_offset_line(self):    
+        """ checks if correct offset line returned (getOffsetLine) """
+        self.assertTrue(l4.getOffsetLine(4) == 
+                Line(Point(-4.0, 0.0, 0.0), Point(-4.0, 8.0, 0.0)))
         
     def test_get_area(self):
         """ checks if area of triangle is correct (getArea) """
@@ -170,7 +176,24 @@ class LineTestCase(unittest.TestCase):
         """ checks if two lines are colinear (areColinear) """
         self.assertTrue(l1.areColinear(l2) == True)
         self.assertFalse(l1.areColinear(l2) != True)
-    
+        
+    def test__side_of_line(self):
+        """ unsure about precise description """
+        self.assertTrue(l1.sideOfLine(p4) == 1)
+        
+    def test_do_lines_intersect(self):
+        """ checks if lines intersect and returns nature of intersection """
+        self.assertTrue(l4.segmentsIntersect(l5) == 
+                        (1, Point(0, 6, 0)))
+        
+    def test_line_upper_left(self):
+        """ checks if upper left point of line is correct """
+        self.assertTrue(l4.upperLeft == Point(0.0, 8.0, 0.0))
+
+    def test_line_lower_right(self):
+        """ checks if lower right point of line is correct """
+        self.assertTrue(l4.lowerRight == Point(0.0, 0.0))
+        
     
         
 def main():
