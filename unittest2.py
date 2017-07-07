@@ -22,30 +22,33 @@ l2 = Line(p1, p3)
 l4 = Line(Point(0,0), Point(0, 8, 0))
 l5 = Line(Point(4, 0, 0), Point(0, 6, 0))
 
-lg1 = LineGroup()
-lg2 = LineGroup()
-lg2.append(l1)
+#lg1 = LineGroup()
+#lg2 = LineGroup()
+#lg2.append(l1)
 
 
 class LineGroupTestCase(unittest.TestCase):
     
     def test_linegroup_getitem(self):
         """ checks if correct line in linegroup is returned (__getitem__) """
-        lg1.append(l1)
-        self.assertTrue(lg2[0] == l1)
+        ltest = LineGroup()
+        ltest.append(l1)
+        self.assertTrue(ltest[0] == l1)
         
     def test_linegroup_append(self):
         """ checks if correct line is appended to linegroup (append) """
-        lg2.append(l2)
-        #print(lg1)
-        self.assertTrue(lg2[1] == l2)
+        ltest = LineGroup()
+        ltest.append(l1)
+        ltest.append(l2)
+        self.assertTrue(ltest[1] == l2)
     
     def test_linegroup_remove(self):
         """ checks if line is correctly removed from group (remove) """
-        lg2.append(l2)
-        lg2.remove(l1)
-        #print(lg2)
-        self.assertTrue(lg2[0] == l2)
+        ltest = LineGroup()
+        ltest.append(l1)
+        ltest.append(l2)
+        ltest.remove(l1)
+        self.assertTrue(ltest[0] == l2)
         
     def test_linegroup_length(self):
         """ checks if linegroup contains expected number of lines (__len__) """
@@ -60,19 +63,27 @@ class LineGroupTestCase(unittest.TestCase):
         
     def test_linegroup_pop(self):
         """ checks if correct line returned when linegroup popped (pop) """
-        lg2.append(l2)
-        self.assertTrue(lg2.pop() == l2)
+        ltest = LineGroup()
+        ltest.append(l1)
+        ltest.append(l2)
+        self.assertTrue(ltest.pop() == l2)
         
     def test_linegroup_midpoint(self):
         """ checks if correct midpoint of linegroup returned (getMidPoint) """
         #print(lg2)
-        self.assertTrue(lg2.getMidPoint() == Point(3.5, 7.0, 0.0))
+        ltest = LineGroup()
+        ltest.append(l1)
+        self.assertTrue(ltest.getMidPoint() == Point(1.5, 3.0, 0.0))
              
     def test_linegroup_add_linegroup(self):
         """ checks if linegroup is correctly added (addLineGroup) """
-        lg1.append(l2)
-        lg2.addLineGroup(lg1)
-        self.assertTrue(lg2[1] == l2)
+        ltest = LineGroup()
+        ltest.append(l1)
+        
+        ltest1 = LineGroup()
+        ltest1.append(l2)
+        ltest.addLineGroup(ltest1)
+        self.assertTrue(ltest[1] == l2)
         
     def test_linegroup_mirror(self):
         """ checks if linegroup is correctly mirrored (mirror) """
@@ -168,12 +179,16 @@ class LineGroupTestCase(unittest.TestCase):
         k = [[3,4], [-6,7]]
         ltest.addLinesFromCoordinateList(k)
         self.assertTrue(ltest[1] == Line(Point(3,4,0), Point(-6,7,0)))
-            
-    #vectors
-    #starts (numpy.ndarray issue)
-
-    
-    
+        
+    def test_linegroup_transform(self):
+        """ checks if lines within group are transfromed correctly """
+        ltest = LineGroup()
+        ltest.append(l1)
+        ltest.append(l2)
+        matr = [[0,0,0,1], [1,4,6,8], [0,6,7,9], [3,4,5,6]]
+        ltest = ltest.transform(matr)
+        self.assertTrue(ltest[0] == Line(Point(1,35,42),Point(1,62,75)))
+        self.assertTrue(ltest[1] == Line(Point(1,35,42), Point(1,170,207)))
 
 def main():
     unittest.main()
