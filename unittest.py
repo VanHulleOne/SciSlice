@@ -91,6 +91,19 @@ class PointTestCase (unittest.TestCase):
         """ check if point rotates as expected    (rotate) """
         self.assertTrue(p1.rotate(0) == Point(1.0, 2.0, 3.0))
         
+    def test_point_normal_vector(self):
+        """ checks if a normal vector is correctly returned  (normalVector) """
+        self.assertTrue(p1.normalVector[3] == 1.0)
+        
+    def test_point_point(self):
+        """ checks if sliced correctly to return first three elements (point) """
+        self.assertTrue(tuple(p1.point) == (1.0, 2.0, 3.0))
+        
+    def test_point_transform(self):
+        """ checks if the point is transformed correctly by matrix (transform) """
+        mtr = [[1,2,3,1],[4,0,3,6],[2,7,0,4],[0,0,0,1]]
+        self.assertTrue(p1.transform(mtr) == Point(15,19,20))
+        
 class LineTestCase(unittest.TestCase):
     
     def test_length(self):
