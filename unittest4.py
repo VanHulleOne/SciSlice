@@ -14,34 +14,35 @@ import constants as c
 #import numpy as np
 #import matrixTrans as mt
 from outline import Outline
+#from infill import Infill
 
-p1 = Point(0.0, 0.0, 0.0)
-p2 = Point(6.0, 0.0, 0.0)
-p3 = Point(6.0, 6.0, 0.0)
-p4 = Point(0.0, 6.0, 0.0)
+pt1 = Point(0.0, 0.0, 0.0)
+pt2 = Point(6.0, 0.0, 0.0)
+pt3 = Point(6.0, 6.0, 0.0)
+pt4 = Point(0.0, 6.0, 0.0)
 
-l1 = Line(p1, p2)
-l2 = Line(p2, p3)
-l3 = Line(p3, p4)
-l4 = Line(p4, p1)
+ln1 = Line(pt1, pt2)
+ln2 = Line(pt2, pt3)
+ln3 = Line(pt3, pt4)
+ln4 = Line(pt4, pt1)
 
-p5 = Point(2.0, 2.0, 0.0)
-p6 = Point(2.0, 4.0, 0.0)
-p7 = Point(4.0, 4.0, 0.0)
-p8 = Point(2.0, 4.0, 0.0)
+pt5 = Point(2.0, 2.0, 0.0)
+pt6 = Point(2.0, 4.0, 0.0)
+pt7 = Point(4.0, 4.0, 0.0)
+pt8 = Point(2.0, 4.0, 0.0)
 
-l5 = Line(p5, p6)
-l6 = Line(p6, p7)
-l7 = Line(p7, p8)
-l8 = Line(p8, p5)
+ln5 = Line(pt5, pt6)
+ln6 = Line(pt6, pt7)
+ln7 = Line(pt7, pt8)
+ln8 = Line(pt8, pt5)
 
-p9 = Point(8.0, 0.0, 0.0)
-p10 = Point(8.0, 6.0, 0.0)
+pt9 = Point(8.0, 0.0, 0.0)
+pt10 = Point(8.0, 6.0, 0.0)
 
-l9 = Line(p1, p9)
-l10 = Line(p9, p10)
-l11 = Line(p10, p4)
-l12 = Line(p10, p1)
+ln9 = Line(pt1, pt9)
+ln10 = Line(pt9, pt10)
+ln11 = Line(pt10, pt4)
+ln12 = Line(pt10, pt1)
 
 class OutlineTestCase(unittest.TestCase):
     
@@ -49,17 +50,17 @@ class OutlineTestCase(unittest.TestCase):
         """ checks if linegroup correctly added to outline (addLineGroup) """
         o = Outline()
         lg = LineGroup()
-        lg.append(l1)
+        lg.append(ln1)
         o.addLineGroup(lg)
-        self.assertTrue(o[0] == l1)
+        self.assertTrue(o[0] == ln1)
         
     def test_outline_is_inside(self):
         """ checks if the given point is contained within the outline """
         o = Outline()
-        o.append(l1)
-        o.append(l2)
-        o.append(l3)
-        o.append(l4)
+        o.append(ln1)
+        o.append(ln2)
+        o.append(ln3)
+        o.append(ln4)
         p_in = Point(2,2)
         p_out = Point(8,6,0)
         self.assertTrue(o.isInside(p_in) == 1)
@@ -68,10 +69,10 @@ class OutlineTestCase(unittest.TestCase):
     def test_outline_offset(self):
         """ checks if outline is offset correctly in given direction """
         o = Outline()
-        o.append(l1)
-        o.append(l2)
-        o.append(l3)
-        o.append(l4)
+        o.append(ln1)
+        o.append(ln2)
+        o.append(ln3)
+        o.append(ln4)
         o1 = o.offset(2, c.OUTSIDE)
         self.assertTrue(o1[0] == 
                         Line(Point(-2.0,0.0,0.0), Point(-2.0, 6.0, 0.0)))
@@ -79,22 +80,22 @@ class OutlineTestCase(unittest.TestCase):
     def test_outline_do_intersect(self):
         """ checks if two given outlines intersect (doOutlinesIntersect) """
         o = Outline()
-        o.append(l1)
-        o.append(l2)
-        o.append(l3)
-        o.append(l4)
+        o.append(ln1)
+        o.append(ln2)
+        o.append(ln3)
+        o.append(ln4)
         
         o1 = Outline()
-        o1.append(l5)
-        o1.append(l6)
-        o1.append(l7)
-        o1.append(l8)
+        o1.append(ln5)
+        o1.append(ln6)
+        o1.append(ln7)
+        o1.append(ln8)
         
         o2 = Outline()
-        o2.append(l9)
-        o2.append(l10)
-        o2.append(l11)
-        o2.append(l12)
+        o2.append(ln9)
+        o2.append(ln10)
+        o2.append(ln11)
+        o2.append(ln12)
         
         self.assertTrue(o.doOutlinesIntersect(o1) == False)
         self.assertTrue(o.doOutlinesIntersect(o2) == True)
@@ -102,36 +103,45 @@ class OutlineTestCase(unittest.TestCase):
     def test_outline_add_internal_shape(self):
         """ checks if given shape is added to outline (addInternalShape) """
         o = Outline()
-        o.append(l1)
-        o.append(l2)
-        o.append(l3)
-        o.append(l4)
+        o.append(ln1)
+        o.append(ln2)
+        o.append(ln3)
+        o.append(ln4)
         
         o1 = Outline()
-        o1.append(l5)
-        o1.append(l6)
-        o1.append(l7)
-        o1.append(l8)
+        o1.append(ln5)
+        o1.append(ln6)
+        o1.append(ln7)
+        o1.append(ln8)
 
         o.addInternalShape(o1)
-        self.assertTrue(o[4] == l5)
+        self.assertTrue(o[4] == ln5)
         
     def test_outline_close_shape(self):
         """ checks if the given outline is closed (closeShape) """
         o = Outline()
-        o.append(l1)
-        o.append(l2)
+        o.append(ln1)
+        o.append(ln2)
         o.closeShape()
         self.assertTrue(o[2] == Line(Point(6.0,6.0,0.0), Point(0.0,0.0,0.0)))
         
     def test_outline_finish(self):
         """ checks if the given outline is finished (finishOutline) """
         o = Outline()
-        o.append(l1)
-        o.append(l2)
-        o.append(l3)
-        o.append(l4)
+        o.append(ln1)
+        o.append(ln2)
+        o.append(ln3)
+        o.append(ln4)
         self.assertTrue(o.finishOutline() == None)
+        
+#class InfillTestCase(unittest.Testcase):
+    
+  #  i1 = Infill(o, 0, 0, design = lgr, designType = c.FULL_FIELD)
+   
+   # def test_infill_trim(self):
+            
+   # issues encountered while attempting to test infill
+    
         
                                                                                                                                         
 def main():
