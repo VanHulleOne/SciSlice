@@ -25,8 +25,6 @@ l5 = Line(Point(4, 0, 0), Point(0, 6, 0))
 
 class PointTestCase (unittest.TestCase):
    
-   #def test_point_valid(self):
-    
     def test_point_equal(self):
         """ check if point is equal to given point (__eq__) """ 
         self.assertTrue(p1 == Point(1.0, 2.0, 3.0))

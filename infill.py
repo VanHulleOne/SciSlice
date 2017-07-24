@@ -57,7 +57,7 @@ class Infill(LineGroup):
    
     
     def __init__(self, trimOutline, pathWidth, angleDegrees, shiftX=0, shiftY=0,
-                 design=None, designType=c.PARTIAL_ROW):
+                 design=None, designType=c.PARTIAL_ROW, testMode = False):
         LineGroup.__init__(self, None)
         self.shiftX = shiftX
         self.shiftY = shiftY
@@ -82,9 +82,12 @@ class Infill(LineGroup):
             self.design = LineGroup(design)
         
 #        print('\nInfill times:') 
-        for i in range(self.designType, c.TRIMMED_FIELD):
-            startTime = time.time()
-            self.operations[i]();
+        if(not testMode):
+            for i in range(self.designType, c.TRIMMED_FIELD):
+                startTime = time.time()
+                self.operations[i]();
+                
+        testMode = False
 #            print((self.operations[i].__name__ +
 #                    ''.ljust(maxLength - len(self.operations[i].__name__)) +
 #                    '%.2f sec' %(time.time()-startTime)))

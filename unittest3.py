@@ -12,11 +12,6 @@ from point import Point
 from arc import Arc
 import matrixTrans as mt
 import constants as c
-#import math
-#import numpy as np
-#from shapely.geometry.polygon import Polygon
-#from shapely.ops import cascaded_union
-#from outline import Outline
 
 class ArcTestCase(unittest.TestCase):
     
