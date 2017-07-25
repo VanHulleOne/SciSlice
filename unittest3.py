@@ -21,6 +21,16 @@ class ArcTestCase(unittest.TestCase):
         ang = a.calcIncludedAngle(Point(1,1,0), Point(4,4,0))
         self.assertAlmostEqual(ang, 4.2426, 4)
         
+    def test_arc_to_lines(self):
+        """ checks if line segments double when function called (arcToLines) """
+        a = Arc(Point(1,1,0), Point(4,4,0), c.X, Point(1,3,0))
+        len1 = len(a)
+        
+        a.arcToLines()
+        len2 = len(a)
+        
+        self.assertTrue(len2 == 2*len1)
+        
 class MatrixTestCase(unittest.TestCase):
         
     def test_matrix_mirror(self):
