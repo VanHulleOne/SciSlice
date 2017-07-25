@@ -99,22 +99,26 @@ class OutlineTestCase(unittest.TestCase):
         self.assertTrue(o.doOutlinesIntersect(o1) == False)
         self.assertTrue(o.doOutlinesIntersect(o2) == True)
         
-#    def test_outline_add_internal_shape(self):
-#        """ checks if given shape is added to outline (addInternalShape) """
-#        o = Outline()
-#        o.append(ln1)
-#        o.append(ln2)
-#        o.append(ln3)
-#        o.append(ln4)
-#        
-#        o1 = Outline()
-#        o1.append(ln5)
-#        o1.append(ln6)
-#        o1.append(ln7)
-#        o1.append(ln8)
-#
-#        o.addInternalShape(o1)
-#        self.assertTrue(o[4] == ln5)
+    def test_outline_add_internal_shape(self):
+        """ checks if given shape is added to outline (addInternalShape) """
+        o = Outline()
+        o.append(ln1)
+        o.append(ln2)
+        o.append(ln3)
+        o.append(ln4)
+        
+        o1 = Outline()
+        o1.append(ln5)
+        o1.append(ln6)
+        o1.append(ln7)
+        o1.append(ln8)
+        #print(o1)
+        
+        o.addInternalShape(o1)
+        #print(o)
+        #print(o1)
+        self.assertTrue(o[4] == ln8)
+        #adds lines in strange order
         
     def test_outline_close_shape(self):
         """ checks if the given outline is closed (closeShape) """
