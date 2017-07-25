@@ -6,6 +6,8 @@ The Point module stores the X, Y, Z of a point and performs basic Point opeartio
 All Points are immutable so that they can be hashed and to prevent deep/shallow
 copy problems.
 
+sid
+
 @author: lvanhulle
 """
 import numpy
