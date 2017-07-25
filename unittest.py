@@ -168,7 +168,7 @@ class LineTestCase(unittest.TestCase):
     def test_line_bounding_boxes(self):
         """ checks if bounding boxes of two lines intersect """
         self.assertTrue(l1.doBoundingBoxesIntersect(l2) == True)
-        self.assertFalse(l1.doBoundingBoxesIntersect(l2) != True)
+        self.assertFalse(l1.doBoundingBoxesIntersect(l2) == False)
         
     def test_line_point_to_line_distance(self):
         """ checks the distance between point and line (pointToLineDist) """

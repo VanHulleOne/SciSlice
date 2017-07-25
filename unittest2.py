@@ -90,10 +90,11 @@ class LineGroupTestCase(unittest.TestCase):
         ltest = LineGroup()
         ltest.append(l1)
         
-        ltest1 = LineGroup()
-        ltest1.append(Line(Point(1,-2,3), Point(2,-4,6)))
+        #ltest1 = LineGroup()
+        #ltest1.append(Line(Point(1,-2,3), Point(2,-4,6)))
         
-        self.assertTrue(ltest.mirror(c.X)[0] == ltest1[0])
+        self.assertTrue(ltest.mirror(c.X)[0] == 
+                        Line(Point(1,-2,3), Point(2,-4,6)))
         
     def test_linegroup_sort(self):
         """ checks if linegroup is sorted correctly (sort) """
@@ -150,6 +151,8 @@ class LineGroupTestCase(unittest.TestCase):
         ltest.append(l1)
         ltest.append(l2)
         self.assertTrue(ltest.lineOutsideBoundingBox(l4) == True)
+        self.assertTrue(ltest.lineOutsideBoundingBox(l5) == False)
+        
         
     def test_linegroup_line_add_points(self):
         """ checks if line from given points is added to linegroup """
