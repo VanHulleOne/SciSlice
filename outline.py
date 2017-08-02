@@ -60,12 +60,11 @@ class Outline(LineGroup):
     
     @finishedOutline
     def addInternalShape(self, inShape):
-        if(not inShape.outlineFinished):
-            print('********** Your internal shape was not a finished outline **********')
+        inShape.finishOutline()
         if(not self.isInside(inShape.lines[0].start)):
-            print('********** The internal shape is not inside the main outline. **********')
-        if(self.doShapesIntersect(inShape)):
-            print('********** Internal shape is not completely inside main outline. **********')
+            raise Exception('********** The internal shape is not inside the main outline. **********')
+        if(self.doOutlinesIntersect(inShape)):
+            raise Exception('********** Internal shape is not completely inside main outline. **********')
         
         for line in inShape:
             self.append(line)
